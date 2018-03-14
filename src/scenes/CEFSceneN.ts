@@ -1,0 +1,87 @@
+﻿//*********************************************************************************
+//                                                                        
+//         CARNEGIE MELLON UNIVERSITY PROPRIETARY INFORMATION             
+//  
+//  This software is supplied under the terms of a license agreement or   
+//  nondisclosure agreement with Carnegie Mellon University and may not   
+//  be copied or disclosed except in accordance with the terms of that   
+//  agreement.    
+//  
+//   Copyright(c) 2008 Carnegie Mellon University. All Rights Reserved.   
+//                                                                        
+//  File:      CWOZSceneN.as
+//                                                                        
+//  Purpose:   CWOZSceneN object implementation
+//                                                                        
+//  Author(s): Kevin Willows                                                           
+//  
+//  History: File Creation Apr 21 2008  
+//                                                                        
+//  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+//  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+//  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+//  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+//  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+//  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+//  THE SOFTWARE.
+//
+//*********************************************************************************
+
+
+package cmu.woz.scenes
+{
+	import cmu.woz.*;
+	import cmu.woz.controls.*;
+	import cmu.woz.events.*;	
+	
+	import flash.display.*;
+	import flash.events.*;
+	import flash.display.StageAlign;
+	import flash.display.StageScaleMode;
+	import flash.text.*;
+
+	public class CWOZSceneN extends CWOZSceneSequence
+	{
+		//************ Stage Symbols
+		
+		public var SreplaySession:CWOZButton;
+		
+		// non-interactive elements
+		
+		public var SbackGround:MovieClip;		
+
+		//************ Stage Symbols
+		
+		public function CWOZSceneN():void
+		{
+			trace("CWOZSceneN:Constructor");
+			
+			SreplaySession.addEventListener(CWOZMouseEvent.WOZCLICK, doReplay);
+		}
+
+		public function doReplay(evt:CWOZEvent) : void
+		{			
+			// relay the entire tutor interaction
+			//
+			gTutor.replayLiveStream();			
+		}										
+		
+		
+		// Walk the WOZ Objects to capture their default state
+		//
+		override public function captureDefState(TutScene:Object ) : void 
+		{
+			super.captureDefState(TutScene );
+		}
+		
+		
+		// Walk the WOZ Objects to restore their default state
+		//
+		override public function restoreDefState(TutScene:Object ) : void 
+		{
+			super.restoreDefState(TutScene );
+		}
+					
+	}
+
+}

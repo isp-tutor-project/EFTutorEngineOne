@@ -1,0 +1,230 @@
+//*********************************************************************************
+//                                                                        
+//         CARNEGIE MELLON UNIVERSITY PROPRIETARY INFORMATION             
+//  
+//  This software is supplied under the terms of a license agreement or   
+//  nondisclosure agreement with Carnegie Mellon University and may not   
+//  be copied or disclosed except in accordance with the terms of that   
+//  agreement.    
+//  
+//  Copyright(c) 2013 Carnegie Mellon University. All Rights Reserved.   
+//                                                                        
+//  Author(s): Kevin Willows                                                           
+//  
+//  History: File Creation 08/20/2013 
+//                                                                        
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+// THE SOFTWARE.
+//
+//*********************************************************************************
+
+
+//** imports
+
+import { CGraphNode } from "./CGraphNode";
+import { CSceneGraph } from "./CSceneGraph";
+import { CGraphModule } from "./CGraphModule";
+import { CGraphScene } from "./CGraphScene";
+
+import { CUtil } 			from "../util/CUtil";
+
+
+export class CGraphModuleGroup extends CGraphNode
+{
+	private _modules:Array 		 = new Array;	
+	private _ndx:number   		 = -1;		
+	private _moduleShown:boolean = false;		
+	private _shownCount:number      = 0;		
+
+	private instanceNode:string;
+	private type:string;
+	private start:string;
+	private show:string;
+	private reuse:boolean;
+	private onempty:string;
+
+	private static SEQUENTIAL:string = "seqtype";
+	private static STOCHASTIC:string = "randtype";
+	
+	constructor()
+	{
+		super();
+	}
+	
+	public static factory(parent:CSceneGraph, id:string, groupFactory:Object, factory:Object) : CGraphModuleGroup
+	{
+		let groupFactoryData:Object = factory.CModuleGroups[groupFactory.name];
+		
+		let node:CGraphModuleGroup = new CGraphModuleGroup;			
+		
+		// polymorphically Initialize the base type - add the edges
+		
+		if(groupFactory.edges)
+			node.nodeFactory(parent, id, groupFactory);
+		
+		node.instanceNode = groupFactoryData.instanceNode; 
+		node.type		  =	groupFactoryData.type;		  
+		node.start		  =	groupFactoryData.start;		  	
+		node.show		  =	groupFactoryData.show;		  	
+		node.reuse		  =	groupFactoryData.reuse;		  	
+		node.onempty	  =	groupFactoryData.onempty;	  		
+					
+		// add module name to the modules list
+		
+		let moduleList:Object = groupFactoryData.modules;			
+		
+		for (let moduleDescr:Object of moduleList)
+		{
+			// either use a module from a specific node instance 
+			
+			if(moduleDescr.instanceNode != "")
+			{
+				node._modules.push(parent.findNodeByName(moduleDescr.instanceNode));
+			}
+			
+			// or create a new module instance by name - note that when creating the submodules 
+			// they have no edges for their nodes since they are embedded in the group
+			else
+			{				
+				node._modules.push(CGraphModule.factory(parent, "", moduleDescr, factory));
+			}
+		}
+		
+		return node;
+	}
+	
+	public captureGraph(obj:Object) : Object
+	{
+		obj['index']        = this._ndx.toString();			
+		obj['_moduleShown'] = this._moduleShown.toString(); 
+		obj['_shownCount']  = this._shownCount.toString();			
+		
+		obj['moduleNode']   =  this._modules[this._ndx].captureGraph(new Object);		
+		
+		return obj;
+	}
+	
+	public restoreGraph(obj:Object) : *
+	{
+		this._ndx         = Number(obj['index']);			
+		this._moduleShown = (obj['_moduleShown'] == 'true')? true:false; 
+		this._shownCount  = Number(obj['_shownCount']);			
+		
+		return this._modules[this._ndx].restoreGraph(obj['moduleNode']);						
+	}
+	
+	
+	public initialize() : void
+	{
+		switch(this.type)
+		{
+			case CGraphModuleGroup.SEQUENTIAL:
+				switch(this.start)
+				{
+					case CGraphModuleGroup.STOCHASTIC:
+						break;
+					
+					default:
+						this._ndx = Number(this.start);
+						break;	
+				}
+				break;
+		}
+	}
+	
+	public nextScene() : CGraphScene
+	{
+		let nextScene:CGraphScene = null;
+
+		// First pass must initialize the modulegroup object
+		
+		if(this._ndx == -1)
+			this.initialize();
+
+		//@@ TODO: this will loop infinitely if there is no matching scene found anywhere in the group
+		
+		// If new scene has features, check that it is being used in the current tutor feature set
+		// Note: You must ensure that there is a match for the last scene in the sequence   			
+		
+		do
+		{
+			nextScene = this._modules[this._ndx].nextScene();
+			
+			if(nextScene == null)
+			{
+				//@@ TODO add support for different node types
+				//   At the moment we just loop on the nodes indefinitely
+				
+				// move to next scene - roll over at the end
+				this._ndx++;
+				
+				this._ndx = this._ndx % this._modules.length;
+				
+				if(this.show != "all")
+				{		
+					// If any scene from the module was shown then inc the count						
+					if(this._moduleShown)						
+						this._shownCount++;
+					
+					// If weve reached the limit on the number of modules to show this round then break
+					// We'll pick up showing the next module on the next itereation.
+					
+					if(this._shownCount == Number(this.show))
+					{
+						this._moduleShown = false;
+						this._shownCount  = 0;		// reset show counter
+						break;
+					}
+				}
+			}
+			else break;
+			
+		}while(this._ndx < this._modules.length)
+		
+		if(nextScene != null)
+			this._moduleShown = true;
+			
+		return nextScene;			
+	}
+	
+	public applyNode() : boolean
+	{
+		dispatchEvent(new Event("todo"));  //return _scenes[this._ndx];
+		
+		return false;			
+	}		
+	
+	public seekToScene(seekScene:CGraphScene) : CGraphScene
+	{
+		let module:CGraphModule;
+		let scene:CGraphScene = null;
+		let ndx:number = 0;
+		
+		// Move to the correct scene within the module
+		
+		for (let module of this._modules)
+		{
+			if(seekScene == module.seekToScene(seekScene))
+			{
+				this._ndx = ndx;
+				break;
+			}			
+			ndx++;
+		}		
+		
+		return scene;
+	}
+
+	public resetNode() : void
+	{		
+		this._ndx         = -1;			
+		this._shownCount  = 0;
+		this._moduleShown = false;
+	}
+	
+}
