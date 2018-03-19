@@ -1,0 +1,2745 @@
+{
+    "extension": "linecount",
+    "version": "0.1.7",
+    "workspace": "e:\\Projects\\EdForge\\ISP_Tutor\\EFTutorEngineOne",
+    "linecount": [
+        {
+            "version": "0.1.7",
+            "counttime": "2018-03-18 18:00:17",
+            "filesum": 454,
+            "codesum": 46813,
+            "commentsum": 24252,
+            "blanksum": 14082,
+            "filelist": [
+                {
+                    "blank": 0,
+                    "code": 1,
+                    "comment": 3,
+                    "filename": ".gitignore"
+                },
+                {
+                    "blank": 0,
+                    "code": 1,
+                    "comment": 4,
+                    "filename": "dep\\require.js"
+                },
+                {
+                    "blank": 268,
+                    "code": 1289,
+                    "comment": 567,
+                    "filename": "dep\\require_min.js"
+                },
+                {
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\._.DS_Store",
+                    "isbinaryfile": true,
+                    "blank": 0,
+                    "code": 0,
+                    "comment": 0
+                },
+                {
+                    "blank": 133,
+                    "code": 322,
+                    "comment": 78,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\spelling\\CCustomContextMenu.as"
+                },
+                {
+                    "blank": 20,
+                    "code": 118,
+                    "comment": 18,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\spelling\\CHunspellDictionary.as"
+                },
+                {
+                    "blank": 24,
+                    "code": 253,
+                    "comment": 13,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\spelling\\CSpellingContextMenu.as"
+                },
+                {
+                    "blank": 100,
+                    "code": 433,
+                    "comment": 10,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\spelling\\CSpellManager.as"
+                },
+                {
+                    "blank": 17,
+                    "code": 29,
+                    "comment": 8,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\spelling\\CSpellManagerProxy.as"
+                },
+                {
+                    "blank": 12,
+                    "code": 62,
+                    "comment": 7,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\spelling\\framework\\ResourceTable.as"
+                },
+                {
+                    "blank": 9,
+                    "code": 50,
+                    "comment": 7,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\spelling\\framework\\SpellingConfiguration.as"
+                },
+                {
+                    "blank": 16,
+                    "code": 122,
+                    "comment": 10,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\spelling\\framework\\SpellingService.as"
+                },
+                {
+                    "blank": 6,
+                    "code": 11,
+                    "comment": 1,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\spelling\\ISpellManagerProxy.as"
+                },
+                {
+                    "blank": 8,
+                    "code": 57,
+                    "comment": 6,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\spelling\\ui\\FlaHighlighter.as"
+                },
+                {
+                    "blank": 6,
+                    "code": 86,
+                    "comment": 4,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\spelling\\ui\\FlaWordProcessor.as"
+                },
+                {
+                    "blank": 7,
+                    "code": 13,
+                    "comment": 0,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\spelling\\ui\\IHighlighter.as"
+                },
+                {
+                    "blank": 5,
+                    "code": 10,
+                    "comment": 0,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\spelling\\ui\\IWordProcessor.as"
+                },
+                {
+                    "blank": 17,
+                    "code": 207,
+                    "comment": 10,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\spelling\\ui\\SpellingHighlighter.as"
+                },
+                {
+                    "blank": 7,
+                    "code": 11,
+                    "comment": 0,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\spelling\\utils\\ITokenizer.as"
+                },
+                {
+                    "blank": 31,
+                    "code": 317,
+                    "comment": 18,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\spelling\\utils\\TextTokenizer.as"
+                },
+                {
+                    "blank": 7,
+                    "code": 32,
+                    "comment": 5,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\spelling\\utils\\Token.as"
+                },
+                {
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\woz\\._.DS_Store",
+                    "isbinaryfile": true,
+                    "blank": 0,
+                    "code": 0,
+                    "comment": 0
+                },
+                {
+                    "blank": 30,
+                    "code": 45,
+                    "comment": 31,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\woz\\animationgraph\\CAnimationAction.as"
+                },
+                {
+                    "blank": 24,
+                    "code": 37,
+                    "comment": 23,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\woz\\animationgraph\\CAnimationChoice.as"
+                },
+                {
+                    "blank": 52,
+                    "code": 76,
+                    "comment": 46,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\woz\\animationgraph\\CAnimationChoiceSet.as"
+                },
+                {
+                    "blank": 21,
+                    "code": 39,
+                    "comment": 25,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\woz\\animationgraph\\CAnimationConstraint.as"
+                },
+                {
+                    "blank": 13,
+                    "code": 32,
+                    "comment": 24,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\woz\\animationgraph\\CAnimationEdge.as"
+                },
+                {
+                    "blank": 86,
+                    "code": 166,
+                    "comment": 50,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\woz\\animationgraph\\CAnimationGraph.as"
+                },
+                {
+                    "blank": 54,
+                    "code": 114,
+                    "comment": 48,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\woz\\animationgraph\\CAnimationModule.as"
+                },
+                {
+                    "blank": 30,
+                    "code": 80,
+                    "comment": 28,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\woz\\animationgraph\\CAnimationNode.as"
+                },
+                {
+                    "blank": 39,
+                    "code": 65,
+                    "comment": 29,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\woz\\animationgraph\\CAnimationTrack.as"
+                },
+                {
+                    "blank": 29,
+                    "code": 47,
+                    "comment": 37,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\woz\\bkt\\CBKTSkill.as"
+                },
+                {
+                    "blank": 0,
+                    "code": 1,
+                    "comment": 1,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\woz\\controls\\CWOZBubble.as"
+                },
+                {
+                    "blank": 46,
+                    "code": 98,
+                    "comment": 51,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\woz\\controls\\CWOZCircleControl.as"
+                },
+                {
+                    "blank": 19,
+                    "code": 41,
+                    "comment": 30,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\woz\\controls\\CWOZHighlightObj.as"
+                },
+                {
+                    "blank": 21,
+                    "code": 42,
+                    "comment": 33,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\woz\\controls\\CWOZIconControl.as"
+                },
+                {
+                    "blank": 12,
+                    "code": 23,
+                    "comment": 29,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\woz\\controls\\CWOZLabelButton.as"
+                },
+                {
+                    "blank": 12,
+                    "code": 23,
+                    "comment": 33,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\woz\\controls\\CWOZLabelControl.as"
+                },
+                {
+                    "blank": 31,
+                    "code": 42,
+                    "comment": 97,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\woz\\controls\\CWOZNavButton.as"
+                },
+                {
+                    "blank": 33,
+                    "code": 88,
+                    "comment": 35,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\woz\\controls\\CWOZPBConsole.as"
+                },
+                {
+                    "blank": 8,
+                    "code": 11,
+                    "comment": 33,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\woz\\controls\\CWOZPBSliderControl.as"
+                },
+                {
+                    "blank": 10,
+                    "code": 14,
+                    "comment": 33,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\woz\\controls\\CWOZPBSliderScrubber.as"
+                },
+                {
+                    "blank": 14,
+                    "code": 42,
+                    "comment": 37,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\woz\\controls\\CWOZSameDiff.as"
+                },
+                {
+                    "blank": 9,
+                    "code": 19,
+                    "comment": 32,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\woz\\controls\\CWOZSceneRegion.as"
+                },
+                {
+                    "blank": 20,
+                    "code": 42,
+                    "comment": 36,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\woz\\controls\\CWOZSkillBar.as"
+                },
+                {
+                    "blank": 23,
+                    "code": 59,
+                    "comment": 33,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\woz\\controls\\CWOZSkilloMeter.as"
+                },
+                {
+                    "blank": 7,
+                    "code": 16,
+                    "comment": 28,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\woz\\controls\\CWOZSquare.as"
+                },
+                {
+                    "blank": 27,
+                    "code": 77,
+                    "comment": 46,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\woz\\controls\\CWOZStackControl.as"
+                },
+                {
+                    "blank": 89,
+                    "code": 155,
+                    "comment": 38,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\woz\\controls\\CWOZTickTock.as"
+                },
+                {
+                    "blank": 10,
+                    "code": 15,
+                    "comment": 33,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\woz\\controls\\CWOZWrongRight.as"
+                },
+                {
+                    "blank": 6,
+                    "code": 11,
+                    "comment": 36,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\woz\\CWOZActionTrack.as"
+                },
+                {
+                    "blank": 36,
+                    "code": 74,
+                    "comment": 63,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\woz\\CWOZAnimator.as"
+                },
+                {
+                    "blank": 86,
+                    "code": 225,
+                    "comment": 66,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\woz\\CWOZButton.as"
+                },
+                {
+                    "blank": 126,
+                    "code": 342,
+                    "comment": 137,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\woz\\CWOZButtonGroup.as"
+                },
+                {
+                    "blank": 27,
+                    "code": 54,
+                    "comment": 45,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\woz\\CWOZCheckBox.as"
+                },
+                {
+                    "blank": 89,
+                    "code": 205,
+                    "comment": 74,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\woz\\CWOZCheckBoxOverlay.as"
+                },
+                {
+                    "blank": 0,
+                    "code": 1,
+                    "comment": 1,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\woz\\CWOZCheckButton.as"
+                },
+                {
+                    "blank": 211,
+                    "code": 555,
+                    "comment": 110,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\woz\\CWOZComboBox.as"
+                },
+                {
+                    "blank": 95,
+                    "code": 219,
+                    "comment": 96,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\woz\\CWOZComboBoxGroup.as"
+                },
+                {
+                    "blank": 64,
+                    "code": 155,
+                    "comment": 43,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\woz\\CWOZComboBoxOverlay.as"
+                },
+                {
+                    "blank": 207,
+                    "code": 495,
+                    "comment": 144,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\woz\\CWOZCursorProxy.as"
+                },
+                {
+                    "blank": 45,
+                    "code": 107,
+                    "comment": 67,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\woz\\CWOZDialogBox.as"
+                },
+                {
+                    "blank": 47,
+                    "code": 103,
+                    "comment": 84,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\woz\\CWOZDoc.as"
+                },
+                {
+                    "blank": 15,
+                    "code": 21,
+                    "comment": 43,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\woz\\CWOZEISceneSequence.as"
+                },
+                {
+                    "blank": 18,
+                    "code": 31,
+                    "comment": 35,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\woz\\CWOZFeatureNode.as"
+                },
+                {
+                    "blank": 37,
+                    "code": 59,
+                    "comment": 45,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\woz\\CWOZFeedBack.as"
+                },
+                {
+                    "blank": 16,
+                    "code": 46,
+                    "comment": 60,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\woz\\CWOZFLVProxy.as"
+                },
+                {
+                    "blank": 16,
+                    "code": 39,
+                    "comment": 41,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\woz\\CWOZGarbageTruck.as"
+                },
+                {
+                    "blank": 6,
+                    "code": 10,
+                    "comment": 31,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\woz\\CWOZGroup.as"
+                },
+                {
+                    "blank": 16,
+                    "code": 24,
+                    "comment": 36,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\woz\\CWOZHintIcon.as"
+                },
+                {
+                    "blank": 27,
+                    "code": 60,
+                    "comment": 37,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\woz\\CWOZHintText.as"
+                },
+                {
+                    "blank": 29,
+                    "code": 50,
+                    "comment": 40,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\woz\\CWOZHoverMask.as"
+                },
+                {
+                    "blank": 9,
+                    "code": 17,
+                    "comment": 37,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\woz\\CWOZMaskButton.as"
+                },
+                {
+                    "blank": 22,
+                    "code": 47,
+                    "comment": 45,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\woz\\CWOZMouseMask.as"
+                },
+                {
+                    "blank": 167,
+                    "code": 344,
+                    "comment": 237,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\woz\\CWOZNavigator.as"
+                },
+                {
+                    "blank": 403,
+                    "code": 986,
+                    "comment": 341,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\woz\\CWOZObject.as"
+                },
+                {
+                    "blank": 11,
+                    "code": 29,
+                    "comment": 41,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\woz\\CWOZObjectDyno.as"
+                },
+                {
+                    "blank": 1,
+                    "code": 10,
+                    "comment": 28,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\woz\\CWOZObjectMask.as"
+                },
+                {
+                    "blank": 26,
+                    "code": 70,
+                    "comment": 36,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\woz\\CWOZPromptButton.as"
+                },
+                {
+                    "blank": 49,
+                    "code": 114,
+                    "comment": 49,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\woz\\CWOZPromptDlg.as"
+                },
+                {
+                    "blank": 0,
+                    "code": 1,
+                    "comment": 1,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\woz\\CWOZRadioButton.as"
+                },
+                {
+                    "blank": 64,
+                    "code": 122,
+                    "comment": 57,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\woz\\CWOZRect.as"
+                },
+                {
+                    "blank": 182,
+                    "code": 427,
+                    "comment": 178,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\woz\\CWOZRoot.as"
+                },
+                {
+                    "blank": 122,
+                    "code": 231,
+                    "comment": 145,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\woz\\CWOZScene.as"
+                },
+                {
+                    "blank": 45,
+                    "code": 121,
+                    "comment": 69,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\woz\\CWOZSceneNavigator.as"
+                },
+                {
+                    "blank": 196,
+                    "code": 372,
+                    "comment": 208,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\woz\\CWOZSceneSequence.as"
+                },
+                {
+                    "blank": 17,
+                    "code": 35,
+                    "comment": 43,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\woz\\CWOZState.as"
+                },
+                {
+                    "blank": 13,
+                    "code": 29,
+                    "comment": 42,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\woz\\CWOZStateEngine.as"
+                },
+                {
+                    "blank": 15,
+                    "code": 31,
+                    "comment": 42,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\woz\\CWOZStateGraph.as"
+                },
+                {
+                    "blank": 9,
+                    "code": 38,
+                    "comment": 32,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\woz\\CWOZTextColorTag.as"
+                },
+                {
+                    "blank": 13,
+                    "code": 36,
+                    "comment": 40,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\woz\\CWOZTextColorVector.as"
+                },
+                {
+                    "blank": 0,
+                    "code": 1,
+                    "comment": 1,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\woz\\CWOZTextControl.as"
+                },
+                {
+                    "blank": 133,
+                    "code": 271,
+                    "comment": 99,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\woz\\CWOZTextField.as"
+                },
+                {
+                    "blank": 23,
+                    "code": 73,
+                    "comment": 32,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\woz\\CWOZTextFontTag.as"
+                },
+                {
+                    "blank": 4,
+                    "code": 10,
+                    "comment": 31,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\woz\\CWOZTextFontType.as"
+                },
+                {
+                    "blank": 15,
+                    "code": 44,
+                    "comment": 40,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\woz\\CWOZTextFontVector.as"
+                },
+                {
+                    "blank": 53,
+                    "code": 127,
+                    "comment": 44,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\woz\\CWOZTextFormat.as"
+                },
+                {
+                    "blank": 8,
+                    "code": 19,
+                    "comment": 33,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\woz\\CWOZTextObject.as"
+                },
+                {
+                    "blank": 58,
+                    "code": 125,
+                    "comment": 45,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\woz\\CWOZTextOverlay.as"
+                },
+                {
+                    "blank": 7,
+                    "code": 40,
+                    "comment": 31,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\woz\\CWOZTextProperty.as"
+                },
+                {
+                    "blank": 24,
+                    "code": 90,
+                    "comment": 32,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\woz\\CWOZTextPropTag.as"
+                },
+                {
+                    "blank": 5,
+                    "code": 13,
+                    "comment": 31,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\woz\\CWOZTextPropType.as"
+                },
+                {
+                    "blank": 13,
+                    "code": 36,
+                    "comment": 40,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\woz\\CWOZTextPropVector.as"
+                },
+                {
+                    "blank": 43,
+                    "code": 121,
+                    "comment": 78,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\woz\\CWOZTimerProxy.as"
+                },
+                {
+                    "blank": 26,
+                    "code": 46,
+                    "comment": 36,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\woz\\CWOZTimeStamp.as"
+                },
+                {
+                    "blank": 0,
+                    "code": 1,
+                    "comment": 1,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\woz\\CWOZTitleBar.as"
+                },
+                {
+                    "blank": 109,
+                    "code": 269,
+                    "comment": 210,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\woz\\CWOZTransitions.as"
+                },
+                {
+                    "blank": 54,
+                    "code": 98,
+                    "comment": 70,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\woz\\CWOZTutor.as"
+                },
+                {
+                    "blank": 87,
+                    "code": 161,
+                    "comment": 98,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\woz\\CWOZTutorDoc.as"
+                },
+                {
+                    "blank": 332,
+                    "code": 651,
+                    "comment": 370,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\woz\\CWOZTutorRoot.as"
+                },
+                {
+                    "blank": 49,
+                    "code": 80,
+                    "comment": 47,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\woz\\CWOZUserFeedBack.as"
+                },
+                {
+                    "blank": 71,
+                    "code": 158,
+                    "comment": 82,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\woz\\CWOZxmlTextField.as"
+                },
+                {
+                    "blank": 20,
+                    "code": 40,
+                    "comment": 49,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\woz\\dialogs\\CDialogDesignPrompt1.as"
+                },
+                {
+                    "blank": 47,
+                    "code": 111,
+                    "comment": 85,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\woz\\dialogs\\CDialogInitServer.as"
+                },
+                {
+                    "blank": 0,
+                    "code": 1,
+                    "comment": 1,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\woz\\dialogs\\CDialogProgress.as"
+                },
+                {
+                    "blank": 0,
+                    "code": 1,
+                    "comment": 1,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\woz\\dialogs\\CDialogRegistration.as"
+                },
+                {
+                    "blank": 25,
+                    "code": 87,
+                    "comment": 19,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\woz\\e4x\\parser.as"
+                },
+                {
+                    "blank": 8,
+                    "code": 41,
+                    "comment": 32,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\woz\\e4x\\stringUtil.as"
+                },
+                {
+                    "blank": 0,
+                    "code": 1,
+                    "comment": 1,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\woz\\events\\CSpellEvent.as"
+                },
+                {
+                    "blank": 9,
+                    "code": 37,
+                    "comment": 32,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\woz\\events\\CWOZActionEvent.as"
+                },
+                {
+                    "blank": 10,
+                    "code": 23,
+                    "comment": 34,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\woz\\events\\CWOZAutomationEvent.as"
+                },
+                {
+                    "blank": 10,
+                    "code": 23,
+                    "comment": 34,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\woz\\events\\CWOZButtonEvent.as"
+                },
+                {
+                    "blank": 0,
+                    "code": 1,
+                    "comment": 1,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\woz\\events\\CWOZCaptionEvent.as"
+                },
+                {
+                    "blank": 10,
+                    "code": 23,
+                    "comment": 34,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\woz\\events\\CWOZCommandEvent.as"
+                },
+                {
+                    "blank": 10,
+                    "code": 25,
+                    "comment": 34,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\woz\\events\\CWOZDialogEvent.as"
+                },
+                {
+                    "blank": 0,
+                    "code": 1,
+                    "comment": 1,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\woz\\events\\CWOZEvent.as"
+                },
+                {
+                    "blank": 0,
+                    "code": 1,
+                    "comment": 1,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\woz\\events\\CWOZMouseEvent.as"
+                },
+                {
+                    "blank": 0,
+                    "code": 1,
+                    "comment": 1,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\woz\\events\\CWOZNavEvent.as"
+                },
+                {
+                    "blank": 27,
+                    "code": 49,
+                    "comment": 198,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\woz\\events\\CWOZPropertyChangeEvent.as"
+                },
+                {
+                    "blank": 6,
+                    "code": 9,
+                    "comment": 42,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\woz\\events\\CWOZPropertyChangeEventKind.as"
+                },
+                {
+                    "blank": 0,
+                    "code": 1,
+                    "comment": 1,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\woz\\events\\CWOZSceneCueEvent.as"
+                },
+                {
+                    "blank": 9,
+                    "code": 22,
+                    "comment": 32,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\woz\\events\\CWOZScriptEvent.as"
+                },
+                {
+                    "blank": 0,
+                    "code": 1,
+                    "comment": 1,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\woz\\events\\CWOZSeekEvent.as"
+                },
+                {
+                    "blank": 0,
+                    "code": 1,
+                    "comment": 1,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\woz\\events\\CWOZSelectEvent.as"
+                },
+                {
+                    "blank": 0,
+                    "code": 1,
+                    "comment": 1,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\woz\\events\\CWOZTextEvent.as"
+                },
+                {
+                    "blank": 26,
+                    "code": 63,
+                    "comment": 49,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\woz\\kt\\CWOZBNode.as"
+                },
+                {
+                    "blank": 26,
+                    "code": 64,
+                    "comment": 51,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\woz\\kt\\CWOZKTNode.as"
+                },
+                {
+                    "blank": 30,
+                    "code": 343,
+                    "comment": 127,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\woz\\kt\\CWOZProdSys.as"
+                },
+                {
+                    "blank": 153,
+                    "code": 269,
+                    "comment": 110,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\woz\\mongo\\CMongo.as"
+                },
+                {
+                    "blank": 22,
+                    "code": 41,
+                    "comment": 31,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\woz\\mongo\\CObject.as"
+                },
+                {
+                    "blank": 2,
+                    "code": 10,
+                    "comment": 30,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\woz\\mongo\\MObject.as"
+                },
+                {
+                    "blank": 5,
+                    "code": 15,
+                    "comment": 29,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\woz\\navigation\\CWOZNavBack.as"
+                },
+                {
+                    "blank": 4,
+                    "code": 15,
+                    "comment": 29,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\woz\\navigation\\CWOZNavNext.as"
+                },
+                {
+                    "blank": 24,
+                    "code": 64,
+                    "comment": 40,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\woz\\navigation\\CWOZNavPanel.as"
+                },
+                {
+                    "blank": 147,
+                    "code": 265,
+                    "comment": 155,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\woz\\network\\CAdminSocketManager.as"
+                },
+                {
+                    "blank": 51,
+                    "code": 111,
+                    "comment": 51,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\woz\\network\\CDDnsLoader.as"
+                },
+                {
+                    "blank": 30,
+                    "code": 86,
+                    "comment": 29,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\woz\\network\\CFXFileLoader.as"
+                },
+                {
+                    "blank": 26,
+                    "code": 77,
+                    "comment": 33,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\woz\\network\\CFXSwfLoader.as"
+                },
+                {
+                    "blank": 654,
+                    "code": 1134,
+                    "comment": 644,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\woz\\network\\CLogManager.as"
+                },
+                {
+                    "blank": 5,
+                    "code": 16,
+                    "comment": 32,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\woz\\network\\CLogManagerType.as"
+                },
+                {
+                    "blank": 153,
+                    "code": 328,
+                    "comment": 211,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\woz\\network\\CLogQueue.as"
+                },
+                {
+                    "blank": 30,
+                    "code": 47,
+                    "comment": 39,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\woz\\network\\CLogSocket.as"
+                },
+                {
+                    "blank": 224,
+                    "code": 580,
+                    "comment": 262,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\woz\\network\\CWOZLogClient.as"
+                },
+                {
+                    "blank": 0,
+                    "code": 1,
+                    "comment": 1,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\woz\\network\\CXMLSocket.as"
+                },
+                {
+                    "blank": 128,
+                    "code": 73,
+                    "comment": 187,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\woz\\network\\ILogManager.as"
+                },
+                {
+                    "blank": 9,
+                    "code": 21,
+                    "comment": 3,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\woz\\prepost\\com\\CWOZAssessIcon.as"
+                },
+                {
+                    "blank": 9,
+                    "code": 22,
+                    "comment": 3,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\woz\\prepost\\com\\CWOZAssessment.as"
+                },
+                {
+                    "blank": 123,
+                    "code": 279,
+                    "comment": 66,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\woz\\prepost\\com\\CWOZController.as"
+                },
+                {
+                    "blank": 0,
+                    "code": 1,
+                    "comment": 1,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\woz\\prepost\\com\\CWOZImgTool.as"
+                },
+                {
+                    "blank": 0,
+                    "code": 2,
+                    "comment": 2,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\woz\\prepost\\com\\CWOZImgTool322.as"
+                },
+                {
+                    "blank": 11,
+                    "code": 15,
+                    "comment": 32,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\woz\\prepost\\com\\CWOZLabeledTab.as"
+                },
+                {
+                    "blank": 4,
+                    "code": 17,
+                    "comment": 28,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\woz\\prepost\\com\\CWOZNavCollection.as"
+                },
+                {
+                    "blank": 0,
+                    "code": 1,
+                    "comment": 1,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\woz\\prepost\\com\\CWOZNextPrompt.as"
+                },
+                {
+                    "blank": 0,
+                    "code": 2,
+                    "comment": 1,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\woz\\prepost\\com\\CWOZPanelDark.as"
+                },
+                {
+                    "blank": 0,
+                    "code": 2,
+                    "comment": 1,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\woz\\prepost\\com\\CWOZPanelLight.as"
+                },
+                {
+                    "blank": 19,
+                    "code": 43,
+                    "comment": 34,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\woz\\prepost\\com\\CWOZPrompt.as"
+                },
+                {
+                    "blank": 0,
+                    "code": 2,
+                    "comment": 2,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\woz\\prepost\\com\\CWOZSelector.as"
+                },
+                {
+                    "blank": 0,
+                    "code": 2,
+                    "comment": 2,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\woz\\prepost\\com\\CWOZSelectorButton.as"
+                },
+                {
+                    "blank": 0,
+                    "code": 2,
+                    "comment": 2,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\woz\\prepost\\com\\CWOZSelectorIcons.as"
+                },
+                {
+                    "blank": 0,
+                    "code": 1,
+                    "comment": 1,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\woz\\prepost\\com\\CWOZSelectorItemButton.as"
+                },
+                {
+                    "blank": 0,
+                    "code": 2,
+                    "comment": 2,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\woz\\prepost\\com\\CWOZTabTool.as"
+                },
+                {
+                    "blank": 7,
+                    "code": 17,
+                    "comment": 28,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\woz\\prepost\\com\\CWOZTip1.as"
+                },
+                {
+                    "blank": 0,
+                    "code": 1,
+                    "comment": 1,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\woz\\prepost\\CWOZBakingController.as"
+                },
+                {
+                    "blank": 0,
+                    "code": 1,
+                    "comment": 1,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\woz\\prepost\\CWOZBakingImgTool.as"
+                },
+                {
+                    "blank": 0,
+                    "code": 1,
+                    "comment": 1,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\woz\\prepost\\CWOZCarsController.as"
+                },
+                {
+                    "blank": 0,
+                    "code": 1,
+                    "comment": 1,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\woz\\prepost\\CWOZCarsImgTool.as"
+                },
+                {
+                    "blank": 0,
+                    "code": 2,
+                    "comment": 2,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\woz\\prepost\\CWOZDrinkController.as"
+                },
+                {
+                    "blank": 0,
+                    "code": 1,
+                    "comment": 1,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\woz\\prepost\\CWOZDrinkImgTool.as"
+                },
+                {
+                    "blank": 0,
+                    "code": 2,
+                    "comment": 2,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\woz\\prepost\\CWOZHouseController.as"
+                },
+                {
+                    "blank": 0,
+                    "code": 1,
+                    "comment": 1,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\woz\\prepost\\CWOZHouseImgTool.as"
+                },
+                {
+                    "blank": 0,
+                    "code": 2,
+                    "comment": 2,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\woz\\prepost\\CWOZMemoryController.as"
+                },
+                {
+                    "blank": 0,
+                    "code": 1,
+                    "comment": 1,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\woz\\prepost\\CWOZMemoryImgTool.as"
+                },
+                {
+                    "blank": 0,
+                    "code": 1,
+                    "comment": 1,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\woz\\prepost\\CWOZRocketController.as"
+                },
+                {
+                    "blank": 0,
+                    "code": 1,
+                    "comment": 1,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\woz\\prepost\\CWOZRocketImgTool.as"
+                },
+                {
+                    "blank": 0,
+                    "code": 1,
+                    "comment": 1,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\woz\\prepost\\CWOZStudyController.as"
+                },
+                {
+                    "blank": 0,
+                    "code": 1,
+                    "comment": 1,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\woz\\prepost\\CWOZStudyImgTool.as"
+                },
+                {
+                    "blank": 0,
+                    "code": 1,
+                    "comment": 1,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\woz\\prepost\\events\\CWOZNavEvent.as"
+                },
+                {
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\woz\\rampsim\\._.DS_Store",
+                    "isbinaryfile": true,
+                    "blank": 0,
+                    "code": 0,
+                    "comment": 0
+                },
+                {
+                    "blank": 0,
+                    "code": 1,
+                    "comment": 1,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\woz\\rampsim\\CAngleCue.as"
+                },
+                {
+                    "blank": 84,
+                    "code": 207,
+                    "comment": 100,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\woz\\rampsim\\CBall.as"
+                },
+                {
+                    "blank": 0,
+                    "code": 1,
+                    "comment": 1,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\woz\\rampsim\\CBallSolid.as"
+                },
+                {
+                    "blank": 0,
+                    "code": 1,
+                    "comment": 1,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\woz\\rampsim\\CBase.as"
+                },
+                {
+                    "blank": 0,
+                    "code": 1,
+                    "comment": 1,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\woz\\rampsim\\CCell.as"
+                },
+                {
+                    "blank": 408,
+                    "code": 1020,
+                    "comment": 356,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\woz\\rampsim\\CCVSTable.as"
+                },
+                {
+                    "blank": 138,
+                    "code": 338,
+                    "comment": 376,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\woz\\rampsim\\CGate.as"
+                },
+                {
+                    "blank": 0,
+                    "code": 1,
+                    "comment": 1,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\woz\\rampsim\\CGateOutline.as"
+                },
+                {
+                    "blank": 0,
+                    "code": 1,
+                    "comment": 1,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\woz\\rampsim\\CGateSolid.as"
+                },
+                {
+                    "blank": 6,
+                    "code": 26,
+                    "comment": 44,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\woz\\rampsim\\CGlobals.as"
+                },
+                {
+                    "blank": 0,
+                    "code": 1,
+                    "comment": 1,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\woz\\rampsim\\CGrab.as"
+                },
+                {
+                    "blank": 0,
+                    "code": 1,
+                    "comment": 1,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\woz\\rampsim\\CGrabSolid.as"
+                },
+                {
+                    "blank": 27,
+                    "code": 52,
+                    "comment": 68,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\woz\\rampsim\\CIncline.as"
+                },
+                {
+                    "blank": 0,
+                    "code": 1,
+                    "comment": 1,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\woz\\rampsim\\CInclineSolid.as"
+                },
+                {
+                    "blank": 0,
+                    "code": 1,
+                    "comment": 1,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\woz\\rampsim\\CIndicatorButton.as"
+                },
+                {
+                    "blank": 10,
+                    "code": 23,
+                    "comment": 36,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\woz\\rampsim\\CIndicatorIcons.as"
+                },
+                {
+                    "blank": 172,
+                    "code": 433,
+                    "comment": 295,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\woz\\rampsim\\CIndicatorRamp.as"
+                },
+                {
+                    "blank": 96,
+                    "code": 206,
+                    "comment": 179,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\woz\\rampsim\\CIndicatorStatic.as"
+                },
+                {
+                    "blank": 168,
+                    "code": 442,
+                    "comment": 416,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\woz\\rampsim\\CRamp.as"
+                },
+                {
+                    "blank": 110,
+                    "code": 237,
+                    "comment": 284,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\woz\\rampsim\\CRampCollection.as"
+                },
+                {
+                    "blank": 0,
+                    "code": 1,
+                    "comment": 1,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\woz\\rampsim\\CRampFreeStanding.as"
+                },
+                {
+                    "blank": 0,
+                    "code": 1,
+                    "comment": 1,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\woz\\rampsim\\CRampImage.as"
+                },
+                {
+                    "blank": 0,
+                    "code": 1,
+                    "comment": 1,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\woz\\rampsim\\CRampScene0.as"
+                },
+                {
+                    "blank": 179,
+                    "code": 489,
+                    "comment": 384,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\woz\\rampsim\\CRampSim.as"
+                },
+                {
+                    "blank": 79,
+                    "code": 209,
+                    "comment": 152,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\woz\\rampsim\\CRampTable.as"
+                },
+                {
+                    "blank": 25,
+                    "code": 57,
+                    "comment": 78,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\woz\\rampsim\\CRampTableCollection.as"
+                },
+                {
+                    "blank": 41,
+                    "code": 75,
+                    "comment": 66,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\woz\\rampsim\\CRampView.as"
+                },
+                {
+                    "blank": 0,
+                    "code": 1,
+                    "comment": 1,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\woz\\rampsim\\CScale.as"
+                },
+                {
+                    "blank": 0,
+                    "code": 1,
+                    "comment": 1,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\woz\\rampsim\\CSelButton.as"
+                },
+                {
+                    "blank": 36,
+                    "code": 80,
+                    "comment": 113,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\woz\\rampsim\\CSelector.as"
+                },
+                {
+                    "blank": 0,
+                    "code": 1,
+                    "comment": 1,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\woz\\rampsim\\CSelectorAn.as"
+                },
+                {
+                    "blank": 10,
+                    "code": 26,
+                    "comment": 40,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\woz\\rampsim\\CSelectorCenter.as"
+                },
+                {
+                    "blank": 0,
+                    "code": 1,
+                    "comment": 1,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\woz\\rampsim\\CSelectorSq.as"
+                },
+                {
+                    "blank": 22,
+                    "code": 50,
+                    "comment": 33,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\woz\\rampsim\\CSimTarget.as"
+                },
+                {
+                    "blank": 8,
+                    "code": 12,
+                    "comment": 35,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\woz\\rampsim\\CSimTimer.as"
+                },
+                {
+                    "blank": 0,
+                    "code": 1,
+                    "comment": 1,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\woz\\rampsim\\CSupport.as"
+                },
+                {
+                    "blank": 0,
+                    "code": 1,
+                    "comment": 1,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\woz\\rampsim\\CTable.as"
+                },
+                {
+                    "blank": 31,
+                    "code": 86,
+                    "comment": 25,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\woz\\rampsim\\CTableRowFlasher.as"
+                },
+                {
+                    "blank": 0,
+                    "code": 1,
+                    "comment": 1,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\woz\\rampsim\\CViewImage.as"
+                },
+                {
+                    "blank": 0,
+                    "code": 1,
+                    "comment": 1,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\woz\\rampsim\\IDragDrop.as"
+                },
+                {
+                    "blank": 11,
+                    "code": 16,
+                    "comment": 29,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\woz\\rampsim\\ITableElement.as"
+                },
+                {
+                    "blank": 22,
+                    "code": 37,
+                    "comment": 26,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\woz\\scenegraph\\CGraphAction.as"
+                },
+                {
+                    "blank": 28,
+                    "code": 48,
+                    "comment": 29,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\woz\\scenegraph\\CGraphConstraint.as"
+                },
+                {
+                    "blank": 29,
+                    "code": 55,
+                    "comment": 37,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\woz\\scenegraph\\CGraphEdge.as"
+                },
+                {
+                    "blank": 21,
+                    "code": 52,
+                    "comment": 35,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\woz\\scenegraph\\CGraphHistory.as"
+                },
+                {
+                    "blank": 4,
+                    "code": 14,
+                    "comment": 24,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\woz\\scenegraph\\CGraphHistoryNode.as"
+                },
+                {
+                    "blank": 52,
+                    "code": 108,
+                    "comment": 40,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\woz\\scenegraph\\CGraphModule.as"
+                },
+                {
+                    "blank": 57,
+                    "code": 138,
+                    "comment": 43,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\woz\\scenegraph\\CGraphModuleGroup.as"
+                },
+                {
+                    "blank": 36,
+                    "code": 89,
+                    "comment": 34,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\woz\\scenegraph\\CGraphNode.as"
+                },
+                {
+                    "blank": 38,
+                    "code": 116,
+                    "comment": 33,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\woz\\scenegraph\\CGraphScene.as"
+                },
+                {
+                    "blank": 105,
+                    "code": 207,
+                    "comment": 68,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\woz\\scenegraph\\CSceneGraph.as"
+                },
+                {
+                    "blank": 163,
+                    "code": 284,
+                    "comment": 175,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\woz\\scenegraph\\CSceneGraphNavigator.as"
+                },
+                {
+                    "blank": 0,
+                    "code": 1,
+                    "comment": 1,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\woz\\scenes\\CWOZEndCloak.as"
+                },
+                {
+                    "blank": 25,
+                    "code": 45,
+                    "comment": 51,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\woz\\scenes\\CWOZEndScene.as"
+                },
+                {
+                    "blank": 30,
+                    "code": 46,
+                    "comment": 66,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\woz\\scenes\\CWOZNavDemo.as"
+                },
+                {
+                    "blank": 13,
+                    "code": 26,
+                    "comment": 35,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\woz\\scenes\\CWOZScene0.as"
+                },
+                {
+                    "blank": 17,
+                    "code": 34,
+                    "comment": 37,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\woz\\scenes\\CWOZSceneN.as"
+                },
+                {
+                    "blank": 27,
+                    "code": 47,
+                    "comment": 51,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\woz\\scenes\\CWOZStartScene.as"
+                },
+                {
+                    "blank": 18,
+                    "code": 36,
+                    "comment": 43,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\woz\\stateGraph\\CWOZState.as"
+                },
+                {
+                    "blank": 14,
+                    "code": 30,
+                    "comment": 42,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\woz\\stateGraph\\CWOZStateEngine.as"
+                },
+                {
+                    "blank": 16,
+                    "code": 32,
+                    "comment": 42,
+                    "filename": "e:\\Projects\\Projects FlashBuilder\\TED2.1.0\\Classes\\cmu\\woz\\stateGraph\\CWOZStateGraph.as"
+                },
+                {
+                    "blank": 0,
+                    "code": 7,
+                    "comment": 0,
+                    "filename": "e:\\Projects\\Projects TypeScript\\InheritanceTest\\.idea\\dictionaries\\kevin.xml"
+                },
+                {
+                    "blank": 0,
+                    "code": 12,
+                    "comment": 0,
+                    "filename": "e:\\Projects\\Projects TypeScript\\InheritanceTest\\.idea\\InheritanceTest.iml"
+                },
+                {
+                    "blank": 0,
+                    "code": 8,
+                    "comment": 0,
+                    "filename": "e:\\Projects\\Projects TypeScript\\InheritanceTest\\.idea\\modules.xml"
+                },
+                {
+                    "blank": 0,
+                    "code": 7,
+                    "comment": 0,
+                    "filename": "e:\\Projects\\Projects TypeScript\\InheritanceTest\\.idea\\typescript-compiler.xml"
+                },
+                {
+                    "blank": 0,
+                    "code": 434,
+                    "comment": 0,
+                    "filename": "e:\\Projects\\Projects TypeScript\\InheritanceTest\\.idea\\workspace.xml"
+                },
+                {
+                    "blank": 0,
+                    "code": 37,
+                    "comment": 9,
+                    "filename": "e:\\Projects\\Projects TypeScript\\InheritanceTest\\ef\\proj\\Base.js"
+                },
+                {
+                    "blank": 11,
+                    "code": 20,
+                    "comment": 9,
+                    "filename": "e:\\Projects\\Projects TypeScript\\InheritanceTest\\ef\\proj\\Base.ts"
+                },
+                {
+                    "blank": 0,
+                    "code": 29,
+                    "comment": 3,
+                    "filename": "e:\\Projects\\Projects TypeScript\\InheritanceTest\\ef\\proj\\firstChild.js"
+                },
+                {
+                    "blank": 5,
+                    "code": 13,
+                    "comment": 3,
+                    "filename": "e:\\Projects\\Projects TypeScript\\InheritanceTest\\ef\\proj\\firstChild.ts"
+                },
+                {
+                    "blank": 0,
+                    "code": 31,
+                    "comment": 3,
+                    "filename": "e:\\Projects\\Projects TypeScript\\InheritanceTest\\ef\\proj\\secondChild.js"
+                },
+                {
+                    "blank": 6,
+                    "code": 15,
+                    "comment": 3,
+                    "filename": "e:\\Projects\\Projects TypeScript\\InheritanceTest\\ef\\proj\\secondChild.ts"
+                },
+                {
+                    "blank": 0,
+                    "code": 14,
+                    "comment": 0,
+                    "filename": "e:\\Projects\\Projects TypeScript\\InheritanceTest\\package.json"
+                },
+                {
+                    "blank": 2,
+                    "code": 2,
+                    "comment": 0,
+                    "filename": "e:\\Projects\\Projects TypeScript\\InheritanceTest\\README.md"
+                },
+                {
+                    "blank": 5,
+                    "code": 7,
+                    "comment": 41,
+                    "filename": "e:\\Projects\\Projects TypeScript\\InheritanceTest\\tsconfig.json"
+                },
+                {
+                    "blank": 0,
+                    "code": 13,
+                    "comment": 0,
+                    "filename": "EFTutorEngineOne.code-workspace"
+                },
+                {
+                    "blank": 1,
+                    "code": 8,
+                    "comment": 0,
+                    "filename": "gulpfile.js"
+                },
+                {
+                    "blank": 0,
+                    "code": 57,
+                    "comment": 32,
+                    "filename": "lib\\animationgraph\\CAnimationAction.js"
+                },
+                {
+                    "blank": 0,
+                    "code": 49,
+                    "comment": 23,
+                    "filename": "lib\\animationgraph\\CAnimationChoice.js"
+                },
+                {
+                    "blank": 0,
+                    "code": 87,
+                    "comment": 44,
+                    "filename": "lib\\animationgraph\\CAnimationChoiceSet.js"
+                },
+                {
+                    "blank": 0,
+                    "code": 54,
+                    "comment": 25,
+                    "filename": "lib\\animationgraph\\CAnimationConstraint.js"
+                },
+                {
+                    "blank": 0,
+                    "code": 35,
+                    "comment": 24,
+                    "filename": "lib\\animationgraph\\CAnimationEdge.js"
+                },
+                {
+                    "blank": 0,
+                    "code": 171,
+                    "comment": 49,
+                    "filename": "lib\\animationgraph\\CAnimationGraph.js"
+                },
+                {
+                    "blank": 0,
+                    "code": 119,
+                    "comment": 47,
+                    "filename": "lib\\animationgraph\\CAnimationModule.js"
+                },
+                {
+                    "blank": 0,
+                    "code": 82,
+                    "comment": 30,
+                    "filename": "lib\\animationgraph\\CAnimationNode.js"
+                },
+                {
+                    "blank": 0,
+                    "code": 73,
+                    "comment": 26,
+                    "filename": "lib\\animationgraph\\CAnimationTrack.js"
+                },
+                {
+                    "blank": 0,
+                    "code": 46,
+                    "comment": 32,
+                    "filename": "lib\\bkt\\CBKTSkill.js"
+                },
+                {
+                    "blank": 0,
+                    "code": 39,
+                    "comment": 30,
+                    "filename": "lib\\controls\\CEFLabelButton.js"
+                },
+                {
+                    "blank": 0,
+                    "code": 34,
+                    "comment": 39,
+                    "filename": "lib\\controls\\CEFLabelControl.js"
+                },
+                {
+                    "blank": 0,
+                    "code": 57,
+                    "comment": 32,
+                    "filename": "lib\\controls\\CEFSkillBar.js"
+                },
+                {
+                    "blank": 0,
+                    "code": 68,
+                    "comment": 31,
+                    "filename": "lib\\controls\\CEFSkilloMeter.js"
+                },
+                {
+                    "blank": 0,
+                    "code": 92,
+                    "comment": 63,
+                    "filename": "lib\\core\\CEFAnimator.js"
+                },
+                {
+                    "blank": 0,
+                    "code": 215,
+                    "comment": 63,
+                    "filename": "lib\\core\\CEFButton.js"
+                },
+                {
+                    "blank": 0,
+                    "code": 325,
+                    "comment": 131,
+                    "filename": "lib\\core\\CEFButtonGroup.js"
+                },
+                {
+                    "blank": 0,
+                    "code": 64,
+                    "comment": 41,
+                    "filename": "lib\\core\\CEFCheckBox.js"
+                },
+                {
+                    "blank": 0,
+                    "code": 185,
+                    "comment": 61,
+                    "filename": "lib\\core\\CEFCheckBoxOverlay.js"
+                },
+                {
+                    "blank": 0,
+                    "code": 194,
+                    "comment": 50,
+                    "filename": "lib\\core\\CEFCheckButton.js"
+                },
+                {
+                    "blank": 0,
+                    "code": 490,
+                    "comment": 137,
+                    "filename": "lib\\core\\CEFCursorProxy.js"
+                },
+                {
+                    "blank": 0,
+                    "code": 115,
+                    "comment": 79,
+                    "filename": "lib\\core\\CEFDoc.js"
+                },
+                {
+                    "blank": 0,
+                    "code": 68,
+                    "comment": 43,
+                    "filename": "lib\\core\\CEFMouseMask.js"
+                },
+                {
+                    "blank": 0,
+                    "code": 365,
+                    "comment": 214,
+                    "filename": "lib\\core\\CEFNavigator.js"
+                },
+                {
+                    "blank": 0,
+                    "code": 740,
+                    "comment": 299,
+                    "filename": "lib\\core\\CEFObject.js"
+                },
+                {
+                    "blank": 0,
+                    "code": 46,
+                    "comment": 39,
+                    "filename": "lib\\core\\CEFObjectDyno.js"
+                },
+                {
+                    "blank": 0,
+                    "code": 31,
+                    "comment": 29,
+                    "filename": "lib\\core\\CEFObjectMask.js"
+                },
+                {
+                    "blank": 0,
+                    "code": 51,
+                    "comment": 41,
+                    "filename": "lib\\core\\CEFRadioButton.js"
+                },
+                {
+                    "blank": 0,
+                    "code": 291,
+                    "comment": 159,
+                    "filename": "lib\\core\\CEFRoot.js"
+                },
+                {
+                    "blank": 0,
+                    "code": 224,
+                    "comment": 141,
+                    "filename": "lib\\core\\CEFScene.js"
+                },
+                {
+                    "blank": 0,
+                    "code": 164,
+                    "comment": 51,
+                    "filename": "lib\\core\\CEFSceneNavigator.js"
+                },
+                {
+                    "blank": 0,
+                    "code": 324,
+                    "comment": 189,
+                    "filename": "lib\\core\\CEFSceneSequence.js"
+                },
+                {
+                    "blank": 0,
+                    "code": 103,
+                    "comment": 68,
+                    "filename": "lib\\core\\CEFTimer.js"
+                },
+                {
+                    "blank": 0,
+                    "code": 64,
+                    "comment": 33,
+                    "filename": "lib\\core\\CEFTimeStamp.js"
+                },
+                {
+                    "blank": 0,
+                    "code": 129,
+                    "comment": 52,
+                    "filename": "lib\\core\\CEFTitleBar.js"
+                },
+                {
+                    "blank": 0,
+                    "code": 265,
+                    "comment": 203,
+                    "filename": "lib\\core\\CEFTransitions.js"
+                },
+                {
+                    "blank": 0,
+                    "code": 68,
+                    "comment": 57,
+                    "filename": "lib\\core\\CEFTutor.js"
+                },
+                {
+                    "blank": 0,
+                    "code": 210,
+                    "comment": 91,
+                    "filename": "lib\\core\\CEFTutorDoc.js"
+                },
+                {
+                    "blank": 0,
+                    "code": 628,
+                    "comment": 291,
+                    "filename": "lib\\core\\CEFTutorRoot.js"
+                },
+                {
+                    "blank": 0,
+                    "code": 56,
+                    "comment": 48,
+                    "filename": "lib\\dialogs\\CDialogDesignPrompt1.js"
+                },
+                {
+                    "blank": 0,
+                    "code": 114,
+                    "comment": 62,
+                    "filename": "lib\\dialogs\\CEFDialogBox.js"
+                },
+                {
+                    "blank": 0,
+                    "code": 20,
+                    "comment": 0,
+                    "filename": "lib\\engine.d.ts"
+                },
+                {
+                    "blank": 0,
+                    "code": 56,
+                    "comment": 1,
+                    "filename": "lib\\engine.js"
+                },
+                {
+                    "blank": 0,
+                    "code": 1,
+                    "comment": 0,
+                    "filename": "lib\\engine.js.map"
+                },
+                {
+                    "blank": 0,
+                    "code": 53,
+                    "comment": 29,
+                    "filename": "lib\\events\\CEFActionEvent.js"
+                },
+                {
+                    "blank": 0,
+                    "code": 39,
+                    "comment": 32,
+                    "filename": "lib\\events\\CEFAutomationEvent.js"
+                },
+                {
+                    "blank": 0,
+                    "code": 35,
+                    "comment": 32,
+                    "filename": "lib\\events\\CEFButtonEvent.js"
+                },
+                {
+                    "blank": 0,
+                    "code": 42,
+                    "comment": 33,
+                    "filename": "lib\\events\\CEFCaptionEvent.js"
+                },
+                {
+                    "blank": 0,
+                    "code": 39,
+                    "comment": 32,
+                    "filename": "lib\\events\\CEFCommandEvent.js"
+                },
+                {
+                    "blank": 0,
+                    "code": 41,
+                    "comment": 32,
+                    "filename": "lib\\events\\CEFDialogEvent.js"
+                },
+                {
+                    "blank": 0,
+                    "code": 79,
+                    "comment": 35,
+                    "filename": "lib\\events\\CEFEvent.js"
+                },
+                {
+                    "blank": 0,
+                    "code": 55,
+                    "comment": 37,
+                    "filename": "lib\\events\\CEFMouseEvent.js"
+                },
+                {
+                    "blank": 0,
+                    "code": 48,
+                    "comment": 33,
+                    "filename": "lib\\events\\CEFNavEvent.js"
+                },
+                {
+                    "blank": 0,
+                    "code": 58,
+                    "comment": 130,
+                    "filename": "lib\\events\\CEFPropertyChangeEvent.js"
+                },
+                {
+                    "blank": 0,
+                    "code": 20,
+                    "comment": 28,
+                    "filename": "lib\\events\\CEFPropertyChangeEventKind.js"
+                },
+                {
+                    "blank": 0,
+                    "code": 41,
+                    "comment": 33,
+                    "filename": "lib\\events\\CEFSceneCueEvent.js"
+                },
+                {
+                    "blank": 0,
+                    "code": 39,
+                    "comment": 33,
+                    "filename": "lib\\events\\CEFScriptEvent.js"
+                },
+                {
+                    "blank": 0,
+                    "code": 42,
+                    "comment": 33,
+                    "filename": "lib\\events\\CEFSeekEvent.js"
+                },
+                {
+                    "blank": 0,
+                    "code": 42,
+                    "comment": 33,
+                    "filename": "lib\\events\\CEFSelectEvent.js"
+                },
+                {
+                    "blank": 0,
+                    "code": 50,
+                    "comment": 34,
+                    "filename": "lib\\events\\CEFTextEvent.js"
+                },
+                {
+                    "blank": 0,
+                    "code": 34,
+                    "comment": 32,
+                    "filename": "lib\\events\\CEFTimerEvent.js"
+                },
+                {
+                    "blank": 0,
+                    "code": 60,
+                    "comment": 49,
+                    "filename": "lib\\kt\\CEFBNode.js"
+                },
+                {
+                    "blank": 0,
+                    "code": 90,
+                    "comment": 49,
+                    "filename": "lib\\kt\\CEFKTNode.js"
+                },
+                {
+                    "blank": 0,
+                    "code": 271,
+                    "comment": 107,
+                    "filename": "lib\\kt\\CEFProdSys.js"
+                },
+                {
+                    "blank": 0,
+                    "code": 0,
+                    "comment": 0,
+                    "filename": "lib\\manifold.d.ts"
+                },
+                {
+                    "blank": 0,
+                    "code": 14,
+                    "comment": 0,
+                    "filename": "lib\\manifold.js"
+                },
+                {
+                    "blank": 0,
+                    "code": 1,
+                    "comment": 0,
+                    "filename": "lib\\manifold.js.map"
+                },
+                {
+                    "blank": 0,
+                    "code": 263,
+                    "comment": 107,
+                    "filename": "lib\\mongo\\CMongo.js"
+                },
+                {
+                    "blank": 0,
+                    "code": 57,
+                    "comment": 31,
+                    "filename": "lib\\mongo\\CObject.js"
+                },
+                {
+                    "blank": 0,
+                    "code": 30,
+                    "comment": 30,
+                    "filename": "lib\\mongo\\MObject.js"
+                },
+                {
+                    "blank": 0,
+                    "code": 31,
+                    "comment": 30,
+                    "filename": "lib\\navigation\\CEFNavNext.js"
+                },
+                {
+                    "blank": 0,
+                    "code": 78,
+                    "comment": 40,
+                    "filename": "lib\\navigation\\CEFNavPanel.js"
+                },
+                {
+                    "blank": 0,
+                    "code": 31,
+                    "comment": 30,
+                    "filename": "lib\\navigation\\CEFZNavBack.js"
+                },
+                {
+                    "blank": 0,
+                    "code": 12,
+                    "comment": 28,
+                    "filename": "lib\\network\\ILogManager.js"
+                },
+                {
+                    "blank": 0,
+                    "code": 51,
+                    "comment": 27,
+                    "filename": "lib\\scenegraph\\CGraphAction.js"
+                },
+                {
+                    "blank": 0,
+                    "code": 57,
+                    "comment": 27,
+                    "filename": "lib\\scenegraph\\CGraphConstraint.js"
+                },
+                {
+                    "blank": 0,
+                    "code": 63,
+                    "comment": 34,
+                    "filename": "lib\\scenegraph\\CGraphEdge.js"
+                },
+                {
+                    "blank": 0,
+                    "code": 73,
+                    "comment": 35,
+                    "filename": "lib\\scenegraph\\CGraphHistory.js"
+                },
+                {
+                    "blank": 0,
+                    "code": 33,
+                    "comment": 24,
+                    "filename": "lib\\scenegraph\\CGraphHistoryNode.js"
+                },
+                {
+                    "blank": 0,
+                    "code": 117,
+                    "comment": 39,
+                    "filename": "lib\\scenegraph\\CGraphModule.js"
+                },
+                {
+                    "blank": 0,
+                    "code": 137,
+                    "comment": 41,
+                    "filename": "lib\\scenegraph\\CGraphModuleGroup.js"
+                },
+                {
+                    "blank": 0,
+                    "code": 95,
+                    "comment": 31,
+                    "filename": "lib\\scenegraph\\CGraphNode.js"
+                },
+                {
+                    "blank": 0,
+                    "code": 142,
+                    "comment": 29,
+                    "filename": "lib\\scenegraph\\CGraphScene.js"
+                },
+                {
+                    "blank": 0,
+                    "code": 205,
+                    "comment": 65,
+                    "filename": "lib\\scenegraph\\CSceneGraph.js"
+                },
+                {
+                    "blank": 0,
+                    "code": 268,
+                    "comment": 170,
+                    "filename": "lib\\scenegraph\\CSceneGraphNavigator.js"
+                },
+                {
+                    "blank": 0,
+                    "code": 51,
+                    "comment": 39,
+                    "filename": "lib\\scenes\\CEFEndCloak.js"
+                },
+                {
+                    "blank": 0,
+                    "code": 51,
+                    "comment": 23,
+                    "filename": "lib\\scenes\\CEFEndScene.js"
+                },
+                {
+                    "blank": 0,
+                    "code": 63,
+                    "comment": 37,
+                    "filename": "lib\\scenes\\CEFNavDemo.js"
+                },
+                {
+                    "blank": 0,
+                    "code": 40,
+                    "comment": 33,
+                    "filename": "lib\\scenes\\CEFScene0.js"
+                },
+                {
+                    "blank": 0,
+                    "code": 47,
+                    "comment": 36,
+                    "filename": "lib\\scenes\\CEFSceneN.js"
+                },
+                {
+                    "blank": 0,
+                    "code": 63,
+                    "comment": 48,
+                    "filename": "lib\\scenes\\CEFStartScene.js"
+                },
+                {
+                    "blank": 0,
+                    "code": 95,
+                    "comment": 28,
+                    "filename": "lib\\util\\CUtil.js"
+                },
+                {
+                    "blank": 0,
+                    "code": 3470,
+                    "comment": 0,
+                    "filename": "package-lock.json"
+                },
+                {
+                    "blank": 1,
+                    "code": 32,
+                    "comment": 0,
+                    "filename": "package.json"
+                },
+                {
+                    "filename": "README.md",
+                    "isbinaryfile": true,
+                    "blank": 0,
+                    "code": 0,
+                    "comment": 0
+                },
+                {
+                    "blank": 26,
+                    "code": 43,
+                    "comment": 32,
+                    "filename": "src\\animationgraph\\CAnimationAction.ts"
+                },
+                {
+                    "blank": 11,
+                    "code": 34,
+                    "comment": 23,
+                    "filename": "src\\animationgraph\\CAnimationChoice.ts"
+                },
+                {
+                    "blank": 39,
+                    "code": 74,
+                    "comment": 46,
+                    "filename": "src\\animationgraph\\CAnimationChoiceSet.ts"
+                },
+                {
+                    "blank": 23,
+                    "code": 38,
+                    "comment": 26,
+                    "filename": "src\\animationgraph\\CAnimationConstraint.ts"
+                },
+                {
+                    "blank": 16,
+                    "code": 32,
+                    "comment": 25,
+                    "filename": "src\\animationgraph\\CAnimationEdge.ts"
+                },
+                {
+                    "blank": 83,
+                    "code": 168,
+                    "comment": 50,
+                    "filename": "src\\animationgraph\\CAnimationGraph.ts"
+                },
+                {
+                    "blank": 52,
+                    "code": 114,
+                    "comment": 48,
+                    "filename": "src\\animationgraph\\CAnimationModule.ts"
+                },
+                {
+                    "blank": 29,
+                    "code": 73,
+                    "comment": 31,
+                    "filename": "src\\animationgraph\\CAnimationNode.ts"
+                },
+                {
+                    "blank": 31,
+                    "code": 64,
+                    "comment": 30,
+                    "filename": "src\\animationgraph\\CAnimationTrack.ts"
+                },
+                {
+                    "blank": 21,
+                    "code": 43,
+                    "comment": 37,
+                    "filename": "src\\bkt\\CBKTSkill.ts"
+                },
+                {
+                    "blank": 12,
+                    "code": 15,
+                    "comment": 30,
+                    "filename": "src\\controls\\CEFLabelButton.ts"
+                },
+                {
+                    "blank": 13,
+                    "code": 16,
+                    "comment": 41,
+                    "filename": "src\\controls\\CEFLabelControl.ts"
+                },
+                {
+                    "blank": 20,
+                    "code": 39,
+                    "comment": 35,
+                    "filename": "src\\controls\\CEFSkillBar.ts"
+                },
+                {
+                    "blank": 26,
+                    "code": 57,
+                    "comment": 32,
+                    "filename": "src\\controls\\CEFSkilloMeter.ts"
+                },
+                {
+                    "blank": 38,
+                    "code": 71,
+                    "comment": 63,
+                    "filename": "src\\core\\CEFAnimator.ts"
+                },
+                {
+                    "blank": 88,
+                    "code": 218,
+                    "comment": 67,
+                    "filename": "src\\core\\CEFButton.ts"
+                },
+                {
+                    "blank": 126,
+                    "code": 342,
+                    "comment": 139,
+                    "filename": "src\\core\\CEFButtonGroup.ts"
+                },
+                {
+                    "blank": 28,
+                    "code": 52,
+                    "comment": 46,
+                    "filename": "src\\core\\CEFCheckBox.ts"
+                },
+                {
+                    "blank": 88,
+                    "code": 196,
+                    "comment": 75,
+                    "filename": "src\\core\\CEFCheckBoxOverlay.tsfix"
+                },
+                {
+                    "blank": 82,
+                    "code": 188,
+                    "comment": 52,
+                    "filename": "src\\core\\CEFCheckButton.ts"
+                },
+                {
+                    "blank": 211,
+                    "code": 495,
+                    "comment": 145,
+                    "filename": "src\\core\\CEFCursorProxy.ts"
+                },
+                {
+                    "blank": 49,
+                    "code": 97,
+                    "comment": 84,
+                    "filename": "src\\core\\CEFDoc.ts"
+                },
+                {
+                    "blank": 23,
+                    "code": 47,
+                    "comment": 45,
+                    "filename": "src\\core\\CEFMouseMask.ts"
+                },
+                {
+                    "blank": 166,
+                    "code": 342,
+                    "comment": 237,
+                    "filename": "src\\core\\CEFNavigator.ts"
+                },
+                {
+                    "blank": 330,
+                    "code": 803,
+                    "comment": 324,
+                    "filename": "src\\core\\CEFObject.ts"
+                },
+                {
+                    "blank": 13,
+                    "code": 31,
+                    "comment": 40,
+                    "filename": "src\\core\\CEFObjectDyno.ts"
+                },
+                {
+                    "blank": 6,
+                    "code": 8,
+                    "comment": 29,
+                    "filename": "src\\core\\CEFObjectMask.ts"
+                },
+                {
+                    "blank": 14,
+                    "code": 34,
+                    "comment": 42,
+                    "filename": "src\\core\\CEFRadioButton.ts"
+                },
+                {
+                    "blank": 149,
+                    "code": 285,
+                    "comment": 169,
+                    "filename": "src\\core\\CEFRoot.ts"
+                },
+                {
+                    "blank": 120,
+                    "code": 230,
+                    "comment": 145,
+                    "filename": "src\\core\\CEFScene.ts"
+                },
+                {
+                    "blank": 47,
+                    "code": 118,
+                    "comment": 69,
+                    "filename": "src\\core\\CEFSceneNavigator.ts"
+                },
+                {
+                    "blank": 193,
+                    "code": 352,
+                    "comment": 193,
+                    "filename": "src\\core\\CEFSceneSequence.ts"
+                },
+                {
+                    "blank": 38,
+                    "code": 103,
+                    "comment": 68,
+                    "filename": "src\\core\\CEFTimer.ts"
+                },
+                {
+                    "blank": 21,
+                    "code": 44,
+                    "comment": 35,
+                    "filename": "src\\core\\CEFTimeStamp.ts"
+                },
+                {
+                    "blank": 67,
+                    "code": 124,
+                    "comment": 56,
+                    "filename": "src\\core\\CEFTitleBar.ts"
+                },
+                {
+                    "blank": 113,
+                    "code": 270,
+                    "comment": 210,
+                    "filename": "src\\core\\CEFTransitions.ts"
+                },
+                {
+                    "blank": 43,
+                    "code": 52,
+                    "comment": 61,
+                    "filename": "src\\core\\CEFTutor.ts"
+                },
+                {
+                    "blank": 77,
+                    "code": 141,
+                    "comment": 93,
+                    "filename": "src\\core\\CEFTutorDoc.ts"
+                },
+                {
+                    "blank": 320,
+                    "code": 656,
+                    "comment": 300,
+                    "filename": "src\\core\\CEFTutorRoot.ts"
+                },
+                {
+                    "blank": 29,
+                    "code": 50,
+                    "comment": 40,
+                    "filename": "src\\core\\CWOZHoverMask.as"
+                },
+                {
+                    "blank": 9,
+                    "code": 17,
+                    "comment": 37,
+                    "filename": "src\\core\\CWOZMaskButton.as"
+                },
+                {
+                    "blank": 22,
+                    "code": 37,
+                    "comment": 50,
+                    "filename": "src\\dialogs\\CDialogDesignPrompt1.ts"
+                },
+                {
+                    "blank": 47,
+                    "code": 111,
+                    "comment": 85,
+                    "filename": "src\\dialogs\\CDialogInitServer.as"
+                },
+                {
+                    "blank": 0,
+                    "code": 1,
+                    "comment": 1,
+                    "filename": "src\\dialogs\\CDialogProgress.as"
+                },
+                {
+                    "blank": 0,
+                    "code": 1,
+                    "comment": 1,
+                    "filename": "src\\dialogs\\CDialogRegistration.as"
+                },
+                {
+                    "blank": 46,
+                    "code": 105,
+                    "comment": 66,
+                    "filename": "src\\dialogs\\CEFDialogBox.ts"
+                },
+                {
+                    "blank": 19,
+                    "code": 36,
+                    "comment": 1,
+                    "filename": "src\\engine.ts"
+                },
+                {
+                    "blank": 10,
+                    "code": 30,
+                    "comment": 29,
+                    "filename": "src\\events\\CEFActionEvent.ts"
+                },
+                {
+                    "blank": 10,
+                    "code": 16,
+                    "comment": 32,
+                    "filename": "src\\events\\CEFAutomationEvent.ts"
+                },
+                {
+                    "blank": 9,
+                    "code": 11,
+                    "comment": 32,
+                    "filename": "src\\events\\CEFButtonEvent.ts"
+                },
+                {
+                    "blank": 13,
+                    "code": 18,
+                    "comment": 33,
+                    "filename": "src\\events\\CEFCaptionEvent.ts"
+                },
+                {
+                    "blank": 12,
+                    "code": 17,
+                    "comment": 32,
+                    "filename": "src\\events\\CEFCommandEvent.ts"
+                },
+                {
+                    "blank": 12,
+                    "code": 19,
+                    "comment": 32,
+                    "filename": "src\\events\\CEFDialogEvent.ts"
+                },
+                {
+                    "blank": 33,
+                    "code": 57,
+                    "comment": 36,
+                    "filename": "src\\events\\CEFEvent.ts"
+                },
+                {
+                    "blank": 14,
+                    "code": 31,
+                    "comment": 37,
+                    "filename": "src\\events\\CEFMouseEvent.ts"
+                },
+                {
+                    "blank": 13,
+                    "code": 24,
+                    "comment": 33,
+                    "filename": "src\\events\\CEFNavEvent.ts"
+                },
+                {
+                    "blank": 30,
+                    "code": 47,
+                    "comment": 192,
+                    "filename": "src\\events\\CEFPropertyChangeEvent.ts"
+                },
+                {
+                    "blank": 9,
+                    "code": 8,
+                    "comment": 29,
+                    "filename": "src\\events\\CEFPropertyChangeEventKind.ts"
+                },
+                {
+                    "blank": 14,
+                    "code": 18,
+                    "comment": 33,
+                    "filename": "src\\events\\CEFSceneCueEvent.ts"
+                },
+                {
+                    "blank": 11,
+                    "code": 16,
+                    "comment": 33,
+                    "filename": "src\\events\\CEFScriptEvent.ts"
+                },
+                {
+                    "blank": 14,
+                    "code": 19,
+                    "comment": 33,
+                    "filename": "src\\events\\CEFSeekEvent.ts"
+                },
+                {
+                    "blank": 14,
+                    "code": 19,
+                    "comment": 33,
+                    "filename": "src\\events\\CEFSelectEvent.ts"
+                },
+                {
+                    "blank": 14,
+                    "code": 27,
+                    "comment": 35,
+                    "filename": "src\\events\\CEFTextEvent.ts"
+                },
+                {
+                    "blank": 9,
+                    "code": 10,
+                    "comment": 32,
+                    "filename": "src\\events\\CEFTimerEvent.ts"
+                },
+                {
+                    "blank": 24,
+                    "code": 60,
+                    "comment": 49,
+                    "filename": "src\\kt\\CEFBNode.ts"
+                },
+                {
+                    "blank": 26,
+                    "code": 62,
+                    "comment": 51,
+                    "filename": "src\\kt\\CEFKTNode.ts"
+                },
+                {
+                    "blank": 30,
+                    "code": 340,
+                    "comment": 127,
+                    "filename": "src\\kt\\CEFProdSys.ts"
+                },
+                {
+                    "blank": 1,
+                    "code": 2,
+                    "comment": 0,
+                    "filename": "src\\manifold.ts"
+                },
+                {
+                    "blank": 133,
+                    "code": 269,
+                    "comment": 109,
+                    "filename": "src\\mongo\\CMongo.ts"
+                },
+                {
+                    "blank": 25,
+                    "code": 39,
+                    "comment": 31,
+                    "filename": "src\\mongo\\CObject.ts"
+                },
+                {
+                    "blank": 2,
+                    "code": 7,
+                    "comment": 30,
+                    "filename": "src\\mongo\\MObject.ts"
+                },
+                {
+                    "blank": 6,
+                    "code": 9,
+                    "comment": 30,
+                    "filename": "src\\navigation\\CEFNavNext.ts"
+                },
+                {
+                    "blank": 27,
+                    "code": 63,
+                    "comment": 41,
+                    "filename": "src\\navigation\\CEFNavPanel.ts"
+                },
+                {
+                    "blank": 7,
+                    "code": 9,
+                    "comment": 30,
+                    "filename": "src\\navigation\\CEFZNavBack.ts"
+                },
+                {
+                    "blank": 126,
+                    "code": 70,
+                    "comment": 187,
+                    "filename": "src\\network\\ILogManager.ts"
+                },
+                {
+                    "blank": 22,
+                    "code": 37,
+                    "comment": 27,
+                    "filename": "src\\scenegraph\\CGraphAction.ts"
+                },
+                {
+                    "blank": 23,
+                    "code": 43,
+                    "comment": 28,
+                    "filename": "src\\scenegraph\\CGraphConstraint.ts"
+                },
+                {
+                    "blank": 30,
+                    "code": 56,
+                    "comment": 38,
+                    "filename": "src\\scenegraph\\CGraphEdge.ts"
+                },
+                {
+                    "blank": 23,
+                    "code": 52,
+                    "comment": 36,
+                    "filename": "src\\scenegraph\\CGraphHistory.ts"
+                },
+                {
+                    "blank": 6,
+                    "code": 13,
+                    "comment": 25,
+                    "filename": "src\\scenegraph\\CGraphHistoryNode.ts"
+                },
+                {
+                    "blank": 48,
+                    "code": 108,
+                    "comment": 40,
+                    "filename": "src\\scenegraph\\CGraphModule.ts"
+                },
+                {
+                    "blank": 51,
+                    "code": 138,
+                    "comment": 43,
+                    "filename": "src\\scenegraph\\CGraphModuleGroup.ts"
+                },
+                {
+                    "blank": 38,
+                    "code": 88,
+                    "comment": 35,
+                    "filename": "src\\scenegraph\\CGraphNode.ts"
+                },
+                {
+                    "blank": 41,
+                    "code": 117,
+                    "comment": 33,
+                    "filename": "src\\scenegraph\\CGraphScene.ts"
+                },
+                {
+                    "blank": 104,
+                    "code": 211,
+                    "comment": 68,
+                    "filename": "src\\scenegraph\\CSceneGraph.ts"
+                },
+                {
+                    "blank": 161,
+                    "code": 288,
+                    "comment": 175,
+                    "filename": "src\\scenegraph\\CSceneGraphNavigator.ts"
+                },
+                {
+                    "blank": 24,
+                    "code": 31,
+                    "comment": 42,
+                    "filename": "src\\scenes\\CEFEndCloak.ts"
+                },
+                {
+                    "blank": 25,
+                    "code": 38,
+                    "comment": 54,
+                    "filename": "src\\scenes\\CEFEndScene.ts"
+                },
+                {
+                    "blank": 29,
+                    "code": 43,
+                    "comment": 38,
+                    "filename": "src\\scenes\\CEFNavDemo.ts"
+                },
+                {
+                    "blank": 16,
+                    "code": 21,
+                    "comment": 35,
+                    "filename": "src\\scenes\\CEFScene0.ts"
+                },
+                {
+                    "blank": 19,
+                    "code": 32,
+                    "comment": 38,
+                    "filename": "src\\scenes\\CEFSceneN.ts"
+                },
+                {
+                    "blank": 28,
+                    "code": 43,
+                    "comment": 52,
+                    "filename": "src\\scenes\\CEFStartScene.ts"
+                },
+                {
+                    "blank": 42,
+                    "code": 68,
+                    "comment": 28,
+                    "filename": "src\\util\\CUtil.ts"
+                },
+                {
+                    "blank": 1,
+                    "code": 13,
+                    "comment": 4,
+                    "filename": "tsconfig.json"
+                }
+            ]
+        }
+    ]
+}

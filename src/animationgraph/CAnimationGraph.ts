@@ -40,12 +40,12 @@ import { CEFSceneSequence }			from "../core/CEFSceneSequence";
 
 export class CAnimationGraph extends CAnimationNode 
 {
-	private _nodes:Object       = new Object;		
-	private _modules:Object     = new Object;
-	private _choicesets:Object  = new Object;
-	private _actions:Object     = new Object;
-	private _graphs:Object      = new Object;
-	private _constraints:Object = new Object;		
+	private _nodes:any       = new Object;		
+	private _modules:any     = new Object;
+	private _choicesets:any  = new Object;
+	private _actions:any     = new Object;
+	private _graphs:any      = new Object;
+	private _constraints:any = new Object;		
 	
 	private _currNode:CAnimationNode;
 	private _currAnimation:string;
@@ -55,7 +55,7 @@ export class CAnimationGraph extends CAnimationNode
 	
 	public  _graphFactory:any;
 
-	public static _pFeatures:Object = new Object; 
+	public static _pFeatures:any = new Object; 
 	
 	
 	public CAnimationGraph()
@@ -114,7 +114,7 @@ export class CAnimationGraph extends CAnimationNode
 	/**
 	 * 	
 	 */
-	public queryPFeature(pid, size, cycle) : number
+	public queryPFeature(pid:string, size:number, cycle:number) : number
 	{
 		let iter:number = 0;
 		
@@ -185,7 +185,7 @@ export class CAnimationGraph extends CAnimationNode
 	
 	private parseNodes() : boolean
 	{
-		let nodeList:Object = this._graphFactory.CNodes;
+		let nodeList:any = this._graphFactory.CNodes;
 		
 		// Note: this is not order garanteed 
 		

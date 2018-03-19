@@ -79,7 +79,7 @@ export class CEFSkillBar extends CEFObject
 		this._invlevel = 1 - newLevel;
 		this._level    = newLevel;
 		
-		this.Smask.x = -(this.SprogBar['width'] * this._invlevel);			
+		this.Smask.x = -((this.SprogBar as any)['width'] * this._invlevel);			
 		
 		this._level *= 100;
 		

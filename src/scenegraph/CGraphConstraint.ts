@@ -46,7 +46,7 @@ export class CGraphConstraint extends Object
 		super();
 	}					
 	
-	public static factory(parent:CSceneGraph, factory:Object) : CGraphConstraint
+	public static factory(parent:CSceneGraph, factory:any) : CGraphConstraint
 	{
 		let node:CGraphConstraint = new CGraphConstraint;			
 		
@@ -75,7 +75,7 @@ export class CGraphConstraint extends Object
 			case "exec":
 				try
 				{
-					result = D.eval(this._code, this._parent.sceneInstance());
+					result = eval(this._code);
 											
 					//trace("R0 Belief: " + this._parent.sceneInstance().gTutor.ktSkills['rule0'].queryBelief());
 				}

@@ -27,13 +27,16 @@
 //
 //*********************************************************************************
 
+//** Imports
+
+import { CEFRoot } 			from "./CEFRoot";
+import { CEFCheckButton } 	from "./CEFCheckButton";
 import { CEFObject } 		from "./CEFObject";
 import { CEFButton } 		from "./CEFButton";
 
 import { CEFButtonEvent } 	from "../events/CEFButtonEvent";
 
 import { CUtil } 			from "../util/CUtil";
-import { CEFRoot } from "./CEFRoot";
 
 
 /**
@@ -41,14 +44,14 @@ import { CEFRoot } from "./CEFRoot";
 */
 export class CEFButtonGroup extends CEFObject
 {
-	public buttons:Array<CEFButton>;
+	public buttons:Array<any>;
 	public buttonType:Array<string> = new Array();		//## Added Sep 29 2012 - to support individual radio style buttons. i.e. buttons that are exclusive 
 	
 	public _fRadioGroup:boolean  = true;				//## Added Jun 26 2012 - to support non radio style button groups. 
 			
 	private _inited:boolean = false;
 	
-	private onChangeScript:object = null;
+	private onChangeScript:string = null;
 
 	static readonly CHECKED:string = "ischecked";
 	
@@ -62,7 +65,7 @@ export class CEFButtonGroup extends CEFObject
 		this.buttons = new Array();
 	}
 	
-	public addButton(newButton:CEFButton, bType:string="")
+	public addButton(newButton:any, bType:string="")
 	{
 		this.buttons.push(newButton);		
 		this.buttonType.push(bType);															
@@ -134,7 +137,7 @@ export class CEFButtonGroup extends CEFObject
 	{
 		// indicate that a selection has been made in the button group
 		//
-		dispatchEvent(new Event(CHECKED));
+		this.dispatchEvent(new Event(CEFButtonEvent.WOZCHECKED));
 		
 		//## Mod Apr 14 2014 - support declarative button actions from scenedescr.xml <symbol>
 		if(this.onChangeScript != null)
@@ -146,9 +149,9 @@ export class CEFButtonGroup extends CEFObject
 	{
 		try
 		{
-			// D.eval(onChangeScript, parentScene);
+			eval(this.onChangeScript);
 		}
-		catch(e:*)
+		catch(e)
 		{
 			CUtil.trace("Error in onChange script: " + this.onChangeScript);
 		}
@@ -158,7 +161,7 @@ export class CEFButtonGroup extends CEFObject
 	 *## Added Jun 26 2012 - to support non radio style button groups.
 		* 
 		*/
-	public set radioType( fRadioGroup:boolean) : void
+	public set radioType( fRadioGroup:boolean)
 	{
 		this._fRadioGroup = fRadioGroup;
 	}
@@ -523,12 +526,12 @@ export class CEFButtonGroup extends CEFObject
 	*/
 	public loadXML(xmlSrc:any) : void
 	{						
-		let tarButton:CEFButton;
+		let tarButton:any;
 		let objArray:Array<any>;
 		
 		super.loadXML(xmlSrc);									
 		
-		for (let butInst in xmlSrc.button)
+		for (let butInst of xmlSrc.button)
 		{
 			CUtil.trace(butInst.name);
 			
@@ -536,14 +539,14 @@ export class CEFButtonGroup extends CEFObject
 			
 			try
 			{
-				objArray = butInst.@name.split(".");
+				objArray = butInst.name.split(".");
 				
 				if(this.traceMode) CUtil.trace("Target Array: " + objArray[0]);
 				
 				if(objArray.length)
-					tarButton = decodeTarget(parent, objArray);								
+					tarButton = this.decodeTarget(this.parent, objArray);								
 			}
-			catch(err:Error)
+			catch(err)
 			{
 				tarButton = null;
 			}				
@@ -557,23 +560,25 @@ export class CEFButtonGroup extends CEFObject
 			}				
 		}
 
-		if(xmlSrc.@wozname != undefined)										//## added Jan 23 2013 - wozName uninitialized previously			
-			this.wozName = xmlSrc.@wozname;
+		if(xmlSrc.wozname != undefined)										//## added Jan 23 2013 - wozName uninitialized previously			
+			this.wozName = xmlSrc.wozname;
 					
-		if(xmlSrc.@radioType != undefined)										//## Added Jun 26 2012 - to support non radio style button groups.
-			this.radioType = (Boolean(xmlSrc.@radioType == "true"? true:false));
+		if(xmlSrc.radioType != undefined)										//## Added Jun 26 2012 - to support non radio style button groups.
+			this.radioType = (Boolean(xmlSrc.radioType == "true"? true:false));
 		
-		if(xmlSrc.@validftr != undefined)										//## Added Sep 28 2012 - to support dynamic features 
-			this._validFeature = xmlSrc.@validftr;
+		if(xmlSrc.validftr != undefined)										//## Added Sep 28 2012 - to support dynamic features 
+			this._validFeature = xmlSrc.validftr;
 		
-		if(xmlSrc.@invalidftr != undefined)										//## Added Sep 28 2012 - to support dynamic features
-			this._invalidFeature = xmlSrc.@invalidftr;
+		if(xmlSrc.invalidftr != undefined)										//## Added Sep 28 2012 - to support dynamic features
+			this._invalidFeature = xmlSrc.invalidftr;
 		
 		if(xmlSrc.onchange != undefined)		
 		{
 			// Note: it is imperitive that we precompile the script -
 			//       Doing it on each invokation causes failures
-			this.onChangeScript = D.parseProgram(xmlSrc.onchange);
+
+			//  this.onChangeScript = D.parseProgram(xmlSrc.onchange);
+			 this.onChangeScript = xmlSrc.onchange;
 		}
 		
 		this._inited = true;

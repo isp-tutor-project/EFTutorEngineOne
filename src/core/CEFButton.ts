@@ -27,6 +27,8 @@
 //
 //*********************************************************************************
 
+//** Imports
+
 import { CEFRoot }			from "./CEFRoot";
 import { CEFObject }     	from "./CEFObject";
 import { CEFMouseEvent }    from "../events/CEFMouseEvent";
@@ -107,7 +109,7 @@ export class CEFButton extends CEFObject
 
 //*************** Logging state management
 	
-	public captureLogState(obj:Object = null) : Object
+	public captureLogState(obj:any = null) : Object
 	{
 		obj = super.captureLogState(obj);
 		
@@ -262,9 +264,9 @@ export class CEFButton extends CEFObject
 	public doMouseClicked(evt:CEFMouseEvent) : void 
 	{				
 		if(this.traceMode) CUtil.trace("dispatch WOZCLICK");
-	
-		this.dispatchEvent(new CEFMouseEvent("", CEFMouseEvent.WOZCLICK, true, false, evt.localX, evt.localY));
-		
+
+		this.dispatchEvent(new CEFMouseEvent("", CEFMouseEvent.WOZCLICK, evt.bubbles, evt.cancelable, evt.stageX, evt.stageY,evt.nativeEvent, evt.pointerID, evt.primary, evt.rawX, evt.rawY));
+
 		//## Mod Apr 14 2014 - support declarative button actions from scenedescr.string <symbol>
 		if(this.onClickScript != null)
 			this.doClickAction(evt);
@@ -312,19 +314,11 @@ export class CEFButton extends CEFObject
 	{					
 		// Show the button before testing it
 		//
-		super.visible = fShow;	
-		
-	}	
-	
-	public set visible(value:boolean)
-	{
-		// Show the button before testing it
-		//
-		super.visible = value;	
-		
+		this.visible = fShow;	
+
 		// When a button comes on stage - update its state immediately
 		//
-		if(value)
+		if(fShow)
 		{
 			if(this.traceMode) CUtil.trace("testing init state: " + name);
 			
@@ -335,7 +329,7 @@ export class CEFButton extends CEFObject
 				if(CEFRoot.gTutor.cCursor.stateHelper(this))
 				{
 					if(this.traceMode) CUtil.trace("setting init state Over");
-					this.doMouseOver(new CEFMouseEvent(".", CEFMouseEvent.WOZOVER));
+					this.doMouseOver(null);
 				}	
 			}
 			catch(Error)
@@ -343,8 +337,9 @@ export class CEFButton extends CEFObject
 				if(this.traceMode) CUtil.trace("cCursor not yet instantiated");
 			}
 		}
-	}
-
+		
+	}	
+	
 //*************** Serialization
 	
 	/*

@@ -47,10 +47,8 @@ export interface ILogManager
 //************************************************************************************		
 ///**** Interface
 	
-	fLogging() :number;		
+	fLogging :number;		
 	
-	fLogging(newval:number) : void;		
-
 	account(_account:object): void;
 		
 	fTutorPart() :string;		
@@ -107,8 +105,8 @@ export interface ILogManager
 	sessionHost() :string;
 	sessionHost(newHost:string) : void;		
 	
-	sessionPort() : uint;
-	sessionPort(newPort:uint) : void;		
+	sessionPort() : number;
+	sessionPort(newPort:number) : void;		
 	
 	/**
 	 * Prior to starting a session, decide whether we are using queued data
@@ -143,7 +141,7 @@ export interface ILogManager
 	
 	failSession() : void;
 	
-	sendPacket(packet:*) :boolean;
+	sendPacket(packet:any) :boolean;
 	
 	
 //*** Session Management
@@ -194,12 +192,12 @@ export interface ILogManager
 	
 	// push the event onto the stack
 	//
-	logProgressEvent(logData:*) : void;
+	logProgressEvent(logData:any) : void;
 	
 	
 	// push the event onto the stack
 	//
-	logDurationEvent(logData:*) : void;
+	logDurationEvent(logData:any) : void;
 	
 	
 	// push the event onto the stack

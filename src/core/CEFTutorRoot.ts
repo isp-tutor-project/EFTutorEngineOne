@@ -49,6 +49,9 @@ import DisplayObject 		  = createjs.DisplayObject;
 import DisplayObjectContainer = createjs.Container;
 import Tween 				  = createjs.Tween;
 import { CUtil } from "../util/CUtil";
+import { CEFKTNode } from "../kt/CEFKTNode";
+import { CLogManagerType } from "../network/CLogManagerType";
+import { CEFKeyboardEvent } from "../events/CEFKeyboardEvent";
 
 
 export class CEFTutorRoot extends CEFRoot 
@@ -89,22 +92,22 @@ export class CEFTutorRoot extends CEFRoot
 	public timeStamp:CEFTimeStamp = new CEFTimeStamp;
 	
 	// Pause Play support
-	public playing:Array<DisplayObject>  = new Array();				// Array of actively playing WOZ Objects
+	public playing:Array<DisplayObject>  = new Array();					// Array of actively playing WOZ Objects
 	public isPaused:boolean				 = false;
 	public scenePtr:Array<CEFScene>   	 = new Array;
 	
 	// Playback support
 	
-	public stateStack:Array<object> = new Array();
+	public stateStack:Array<any> = new Array();
 				
 	// Global Mouse Cursor
 	//
 	public 	 cCursor:CEFCursorProxy;		
 	
-	public   sceneCnt:number   		   	= 0;									// Total number of scenes	
+	public   sceneCnt:number   		   	= 0;							// Total number of scenes	
 
-	public   tutorAutoObj:Object;												// This allows us to automate non-WOZ objects - They have no code behind and therefore no local variables to store initial state
-	public   xitions:CEFTransitions 	= new CEFTransitions;					// This is the tutor transition object
+	public   tutorAutoObj:any;											// This allows us to automate non-WOZ objects - They have no code behind and therefore no local variables to store initial state
+	public   xitions:CEFTransitions 	= new CEFTransitions;			// This is the tutor transition object
 
 			  replayIndex:Array<number> 	= new Array;
 			  replayTime:number    			= 0;
@@ -117,9 +120,10 @@ export class CEFTutorRoot extends CEFRoot
 			  baseTime:number;
 			
 			// knowledge tracing 
-	public   ktSkills:Object;							//@@ Mod Aug 28 2013 - support for new kt structure in sceneGraph
+			public 	 ktNets:any				= new Object;				// deprecated Aug 28 2013
+			public   ktSkills:any;										//@@ Mod Aug 28 2013 - support for new kt structure in sceneGraph
 	
-	private sceneGraph:string = "<sceneGraph/>";		// export purposes only  
+	private sceneGraph:string = "<sceneGraph/>";						// export purposes only  
 	
 	
 	/**
@@ -135,8 +139,8 @@ export class CEFTutorRoot extends CEFRoot
 		
 		//*** Init the Tutor Global Variables
 		
-		this.gTutor       = this;						// Connect to the Tutor
-		this.tutorAutoObj = new Object;					// Create the Automation Object			
+		CEFRoot.gTutor       = this;						// Connect to the Tutor
+		this.tutorAutoObj = new Object;						// Create the Automation Object			
 	}
 	
 	public resetZorder()
@@ -146,7 +150,7 @@ export class CEFTutorRoot extends CEFRoot
 	}
 	
 	//@@ debug - for building XML spec of Tutor spec only - captureSceneGraph
-	export public captureSceneGraph() : void
+	public captureSceneGraph() : void
 	{		
 		//System.setClipboard(sceneGraph);		
 	}
@@ -160,7 +164,7 @@ export class CEFTutorRoot extends CEFRoot
 		
 		this.fDefaults = new Array<string>();
 		
-		for(let feature:string of featArray)
+		for(let feature of featArray)
 		{
 			this.fDefaults.push(feature);
 		}
@@ -180,14 +184,14 @@ export class CEFTutorRoot extends CEFRoot
 
 		// Add default features 
 		
-		for (let feature:string of this.fDefaults)
+		for (let feature of this.fDefaults)
 		{
 			this.fFeatures.push(feature);
 		}
 
 		// Add instance features 
 		
-		for (let feature:string of featArray)
+		for (let feature of featArray)
 		{
 			this.fFeatures.push(feature);
 		}
@@ -206,7 +210,7 @@ export class CEFTutorRoot extends CEFRoot
 	// set : delimited string of features
 	//## Mod Dec 03 2013 - DB state support
 	//
-	public set features(ftrSet:string) : void
+	public set features(ftrSet:string) 
 	{			
 		// Add new features - no duplicates
 		
@@ -216,7 +220,7 @@ export class CEFTutorRoot extends CEFRoot
 	
 	// udpate the working feature set for this instance
 	//
-	public set addFeature(feature:string) : void
+	public set addFeature(feature:string) 
 	{			
 		// Add new features - no duplicates
 		
@@ -228,7 +232,7 @@ export class CEFTutorRoot extends CEFRoot
 	
 	// udpate the working feature set for this instance
 	//
-	public set delFeature(feature:string) : void
+	public set delFeature(feature:string)
 	{
 		let fIndex:number;
 		
@@ -243,7 +247,7 @@ export class CEFTutorRoot extends CEFRoot
 	//## Mod Jul 01 2012 - Support for NOT operation on features.
 	//
 	//	
-	private testFeature(element:*, index:number, arr:Array<string>) : boolean
+	private testFeature(element:any, index:number, arr:Array<string>) : boolean
 	{
 		if(element.charAt(0) == "!")
 		{
@@ -270,7 +274,7 @@ export class CEFTutorRoot extends CEFRoot
 		// Check all disjunctive featuresets - one in each element of disjFeat
 		// As long as one is true we pass
 		
-		for (let feature:string of disjFeat)
+		for (let feature of disjFeat)
 		{
 			conjFeat = feature.split(",");
 			
@@ -291,7 +295,7 @@ export class CEFTutorRoot extends CEFRoot
 	}		
 	
 	
-	public addScene(sceneTitle:string, scenePage:string, sceneName:string, sceneClass:string, sceneFeatures:string, sceneEnqueue:boolean, sceneCreate:boolean, sceneVisible:boolean, scenePersist:boolean, sceneObj:* = null ) : void
+	public addScene(sceneTitle:string, scenePage:string, sceneName:string, sceneClass:string, sceneFeatures:string, sceneEnqueue:boolean, sceneCreate:boolean, sceneVisible:boolean, scenePersist:boolean, sceneObj:any = null ) : void
 	{		
 		//@@ debug - for building XML spec of Tutor spec only - captureSceneGraph			
 		//sceneGraph.appendChild(<scene sceneTitle={sceneTitle} scenePage={scenePage} sceneName={sceneName} sceneClass={sceneClass} sceneFeatures={sceneFeatures} sceneEnqueue={sceneEnqueue? "true:boolean":":boolean"} sceneCreate={sceneCreate? "true:boolean":":boolean"} scenePersist={scenePersist? "true:boolean":":boolean"} sceneObj={sceneObj? sceneObj.name:"null"} condition="" />);
@@ -314,11 +318,11 @@ export class CEFTutorRoot extends CEFRoot
 	}
 	
 	
-	public instantiateScene(sceneName:string, sceneClass:string, sceneVisible:boolean=false) : *
+	public instantiateScene(sceneName:string, sceneClass:string, sceneVisible:boolean=false) : any
 	{			
 		let i1:number;
-		let tarScene:*;
-		let subScene:*;
+		let tarScene:any;
+		let subScene:any;
 		let ClassRef:any = this.getDefinitionByName(sceneClass);
 		
 		tarScene = new ClassRef();			
@@ -343,7 +347,7 @@ export class CEFTutorRoot extends CEFRoot
 		
 		if(sceneVisible)
 		{
-			this[sceneName]  = tarScene;
+			(this as any)[sceneName]  = tarScene;
 			tarScene.visible = true;
 		}
 		
@@ -391,7 +395,7 @@ export class CEFTutorRoot extends CEFRoot
 			if(sceneObj instanceof CEFObject)
 			{
 				wozObj = sceneObj as CEFObject;			// Coerce the Object					
-				wozObj.removeAllListeners(true); 		// Cleanup listeners
+				// wozObj.removeAllListeners(true); 		// Cleanup listeners  @@FLAG
 				
 				wozObj.Destructor();					// Object cleanup 				
 			}								
@@ -403,7 +407,7 @@ export class CEFTutorRoot extends CEFRoot
 		
 		if(this.hasOwnProperty(sceneName))
 		{
-			this[sceneName] = null;
+			(this as any)[sceneName] = null;
 			
 			// Remove each SCENE Object
 			if(this.tutorAutoObj.hasOwnProperty(sceneName))
@@ -416,14 +420,14 @@ export class CEFTutorRoot extends CEFRoot
 	}
 	
 	
-	public automateScene(sceneName:string, sceneObj:*, nameObj:boolean = true) : void
+	public automateScene(sceneName:string, sceneObj:any, nameObj:boolean = true) : void
 	{						
 		// name the object
 		
-		this[sceneName] = sceneObj;		
+		(this as any)[sceneName] = sceneObj;		
 		
 		if(nameObj)									// Can't rename an object placed in Flash
-			this[sceneName].name = sceneName;
+			(this as any)[sceneName].name = sceneName;
 		
 		// Attach the navigator to the scene itself - let it know what navigation object to use when NAV events occur
 		
@@ -456,29 +460,29 @@ export class CEFTutorRoot extends CEFRoot
 		// Parse the Tutor.config for preenter procedures for this scene 
 		
 		if((CEFRoot.gSceneConfig != null) && (CEFRoot.gSceneConfig.ktnets != undefined))			
-				this.loadKTNets(CEFRoot.gSceneConfig.ktnets.children());				
+				this.loadKTNets(CEFRoot.gSceneConfig.ktnets);				
 	}
 	
 	/**
 	 * 
 	 * @param	tarXML
 	 */
-	public loadKTNets(tarXML:string ) : void
+	public loadKTNets(tarXML:any ) : void
 	{						
 		for(let ktnet of tarXML)
 		{
-			ktNets[ktnet.@name] = new CEFKTNode;
+			this.ktNets[ktnet.name] = new CEFKTNode;
 			
-			ktNets[ktnet.@name].loadXML(ktnet);
+			this.ktNets[ktnet.name].loadXML(ktnet);
 		}
 	}
 	
 	
 //***************** XML State Management *******************************	
 
-	public recurseXML(xmlNodes:Array, xmlTar:XML, newVal:string ) : string
+	public recurseXML(xmlNodes:Array<any>, xmlTar:any, newVal:string ) : string
 	{
-		let xml:XML = xmlTar;
+		let xml:any = xmlTar;
 		let ndx:number;
 		let len:number = xmlNodes.length;
 		let attr:string;
@@ -491,10 +495,10 @@ export class CEFTutorRoot extends CEFRoot
 			{
 				attr = xmlNodes[nodeId+1];
 				
-				if (this.traceMode) CUtil.trace(typeof(xml.@[attr]));
-				if (this.traceMode) CUtil.trace(xml.@[attr]);
+				if (this.traceMode) CUtil.trace(typeof(xml[attr]));
+				if (this.traceMode) CUtil.trace(xml[attr]);
 				
-				(newVal != null)? xml.@[attr] = value = newVal : value = xml.@[attr];
+				(newVal != null)? xml[attr] = value = newVal : value = xml[attr];
 				nodeId++;
 			}
 			else
@@ -536,13 +540,13 @@ export class CEFTutorRoot extends CEFRoot
 	//
 	public state(xmlSpec:string, newVal:string = null ) : string
 	{			
-		let nodeArray:Array;
+		let nodeArray:Array<any>;
 			
 		nodeArray = xmlSpec.split(".");
 			
 		if(this.traceMode) CUtil.trace("Node Array: " + nodeArray);
 
-		return recurseXML(nodeArray, sceneConfig.state[0], newVal);
+		return this.recurseXML(nodeArray, CEFTutorRoot.gSceneConfig.state[0], newVal);
 	}
 
 	
@@ -551,13 +555,13 @@ export class CEFTutorRoot extends CEFRoot
 	//
 	public scene(xmlSpec:string, newVal:string = null ) : string
 	{			
-		let nodeArray:Array;
+		let nodeArray:Array<any>;
 			
 		nodeArray = xmlSpec.split(".");
 			
 		if(this.traceMode) CUtil.trace("Node Array: " + nodeArray);
 
-		return recurseXML(nodeArray, sceneConfig.scenedata[0], newVal);
+		return this.recurseXML(nodeArray, CEFTutorRoot.gSceneConfig.scenedata[0], newVal);
 	}
 
 	
@@ -580,8 +584,8 @@ export class CEFTutorRoot extends CEFRoot
 		
 		// Tell Proxies that Tutor is replaying
 		//
-		dispatchEvent(new Event(CEFNavEvent.WOZCANCEL));
-		dispatchEvent(new Event(CEFEvent.WOZREPLAY));
+		dispatchEvent(new Event(CEFRoot.WOZCANCEL));
+		dispatchEvent(new Event(CEFRoot.WOZREPLAY));
 	}
 
 	/**
@@ -597,7 +601,7 @@ export class CEFTutorRoot extends CEFRoot
 		for (let i1:number = 0 ; i1 < tCount ; i1++)
 		{
 			// Call the base stop directly - so playing array is not affected
-			this.playing[0].superStop();
+			// this.playing[0].stop();  //** TODO */
 			this.playing.pop();
 		}
 	}
@@ -614,12 +618,12 @@ export class CEFTutorRoot extends CEFRoot
 		
 		// Tell Proxies that Tutor is pausing
 		//
-		dispatchEvent(new Event(WOZPAUSING));
+		this.dispatchEvent(new Event(CEFTutorRoot.WOZPAUSING));
 		
 		for (let i1:number = 0 ; i1 < this.playing.length ; i1++)
 		{
 			// Call the base stop directly - so playing array is not affected
-			this.playing[i1].superStop();
+			// this.playing[i1].stop();		//** TODO */
 		}
 	}
 
@@ -627,7 +631,7 @@ export class CEFTutorRoot extends CEFRoot
 	 * Pause anything that is currently playing - inform component proxies through a pause event dispatch
 	 * 
 	 */
-	export public wozPlay():void 
+	public wozPlay():void 
 	{
 		if (this.traceMode)  CUtil.trace(" wozPlay : ", this.playing.length);		
 
@@ -635,12 +639,12 @@ export class CEFTutorRoot extends CEFRoot
 		
 		// Tell Proxies that Tutor is playing again
 		//
-		dispatchEvent(new Event(WOZPLAYING));			
+		this.dispatchEvent(new Event(CEFTutorRoot.WOZPLAYING));			
 		
 		for (let i1:number = 0 ; i1 < this.playing.length ; i1++)
 		{
 			// Call the base play directly - so playing array is not affected
-			this.playing[i1].superPlay();
+			// this.playing[i1].play();		//** TODO */
 		}
 	}
 
@@ -650,7 +654,7 @@ export class CEFTutorRoot extends CEFRoot
 	 * @@@ NOTE: There is probably a memory leak here as we don't catch cases where movies stop at their last 
 	 * 		     frame just because they are complete
 	 */
-	export public playRemoveThis(wozObj:CEFRoot ):void 
+	public playRemoveThis(wozObj:CEFRoot ):void 
 	{
 		if (this.traceMode) CUtil.trace(" playRemoveThis : ", wozObj.name, this.playing.length);		
 		
@@ -674,7 +678,7 @@ export class CEFTutorRoot extends CEFRoot
 	 * Manage the array of playing movieclips
 	 * 
 	 */
-	export public playAddThis(wozObj:CEFRoot ):void 
+	public playAddThis(wozObj:CEFRoot ):void 
 	{
 		if (this.traceMode)  CUtil.trace(" playAddThis : ", wozObj.name, this.playing.length);		
 		
@@ -753,8 +757,8 @@ export class CEFTutorRoot extends CEFRoot
 		// Point the transitions / NavPanel
 		//  	to this tutor in the automation array
 		//
-		this.xitions.connectToTutor(this, tutorAutoObj);									
-		this.SnavPanel.connectToTutor(this, tutorAutoObj);			
+		this.xitions.connectToTutor(this, this.tutorAutoObj);									
+		this.SnavPanel.connectToTutor(this, this.tutorAutoObj);			
 		
 	}
 
@@ -769,11 +773,11 @@ export class CEFTutorRoot extends CEFRoot
 	
 	// Walk the WOZ Objects to capture their default state
 	//
-	public captureDefState(Tutor:Object ) : void 
+	public captureDefState(Tutor:any ) : void 
 	{
 		if(this.traceMode) CUtil.trace("\t*** Start Capture - Walking Scenes***");
 
-		for(let scene:string in Tutor)
+		for(let scene in Tutor)
 		{
 			if(this.traceMode) CUtil.trace("\tSCENE : " + scene);
 			
@@ -788,11 +792,11 @@ export class CEFTutorRoot extends CEFRoot
 	
 	// Walk the WOZ Objects to restore their default state
 	//
-	public restoreDefState(Tutor:Object ) : void 
+	public restoreDefState(Tutor:any ) : void 
 	{
 		if(this.traceMode) CUtil.trace("\t*** Start Restore - Walking Scenes***");
 
-		for(let scene:string in Tutor)
+		for(let scene in Tutor)
 		{
 			if(this.traceMode) CUtil.trace("\tSCENE : " + scene);
 			
@@ -809,7 +813,7 @@ export class CEFTutorRoot extends CEFRoot
 	
 	// Playback the recorded event stream 
 	//
-	public doPlayBack(pbSource:XMLList) : void 
+	public doPlayBack(pbSource:any) : void 
 	{
 		if(this.traceMode) CUtil.trace("\t*** Start - Playback Stream ***");
 
@@ -822,44 +826,44 @@ export class CEFTutorRoot extends CEFRoot
 		// Save the current tutor state
 		// Note: during playback no logging takes place
 		
-		this.stateStack.push(baseTime);
+		this.stateStack.push(this.baseTime);
 		this.stateStack.push(CEFDoc.gApp.stateID);
 		this.stateStack.push(CEFDoc.gApp.frameID);
 		this.stateStack.push(this.gLogR.fLogging);				// Remember the logger flag prior to playback
 		
-		this.gLogR.fLogging= CLogManagerType.RECLOGNONE;		// stop logging/recording
+		this.gLogR.fLogging = CLogManagerType.RECLOGNONE;		// stop logging/recording
 		
 		// Prep the Playback source.
 		//			
 		this.gLogR.setPlayBackSource(pbSource);
 		
-		if(pbSource[0].@version == "1") 
+		if(pbSource[0].version == "1") 
 		{
-			gLogR.normalizePlayBackTime();
+			this.gLogR.normalizePlayBackTime();
 			
 			// Set the normalization constant for the realtime calculations
 
-			baseTime = getTimer();
+			this.baseTime = CUtil.getTimer();
 		
-			addEventListener(Event.ENTER_FRAME, playBackByTime);
+			addEventListener(CEFEvent.ENTER_FRAME, this.playBackByTime);
 			
 			// In demo mode any key will abort playback and return to demo menu
 			
-			if(fDemo)
+			if(CEFTutorRoot.fDemo)
 			{
-				stage.addEventListener(KeyboardEvent.KEY_UP, abortPlayBack);
-				stage.addEventListener(MouseEvent.CLICK, abortPlayBack2);
+				this.stage.addEventListener(CEFKeyboardEvent.KEY_UP, this.abortPlayBack);
+				this.stage.addEventListener(CEFMouseEvent.CLICK, this.abortPlayBack2);
 			}
 		}
-		else if(pbSource[0].@version == "2")
+		else if(pbSource[0].version == "2")
 		{
-			gLogR.normalizePlayBack();
+			this.gLogR.normalizePlayBack();
 			
 			// Disconnect the tutor frame counter - handed off to the playback unit
 
 			CEFDoc.gApp.connectFrameCounter(false);
 			
-			addEventListener(Event.ENTER_FRAME, playBackByFrame);
+			addEventListener(CEFEvent.ENTER_FRAME, this.playBackByFrame);
 		}
 	}
 	
@@ -870,26 +874,26 @@ export class CEFTutorRoot extends CEFRoot
 	{
 		if(this.traceMode) CUtil.trace("\t*** Start - Replay Stream ***");
 		
-		cCursor.initWOZCursor(CEFCursorProxy.WOZREPLAY);				
-		cCursor.show(true);			
-		cCursor.initPlayBack();						// reset the Playback timer
+		this.cCursor.initWOZCursor(CEFCursorProxy.WOZREPLAY);				
+		this.cCursor.show(true);			
+		this.cCursor.initPlayBack();						// reset the Playback timer
 					
-		restoreDefState(tutorAutoObj);
+		this.restoreDefState(this.tutorAutoObj);
 		
 		// Save the current tutor state
 		// Note: during playback no logging takes place
 		
-		stateStack.push(baseTime);
-		stateStack.push(CEFDoc.gApp.stateID);
-		stateStack.push(CEFDoc.gApp.frameID);
-		stateStack.push(gLogR.fLogging);				// Remember the logger flag prior to playback
+		this.stateStack.push(this.baseTime);
+		this.stateStack.push(CEFDoc.gApp.stateID);
+		this.stateStack.push(CEFDoc.gApp.frameID);
+		this.stateStack.push(this.gLogR.fLogging);				// Remember the logger flag prior to playback
 		
-		gLogR.fLogging= CLogManagerType.RECLOGNONE;	// stop logging/recording
+		this.gLogR.fLogging= CLogManagerType.RECLOGNONE;	// stop logging/recording
 		
 		// Prep the Playback source.
 
-		gLogR.setPlayBackSource(null);
-		gLogR.normalizePlayBack();
+		this.gLogR.setPlayBackSource(null);
+		this.gLogR.normalizePlayBack();
 
 		// Disconnect the tutor frame counter - handed off to the playback unit
 
@@ -897,11 +901,11 @@ export class CEFTutorRoot extends CEFRoot
 			
 		// Seek to the start scene
 
-		SnavPanel.goToScene("Sscene0");		
+		this.SnavPanel.goToScene("Sscene0");		
 		
 		// Use playback frame counter/update
 		
-		addEventListener(Event.ENTER_FRAME, playBackByFrame);
+		addEventListener(CEFEvent.ENTER_FRAME, this.playBackByFrame);
 	}
 	
 	
@@ -913,28 +917,28 @@ export class CEFTutorRoot extends CEFRoot
 	{
 		if(this.traceMode) CUtil.trace("\t*** Start - Replay Live Stream ***");
 		
-		cCursor.initWOZCursor(CEFCursorProxy.WOZREPLAY);				
-		cCursor.setCursorStyle("Sautomate");
-		cCursor.setTopMost();
-		cCursor.show(true);			
-		cCursor.initPlayBack();						// reset the Playback timer
+		this.cCursor.initWOZCursor(CEFCursorProxy.WOZREPLAY);				
+		this.cCursor.setCursorStyle("Sautomate");
+		this.cCursor.setTopMost();
+		this.cCursor.show(true);			
+		this.cCursor.initPlayBack();						// reset the Playback timer
 					
-		restoreDefState(tutorAutoObj);
+		this.restoreDefState(this.tutorAutoObj);
 		
 		// Save the current tutor state
 		// Note: during playback no logging takes place
 		
-		stateStack.push(baseTime);
-		stateStack.push(CEFDoc.gApp.stateID);
-		stateStack.push(CEFDoc.gApp.frameID);
-		stateStack.push(gLogR.fLogging);				// Remember the logger flag prior to playback
+		this.stateStack.push(this.baseTime);
+		this.stateStack.push(CEFDoc.gApp.stateID);
+		this.stateStack.push(CEFDoc.gApp.frameID);
+		this.stateStack.push(this.gLogR.fLogging);				// Remember the logger flag prior to playback
 		
-		gLogR.fLogging= CLogManagerType.RECLOGNONE;	// stop logging/recording
+		this.gLogR.fLogging= CLogManagerType.RECLOGNONE;	// stop logging/recording
 		
 		// Prep the Playback source.
 		//			
-		gLogR.setPlayBackSource(null);
-		gLogR.normalizePlayBack();
+		this.gLogR.setPlayBackSource(null);
+		this.gLogR.normalizePlayBack();
 		
 		// Disconnect the tutor frame counter - handed off to the playback unit
 
@@ -942,11 +946,11 @@ export class CEFTutorRoot extends CEFRoot
 		
 		// Seek to the start scene
 		//
-		SnavPanel.goToScene("SstartSplash");		// 	
+		this.SnavPanel.goToScene("SstartSplash");		// 	
 		
 		// Use playback frame counter/update
 		
-		addEventListener(Event.ENTER_FRAME, playBackByFrame);
+		addEventListener(CEFEvent.ENTER_FRAME, this.playBackByFrame);
 	}
 	
 	/**
@@ -954,7 +958,7 @@ export class CEFTutorRoot extends CEFRoot
 	 */
 	private abortPlayBack(evt:KeyboardEvent) : void
 	{
-		gLogR.setPlayBackDone(true);	
+		this.gLogR.setPlayBackDone(true);	
 		dispatchEvent(new Event("interruptPlayBack"));
 	}
 
@@ -963,7 +967,7 @@ export class CEFTutorRoot extends CEFRoot
 	 */
 	private abortPlayBack2(evt:MouseEvent) : void
 	{
-		gLogR.setPlayBackDone(true);
+		this.gLogR.setPlayBackDone(true);
 		dispatchEvent(new Event("interruptPlayBack"));
 	}
 	
@@ -973,30 +977,30 @@ export class CEFTutorRoot extends CEFRoot
 	 */
 	public playBackByFrame(evt:Event)
 	{
-		let wozEvt:XML = null;								// Next event
+		let wozEvt:any = null;								// Next event
 		let nextEventState:number;
 
 		//**** If playback is finished remove onFrame action and restore mouse cursor
 
-		if(gLogR.playBackDone())
+		if(this.gLogR.playBackDone())
 		{
 			if(this.traceMode) CUtil.trace("-- Playback Completed -- ");
 			
-			removeEventListener(Event.ENTER_FRAME, playBackByFrame);
+			removeEventListener(CEFEvent.ENTER_FRAME, this.playBackByFrame);
 							
-			cCursor.initWOZCursor(CEFCursorProxy.WOZLIVE);		
-			cCursor.setCursorStyle("Sstandard");
-			cCursor.show(false);
+			this.cCursor.initWOZCursor(CEFCursorProxy.WOZLIVE);		
+			this.cCursor.setCursorStyle("Sstandard");
+			this.cCursor.show(false);
 			
 			dispatchEvent(new Event("endPlayBack"));
 			
 			// restore the tutor state
 			// Note: during playback no logging takes place
 			
-			gLogR.fLogging        = stateStack.pop();	
-			CEFDoc.gApp.frameID = stateStack.pop();
-			CEFDoc.gApp.stateID = stateStack.pop();
-			baseTime             = stateStack.pop();			
+			this.gLogR.fLogging = this.stateStack.pop();	
+			CEFDoc.gApp.frameID = this.stateStack.pop();
+			CEFDoc.gApp.stateID = this.stateStack.pop();
+			this.baseTime       = this.stateStack.pop();			
 			
 			// Reconnect the tutor frame counter - handed off to the playback unit
 
@@ -1017,7 +1021,7 @@ export class CEFTutorRoot extends CEFRoot
 			// Note2: non-event driven state changes (video / animation events) may need to complete 
 			//       before we continue.
 			
-			nextEventState = gLogR.getNextEventState();
+			nextEventState = this.gLogR.getNextEventState();
 			
 			// once we reach the state start checking frames for events 
 			
@@ -1029,7 +1033,7 @@ export class CEFTutorRoot extends CEFRoot
 				
 				do
 				{
-					wozEvt = gLogR.getNextEvent(CEFDoc.gApp.stateID, CEFDoc.gApp.frameID);
+					wozEvt = this.gLogR.getNextEvent(CEFDoc.gApp.stateID, CEFDoc.gApp.frameID);
 				
 					if(wozEvt != null)
 					{
@@ -1037,7 +1041,7 @@ export class CEFTutorRoot extends CEFRoot
 
 						// fire the event - this handles mouse and text event types
 						
-						cCursor.playBackAction(wozEvt );	
+						this.cCursor.playBackAction(wozEvt );	
 					}
 					
 				}while(wozEvt != null);
@@ -1054,8 +1058,8 @@ export class CEFTutorRoot extends CEFRoot
 
 	public playBackByTime(evt:Event)
 	{
-		let frameTime:number = this.getTimer() - this.baseTime;	// get the realtime normalized frame Time
-		let wozEvt:XML;								// Next event
+		let frameTime:number = CUtil.getTimer() - this.baseTime;	// get the realtime normalized frame Time
+		let wozEvt:any;												// Next event
 				
 		// First do all the actions that have occured up to and including frameTime 
 		//
@@ -1067,7 +1071,7 @@ export class CEFTutorRoot extends CEFRoot
 			//
 			if(wozEvt != null)
 			{
-				cCursor.playBackAction(wozEvt );	
+				this.cCursor.playBackAction(wozEvt );	
 				if(this.traceMode) CUtil.trace("-- Executing Frame:" + frameTime + " -- EVT -- " + wozEvt);
 			}
 			
@@ -1077,32 +1081,32 @@ export class CEFTutorRoot extends CEFRoot
 		// position from this.  note that getMoveEvent can return lastMove multiple times if
 		// there are multiple frameTime events before the playhead reaches it.
 		//
-		wozEvt = gLogR.getMoveEvent(frameTime);
+		wozEvt = this.gLogR.getMoveEvent(frameTime);
 		
 		if(wozEvt != null)
-			cCursor.playBackMove(wozEvt, frameTime );	
+		this.cCursor.playBackMove(wozEvt, frameTime );	
 
 		// If playback is finished remove onFrame action and restore mouse cursor
 		//
-		if(gLogR.playBackDone())
+		if(this.gLogR.playBackDone())
 		{
 			if(this.traceMode) CUtil.trace("-- Playback Completed -- ");
 			
-			removeEventListener(Event.ENTER_FRAME, playBackByTime);
+			removeEventListener(CEFEvent.ENTER_FRAME, this.playBackByTime);
 							
-			cCursor.initWOZCursor(CEFCursorProxy.WOZLIVE);		
-			cCursor.setCursorStyle("Sstandard");
-			cCursor.show(false);
+			this.cCursor.initWOZCursor(CEFCursorProxy.WOZLIVE);		
+			this.cCursor.setCursorStyle("Sstandard");
+			this.cCursor.show(false);
 			
 			dispatchEvent(new Event("endPlayBack"));
 			
 			// restore the tutor state
 			// Note: during playback no logging takes place
 			
-			gLogR.fLogging      = stateStack.pop();	
-			CEFDoc.gApp.frameID = stateStack.pop();
-			CEFDoc.gApp.stateID = stateStack.pop();
-			baseTime            = stateStack.pop();
+			this.gLogR.fLogging = this.stateStack.pop();	
+			CEFDoc.gApp.frameID = this.stateStack.pop();
+			CEFDoc.gApp.stateID = this.stateStack.pop();
+			this.baseTime       = this.stateStack.pop();
 			
 			// Reconnect the tutor frame counter - handed off to the playback unit
 
@@ -1110,10 +1114,10 @@ export class CEFTutorRoot extends CEFRoot
 							
 			// In demo mode any key will abort playback 
 			
-			if(fDemo)
+			if(CEFTutorRoot.fDemo)
 			{
-				stage.removeEventListener(KeyboardEvent.KEY_UP, abortPlayBack);
-				stage.removeEventListener(MouseEvent.CLICK, abortPlayBack2);
+				this.stage.removeEventListener(CEFKeyboardEvent.KEY_UP, this.abortPlayBack);
+				this.stage.removeEventListener(CEFMouseEvent.CLICK, this.abortPlayBack2);
 			}
 		}		
 	}
@@ -1127,9 +1131,9 @@ export class CEFTutorRoot extends CEFRoot
 	 * 
 	 * @param	Tutor
 	 */
-	public dumpScenes(Tutor:Object) : void
+	public dumpScenes(Tutor:any) : void
 	{				
-		for(let scene:string in Tutor)
+		for(let scene in Tutor)
 		{
 			if(this.traceMode) CUtil.trace("\tSCENE : " + scene);
 			
@@ -1166,7 +1170,7 @@ export class CEFTutorRoot extends CEFRoot
 	 */
 	public enumChildren(scene:DisplayObjectContainer, indentCnt:number) : void
 	{				
-		let sceneObj:*;
+		let sceneObj:any;
 		let indent:string = "";
 		
 		for(let i2:number = 0 ; i2 < indentCnt ; i2++)
@@ -1222,7 +1226,7 @@ export class CEFTutorRoot extends CEFRoot
 	{
 		if(this.traceMode) CUtil.trace("Force Decrement Question: ");
 		
-		this.SnavPanel.onButtonPrev(new CEFMouseEvent(this.SnavPanel.name, CEFMouseEvent.WOZCLICK, false, false, 0, 0));			
+		this.SnavPanel.onButtonPrev(null);
 	}
 	
 	public goNextScene(evt:CEFNavEvent)

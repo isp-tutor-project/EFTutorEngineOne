@@ -1,0 +1,337 @@
+//*********************************************************************************
+//                                                                        
+//         CARNEGIE MELLON UNIVERSITY PROPRIETARY INFORMATION             
+//  
+//  This software is supplied under the terms of a license agreement or   
+//  nondisclosure agreement with Carnegie Mellon University and may not   
+//  be copied or disclosed except in accordance with the terms of that   
+//  agreement.    
+//  
+//   Copyright(c) 2013 Carnegie Mellon University. All Rights Reserved.   
+//                                                                        
+//  File:      CEFCheckBoxOverlay.as
+//                                                                        
+//  Purpose:   CEFCheckBoxOverlay object implementation
+//                                                                        
+//  Author(s): Kevin Willows                                                           
+//  
+//  History: File Creation Jan 16 2013  
+//                                                                        
+//  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+//  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+//  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+//  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+//  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+//  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+//  THE SOFTWARE.
+//
+//*********************************************************************************
+
+//** Imports
+
+import { CEFCheckBox } from "./CEFCheckBox";
+
+import MovieClip      = createjs.MovieClip;
+
+
+public class CEFCheckBoxOverlay extends CEFCheckBox implements ITableElement
+{
+	//************ Stage Symbols
+					
+	//************ Stage Symbols
+
+	private _overlay_ndx:number;
+	
+	private _owner:MovieClip;
+	private _table:CCVSTable;
+	
+	private _text:string;
+	
+	private _left:number;
+	private _top:number;
+	private _right:number;
+	private _bottom:number;
+	
+	private _width:Number;
+	private _height:Number;
+	
+	private _horizontalCenter:Number;
+	private _verticalCenter:Number;
+	
+	private _bcolor:number;
+	private _balpha:Number;
+	
+	private _lthickness:Number;
+	private _lcolor:number;
+	private _lalpha:Number;
+	
+	private _visible:boolean;
+
+	private _cellX:Number;			// Abs position of cell
+	private _cellY:Number;			// *
+	
+	private _cellCenterX:Number;	// Abs position of cell center
+	private _cellCenterY:Number;	// *
+	
+	private _cbCenterX:Number;		// Rel Offset to center of check box
+	private _cbCenterY:Number;		// *
+	
+	private _cbX:Number;			// Abs Calc'd location of checkbox 
+	private _cbY:Number;			// *
+	
+	private _hlX:Number;			// Abs Calc'd location of highlight 
+	private _hlY:Number; 			// *
+
+	private _initWidth:Number;		// Dimensions prior to augmentation with graphics object
+	private _initHeight:Number;		//
+	
+	constructor()
+	{
+		super();
+		//trace("CEFCheckBoxOverlay:Constructor");
+	}
+	
+	/**
+	 * 
+	 */
+	public setCheck(bCheck:boolean)
+	{
+		super.setCheck(bCheck);			
+		
+		_XMLsrc.checked = bCheck? "true":"false";
+	}
+	
+	public setCheck2(bCheck:boolean)
+	{
+		(this as any)["Scheck2"].visible = bCheck;		
+		(this as any)["Scheck3"].visible = false;					
+		
+		_XMLsrc.check2 = bCheck? "true":"false";
+		_XMLsrc.check3 = "false";			
+	}
+	
+	public setCheck3(bCheck:boolean)
+	{			
+		(this as any)["Scheck3"].visible = bCheck;
+		(this as any)["Scheck2"].visible = false;		
+					
+		_XMLsrc.check3 = bCheck? "true":"false";
+		_XMLsrc.check2 = "false";						
+	}
+	
+	public getLabel() : string
+	{
+		return "[object CCheckBoxOverlay]";			
+	}				
+	
+	public setLabel(newLabel:string) : void
+	{
+		// ignore labels 
+	}				
+	
+	public updateLabel(newLabel:string ) : void 
+	{					
+	}	
+	
+	public set showLabel(bVisible:boolean)
+	{
+		// Ignore labels
+	}
+			
+	public initOverlay(ndx:number, owner:MovieClip, table:CCVSTable) : void
+	{			
+		this._overlay_ndx = ndx;
+		
+		this._table = table as CCVSTable;
+		this._owner = owner;			
+		
+		this._initWidth  = width;
+		this._initHeight = height;
+		
+		this.updateOverlay();
+		
+		this._owner.addChild(this);		
+	}
+	
+	private updateOverlay() : void
+	{
+		let topCorner:CCell;
+		let botCorner:CCell;
+					
+		(this as any)["Schecked"].visible = (_XMLsrc.checked == "true")? true:false;		
+		(this as any)["Scheck2"].visible  = (_XMLsrc.check2  == "true")? true:false;		
+		(this as any)["Scheck3"].visible  = (_XMLsrc.check3  == "true")? true:false;
+		
+		// get the cell objects from the 0-based array
+		
+		topCorner = _table.getCell(_top   , _left);
+		botCorner = _table.getCell(_bottom, _right);
+					
+		// This gives us the abs position of the upper left corner of the cell region relative to the Table
+		
+		_cellX = topCorner.x;
+		_cellY = topCorner.y;
+		
+		// This gives us the dimensions of the cell region we are overlaying - may be more than a single cell
+		
+		_width  = (botCorner.x + botCorner.width)  - _cellX - 1;
+		_height = (botCorner.y + botCorner.height) - _cellY - 1;
+
+		// calc abs position of center of region relative to table
+		
+		_cellCenterX = _cellX + (_width/2);								// Abs position of cell region center
+		_cellCenterY = _cellY + (_height/2);							// *
+		
+		_cbCenterX = _initWidth  / 2;									// Rel Offset to center of check box overlay
+		_cbCenterY = _initHeight / 2;									// *
+		
+		_cbX = _cellCenterX - _cbCenterX + _horizontalCenter;			// Abs Calc'd layout location of checkbox 
+		_cbY = _cellCenterY - _cbCenterY + _verticalCenter;				// *
+		
+		_hlX = topCorner.x - _cbX;										// Abs Calc'd layout location of highlight 
+		_hlY = topCorner.y - _cbY; 										// *
+		
+		x = _cbX;														// place this control
+		y = _cbY;														// *
+		
+		// Setup the hightlight 
+		
+		graphics.clear();    
+		graphics.beginFill(_bcolor, _balpha );
+		graphics.lineStyle(_lthickness, _lcolor, _lalpha );
+		graphics.drawRect(_hlX, _hlY, _width, _height );            
+		graphics.endFill();
+		
+		visible = _visible;			
+	}
+	
+	public setCellFeedback(_color:number = 0xC8CCDA, _alpha:Number = .29 ) : void
+	{
+		_bcolor = _color;
+		_balpha = _alpha;
+		
+		updateOverlay();			
+	}
+	
+	public clearCellFeedback() : void
+	{
+		graphics.clear();    
+	}
+	
+	public get overlayNdx() : int
+	{
+		return _overlay_ndx;
+	}
+	
+	public get cell_Row() : int
+	{
+		return _top;
+	}
+	
+	public get cell_Col() : int
+	{
+		return _left;
+	}
+	
+	public enableOverlay(fEnable:boolean) : void
+	{						
+	}		
+	
+	public search(stext:string) : int 
+	{
+		return -1;
+	}
+
+
+//*************** Deep state management
+	
+	public deepStateCopy(src:any): void
+	{
+		this.fChecked = src["fChecked"];
+		this.curState = src["curState"];
+		this._isvalid = src["_isvalid"];
+		
+		(this as any)["Schecked"].visible  = src["Schecked"].visible;		
+		(this as any)["Scheck2"].visible   = src["Scheck2"].visible;		
+		(this as any)["Scheck3"].visible   = src["Scheck3"].visible;		
+		
+		this.rotation  = src.rotation;
+		this.x         = src.x;
+		this.y         = src.y;
+		this.width     = src.width;
+		this.height    = src.height;
+		this.alpha     = src.alpha;		
+		this.visible   = src.visible;
+		this.transform = src.transform;
+		this.bPersist  = src.bPersist;
+		
+		//  @@Mod Sept 28 2010 - causes incorrect check mode on multi check boxes
+	}		
+	
+//*************** Deep state management
+	
+	
+//********* Serialization
+	
+	public restoreOverlayState(xmlSrc:any) : void 
+	{									
+		this._left   = xmlSrc.pinleft;
+		this._top    = xmlSrc.pintop;
+		this._right  = xmlSrc.pinright;
+		this._bottom = xmlSrc.pinbottom;
+		
+		this._bcolor = xmlSrc.bcolor;
+		this._balpha = xmlSrc.balpha;
+		
+		this._horizontalCenter = xmlSrc.horizontalCenter;
+		this._verticalCenter   = xmlSrc.verticalCenter;
+		
+		this._lthickness = xmlSrc.lthickness;
+		this._lcolor		= xmlSrc.lcolor;
+		this._lalpha		= xmlSrc.lalpha;
+		
+		this._visible = (xmlSrc.visible == "true")? true:false;
+		
+		this.updateOverlay();
+	}	
+	
+	/*
+	*  
+	*/
+	public loadXML(xmlSrc:any) : void
+	{
+		// keep a copy of the original data source for object
+		
+		_XMLsrc = xmlSrc;
+					
+		super.loadXML(xmlSrc);
+		
+		// each overlay is pinned to a specific contiguous array of cells
+		
+		this._left   = xmlSrc.pinleft;
+		this._top    = xmlSrc.pintop;
+		this._right  = xmlSrc.pinright;
+		this._bottom = xmlSrc.pinbottom;
+		
+		this._bcolor = xmlSrc.bcolor;
+		this._balpha = xmlSrc.balpha;
+
+		this._horizontalCenter = xmlSrc.horizontalCenter;
+		this._verticalCenter   = xmlSrc.verticalCenter;
+		
+		this._lthickness = xmlSrc.lthickness;
+		this._lcolor		= xmlSrc.lcolor;
+		this._lalpha		= xmlSrc.lalpha;		
+		
+		this._visible = (xmlSrc.visible == "true")? true:false;
+	}
+	
+	/*
+	*/
+	public saveXML() : any
+	{
+		let propVector:any;
+		
+		return propVector;
+	}
+}

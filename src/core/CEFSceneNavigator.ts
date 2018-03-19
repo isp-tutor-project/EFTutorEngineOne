@@ -1,4 +1,7 @@
-﻿//*********************************************************************************
+﻿import { CEFNavigator } from "./CEFNavigator";
+import { CEFRoot } from "./CEFRoot";
+
+//*********************************************************************************
 //                                                                        
 //         CARNEGIE MELLON UNIVERSITY PROPRIETARY INFORMATION             
 //  
@@ -9,9 +12,9 @@
 //  
 //   Copyright(c) 2008 Carnegie Mellon University. All Rights Reserved.   
 //                                                                        
-//  File:      CWOZSceneNavigator.as
+//  File:      CEFSceneNavigator.as
 //                                                                        
-//  Purpose:   CWOZSceneNavigator Base class implementation
+//  Purpose:   CEFSceneNavigator Base class implementation
 //                                                                        
 //  Author(s): Kevin Willows                                                           
 //  
@@ -28,195 +31,192 @@
 //*********************************************************************************
 
 
-package cmu.woz 
+//** Imports
+
+
+
+
+/**
+* ...
+*/
+export class CEFSceneNavigator extends CEFNavigator
 {
-	//** Imports
+	
+	//*************** Navigator "ROOT INSTANCE" CONSTANTS - 
+	// Place these within a subclass to set the root of a navigation sequence
+	// 
+	private StscenePrev:number;
+	private StsceneCurr:number;
+	
+	private StsceneTitle:Array<string>    = new Array();
+	private StscenePage:Array<string>     = new Array();
+	private StsceneSeq:Array<string>      = new Array();
+	private StsceneClass:Array<string>    = new Array();
+	private StscenePersist:Array<string>  = new Array();
+	private StsceneFeatures:Array<string> = new Array();
+		
+	//*************** Navigator "ROOT INSTANCE" CONSTANTS - 
 	
 	/**
-	* ...
+	* Creates a new CEFSceneNavigator instance. 
 	*/
-	public class CWOZSceneNavigator extends CWOZNavigator
+	constructor() 
 	{
+		super();
+	}
+	
+	/**
+	 * Add a scene to a navigation sub-sequence - These sequences are driven by scene events not NEXT/PREV button clicks
+	 * @param	sceneTitle
+	 * @param	sceneName
+	 */
+	public addScene(SceneTitle:string, ScenePage:string, SceneName:string, SceneClass:string, ScenePersist:boolean, SceneFeatures:string = "null" ) : void
+	{
+		this.sceneCnt++;
 		
-		//*************** Navigator "ROOT INSTANCE" CONSTANTS - 
-		// Place these within a subclass to set the root of a navigation sequence
-		// 
-		private var StscenePrev:int;
-		private var StsceneCurr:int;
+		this.StsceneTitle.push(SceneTitle);
+		this.StscenePage.push(ScenePage);
+		this.StsceneSeq.push(SceneName);			
+		this.StsceneClass.push(SceneClass);			
+		this.StscenePersist.push(ScenePersist.toString());
 		
-		private var StsceneTitle:Array    = new Array();
-		private var StscenePage:Array     = new Array();
-		private var StsceneSeq:Array      = new Array();
-		private var StsceneClass:Array    = new Array();
-		private var StscenePersist:Array  = new Array();
-		private var StsceneFeatures:Array = new Array();
-			
-		//*************** Navigator "ROOT INSTANCE" CONSTANTS - 
-		
-		/**
-		* Creates a new CWOZSceneNavigator instance. 
-		*/
-		public function CWOZSceneNavigator() 
-		{
-			
-		}
-		
-		/**
-		 * Add a scene to a navigation sub-sequence - These sequences are driven by scene events not NEXT/PREV button clicks
-		 * @param	sceneTitle
-		 * @param	sceneName
-		 */
-		override public function addScene(SceneTitle:string, ScenePage:string, SceneName:string, SceneClass:string, ScenePersist:boolean, SceneFeatures:string = "null" ) : void
-		{
-			sceneCnt++;
-			
-			StsceneTitle.push(SceneTitle);
-			StscenePage.push(ScenePage);
-			StsceneSeq.push(SceneName);			
-			StsceneClass.push(SceneClass);			
-			StscenePersist.push(ScenePersist);
-			
-			if(SceneFeatures != "null")
-				StsceneFeatures.push(SceneFeatures);	
-			else
-				StsceneFeatures.push(null);	
-		}	
-		
-		
+		if(SceneFeatures != "null")
+			this.StsceneFeatures.push(SceneFeatures);	
+		else
+			this.StsceneFeatures.push(null);	
+	}	
+	
+	
 //****** Overridable Behaviors
-		
+	
 //***************** Navigation Behaviors *******************************	
 
-		//*************** Navigator getter setters - 
-		// Override these within a subclass to set the root of a navigation sequence
-		override protected function get scenePrev() :int 
-		{
-			return StscenePrev;
-		}
-		override protected function set scenePrev(scenePrevINT:int) :void 
-		{
-			StscenePrev = scenePrevINT;
-		}
+	//*************** Navigator getter setters - 
+	// Override these within a subclass to set the root of a navigation sequence
+	protected get scenePrev() :number 
+	{
+		return this.StscenePrev;
+	}
+	protected set scenePrev(scenePrevINT:number) 
+	{
+		this.StscenePrev = scenePrevINT;
+	}
+	
+	protected get sceneCurr() :number 
+	{
+		return this.StsceneCurr;
+	}
+	protected set sceneCurr(sceneCurrINT:number) 
+	{
+		this.StsceneCurr = sceneCurrINT;
+	}
+	protected get sceneCurrINC() :number 
+	{
+		let feature:string;
+		let match:boolean = false;
 		
-		override protected function get sceneCurr() :int 
+		this.StsceneCurr++;
+		
+		// If new scene has features, check that it is being used in the current tutor feature set
+		// Note: You must ensure that there is a match for the last scene in the sequence   
+		
+		while(this.StsceneFeatures[this.StsceneCurr] != null)
 		{
-			return StsceneCurr;
-		}
-		override protected function set sceneCurr(sceneCurrINT:int) :void 
-		{
-			StsceneCurr = sceneCurrINT;
-		}
-		override protected function get sceneCurrINC() :int 
-		{
-			var feature:string;
-			var featSet:Array = new Array;
-			var match:boolean = false;
+			// If this scene is not in the feature set for the tutor then check the next one.
 			
-			StsceneCurr++;
-			
-			// If new scene has features, check that it is being used in the current tutor feature set
-			// Note: You must ensure that there is a match for the last scene in the sequence   
-			
-			while(StsceneFeatures[StsceneCurr] != null)
-			{
-				// If this scene is not in the feature set for the tutor then check the next one.
-				
-				if(!gTutor.testFeatureSet(StsceneFeatures[StsceneCurr])) StsceneCurr++;
-		   			  												else break;
-			}
-			
-			return StsceneCurr;
+			if(!CEFRoot.gTutor.testFeatureSet(this.StsceneFeatures[this.StsceneCurr])) this.StsceneCurr++;
+																					else break;
 		}
 		
-		override protected function get sceneCurrDEC() :int 
+		return this.StsceneCurr;
+	}
+	
+	protected get sceneCurrDEC() :number 
+	{
+		let feature:string;
+		let match:boolean = false;
+		
+		this.StsceneCurr--;
+		
+		// If new scene has features, check that it is being used in the current tutor feature set
+		// Note: You must ensure that there is a match for the last scene in the sequence   
+		
+		while(this.StsceneFeatures[this.StsceneCurr] != null)
 		{
-			var feature:string;
-			var featSet:Array = new Array;
-			var match:boolean = false;
+			// If this scene is not in the feature set for the tutor then check the next one.
 			
-			StsceneCurr--;
-			
-			// If new scene has features, check that it is being used in the current tutor feature set
-			// Note: You must ensure that there is a match for the last scene in the sequence   
-			
-			while(StsceneFeatures[StsceneCurr] != null)
-			{
-				// If this scene is not in the feature set for the tutor then check the next one.
-				
-				if(!gTutor.testFeatureSet(StsceneFeatures[StsceneCurr])) StsceneCurr++;
-																	else break;
-			}
-			
-			return StsceneCurr;
+			if(!CEFRoot.gTutor.testFeatureSet(this.StsceneFeatures[this.StsceneCurr])) this.StsceneCurr++;
+																else break;
 		}
 		
-		
-		override protected function get sceneTitle() :Array							// initialize the Tutor specific scene titles
-		{
-			return StsceneTitle;
-		}
-		override protected function set sceneTitle(sceneTitleARRAY:Array) :void		// initialize the Tutor specific scene titles
-		{
-			StsceneTitle = sceneTitleARRAY;
-		}
-		
-		
-		override protected function get sceneSeq() :Array								// initialize the Tutor specific scene sequence
-		{
-			return StsceneSeq;
-		}		
-		override protected function set sceneSeq(sceneSeqARRAY:Array) :void			// initialize the Tutor specific scene sequence
-		{
-			StsceneSeq = sceneSeqARRAY;
-		}		
-		
-		
-		override protected function get scenePage() :Array								// initialize the Tutor specific scene sequence
-		{
-			return StscenePage;
-		}		
-		override protected function set scenePage(scenePageARRAY:Array) :void			// initialize the Tutor specific scene sequence
-		{
-			StscenePage = scenePageARRAY;
-		}		
+		return this.StsceneCurr;
+	}
+	
+	
+	protected get sceneTitle() :Array<string>							// initialize the Tutor specific scene titles
+	{
+		return this.StsceneTitle;
+	}
+	protected set sceneTitle(sceneTitleARRAY:Array<string>) 			// initialize the Tutor specific scene titles
+	{
+		this.StsceneTitle = sceneTitleARRAY;
+	}
+	
+	
+	protected get sceneSeq() :Array<string>								// initialize the Tutor specific scene sequence
+	{
+		return this.StsceneSeq;
+	}		
+	protected set sceneSeq(sceneSeqARRAY:Array<string>) 				// initialize the Tutor specific scene sequence
+	{
+		this.StsceneSeq = sceneSeqARRAY;
+	}		
+	
+	
+	protected get scenePage() :Array<string>							// initialize the Tutor specific scene sequence
+	{
+		return this.StscenePage;
+	}		
+	protected set scenePage(scenePageARRAY:Array<string>) 				// initialize the Tutor specific scene sequence
+	{
+		this.StscenePage = scenePageARRAY;
+	}		
 
-		
-		override protected function get sceneName() :Array								// initialize the Tutor specific scene sequence
-		{
-			return StsceneSeq;
-		}		
-		override protected function set sceneName(scenePageARRAY:Array) :void			// initialize the Tutor specific scene sequence
-		{
-			StsceneSeq = scenePageARRAY;
-		}		
-		
-		
-		override protected function get sceneClass() :Array							// initialize the Tutor specific scene sequence
-		{
-			return StsceneClass;
-		}		
-		override protected function set sceneClass(scenePageARRAY:Array) :void			// initialize the Tutor specific scene sequence
-		{
-			StsceneClass = scenePageARRAY;
-		}		
-		
-		
-		override protected function get scenePersist() :Array							// initialize the Tutor specific scene sequence
-		{
-			return StscenePersist;
-		}		
-		override protected function set scenePersist(scenePageARRAY:Array) :void		// initialize the Tutor specific scene sequence
-		{
-			StscenePersist = scenePageARRAY;
-		}		
-		
-		
-		//*************** Navigator getter setters - 
-		
+	
+	protected get sceneName() :Array<string>							// initialize the Tutor specific scene sequence
+	{
+		return this.StsceneSeq;
+	}		
+	protected set sceneName(scenePageARRAY:Array<string>) 				// initialize the Tutor specific scene sequence
+	{
+		this.StsceneSeq = scenePageARRAY;
+	}		
+	
+	
+	protected get sceneClass() :Array<string>							// initialize the Tutor specific scene sequence
+	{
+		return this.StsceneClass;
+	}		
+	protected set sceneClass(scenePageARRAY:Array<string>) 				// initialize the Tutor specific scene sequence
+	{
+		this.StsceneClass = scenePageARRAY;
+	}		
+	
+	
+	protected get scenePersist() :Array<string>							// initialize the Tutor specific scene sequence
+	{
+		return this.StscenePersist;
+	}	
+	protected set scenePersist(scenePageARRAY:Array<string>) 			// initialize the Tutor specific scene sequence
+	{
+		this.StscenePersist = scenePageARRAY;
+	}		
+	
+	
+	//*************** Navigator getter setters - 
+	
 //***************** Navigation Behaviors *******************************		
 
 //****** Overridable Behaviors		
-		
-	}
 	
 }

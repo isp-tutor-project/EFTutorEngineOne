@@ -61,7 +61,7 @@ export class CEFTimeStamp extends CEFObject
 		
 		else 
 		{
-			dT = (this[objprop] - CEFTimeStamp._baseTime) / 1000;
+			dT = ((this as any)[objprop] - CEFTimeStamp._baseTime) / 1000;
 			
 			sResult = dT.toFixed(3);
 		}
@@ -79,9 +79,9 @@ export class CEFTimeStamp extends CEFObject
 		
 		if(!this.hasOwnProperty(objprop)) 
 		{
-			this[objprop] = Number(CUtil.getTimer());				
+			(this as any)[objprop] = Number(CUtil.getTimer());				
 			
-			dT = (this[objprop] - CEFTimeStamp._baseTime) / 1000;
+			dT = ((this as any)[objprop] - CEFTimeStamp._baseTime) / 1000;
 		}			
 		
 		// Otherwise give delta time since created or reset
@@ -89,9 +89,9 @@ export class CEFTimeStamp extends CEFObject
 		else 
 		{
 			if(restart)
-				this[objprop] = Number(CUtil.getTimer());
+				(this as any)[objprop] = Number(CUtil.getTimer());
 			
-			dT = (Number(CUtil.getTimer()) - this[objprop]) / 1000;		
+			dT = (Number(CUtil.getTimer()) - (this as any)[objprop]) / 1000;		
 		}
 		
 		return sResult = dT.toFixed(3); 

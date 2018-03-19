@@ -85,7 +85,7 @@ export class CMongo
 	 * 
 	 * 
 	 */
-	public static commandPacket(_source:string, _command:string, _collection:string, _query:Object, _database:string="TED") : string
+	public static commandPacket(_source:string, _command:string, _collection:string, _query:any, _database:string="TED") : string
 	{
 		let packet:string;
 		let multi:boolean = false;
@@ -128,7 +128,7 @@ export class CMongo
 	 * 
 	 * 
 	 */
-	public static queryPacket(_source:string, _command:string, _collection:string, _query:Object, _limit:Object=null, _database:string="TED") : string
+	public static queryPacket(_source:string, _command:string, _collection:string, _query:any, _limit:any=null, _database:string="TED") : string
 	{
 		let packet:string;
 		let multi:boolean = false;
@@ -196,7 +196,7 @@ export class CMongo
 	 * 
 	 * 
 	 */
-	public static recyclePacket(_source:string, _command:string, _collection:string, _query:Object, recover:string) : string
+	public static recyclePacket(_source:string, _command:string, _collection:string, _query:any, recover:string) : string
 	{
 		let packet:string;
 		let multi:boolean = false;
@@ -251,7 +251,7 @@ export class CMongo
 	 * 		  We use MObjects for documents that should be updated in their entirity 
 	 * 
 	 */
-	public static updatePacket(_source:string, _command:string, _collection:string, _query:Object, _updateObj:Object ) : string
+	public static updatePacket(_source:string, _command:string, _collection:string, _query:any, _updateObj:Object ) : string
 	{
 		let packet:string;
 		let multi:boolean = false;
@@ -289,7 +289,7 @@ export class CMongo
 	 * 		  We use MObjects for documents that should be updated in their entirity 
 	 * 
 	 */
-	public static unsetFieldPacket(_source:string, _command:string, _collection:string, _query:Object, _updateObj:Object ) : string
+	public static unsetFieldPacket(_source:string, _command:string, _collection:string, _query:any, _updateObj:Object ) : string
 	{
 		let packet:string;
 		let multi:boolean = false;
@@ -330,7 +330,7 @@ export class CMongo
 	 * 		db.products.update( { sku: "abc123" }, { $set: { quantity: 500, instock: true } } )
 	 * 
 	 */
-	private static parseUpdateFields(node:Object, objPath:string="" ) : string
+	private static parseUpdateFields(node:any, objPath:string="" ) : string
 	{
 		let objString:string ="";
 		let className:string;
@@ -422,10 +422,10 @@ export class CMongo
 	 * 
 	 * 
 	 */
-	public static encodeAsObject(host:Object, _fields:Object, parent:Object) : Object
+	public static encodeAsObject(host:Object, _fields:any, parent:any) : Object
 	{
 		let tempObj:Object = new Object;
-		let leafObj:Object;
+		let leafObj:any;
 		let subDocName:string;
 		let pathArray:Array<string>;
 		
@@ -458,7 +458,7 @@ export class CMongo
 	}
 	
 	
-	public static objectBuilder(leafObj:Object, pathArray:Array<string>) : Object
+	public static objectBuilder(leafObj:any, pathArray:Array<string>) : Object
 	{
 		let subDocName:string;
 		
@@ -483,7 +483,7 @@ export class CMongo
 	public static setValue(tarObj:Object, path:string, value:any) : void
 	{
 		let objPath:Array<string>;
-		let dataObj:Object;
+		let dataObj:any;
 		let name:string;
 		
 		// support nested children

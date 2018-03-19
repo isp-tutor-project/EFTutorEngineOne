@@ -26,20 +26,20 @@
 
 //** imports
 
-import { CGraphNode } from "./CGraphNode";
-import { CSceneGraph } from "./CSceneGraph";
+import { CGraphNode } 	from "./CGraphNode";
+import { CSceneGraph } 	from "./CSceneGraph";
 import { CGraphModule } from "./CGraphModule";
-import { CGraphScene } from "./CGraphScene";
+import { CGraphScene } 	from "./CGraphScene";
 
-import { CUtil } 			from "../util/CUtil";
+import { CUtil } 		from "../util/CUtil";
 
 
 export class CGraphModuleGroup extends CGraphNode
 {
-	private _modules:Array 		 = new Array;	
+	private _modules:Array<any>  = new Array;	
 	private _ndx:number   		 = -1;		
 	private _moduleShown:boolean = false;		
-	private _shownCount:number      = 0;		
+	private _shownCount:number   = 0;		
 
 	private instanceNode:string;
 	private type:string;
@@ -56,9 +56,9 @@ export class CGraphModuleGroup extends CGraphNode
 		super();
 	}
 	
-	public static factory(parent:CSceneGraph, id:string, groupFactory:Object, factory:Object) : CGraphModuleGroup
+	public static factory(parent:CSceneGraph, id:string, groupFactory:any, factory:any) : CGraphModuleGroup
 	{
-		let groupFactoryData:Object = factory.CModuleGroups[groupFactory.name];
+		let groupFactoryData:any = factory.CModuleGroups[groupFactory.name];
 		
 		let node:CGraphModuleGroup = new CGraphModuleGroup;			
 		
@@ -76,9 +76,9 @@ export class CGraphModuleGroup extends CGraphNode
 					
 		// add module name to the modules list
 		
-		let moduleList:Object = groupFactoryData.modules;			
+		let moduleList:any = groupFactoryData.modules;			
 		
-		for (let moduleDescr:Object of moduleList)
+		for (let moduleDescr of moduleList)
 		{
 			// either use a module from a specific node instance 
 			
@@ -98,7 +98,7 @@ export class CGraphModuleGroup extends CGraphNode
 		return node;
 	}
 	
-	public captureGraph(obj:Object) : Object
+	public captureGraph(obj:any) : Object
 	{
 		obj['index']        = this._ndx.toString();			
 		obj['_moduleShown'] = this._moduleShown.toString(); 
@@ -109,7 +109,7 @@ export class CGraphModuleGroup extends CGraphNode
 		return obj;
 	}
 	
-	public restoreGraph(obj:Object) : *
+	public restoreGraph(obj:any) : any
 	{
 		this._ndx         = Number(obj['index']);			
 		this._moduleShown = (obj['_moduleShown'] == 'true')? true:false; 

@@ -27,16 +27,26 @@
 import { CEFRoot } 				from "./CEFRoot";
 import { CEFScene } 			from "./CEFScene";
 import { CEFNavigator } 		from "./CEFNavigator";
+import { CEFTimer } 			from "./CEFTimer";
 
 import { CEFNavEvent } 			from "../events/CEFNavEvent";
 import { CAnimationGraph } 		from "../animationgraph/CAnimationGraph";
 import { CSceneGraphNavigator } from "../scenegraph/CSceneGraphNavigator";
 
+import { CUtil } 				from "../util/CUtil";
+
 
 import MovieClip     		  = createjs.MovieClip;
 import DisplayObject 		  = createjs.DisplayObject;
 import DisplayObjectContainer = createjs.Container;
-import { CUtil } from "../util/CUtil";
+import { CEFTimerEvent } from "../events/CEFTimerEvent";
+import { CEFSceneCueEvent } from "../events/CEFSceneCueEvent";
+import { CEFCommandEvent } from "../events/CEFCommandEvent";
+import { CEFScriptEvent } from "../events/CEFScriptEvent";
+import { CEFActionEvent } from "../events/CEFActionEvent";
+import { CEFEvent } from "../events/CEFEvent";
+
+
 
 
 /**
@@ -44,12 +54,12 @@ import { CUtil } from "../util/CUtil";
 */
 export class CEFSceneSequence extends CEFScene
 {	
-	public Saudio1:MovieClip;		
+	public Saudio1:CEFRoot;		
 	public audioStartTimer:CEFTimer;
 	
-	public static const DEFAULT_MONITOR_INTERVAL:Number = 3000;
+	public static readonly DEFAULT_MONITOR_INTERVAL:Number = 3000;
 	
-	protected _timer:Timer;
+	protected _timer:CEFTimer;
 	protected _interval:Number = CEFSceneSequence.DEFAULT_MONITOR_INTERVAL;
 
 	
@@ -86,14 +96,14 @@ export class CEFSceneSequence extends CEFScene
 		this.audioStartTimer = new CEFTimer(10, 1);
 		this.audioStartTimer.reset();
 		this.audioStartTimer.stop();
-		this.audioStartTimer.addEventListener("timer", this.playHandler);		
+		// this.audioStartTimer.addEventListener("timer", this.playHandler);		//** TODO */
 	}
 	
 	
 	public Destructor() : void
 	{
-		this.audioStartTimer.removeEventListener("timer", this.playHandler);		
-		CEFRoot.gTutor.removeEventListener(WOZREPLAY, sceneReplay);					
+		// this.audioStartTimer.removeEventListener("timer", this.playHandler);		//** TODO */
+		CEFRoot.gTutor.removeEventListener(CEFSceneSequence.WOZREPLAY, this.sceneReplay);					
 		
 		this.disConnectAudio(this.Saudio1);
 		
@@ -153,7 +163,7 @@ export class CEFSceneSequence extends CEFScene
 		// Use the timer to do an asynchronous start of the actionTrack
 		
 		this.audioStartTimer.reset();			
-		this.audioStartTimer.start(CEFRoot.gTutor);	
+		this.audioStartTimer.start();	
 	}		
 
 	
@@ -166,7 +176,7 @@ export class CEFSceneSequence extends CEFScene
 		// Use the timer to do an asynchronous start of the actionTrack
 		
 		this.audioStartTimer.reset();			
-		this.audioStartTimer.start(CEFRoot.gTutor);	
+		this.audioStartTimer.start();	
 	}		
 
 	
@@ -174,7 +184,7 @@ export class CEFSceneSequence extends CEFScene
 	 * Initiate the action/audio sequence - 
 	 * @param	evt
 	 */
-	public playHandler(evt:TimerEvent) : void 
+	public playHandler(evt:CEFTimerEvent) : void 
 	{
 		if(this.traceMode) CUtil.trace("CEFSceneSequence timerHandler: " + evt);
 		
@@ -216,11 +226,11 @@ export class CEFSceneSequence extends CEFScene
 		
 		// Listen for cue/navigation events
 		//
-		audioClip.addEventListener(CWOZSceneCueEvent.CUEPOINT, this.doSceneCue);	
-		audioClip.addEventListener(CWOZCommandEvent.XMLCMD, this.doActionXML);				
-		audioClip.addEventListener(CWOZNavEvent.WOZNAVINC, this.navNext);
-		audioClip.addEventListener(CWOZActionEvent.EFFECT, this.effectHandler);
-		audioClip.addEventListener(CWOZScriptEvent.SCRIPT, this.scriptHandler);
+		audioClip.addEventListener(CEFSceneCueEvent.CUEPOINT, this.doSceneCue);	
+		audioClip.addEventListener(CEFCommandEvent.OBJCMD, this.doActionXML);				
+		audioClip.addEventListener(CEFNavEvent.WOZNAVINC, this.navNext);
+		audioClip.addEventListener(CEFActionEvent.EFFECT, this.effectHandler);
+		audioClip.addEventListener(CEFScriptEvent.SCRIPT, this.scriptHandler);
 	}
 
 	/**
@@ -236,11 +246,11 @@ export class CEFSceneSequence extends CEFScene
 			
 			// Stop listening for cue/navigation events
 			//
-			audioClip.removeEventListener(CWOZSceneCueEvent.CUEPOINT, this.doSceneCue);				
-			audioClip.removeEventListener(CWOZCommandEvent.XMLCMD, this.doActionXML);				
-			audioClip.removeEventListener(CWOZNavEvent.WOZNAVINC, this.navNext);				
-			audioClip.removeEventListener(CWOZActionEvent.EFFECT, this.effectHandler);
-			audioClip.removeEventListener(CWOZScriptEvent.SCRIPT, this.scriptHandler);
+			audioClip.removeEventListener(CEFSceneCueEvent.CUEPOINT, this.doSceneCue);				
+			audioClip.removeEventListener(CEFCommandEvent.OBJCMD, this.doActionXML);				
+			audioClip.removeEventListener(CEFNavEvent.WOZNAVINC, this.navNext);				
+			audioClip.removeEventListener(CEFActionEvent.EFFECT, this.effectHandler);
+			audioClip.removeEventListener(CEFScriptEvent.SCRIPT, this.scriptHandler);
 		
 			// Note that the action timeline does not need to be on stage to play and work
 			
@@ -252,11 +262,11 @@ export class CEFSceneSequence extends CEFScene
 	/**
 	 * polymorphic audio track initialization
 	*/
-	public bindAudio(audioClass:Class ) : MovieClip 
+	public bindAudio(audioClass:any ) : CEFRoot 
 	{
 		if(this.traceMode) CUtil.trace("bindAudio Behavior");		
 		
-		let audio:MovieClip =  new audioClass;
+		let audio:CEFRoot =  new audioClass;
 	
 		if (audio)
 			this.connectAudio(audio);
@@ -337,9 +347,9 @@ export class CEFSceneSequence extends CEFScene
 	 */
 	public doActionXML(evt:CEFCommandEvent) : void
 	{	
-		if(this.traceMode) CUtil.trace("doActionXML: " + evt.xmlCmd);
+		if(this.traceMode) CUtil.trace("doActionXML: " + evt.objCmd);
 	
-		this.parseOBJ(this, evt.xmlCmd.children(), "xmlCmd");
+		this.parseOBJ(this, evt.objCmd.children(), "xmlCmd");
 	}					
 
 
@@ -353,13 +363,13 @@ export class CEFSceneSequence extends CEFScene
 	 * @param	tarObj
 	 * @param	tarOBJ
 	 */
-	public parseOBJ(tarObj:DisplayObject, tarOBJ:Object, xType:string) : void
+	public parseOBJ(tarObj:DisplayObject, tarOBJ:any, xType:string) : void
 	{
-		let element:string;
+		let element:any;
 		
 		if(this.traceMode) CUtil.trace("doActionXML: " + tarOBJ);
 		
-		for (element in tarOBJ)	
+		for (element of tarOBJ)	
 		{
 			switch(element)
 			{
@@ -377,15 +387,15 @@ export class CEFSceneSequence extends CEFScene
 					
 					try
 					{
-						this.animationGraph = CAnimationGraph.factory(this, "root", element.@name);
+						this.animationGraph = CAnimationGraph.factory(this, "root", element.name);
 						
 						if(this.animationGraph != null)
 						{
-							this.Saudio1 = this.bindAudio(getDefinitionByName(this.animationGraph.nextAnimation()));
+							this.Saudio1 = this.bindAudio(this.getDefinitionByName(this.animationGraph.nextAnimation()));
 							this.Saudio1.stop();
 						}
 					}
-					catch(err:Error)							
+					catch(err)							
 					{
 						CUtil.trace("animationgraph JSON Spec Failed" + err);
 					}
@@ -423,12 +433,12 @@ export class CEFSceneSequence extends CEFScene
 					
 					try
 					{
-						this.Saudio1 = this.bindAudio(getDefinitionByName(element.type));
+						this.Saudio1 = this.bindAudio(this.getDefinitionByName(element.type));
 						this.Saudio1.stop();
 					}
-					catch(err:Error)							
+					catch(err)							
 					{
-						CUtil.trace("CWOZSceneSequence:parseXML: " + err);
+						CUtil.trace("CEFSceneSequence:parseOBJ: " + err);
 					}
 					break;
 			}
@@ -437,7 +447,7 @@ export class CEFSceneSequence extends CEFScene
 		// process parent
 		
 		if(tarObj)
-			super.parseXML(tarObj, tarXML, xType);
+			super.parseOBJ(tarObj, tarOBJ, xType);
 	}
 	
 	
@@ -467,7 +477,7 @@ export class CEFSceneSequence extends CEFScene
 			
 			if(nextSeq != null)
 			{
-				this.Saudio1 = this.bindAudio(getDefinitionByName(nextSeq) as Class);
+				this.Saudio1 = this.bindAudio(this.getDefinitionByName(nextSeq) as any);
 				
 				this.scenePlay();								
 			}
@@ -486,7 +496,7 @@ export class CEFSceneSequence extends CEFScene
 	/**
 	 *##Mod Jan 29 2013 - Support for actiontrack Sequences 
 		*/
-	public nextActionTrack(tarXML:XMLList = null) : void
+	public nextActionTrack(tarXML:any = null) : void
 	{
 		if(tarXML != null)
 		{
@@ -503,9 +513,9 @@ export class CEFSceneSequence extends CEFScene
 			this.Saudio1 = null;
 		}
 		
-		while(this.seqTrack[seqIndex] != null)
+		while(this.seqTrack[this.seqIndex] != null)
 		{
-			this.parseXML(null, this.seqTrack[this.seqIndex].actiontrack, "");
+			this.parseOBJ(null, this.seqTrack[this.seqIndex].actiontrack, "");
 	
 			// remember the current sequence track id				
 			this.seqID = this.seqTrack[this.seqIndex].id;
@@ -544,13 +554,13 @@ export class CEFSceneSequence extends CEFScene
 		
 		this.seqIndex = 0;
 		
-		for (let track in this.seqTrack)
+		for (let track of this.seqTrack)
 		{				
 			this.seqIndex++;
 			
 			if(track.id == id)
 			{					
-				parseXML(null, track.actiontrack, "");
+				this.parseOBJ(null, track.actiontrack, "");
 			
 				// remember the current sequence track id				
 				this.seqID = id;
@@ -612,18 +622,18 @@ export class CEFSceneSequence extends CEFScene
 	
 	public onEnterScene(Direction:string) : void
 	{				
-		if(this.traceMode) CUtil.trace("CWOZSceneSequence Enter Scene Behavior:" + Direction);		
+		if(this.traceMode) CUtil.trace("CEFSceneSequence Enter Scene Behavior:" + Direction);		
 		
 		if((Direction == "WOZNEXT") ||
 			(Direction == "WOZGOTO"))
 		{
 			if(this.Saudio1)
-				this.audioStartTimer.start(CEFRoot.gTutor);								
+				this.audioStartTimer.start();								
 		}
 		
 		// only listen for replay events while the scene instance in playing
 		
-		CEFRoot.gTutor.addEventListener(WOZREPLAY, this.sceneReplay);					
+		CEFRoot.gTutor.addEventListener(CEFSceneSequence.WOZREPLAY, this.sceneReplay);					
 		
 		super.onEnterScene(Direction);
 	}
@@ -631,7 +641,7 @@ export class CEFSceneSequence extends CEFScene
 	
 	public onExitScene() : void
 	{				
-		if(this.traceMode) CUtil.trace("CWOZSceneSequence Exit Scene Behavior:");		
+		if(this.traceMode) CUtil.trace("CEFSceneSequence Exit Scene Behavior:");		
 		
 		//***** Kill the ActionTrack
 		
@@ -641,7 +651,7 @@ export class CEFSceneSequence extends CEFScene
 		
 		// only listen for replay events while the scene instance in playing
 		
-		CEFRoot.gTutor.removeEventListener(WOZREPLAY, this.sceneReplay);					
+		CEFRoot.gTutor.removeEventListener(CEFSceneSequence.WOZREPLAY, this.sceneReplay);					
 		
 		
 		//@@ Emit State Log Packet for this scene			
@@ -651,7 +661,7 @@ export class CEFSceneSequence extends CEFScene
 		
 		if((CEFRoot.gSceneConfig != null) && (CEFRoot.gSceneConfig.scenedata[name].logging != undefined))
 		{
-			this.parseXML(this, CEFRoot.gSceneConfig.scenedata[name].logging.children(), "logging");
+			this.parseOBJ(this, CEFRoot.gSceneConfig.scenedata[name].logging.children(), "logging");
 		}
 		
 		// Always log the scene duration data
@@ -694,12 +704,12 @@ export class CEFSceneSequence extends CEFScene
 	 */
 	public enQueueTerminateEvent() : void
 	{			
-		addEventListener(Event.ENTER_FRAME, this._deferredTerminate);
+		addEventListener(CEFEvent.ENTER_FRAME, this._deferredTerminate);
 	}
 	
 	private _deferredTerminate(e:Event) : void
 	{			
-		removeEventListener(Event.ENTER_FRAME, this._deferredTerminate);
+		removeEventListener(CEFEvent.ENTER_FRAME, this._deferredTerminate);
 		
 		this.gLogR.logTerminateEvent();
 	}

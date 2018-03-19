@@ -27,11 +27,18 @@
 //
 //*********************************************************************************
 
-import { CEFAnimator } 	from "./CEFAnimator";
-import { CUtil } 		from "../util/CUtil";
-import { CEFTutorRoot } from "./CEFTutorRoot";
+import { CEFRoot } 			from "./CEFRoot";
+import { CEFAnimator } 		from "./CEFAnimator";
+import { CEFObject } 		from "./CEFObject";
+import { CEFTutorRoot } 	from "./CEFTutorRoot";
+import { CEFObjectMask } 	from "./CEFObjectMask";
 
-import Tween    		  = createjs.Tween;
+import { CEFEvent } 		from "../events/CEFEvent";
+import { CUtil } 			from "../util/CUtil";
+
+import Tween    		  	= createjs.Tween;
+import DisplayObject 		= createjs.DisplayObject;
+import Ease			  	    = createjs.Ease;
 
 
 
@@ -45,21 +52,21 @@ export class CEFTransitions extends CEFAnimator
 	public currScene:string = "Sscene0";		// null initial scene
 	public newScene:string  = null;				// null next scene
 	
-	public rTime:Number     = .25;				// Removal Transition time
-	public tTime:Number     = .25;				// Normal Transition time
+	public rTime:number     = .25;				// Removal Transition time
+	public tTime:number     = .25;				// Normal Transition time
 
 	public fSingleStep:boolean = true;			// single stepping operations - debug
 
 	public prntTutor:Object;					// The parent CEFTutorRoot of these transitions
-	public tutorAutoObj:Object;					// The location of this tutor to automation array
+	public tutorAutoObj:any;					// The location of this tutor to automation array
 	
-	private activeObjs:Object  = new Object;	// Pointers to the objects in the most recent scene + persistent ojects
+	private activeObjs:any  = new Object;		// Pointers to the objects in the most recent scene + persistent ojects
 	private currentObjs:Array<any>;				// Pointers to the objects in the current scene
-	private persistObjs:Object = new Object;	// Pointers to persistent objects - these live thorughout the tutor lifecycle
+	private persistObjs:any = new Object;		// Pointers to persistent objects - these live thorughout the tutor lifecycle
 	private fSwapObjects:boolean = false;		// flag - true - swap objects  - false - use deep state copy 
 	
 	
-	constructor() : void 
+	constructor()
 	{
 		super();
 
@@ -173,7 +180,7 @@ export class CEFTransitions extends CEFAnimator
 	public setTransitionOUT() : void
 	{			
 		let bMatch:boolean;
-		let targObj:Object;
+		let targObj:any;
 		let tween:Tween;
 	
 		// look for objects that are not in the new scene but are in current
@@ -196,12 +203,12 @@ export class CEFTransitions extends CEFAnimator
 				//
 				if (this.tutorAutoObj[this.newScene][sceneObj] != undefined)
 				{
-					if (tutorAutoObj[currScene][sceneObj].instance is CEFObject)
+					if (this.tutorAutoObj[this.currScene][sceneObj].instance instanceof CEFObject)
 					{
-						if(this.traceMode) CUtil.trace("newObject: " + tutorAutoObj[newScene][sceneObj].instance.wozName);
-						if(this.traceMode) CUtil.trace("oldObject: " + tutorAutoObj[currScene][sceneObj].instance.wozName);
+						if(this.traceMode) CUtil.trace("newObject: " + this.tutorAutoObj[this.newScene][sceneObj].instance.wozName);
+						if(this.traceMode) CUtil.trace("oldObject: " + this.tutorAutoObj[this.currScene][sceneObj].instance.wozName);
 						
-						if (tutorAutoObj[newScene][sceneObj].instance.wozName == tutorAutoObj[currScene][sceneObj].instance.wozName )
+						if (this.tutorAutoObj[this.newScene][sceneObj].instance.wozName == this.tutorAutoObj[this.currScene][sceneObj].instance.wozName )
 																															bMatch = true;
 					}
 					else 
@@ -214,18 +221,18 @@ export class CEFTransitions extends CEFAnimator
 			//
 			if(!bMatch)
 			{			
-				if(this.traceMode) CUtil.trace("setTransitionOUT: " + tutorAutoObj[currScene][sceneObj].instance.name);
+				if(this.traceMode) CUtil.trace("setTransitionOUT: " + this.tutorAutoObj[this.currScene][sceneObj].instance.name);
 				
-				targObj = tutorAutoObj[currScene][sceneObj];			// Convenience Copy	
+				targObj = this.tutorAutoObj[this.currScene][sceneObj];			// Convenience Copy	
 				
 				// we are going to turn "off" the object
 				// Run the alpha tween from the current alpha to ZERO to remove the object
 				//
-				tween = new Tween(targObj.instance, "alpha", Cubic.easeInOut, targObj.instance.alpha, 0, rTime, true );
+				tween = new Tween(targObj.instance).to({alpha:0}, Number(this.rTime), Ease.cubicInOut)
 										
 				// push the tween on to the run stack
 				//
-				Running.push(tween);
+				this.Running.push(tween);
 			}				
 		}
 	}				
@@ -241,23 +248,23 @@ export class CEFTransitions extends CEFAnimator
 	//
 	// returns: NULL
 	//		
-	public setTransitionIN(objectList:Object, objectName:string ) : void
+	public setTransitionIN(objectList:any, objectName:string ) : void
 	{		
-		let targObj:Object;
+		let targObj:any;
 		let liveObj:DisplayObject;
 		let tween:Tween;
 		let wozName:string;
 		
 		// always start the current Object array from scratch
 		
-		currentObjs = new Array;
+		this.currentObjs = new Array;
 		
 		// First iniitalize all the newscene objects tweenable properties to match the live version of the objects.
 		//
 		// NOTE: The WOZ environment treats all objects with the same name as the same instances so that scenes
 		//       may be edited individually in Flash but treated as part of a single timeline in the WOZ environment
 		//
-		for(let namedObj:string in objectList[objectName])
+		for(let namedObj of objectList[objectName])
 		{
 			// Exclude the instance property of the scene itself
 			
@@ -270,7 +277,7 @@ export class CEFTransitions extends CEFAnimator
 				// Skip WOZ objects that aren't to be tweened
 				// Use the namedObj to disinguish unique instances
 				//
-				if(targObj.instance is CEFObject)
+				if(targObj.instance instanceof CEFObject)
 				{
 					if(!targObj.instance.isTweenable())
 												continue;
@@ -286,35 +293,35 @@ export class CEFTransitions extends CEFAnimator
 				// If matching object has been onscreen before copy its properties
 				// Note that all unique objects in a movie must have a unique name even across scenes(CEFScenes)
 				//
-				if(activeObjs[wozName] != undefined)
+				if(this.activeObjs[wozName] != undefined)
 				{
 					// Convenience Copy
 					//
-					liveObj = activeObjs[wozName];
+					liveObj = this.activeObjs[wozName];
 					
 					// note that swapping and sub-tweening are mutually exclusive 
 					//
-					if(fSwapObjects)
+					if(this.fSwapObjects)
 					{
 						// Get the objects
 						
-						let dO1:DisplayObject = tutorAutoObj[currScene][namedObj].instance;
-						let dO2:DisplayObject = tutorAutoObj[newScene][namedObj].instance;
+						let dO1:DisplayObject = this.tutorAutoObj[this.currScene][namedObj].instance;
+						let dO2:DisplayObject = this.tutorAutoObj[this.newScene][namedObj].instance;
 						
 						// Get their locations in the display list
 						
-						let dI1:int = gTutor[currScene].getChildIndex(dO1);
-						let dI2:int = gTutor[newScene].getChildIndex(dO2);
+						let dI1:number = CEFRoot.gTutor[this.currScene].getChildIndex(dO1);
+						let dI2:number = CEFRoot.gTutor[this.newScene].getChildIndex(dO2);
 						
 						// Swap them in the scenes display lists
 						
-						gTutor[currScene].addChildAt(dO2, dI1 );
-						gTutor[newScene].addChildAt(dO1, dI2);
+						CEFRoot.gTutor[this.currScene].addChildAt(dO2, dI1 );
+						CEFRoot.gTutor[this.newScene].addChildAt(dO1, dI2);
 						
 						// Swap the instances in the TutorObj
 						
-						tutorAutoObj[currScene][namedObj].instance = dO2;
-						tutorAutoObj[newScene][namedObj].instance  = dO1;
+						this.tutorAutoObj[this.currScene][namedObj].instance = dO2;
+						this.tutorAutoObj[this.newScene][namedObj].instance  = dO1;
 						
 						// update the convenience copy
 						
@@ -325,7 +332,7 @@ export class CEFTransitions extends CEFAnimator
 						// If it is a WOZ object do a deep copy of its internal state
 						// We assume all named WOZ Objects are WOZ in all instances
 						//
-						if((liveObj is CEFObject) && (CEFObject(targObj.instance).tweenID == CEFObject(liveObj).tweenID))
+						if((liveObj instanceof CEFObject) && (targObj.instance.tweenID == liveObj.tweenID))
 						{				
 //								if(wozName == "CCRSOLCAT1TBL2")						//@@ debug
 //													CUtil.trace("table2 hit");			//@@ debug			
@@ -335,7 +342,7 @@ export class CEFTransitions extends CEFAnimator
 						// Otherwise just take its x.y.width.height.alpha
 						//
 						else 
-							shallowStateCopy(targObj.instance, liveObj);					
+							this.shallowStateCopy(targObj.instance, liveObj);					
 					}
 					
 					
@@ -344,48 +351,49 @@ export class CEFTransitions extends CEFAnimator
 					//
 					if(targObj.inPlace.X != liveObj.x)
 					{
-						tween = new Tween(targObj.instance, "x", Cubic.easeInOut, targObj.instance.x, targObj.inPlace.X, tTime, true );
-						if(this.traceMode) CUtil.trace("Tweening obj in scene: " + objectName + "  named : " + tween.obj.name + " property: " + tween.prop + " from: " + tween.begin + "  to : " + tween.finish + " in: " + tween.duration + "secs");
+						
+						tween = new Tween(targObj.instance).to({x:targObj.inPlace.X}, this.tTime, Ease.cubicInOut);
+						if(this.traceMode) CUtil.trace("Tweening obj in scene: " + objectName + "  named : " + targObj.name + " property: " + targObj.prop + " in: " + tween.duration + "secs");
 						
 						// push the tween on to the run stack
 						//
-						Running.push(tween);						
+						this.Running.push(tween);						
 					}
 					if(targObj.inPlace.Y != liveObj.y)
 					{
-						tween = new Tween(targObj.instance, "y", Cubic.easeInOut, targObj.instance.y, targObj.inPlace.Y, tTime, true );
-						if(this.traceMode) CUtil.trace("Tweening obj in scene: " + objectName + "  named : " + tween.obj.name + " property: " + tween.prop + " from: " + tween.begin + "  to : " + tween.finish + " in: " + tween.duration + "secs" + " - liveObj.y:" + liveObj.y);
-						
+						tween = new Tween(targObj.instance).to({y:targObj.inPlace.Y}, this.tTime, Ease.cubicInOut);
+						if(this.traceMode) CUtil.trace("Tweening obj in scene: " + objectName + "  named : " + targObj.name + " property: " + targObj.prop + " in: " + tween.duration + "secs");
+												
 						// push the tween on to the run stack
 						//
-						Running.push(tween);						
+						this.Running.push(tween);						
 					}
-					if(targObj.inPlace.Width != liveObj.width)
-					{
-						tween = new Tween(targObj.instance, "width", Cubic.easeInOut, targObj.instance.width, targObj.inPlace.Width, tTime, true );
-						if(this.traceMode) CUtil.trace("Tweening obj in scene: " + objectName + "  named : " + tween.obj.name + " property: " + tween.prop + " from: " + tween.begin + "  to : " + tween.finish + " in: " + tween.duration + "secs");
+					// if(targObj.inPlace.Width != liveObj.width)		//** TODO */
+					// {
+					// 	tween = new Tween(targObj.instance, "width", Cubic.easeInOut, targObj.instance.width, targObj.inPlace.Width, tTime, true );
+					// 	if(this.traceMode) CUtil.trace("Tweening obj in scene: " + objectName + "  named : " + tween.obj.name + " property: " + tween.prop + " from: " + tween.begin + "  to : " + tween.finish + " in: " + tween.duration + "secs");
 						
-						// push the tween on to the run stack
-						//
-						Running.push(tween);						
-					}
-					if(targObj.inPlace.Height != liveObj.height)
-					{
-						tween = new Tween(targObj.instance, "height", Cubic.easeInOut, targObj.instance.height, targObj.inPlace.Height, tTime, true );
-						if(this.traceMode) CUtil.trace("Tweening obj in scene: " + objectName + "  named : " + tween.obj.name + " property: " + tween.prop + " from: " + tween.begin + "  to : " + tween.finish + " in: " + tween.duration + "secs");
+					// 	// push the tween on to the run stack
+					// 	//
+					// 	this.Running.push(tween);						
+					// }
+					// if(targObj.inPlace.Height != liveObj.height)
+					// {
+					// 	tween = new Tween(targObj.instance, "height", Cubic.easeInOut, targObj.instance.height, targObj.inPlace.Height, tTime, true );
+					// 	if(this.traceMode) CUtil.trace("Tweening obj in scene: " + objectName + "  named : " + tween.obj.name + " property: " + tween.prop + " from: " + tween.begin + "  to : " + tween.finish + " in: " + tween.duration + "secs");
 						
-						// push the tween on to the run stack
-						//
-						Running.push(tween);						
-					}
+					// 	// push the tween on to the run stack
+					// 	//
+					// 	this.Running.push(tween);						
+					// }
 					if(targObj.inPlace.Alpha != liveObj.alpha)
 					{
-						tween = new Tween(targObj.instance, "alpha", Cubic.easeInOut, targObj.instance.alpha, targObj.inPlace.Alpha, tTime, true );
-						if(this.traceMode) CUtil.trace("Tweening obj in scene: " + objectName + "  named : " + tween.obj.name + " property: " + tween.prop + " from: " + tween.begin + "  to : " + tween.finish + " in: " + tween.duration + "secs");
-						
+						tween = new Tween(targObj.instance).to({alpha:targObj.inPlace.Alpha}, this.tTime, Ease.cubicInOut);
+						if(this.traceMode) CUtil.trace("Tweening obj in scene: " + objectName + "  named : " + targObj.name + " property: " + targObj.prop + " in: " + tween.duration + "secs");
+
 						// push the tween on to the run stack
 						//
-						Running.push(tween);						
+						this.Running.push(tween);						
 					}
 					
 				}
@@ -395,26 +403,23 @@ export class CEFTransitions extends CEFAnimator
 				{
 					// Run the alpha tween from ZERO to bring the object on stage
 					//
-					if(!targObj.instance is CEFObjectMask)
-									targObj.instance.alpha = 0;
+					if(!(targObj.instance instanceof CEFObjectMask))
+											targObj.instance.alpha = 0;
 					
 					// Generate the tween
 					//
-					tween = new Tween(targObj.instance, "alpha", Cubic.easeInOut, targObj.instance.alpha, targObj.inPlace.Alpha, tTime, true );
-					
-					//objectList[objectName][wozName];
-					
-					if(this.traceMode) CUtil.trace("Tweening obj in scene: " + objectName + "  named : " + tween.obj.name + " property: " + tween.prop + " from: " + tween.begin + "  to : " + tween.finish + " in: " + tween.duration + "secs");
+					tween = new Tween(targObj.instance).to({alpha:targObj.inPlace.Alpha}, this.tTime, Ease.cubicInOut);
+					if(this.traceMode) CUtil.trace("Tweening obj in scene: " + objectName + "  named : " + targObj.name + " property: " + targObj.prop + " in: " + tween.duration + "secs");
 					
 					// push the tween on to the run stack
 					//
-					Running.push(tween);
+					this.Running.push(tween);
 				}					
 			
 									
 				// Check for persistent objects and subtweening			
 
-				if(targObj.instance is CEFObject)
+				if(targObj.instance instanceof CEFObject)
 				{
 					// Make object visible
 					//
@@ -425,13 +430,13 @@ export class CEFTransitions extends CEFAnimator
 					
 					if(targObj.instance.bPersist)
 					{
-						persistObjs[wozName] = targObj.instance;
+						this.persistObjs[wozName] = targObj.instance;
 					}
 					else
 					{
 						// If not WOZobject add it to the currentObjs - we don't want persistent objects duplicated
 						
-						currentObjs.push(new Array(wozName,targObj.instance));													
+						this.currentObjs.push(new Array(wozName,targObj.instance));													
 					}
 					
 					// Recurse any objects that require subobject tweening - tables etc
@@ -440,7 +445,7 @@ export class CEFTransitions extends CEFAnimator
 					{
 						if(this.traceMode) CUtil.trace("SubTweening : " + targObj.instance.name );
 						
-						setTransitionIN(objectList[objectName], namedObj ); 
+						this.setTransitionIN(objectList[objectName], namedObj ); 
 					}
 				}
 				else
@@ -449,7 +454,7 @@ export class CEFTransitions extends CEFAnimator
 					
 					// If not WOZobject add it to the currentObjs - we don't want persistent objects duplicated
 					
-					currentObjs.push(new Array(wozName,targObj.instance));						
+					this.currentObjs.push(new Array(wozName,targObj.instance));						
 				}
 			}
 		}
@@ -457,16 +462,16 @@ export class CEFTransitions extends CEFAnimator
 		// Update the active object with objects from the current scene and persistent objects 
 		// Throw away the old activeObj array for GC - keeps the tutor compact
 		
-		activeObjs = new Object;										
+		this.activeObjs = new Object;										
 		
-		for each (let objRec in currentObjs)
+		for (let objRec of this.currentObjs)
 		{
-			activeObjs[objRec[0]] = objRec[1];
+			this.activeObjs[objRec[0]] = objRec[1];
 		}
 		
-		for each (let perObj in persistObjs)
+		for (let perObj of this.persistObjs)
 		{
-			activeObjs[perObj.wozName] = perObj;
+			this.activeObjs[perObj.wozName] = perObj;
 		}			
 	}				
 	
@@ -485,13 +490,13 @@ export class CEFTransitions extends CEFAnimator
 	{		
 		// switch the visible scene
 		//  
-		tutorAutoObj[currScene].instance.visible = false;
-		tutorAutoObj[newScene].instance.visible  = true;
+		this.tutorAutoObj[this.currScene].instance.visible = false;
+		this.tutorAutoObj[this.newScene].instance.visible  = true;
 		
 		// From this point on all newScene elements will be visible so proceed 
 		// as if it is the currScene.
 		//  
-		currScene = newScene;		
+		this.currScene = this.newScene;		
 	}				
 	
 	
@@ -509,16 +514,14 @@ export class CEFTransitions extends CEFAnimator
 	{			
 		tar.x      = src.x;
 		tar.y      = src.y;
-		tar.width  = src.width;
-		tar.height = src.height;
 		tar.alpha  = src.alpha;			
 	}				
 
 	
 	/**
-	 * override default behavior to hide objects as they go offscreen
+	 * default behavior to hide objects as they go offscreen
 	 */
-	override public xnFinished(evt:TweenEvent ) : void
+	public xnFinished(evt:any ) : void
 	{				
 		if (evt.currentTarget.obj.alpha == 0)
 					evt.currentTarget.obj.visible = false;
@@ -536,23 +539,23 @@ export class CEFTransitions extends CEFAnimator
 		
 		//gTutor.enumScenes();						//@@ Debug display list Test Oct 29 2012
 		
-		if(!fSingleStep)							// Debug
+		if(!this.fSingleStep)							// Debug
 		{
 			// When the tutor terminates there may not be a new scene to go to.
 			
-			if(newScene)
+			if(this.newScene)
 			{
-				if(tutorAutoObj[newScene].instance.visible == false)
+				if(this.tutorAutoObj[this.newScene].instance.visible == false)
 				{				
-					setTransitionIN(tutorAutoObj,newScene);	// setup the Running array for the in transition
+					this.setTransitionIN(this.tutorAutoObj,this.newScene);	// setup the Running array for the in transition
 				}
 				
-				changeScene();
-				startTransition(inFinished);			// start it up
+				this.changeScene();
+				this.startTransition(this.inFinished);			// start it up
 			}
 		}
 		else
-			dispatchEvent(new Event(Event.CHANGE));
+			this.dispatchEvent(new Event(CEFEvent.CHANGE));
 			
 	}				
 	
@@ -563,8 +566,8 @@ export class CEFTransitions extends CEFAnimator
 	{			
 		CUtil.trace("inFinished");
 	
-		currScene = newScene;
-		dispatchEvent(new Event(Event.COMPLETE));
+		this.currScene = this.newScene;
+		this.dispatchEvent(new Event(CEFEvent.COMPLETE));
 	}				
 			
 }

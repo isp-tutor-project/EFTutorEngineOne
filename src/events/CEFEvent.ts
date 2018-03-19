@@ -41,6 +41,9 @@ export class CEFEvent extends Event
 	public static readonly ADDED_TO_STAGE:string 	 = "added";
 	public static readonly REMOVED_FROM_STAGE:string = "removed";
 	public static readonly MOTION_FINISH:string		 = "complete";
+
+	public static readonly CHANGE:string		 = "change";
+	public static readonly COMPLETE:string		 = "complete";
 	
 	public tarObjID:string;		// CEFObject ID - Used for automation logging
 

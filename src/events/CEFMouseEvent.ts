@@ -29,15 +29,22 @@
 
 //** Imports
 
-import { CEFEvent } from "./CEFEvent";
 import { CUtil } 	from "../util/CUtil";
 
+import MouseEvent = createjs.MouseEvent;
 
-export class CEFMouseEvent extends CEFEvent
+export class CEFMouseEvent extends MouseEvent
 {		
+	public tarObjID:string;		// CEFObject ID - Used for automation logging
 
 	public localX:number;
 	public localY:number;
+
+	static readonly MOUSE_MOVE:string 		= "mousemove";			// Click event from the button 
+	static readonly MOUSE_DOWN:string 		= "mousedown";			// Click event from the button 
+	static readonly MOUSE_UP:string 		= "mouseup";			// Click event from the button 
+	static readonly MOUSE_CLICK:string 		= "click";				// Click event from the button 
+	static readonly DOUBLE_CLICK:string 	= "dblclick";			// Click event from the button 
 
 	static readonly CLICK:string 		= "click";					// Click event from the button 
 			
@@ -53,12 +60,12 @@ export class CEFMouseEvent extends CEFEvent
 	static readonly WOZKEYUP:string		= "WOZMKEY_UP";
 	static readonly WOZNULL:string		= "WOZNULL";
 
-	constructor(TarObjID:string, Type:string, Bubbles:boolean = false, Cancelable:boolean = false, LocalX:number = 0, LocalY:number  = 0)
+	constructor(TarObjID:string, type: string, bubbles: boolean, cancelable: boolean, stageX: number, stageY: number, nativeEvent: NativeMouseEvent, pointerID: number, primary: boolean, rawX: number, rawY: number)
 	{
-		super(TarObjID, Type, Bubbles, Cancelable);
+		super( type, bubbles, cancelable, stageX, stageY, nativeEvent, pointerID, primary, rawX, rawY);
 		
-		this.localX   = LocalX;
-		this.localY   = LocalY;
+		this.localX   = rawX;
+		this.localY   = rawY;
 	}
 
 	/**	
@@ -69,9 +76,42 @@ export class CEFMouseEvent extends CEFEvent
 	{
 		CUtil.trace("cloning WOZEvent:");
 		
-		return new CEFMouseEvent(this.tarObjID, this.type, this.bubbles, this.cancelable, this.localX, this.localY);		
+		return new CEFMouseEvent(this.tarObjID, this.type, this.bubbles, this.cancelable, this.stageX, this.stageY, this.nativeEvent, this.pointerID, this.primary, this.rawX, this.rawY);		
 	}
-	
-	
+		
+	//*************** Logging state management
+
+	public captureLogState(obj:any = null) : any
+	{
+
+		obj['event']  	= 'CEFMouseEvent';
+		obj['tarObjID'] = this.tarObjID; 		
+		obj['localX'] 	= this.localX; 
+		obj['localY'] 	= this.localY;
+
+		return obj;											   
+	}				
+
+	public captureXMLState() : any
+	{		
+		var eventState:any = {};
+				
+		// eventState.appendChild(super.captureXMLState());
+														
+		return eventState;											   
+	}		
+
+	public restoreXMLState(xmlState:any) : void
+	{
+	}		
+
+	public compareXMLState(xmlState:any) : Boolean
+	{
+		var bTest:Boolean = true;
+
+		return bTest;			
+	}		
+
+	//*************** Logging state management
 }
 

@@ -58,7 +58,7 @@ export class CEFAnimator extends CEFRoot
 	/**
 	 * 
 	 */
-	public startTransition(xnF = null) : void
+	public startTransition(xnF:Function = null) : void
 	{			
 		if(this.traceMode) CUtil.trace("startTransition : " + this.runCount );
 	

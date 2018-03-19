@@ -26,26 +26,35 @@
 
 //## imports
 
-import { CGraphNode } from "./CGraphNode";
+import { CGraphNode } 		from "./CGraphNode";
+import { CGraphScene } 		from "./CGraphScene";
+import { CEFObject } 		from "../core/CEFObject";
+import { CEFNavigator } 	from "../core/CEFNavigator";
+import { CGraphConstraint } from "./CGraphConstraint";
+import { CEFRoot } 			from "../core/CEFRoot";
+import { CBKTSkill } 		from "../bkt/CBKTSkill";
+import { CGraphAction } 	from "./CGraphAction";
+import { CGraphModule } 	from "./CGraphModule";
+import { CGraphModuleGroup } from "./CGraphModuleGroup";
 
 import { CUtil } 			from "../util/CUtil";
 
 
 export class CSceneGraph extends CGraphNode
 {		
-	private _nodes:Object       = new Object;		
-	private _modules:Object     = new Object;
-	private _actions:Object     = new Object;
-	private _graphs:Object      = new Object;
-	private _constraints:Object = new Object;
-	private _skillSet:Object	= new Object;
+	private _nodes:any       = new Object;		
+	private _modules:any     = new Object;
+	private _actions:any     = new Object;
+	private _graphs:any      = new Object;
+	private _constraints:any = new Object;
+	private _skillSet:any	= new Object;
 
 	private _currNode:CGraphNode;
 	private _currScene:CGraphScene;
 	private _prevScene:CGraphScene;
 
-	private static _pFeatures:Object    = new Object; 
-	private static _pConstraints:Object = new Object; 
+	private static _pFeatures:any    = new Object; 
+	private static _pConstraints:any = new Object; 
 	
 	
 	/**
@@ -57,7 +66,7 @@ export class CSceneGraph extends CGraphNode
 	}
 
 	
-	public static factory(parent:CSceneGraph, id:string, factory:Object) : CSceneGraph
+	public static factory(parent:CSceneGraph, id:string, factory:any) : CSceneGraph
 	{			
 		let scenegraph:CSceneGraph = new CSceneGraph;			
 					
@@ -72,30 +81,30 @@ export class CSceneGraph extends CGraphNode
 
 	//@@ TODO: need to support sub-graphs - currently only support module type nodes		
 	//
-	public captureGraph(obj:Object) : Object
+	public captureGraph(obj:any) : Object
 	{			
 		// Capture the polymorphic node state
 		
-		obj['currNodeID'] = _currNode.id;			
-		obj['currNode']   = _currNode.captureGraph(new Object);
+		obj['currNodeID'] = this._currNode.id;			
+		obj['currNode']   = this._currNode.captureGraph(new Object);
 		
 		return obj;
 	}
 	
-	public restoreGraph(obj:Object) : *
+	public restoreGraph(obj:any) : any
 	{					
-		_currNode = findNodeByName(obj['currNodeID']);
+		this._currNode = this.findNodeByName(obj['currNodeID']);
 		
-		_currScene = _currNode.restoreGraph(obj['currNode']);
-		_prevScene = _currScene;
+		this._currScene = this._currNode.restoreGraph(obj['currNode']);
+		this._prevScene = this._currScene;
 		
-		return _currScene;
+		return this._currScene;
 	}
 	
 	
-	public sceneInstance() : CWOZObject
+	public sceneInstance() : CEFObject
 	{
-		let objInstance:CWOZObject = null;
+		let objInstance:CEFObject = null;
 		
 		//@@ mod Oct 1 2013 - "Catch" errors in this sequence
 		//					  this is an attempt to isolate the Next button failure observed in the 
@@ -105,14 +114,14 @@ export class CSceneGraph extends CGraphNode
 		{
 			// recover the scene instance
 			//
-			if(_prevScene != null)
+			if(this._prevScene != null)
 			{
-				objInstance = CWOZNavigator.TutAutomator[_prevScene.scenename].instance as CWOZObject;
+				objInstance = CEFNavigator.TutAutomator[this._prevScene.scenename].instance as CEFObject;
 			}
 		}
-		catch(err:Error)
+		catch(err)
 		{
-			trace("CSceneGraphNavigator.sceneInstance: " + err.toString());
+			CUtil.trace("CSceneGraphNavigator.sceneInstance: " + err.toString());
 			
 			objInstance = null;
 		}
@@ -124,28 +133,28 @@ export class CSceneGraph extends CGraphNode
 	/**
 	 * 	
 	 */
-	public queryPFeature(pid, size, cycle) : int
+	public queryPFeature(pid:string, size:number, cycle:number) : number
 	{
-		let iter:int = 0;
+		let iter:number = 0;
 		
 		// On subsequent accesses we increment the iteration count 
 		// If it has surpassed the size of the pFeature array we cycle on the last 'cycle' entries
 		
-		if(_pFeatures[pid] != undefined)
+		if(CSceneGraph._pFeatures[pid] != undefined)
 		{
-			iter = _pFeatures[pid] + 1;
+			iter = CSceneGraph._pFeatures[pid] + 1;
 			
 			if(iter >= size)
 			{
 				iter = size - cycle;					
 			}
 			
-			_pFeatures[pid] = iter;
+			CSceneGraph._pFeatures[pid] = iter;
 		}
 			
 			// On first touch we have to create the property
 			
-		else _pFeatures[pid] = 0;
+		else CSceneGraph._pFeatures[pid] = 0;
 		
 		return iter;
 	}
@@ -154,28 +163,28 @@ export class CSceneGraph extends CGraphNode
 	/**
 	 * 	
 	 */
-	public queryPConstraint(pid, size, cycle) : int
+	public queryPConstraint(pid:string, size:number, cycle:number) : number
 	{
-		let iter:int = 0;
+		let iter: number = 0;
 		
 		// On subsequent accesses we increment the iteration count 
 		// If it has surpassed the size of the pFeature array we cycle on the last 'cycle' entries
 		
-		if(_pConstraints[pid] != undefined)
+		if(CSceneGraph._pConstraints[pid] != undefined)
 		{
-			iter = _pConstraints[pid] + 1;
+			iter = CSceneGraph._pConstraints[pid] + 1;
 			
 			if(iter >= size)
 			{
 				iter = size - cycle;					
 			}
 			
-			_pConstraints[pid] = iter;
+			CSceneGraph._pConstraints[pid] = iter;
 		}
 			
 			// On first touch we have to create the property
 			
-		else _pConstraints[pid] = 0;
+		else CSceneGraph._pConstraints[pid] = 0;
 		
 		return iter;
 	}
@@ -201,7 +210,7 @@ export class CSceneGraph extends CGraphNode
 	{			
 		// Apply a node from a non-root-graph 
 		
-		return _currNode.applyNode();	
+		return this._currNode.applyNode();	
 	}
 	
 	
@@ -214,7 +223,7 @@ export class CSceneGraph extends CGraphNode
 	
 	public seekRoot() : void
 	{
-		_currNode = _nodes["root"];
+		this._currNode = this._nodes["root"];
 	}
 	
 	// increments the currScene polymorphically
@@ -224,72 +233,72 @@ export class CSceneGraph extends CGraphNode
 	{
 		let nextNode:CGraphNode;
 		
-		if(_currNode) do 
+		if(this._currNode) do 
 		{
 			// Increment the scene polymorphically
 			
-			_currScene = _currNode.nextScene();
+			this._currScene = this._currNode.nextScene();
 							
-			if(_currScene == null)
+			if(this._currScene == null)
 			{
-				nextNode = _currNode.nextNode();
+				nextNode = this._currNode.nextNode();
 				
-				if(_currNode == nextNode)
+				if(this._currNode == nextNode)
 				{
 					// If node increment failed then fall back to previous scene
 										
-					_currScene = _prevScene;
+					this._currScene = this._prevScene;
 					
-					_currNode.seekToScene(_currScene);
+					this._currNode.seekToScene(this._currScene);
 				}					
 				else 
 				{
-					_currNode = nextNode;
+					this._currNode = nextNode;
 					
 					// Apply action nodes
 					
-					if(_currNode != null)
-						_currNode.applyNode();
+					if(this._currNode != null)
+						this._currNode.applyNode();
 				}
 			}
 			// Increment the iteration count - for logging 
 			else
-				_currScene.incIteration();				
+				this._currScene.incIteration();				
 			
-		}while((_currScene == null) && (_currNode != null))
+		}while((this._currScene == null) && (this._currNode != null))
 			
 		// Remember a context in which to do constraint testing for graph Node transitions.
 		// i.e. the constraints are tested within the context of the last valid scene
 			
-		_prevScene = _currScene;	
+		this._prevScene = this._currScene;	
 			
-		return _currScene;				
+		return this._currScene;				
 	}
 	
 	
 	//***** Private
 	
-	private parseNodes(_factory:Object) : boolean
+	private parseNodes(_factory:any) : boolean
 	{
-		let nodeList:Object = _factory.CNodes;
+		let nodeList:any = _factory.CNodes;
 		
 		// Note: this is not order garanteed 
 		
-		for(let name:string in nodeList) 
+		for(let name in nodeList) 
 		{
 			if(name != "COMMENT")				
 				switch(nodeList[name].type)
 				{
 					case "action":					
-						_nodes[name] = CGraphAction.factory(this, name, _factory);
+						this._nodes[name] = CGraphAction.factory(this, name, _factory);
 						break;
 					
 					case "module":					
-						_nodes[name] = CGraphModule.factory(this, name, nodeList[name], _factory);
+						this._nodes[name] = CGraphModule.factory(this, name, nodeList[name], _factory);
 						break;
 					
 					case "modulegroup":					
-						_nodes[name] = CGraphModuleGroup.factory(this, name, nodeList[name], _factory);
+						this._nodes[name] = CGraphModuleGroup.factory(this, name, nodeList[name], _factory);
 						break;
 					
 					case "subgraph":					
@@ -305,13 +314,13 @@ export class CSceneGraph extends CGraphNode
 	}
 
 	
-	private parseConstraints(constFactory:Object) : boolean
+	private parseConstraints(constFactory:any) : boolean
 	{
 		
-		for(let name:string in constFactory) 
+		for(let name in constFactory) 
 		{
 			if(name != "COMMENT")
-				_constraints[name] = CGraphConstraint.factory(this, constFactory[name]);	
+				this._constraints[name] = CGraphConstraint.factory(this, constFactory[name]);	
 		}			
 		
 		return true;
@@ -319,18 +328,18 @@ export class CSceneGraph extends CGraphNode
 	
 	
 	
-	public parseSkills(skillsFactory:Object) : boolean
+	public parseSkills(skillsFactory:any) : boolean
 	{
 		
-		for(let name:string in skillsFactory) 
+		for(let name in skillsFactory) 
 		{
 			if(name != "COMMENT")
-				_skillSet[name] = CBKTSkill.factory(skillsFactory[name]);	
+				this._skillSet[name] = CBKTSkill.factory(skillsFactory[name]);	
 		}			
 		
 		// Make accessible globally
 		
-		CWOZRoot.Tutor.ktSkills = _skillSet;
+		CEFRoot.gTutor.ktSkills = this._skillSet;
 		
 		return true;
 	}
@@ -338,36 +347,36 @@ export class CSceneGraph extends CGraphNode
 	
 	public findNodeByName(name:string) : CGraphNode
 	{
-		return _nodes[name];
+		return this._nodes[name];
 	}
 
 	
 	public findConstraintByName(name:string) : CGraphConstraint
 	{
-		return _constraints[name];
+		return this._constraints[name];
 	}
 
 	
 	public get node() : CGraphNode
 	{
-		return _currNode;
+		return this._currNode;
 	}
 	
-	public set node(newNode:CGraphNode) : void 
+	public set node(newNode:CGraphNode) 
 	{
 		// If backtracking through a volatile history we need to reset
 		// nodes so that if we revisit them they will increment their
-		// _currScene correctly
+		// this._currScene correctly
 		
-		if(_currNode != newNode)
-			_currNode.resetNode();
+		if(this._currNode != newNode)
+			this._currNode.resetNode();
 		
-		_currNode = newNode;			
+		this._currNode = newNode;			
 	}
 	
-	public set scene(seekScene:CGraphScene) : void 
+	public set scene(seekScene:CGraphScene)
 	{
-		_currNode.seekToScene(seekScene);			
+		this._currNode.seekToScene(seekScene);			
 	}
 	
 }

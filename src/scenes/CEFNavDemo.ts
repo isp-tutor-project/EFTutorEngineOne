@@ -31,19 +31,19 @@
 //** Imports
 
 import { CEFRoot } 				from "../core/CEFRoot";
-import { CUtil } 				from "../util/CUtil";
+import { CEFDoc } 				from "../core/CEFDoc";
 import { CEFSceneSequence } 	from "../core/CEFSceneSequence";
+import { CEFNavEvent } 			from "../events/CEFNavEvent";
+import { CUtil } 				from "../util/CUtil";
 
 import MovieClip     		  = createjs.MovieClip;
-import { CEFDoc } from "../core/CEFDoc";
-import { CEFNavEvent } from "../events/CEFNavEvent";
 
 
 export class CEFNavDemo extends CEFSceneSequence
 {	
 	//************ Stage Symbols
 			
-	private _demoPanel:MovieClip;
+	private _demoPanel:any;
 	
 	// non-interactive elements
 	
@@ -65,7 +65,7 @@ export class CEFNavDemo extends CEFSceneSequence
 		this._demoPanel.visible = true;					
 		this._demoPanel.name    = "SdemoPanel";
 		
-		this._demoPanel["demoPath"] = CEFDoc.gApp["_modulePath"];
+		this._demoPanel["demoPath"] = (CEFDoc.gApp as any)["_modulePath"];
 		
 		// add it to this container
 		

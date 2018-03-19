@@ -30,15 +30,18 @@
 
 //** Imports
 
-import { CUtil } from "../util/CUtil";
-import { CEFRoot } from "./CEFRoot";
+import { CEFRoot } 	   		from "./CEFRoot";
+import { CEFTimerEvent } 	from "../events/CEFTimerEvent";
+import { CUtil } 			from "../util/CUtil";
+
+import EventDispatcher = createjs.EventDispatcher;
 
 
 
 /**
 * Provides support for pausing all Timers in the entire tutor
 */
-export class CEFTimer 
+export class CEFTimer extends EventDispatcher
 {
 	private traceMode:boolean = false;
 
@@ -47,7 +50,7 @@ export class CEFTimer
 	
 	// Create one wozObject through which we can listen for pause play commands
 	//
-	static private activeTimers:Array<CEFTimer> = new Array();
+	private static activeTimers:Array<CEFTimer> = new Array();
 
 	
 	/**
@@ -55,9 +58,10 @@ export class CEFTimer
 	*/
 	constructor(delay:number, repeatCount:number = 0)
 	{
+		super();
+
 		this._delay		  = delay;
 		this._repeatCount = repeatCount;
-
 	}
 				
 	/**
@@ -73,7 +77,7 @@ export class CEFTimer
 		// Stop the flash timers themselves (i.e. super)
 		for (var i1:number = 0 ; i1 < tCount ; i1++)
 		{
-			CEFTimer.activeTimers[0].superStop();
+			CEFTimer.activeTimers[0].stop();
 			CEFTimer.activeTimers.pop();				
 		}
 	}
@@ -89,7 +93,7 @@ export class CEFTimer
 		// Stop the flash timers themselves (i.e. super)
 		for (var i1:number = 0 ; i1 < CEFTimer.activeTimers.length ; i1++)
 		{
-			CEFTimer.activeTimers[i1].superStop();
+			CEFTimer.activeTimers[i1].stop();
 		}
 	}
 	
@@ -167,22 +171,22 @@ export class CEFTimer
 		
 		if(CEFRoot.gTutor)
 		{
-			CEFRoot.gTutor.addEventListener(CWOZRoot.WOZCANCEL,  this.cancelTimers);
-			CEFRoot.gTutor.addEventListener(CWOZRoot.WOZPAUSING, this.pauseTimers);
-			CEFRoot.gTutor.addEventListener(CWOZRoot.WOZPLAYING, this.playTimers);
+			CEFRoot.gTutor.addEventListener(CEFRoot.WOZCANCEL,  this.cancelTimers);
+			CEFRoot.gTutor.addEventListener(CEFRoot.WOZPAUSING, this.pauseTimers);
+			CEFRoot.gTutor.addEventListener(CEFRoot.WOZPLAYING, this.playTimers);
 			
 			this.timerAddThis();
 			
-			addEventListener(TimerEvent.TIMER_COMPLETE, this.timerFinished);
+			this.addEventListener(CEFTimerEvent.TIMER_COMPLETE, this.timerFinished);
 		}
 	}
 	
 	/**
 	 */
-	public timerFinished(evt:TimerEvent) : void
+	public timerFinished(evt:CEFTimerEvent) : void
 	{
 		this.timerRemoveThis();
-		removeEventListener(TimerEvent.TIMER_COMPLETE, this.timerFinished);
+		this.removeEventListener(CEFTimerEvent.TIMER_COMPLETE, this.timerFinished);
 	}
 	
 	/**
@@ -193,13 +197,13 @@ export class CEFTimer
 		
 		if (CEFRoot.gTutor)
 		{
-			CEFRoot.gTutor.removeEventListener(CWOZRoot.WOZCANCEL,  this.cancelTimers);
-			CEFRoot.gTutor.removeEventListener(CWOZRoot.WOZPAUSING, this.pauseTimers);
-			CEFRoot.gTutor.removeEventListener(CWOZRoot.WOZPLAYING, this.playTimers);
+			CEFRoot.gTutor.removeEventListener(CEFRoot.WOZCANCEL,  this.cancelTimers);
+			CEFRoot.gTutor.removeEventListener(CEFRoot.WOZPAUSING, this.pauseTimers);
+			CEFRoot.gTutor.removeEventListener(CEFRoot.WOZPLAYING, this.playTimers);
 			
 			this.timerRemoveThis();
 			
-			removeEventListener(TimerEvent.TIMER_COMPLETE, this.timerFinished);
+			this.removeEventListener(CEFTimerEvent.TIMER_COMPLETE, this.timerFinished);
 		}
 	}
 	

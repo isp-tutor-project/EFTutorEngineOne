@@ -45,7 +45,7 @@ export class CEFDoc extends CEFRoot
 	
 	//************ Stage Symbols
 	
-	public static tutorAutoObj:Object;		// The tutor object hierarchy
+	public static tutorAutoObj:any;		// The tutor object hierarchy
 	public static gApp:CEFDoc;
 	
 	public static designWidth:number = 1024;
@@ -102,8 +102,8 @@ export class CEFDoc extends CEFRoot
 		
 		this.connectFrameCounter(true);		
 		
-		CEFRoot.STAGEWIDTH  = this.stage.canvas["width"];
-		CEFRoot.STAGEHEIGHT = this.stage.canvas["height"];
+		// CEFRoot.STAGEWIDTH  = this.stage.canvas["width"];		//** TODO */
+		// CEFRoot.STAGEHEIGHT = this.stage.canvas["height"];
 	}
 	
 

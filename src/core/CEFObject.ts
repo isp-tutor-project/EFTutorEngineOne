@@ -27,6 +27,8 @@
 //
 //*********************************************************************************
 
+//** Imports
+
 import { CEFRoot } 			from "./CEFRoot";
 import { CEFTutorRoot } 	from "./CEFTutorRoot";
 import { CEFObjectDyno } 	from "./CEFObjectDyno";
@@ -42,6 +44,7 @@ import { CUtil } 			from "../util/CUtil";
 
 import Point     		  = createjs.Point;
 import Shape     		  = createjs.Shape;
+import Sprite     		  = createjs.Sprite;
 import Tween    		  = createjs.Tween;
 import ColorMatrixFilter  = createjs.ColorMatrixFilter;
 import BlurFilter		  = createjs.BlurFilter;
@@ -110,16 +113,16 @@ export class CEFObject extends CEFAnimator
 	
 	// RGB to Luminance conversion constants
 	
-	private static const LUMA_R:number = 0.212671;
-	private static const LUMA_G:number = 0.71516;
-	private static const LUMA_B:number = 0.072169;
+	private static readonly LUMA_R:number = 0.212671;
+	private static readonly LUMA_G:number = 0.71516;
+	private static readonly LUMA_B:number = 0.072169;
 
 	private _tarObj:string;
 
 	// Factory Object Initialization data for this object - maintains a pointer to the original data source for the object
 	
-	protected _OBJsrc:string;
-	protected _OBJSnapShot:string;
+	protected _XMLsrc:string;
+	protected _XMLSnapShot:string;
 	
 	// general logging properties 
 	
@@ -134,10 +137,10 @@ export class CEFObject extends CEFAnimator
 	
 	private _features:string;									//## Mod Aug 13 2013 - to support object unique features (used in scenegraph currently) 
 
-	private static _globals:Object = new Object;				//## Added Sep 23 2013 - to support global variables
+	private static _globals:any = new Object;					//## Added Sep 23 2013 - to support global variables
 	
-	protected _sceneData:Object = new Object;					//## Added Dec 11 2013 - DB based state logging
-	public    _phaseData:Object = new Object;					//## Added Dec 12 2013 - DB based state logging
+	protected _sceneData:any = new Object;						//## Added Dec 11 2013 - DB based state logging
+	public    _phaseData:any = new Object;						//## Added Dec 12 2013 - DB based state logging
 	
 	// mask specific values		
 
@@ -168,7 +171,7 @@ export class CEFObject extends CEFAnimator
 	//
 	//	  000001:root.start.SstartSplash...:root.Q0A.CSSbSRule1Part1AS...
 	
-	static private _framendx:number   = 0;
+	private static _framendx:number   = 0;
 			
 	
 	constructor()
@@ -189,8 +192,8 @@ export class CEFObject extends CEFAnimator
 	{
 		// Parse the Tutor.config for create procedures for this scene 
 		
-		if((this.gSceneConfig != null) && (this.gSceneConfig.objectdata[name] != undefined))
-						this.parseFactoryObj(this, this.gSceneConfig.objectdata[name].children(), name);
+		if((CEFRoot.gSceneConfig != null) && (CEFRoot.gSceneConfig.objectdata[name] != undefined))
+						this.parseOBJ(this, CEFRoot.gSceneConfig.objectdata[name].children(), name);
 		
 		//## Mod May 04 2014 - support declarative button actions from scenedescr.xml <create>
 		if(this.onCreateScript != null)
@@ -234,7 +237,7 @@ export class CEFObject extends CEFAnimator
 	 * This is a mechanism to keep woz objects !.visible through a transition
 	 *  
 	 */
-	public set hidden(hide:boolean) : void
+	public set hidden(hide:boolean)
 	{
 		this._hidden = hide;
 		
@@ -250,7 +253,7 @@ export class CEFObject extends CEFAnimator
 		return this._hidden; 
 	}
 	
-	public set features(newFTR:string) : void
+	public set features(newFTR:string)
 	{
 		this._features = newFTR; 
 	}
@@ -354,7 +357,7 @@ export class CEFObject extends CEFAnimator
 	}
 	
 	
-	public set activeFeature(value:string) : void 
+	public set activeFeature(value:string) 
 	{
 		
 	}
@@ -385,9 +388,9 @@ export class CEFObject extends CEFAnimator
 		// push the tweens on to the run stack 
 		//
 		if(moveX != "")
-			this.Running.push(new Tween(this[tarObj]).to({x:moveX}, Number(duration), Ease.cubicInOut));
+			this.Running.push(new Tween((this as any)[tarObj]).to({x:moveX}, Number(duration), Ease.cubicInOut));
 		if(moveY != "")
-			this.Running.push(new Tween(this[tarObj]).to({y:moveY}, Number(duration), Ease.cubicInOut));
+			this.Running.push(new Tween((this as any)[tarObj]).to({y:moveY}, Number(duration), Ease.cubicInOut));
 	}
 
 	
@@ -399,9 +402,9 @@ export class CEFObject extends CEFAnimator
 		// push the tweens on to the run stack 
 		//
 		if(regx != "")
-			this.Running.push(new Tween(this[tarObj]).to({regX:regx}, Number(duration), Ease.cubicInOut));
+			this.Running.push(new Tween((this as any)[tarObj]).to({regX:regx}, Number(duration), Ease.cubicInOut));
 		if(regy != "")
-			this.Running.push(new Tween(this[tarObj]).to({regY:regy}, Number(duration), Ease.cubicInOut));
+			this.Running.push(new Tween((this as any)[tarObj]).to({regY:regy}, Number(duration), Ease.cubicInOut));
 	}
 
 	
@@ -413,9 +416,9 @@ export class CEFObject extends CEFAnimator
 		// push the tweens on to the run stack 
 		//
 		if(scalex != "")
-			this.Running.push(new Tween(this[tarObj]).to({scaleX:scalex}, Number(duration), Ease.cubicInOut));
+			this.Running.push(new Tween((this as any)[tarObj]).to({scaleX:scalex}, Number(duration), Ease.cubicInOut));
 		if(scaley != "")
-			this.Running.push(new Tween(this[tarObj]).to({scaleY:scaley}, Number(duration), Ease.cubicInOut));
+			this.Running.push(new Tween((this as any)[tarObj]).to({scaleY:scaley}, Number(duration), Ease.cubicInOut));
 	}
 			
 	/**
@@ -423,7 +426,7 @@ export class CEFObject extends CEFAnimator
 		*/	
 	public saturateChild(tarObj:string, newState:string, duration:string = "0.08") : void
 	{
-		this[tarObj].saturateObj(newState, duration);
+		(this as any)[tarObj].saturateObj(newState, duration);
 	}
 	
 	/**
@@ -431,7 +434,7 @@ export class CEFObject extends CEFAnimator
 		*/	
 	public saturateChildTo(tarObj:string, newSat:number, duration:string = "0.08") : void
 	{
-		this[tarObj].saturateObjTo(newSat, duration);
+		(this as any)[tarObj].saturateObjTo(newSat, duration);
 	}
 	
 	/**
@@ -560,7 +563,7 @@ export class CEFObject extends CEFAnimator
 		*/	
 	public blurChild(tarObj:string, duration:string = "12") : void
 	{
-		this[tarObj].blurObj(duration);
+		(this as any)[tarObj].blurObj(duration);
 	}
 	
 	/**
@@ -600,7 +603,7 @@ export class CEFObject extends CEFAnimator
 		*/	
 	public flashChild(tarObj:string, _glowColor:number, duration:string = "8") : void
 	{
-		this[tarObj].flashObj(_glowColor, duration);
+		(this as any)[tarObj].flashObj(_glowColor, duration);
 	}
 	
 	/**
@@ -665,10 +668,10 @@ export class CEFObject extends CEFAnimator
 	{
 		// push the tweens on to the run stack 
 		//
-		this[tarObj].visible = true;
+		(this as any)[tarObj].visible = true;
 		
 		if(alphaTo != -1)
-			this[tarObj].alpha = alphaTo;
+			(this as any)[tarObj].alpha = alphaTo;
 	}
 
 	
@@ -679,7 +682,7 @@ export class CEFObject extends CEFAnimator
 	{
 		// push the tweens on to the run stack 
 		//
-		this[tarObj].visible = false;
+		(this as any)[tarObj].visible = false;
 	}
 	
 	
@@ -691,7 +694,7 @@ export class CEFObject extends CEFAnimator
 		
 		this._tarObj = tarObj;
 		
-		this.Running.push(new Tween(this[tarObj]).to({alpha:0}, Number(duration), Ease.cubicInOut));
+		this.Running.push(new Tween((this as any)[tarObj]).to({alpha:0}, Number(duration), Ease.cubicInOut));
 
 		if(autoStart)
 			this.startTransition(this.hideDone);							
@@ -702,7 +705,7 @@ export class CEFObject extends CEFAnimator
 	 */
 	private hideDone() : void
 	{			
-		this[this._tarObj].visible = false;
+		(this as any)[this._tarObj].visible = false;
 	}						
 	
 	
@@ -713,7 +716,7 @@ export class CEFObject extends CEFAnimator
 	{
 		// push the tweens on to the run stack 
 		//
-		this[tarObj].visible = true;
+		(this as any)[tarObj].visible = true;
 					
 		switch(alphaTo)
 		{
@@ -721,7 +724,7 @@ export class CEFObject extends CEFAnimator
 			case "on":
 				if(this.traceMode) CUtil.trace("Fading : ", tarObj, alphaTo);
 				
-				this.Running.push(new Tween(this[tarObj]).to({alpha:(alphaTo == "on")? 1:0}, Number(duration), Ease.cubicInOut));
+				this.Running.push(new Tween((this as any)[tarObj]).to({alpha:(alphaTo == "on")? 1:0}, Number(duration), Ease.cubicInOut));
 
 				if(autoStart == true)
 					this.startTransition(this.twnDone);
@@ -741,11 +744,11 @@ export class CEFObject extends CEFAnimator
 	{
 		// push the tweens on to the run stack 
 		//
-		this[tarObj].visible = true;
+		(this as any)[tarObj].visible = true;
 		
 		if(this.traceMode) CUtil.trace("Fading To: ", tarObj, alphaTo);
 
-		   this.Running.push(new Tween(this[tarObj]).to({alpha:alphaTo}, Number(duration), Ease.cubicInOut));
+		   this.Running.push(new Tween((this as any)[tarObj]).to({alpha:alphaTo}, Number(duration), Ease.cubicInOut));
 		
 		if(autoStart == true)
 			this.startTransition(this.twnDone);										
@@ -763,7 +766,7 @@ export class CEFObject extends CEFAnimator
 	/**
 	 * 
 	 */	
-	public startTween(xnF = this.twnDone()) : void
+	public startTween(xnF = this.twnDone) : void
 	{
 		if(this.Running.length > 0)
 			this.startTransition((xnF == null)? this.twnDone:xnF);				
@@ -803,7 +806,7 @@ export class CEFObject extends CEFAnimator
 	
 	// Walk the WOZ Objects to capture their default state
 	//
-	public captureDefState(tutObject:Object ) : void 
+	public captureDefState(tutObject:any ) : void 
 	{
 		this.defRot    = this.rotation;
 		this.defX      = this.x;
@@ -812,7 +815,7 @@ export class CEFObject extends CEFAnimator
 		this.defHeight = this.scaleY;
 		this.defAlpha  = this.alpha;			
 		
-		for(let subObject:string in tutObject)
+		for(let subObject in tutObject)
 		{			
 			if(subObject != "instance" && tutObject[subObject].instance instanceof CEFObject)
 			{
@@ -826,7 +829,7 @@ export class CEFObject extends CEFAnimator
 	
 	// Walk the WOZ Objects to restore their default state
 	//
-	public restoreDefState(tutObject:Object ) : void 
+	public restoreDefState(tutObject:any ) : void 
 	{
 		this.rotation = this.defRot; 
 		this.scaleX    = this.defWidth;
@@ -835,7 +838,7 @@ export class CEFObject extends CEFAnimator
 		this.y        = this.defY;
 		this.alpha    = this.defAlpha;			
 		
-		for(let subObject:string in tutObject)
+		for(let subObject in tutObject)
 		{			
 			if(subObject != "instance" && tutObject[subObject].instance instanceof CEFObject)
 			{
@@ -888,7 +891,7 @@ export class CEFObject extends CEFAnimator
 		let sResult:string;
 		
 		if(!this.hasOwnProperty(objprop)) sResult = "undefined";
-									 else sResult = this[objprop];		
+									 else sResult = (this as any)[objprop];		
 		return sResult; 
 	}
 		
@@ -900,7 +903,7 @@ export class CEFObject extends CEFAnimator
 	
 	/**
 	 * Designed to be overridden by objects that require redraw in order for their size to be determined
-	 * e.g. CWOZRect 
+	 * e.g. CEFRect 
 	 * 
 	 */
 	public measure() : void
@@ -908,7 +911,7 @@ export class CEFObject extends CEFAnimator
 	}
 	
 	
-	public initAutomation(_parentScene:CEFScene, sceneObj:Object, ObjIdRef:string, lLogger:ILogManager, lTutor:CEFTutorRoot) : void
+	public initAutomation(_parentScene:CEFScene, sceneObj:any, ObjIdRef:string, lLogger:ILogManager, lTutor:CEFTutorRoot) : void
 	{								
 		if(this.traceMode) CUtil.trace("CEFObject initAutomation:");						
 
@@ -967,7 +970,7 @@ export class CEFObject extends CEFAnimator
 	// Walk the WOZ Objects to initialize their automation mode
 	// to do any special initialization - but call super to propogate
 	//
-	public setAutomationMode(sceneObj:Object, sMode:string) : void 
+	public setAutomationMode(sceneObj:any, sMode:string) : void 
 	{
 		// Initialize the mode variable
 		//
@@ -975,7 +978,7 @@ export class CEFObject extends CEFAnimator
 		
 		// Propogate to any children
 		//
-		for(let subObj:string in sceneObj)
+		for(let subObj in sceneObj)
 		{
 			if(subObj != "instance" && sceneObj[subObj].instance instanceof CEFObject)
 			{
@@ -990,15 +993,15 @@ export class CEFObject extends CEFAnimator
 
 //***************** Debug *******************************		
 		
-	public dumpSubObjs(sceneObj:Object, Indent:string) : void
+	public dumpSubObjs(sceneObj:any, Indent:string) : void
 	{				
-		for(let subObj:string in sceneObj)
+		for(let subObj in sceneObj)
 		{
 			if(this.traceMode) CUtil.trace(Indent + "\tsubObj : " + subObj);
 
 			if(subObj != "instance")
 			{
-				let ObjData:Object = sceneObj[subObj]; // Convenience Pointer
+				let ObjData:any = sceneObj[subObj]; // Convenience Pointer
 				
 				if(sceneObj[subObj].instance instanceof CEFObject)
 				{
@@ -1008,7 +1011,7 @@ export class CEFObject extends CEFAnimator
 				
 					if(ObjData['inPlace'] != undefined)
 					{
-						if(this.traceMode) CUtil.trace(Indent + "\tCWOZ* Object: " + " x: " + wozObj.x + " y: " + wozObj.y + " width: " + wozObj.scaleX + " height: " + wozObj.scaleY + " alpha: " + wozObj.alpha + " visible: " + wozObj.visible + " name: " + wozObj.name );													
+						if(this.traceMode) CUtil.trace(Indent + "\tCEF* Object: " + " x: " + wozObj.x + " y: " + wozObj.y + " width: " + wozObj.scaleX + " height: " + wozObj.scaleY + " alpha: " + wozObj.alpha + " visible: " + wozObj.visible + " name: " + wozObj.name );													
 						if(this.traceMode) CUtil.trace(Indent + "\tIn-Place Pos: " + " X: " + ObjData['inPlace'].X + " Y: " + ObjData['inPlace'].Y + " Width: " + ObjData['inPlace'].scaleX + " Height: " + ObjData['inPlace'].scaleY + " Alpha: " + ObjData['inPlace'].Alpha );
 					}
 					sceneObj[subObj].instance.dumpSubObjs(sceneObj[subObj], Indent + "\t");												
@@ -1083,13 +1086,13 @@ export class CEFObject extends CEFAnimator
 	public assertFeature(_feature:string) : void			//## Added Feb 27 2013 - to support dynamic features
 	{	
 		if(_feature != "")
-			this.gTutor.addFeature = _feature;
+			CEFRoot.gTutor.addFeature = _feature;
 	}
 	
 	public retractFeature(_feature:string) : void			//## Added Feb 27 2013 - to support dynamic features
 	{	
 		if(_feature != "")
-			this.gTutor.delFeature = _feature;
+			CEFRoot.gTutor.delFeature = _feature;
 	}
 
 
@@ -1220,113 +1223,113 @@ export class CEFObject extends CEFAnimator
 
 	
 //*************** Creation / Initialization
-			
-	/**
-	 * 
-	 * @param	baseObj
-	 * @param	objArray
-	 * @return
-	 */
-	protected decodeTarget(baseObj:DisplayObject, objArray:Array ) : DisplayObject
-	{
-		let tmpObject:DisplayObject = baseObj;
-		let subObject:string;
-		
-		subObject = objArray.shift();
-		
-		if(this.traceMode) CUtil.trace("decoding: " + subObject );
-		
-		if(subObject != "this")
+				
+		/**
+		 * 
+		 * @param	baseObj
+		 * @param	objArray
+		 * @return
+		 */
+		protected decodeTarget(baseObj:DisplayObject, objArray:Array<any> ) : DisplayObject
 		{
-			tmpObject = baseObj[subObject];
+			var tmpObject:DisplayObject = baseObj;
+			var subObject:string;
+			
+			subObject = objArray.shift();
+			
+			if(this.traceMode) CUtil.trace("decoding: " + subObject );
+			
+			if(subObject != "this")
+			{
+				tmpObject = (baseObj as any)[subObject];
+				
+				if(objArray.length)
+					tmpObject = this.decodeTarget(tmpObject, objArray);
+			}
+			
+			return tmpObject;	
+		}
+		
+		
+		/**
+		 * 
+		 * @param	tarObj
+		 * @param	tarXML
+		 */
+		private parseOBJLog(tarObj:DisplayObject, element:any) : void
+		{		
+			var objArray:Array<any>;
+			var dataStr:string;
+			var attrName:string;
+			
+			if(this.traceMode) CUtil.trace("Processing: " + element.localName() + " - named: " + element.named);
+			
+			objArray = element.objname.split(".");
+			
+			if(this.traceMode) CUtil.trace("Target Array: " + objArray[0]);
 			
 			if(objArray.length)
-				tmpObject = this.decodeTarget(tmpObject, objArray);
-		}
-		
-		return tmpObject;	
-	}
+				tarObj = this.decodeTarget(tarObj, objArray);
+
+			//@@ Mod Jun 03 2013 - Support for method based logging
+			//
+			// If there is a single property process it
+			
+			if (element.objprop != undefined)
+			{
+				// process the logging instruction
+				
+				//@@ Mod Mar 13 2012 - removed phase and use @logid as direct child of state - avoids conflict with deprecated logging
+				//                     method used in tutor
+				
+				dataStr = (tarObj as CEFObject).createLogAttr(element.objprop);				
+			}
+				
+			//@@ Mod Jun 03 2013 - Support for method based logging
+			//
+			// If there is a single command process it 
+				
+			else if (element.objmethod != undefined)
+			{
+				dataStr = (tarObj as CEFObject).runXMLFunction(tarObj, element);
+			}
+
+			// NOTE: Phase State Attribute names: 
+			// currently simplified frameid + scenename + logattr + iteration
+			// TODO: support graph style encoding see framendx definition above for details
+
+			// Construct the unique log attribute name - 			
+			attrName = this.constructLogName(element.logattr);
+			
+			this.navigator._phaseData[attrName] = new Object;			
+			
+			// update the phase specific log data - save in log progress packet - uses compound attribute name			
+			this.navigator._phaseData[attrName]['value'] = dataStr;
+			
+			this.navigator._phaseData[attrName]["start"] = CEFRoot.gTutor.timeStamp.getStartTime("dur_"+name);
+			
+			this.navigator._phaseData[attrName]["duration"] = CEFRoot.gTutor.timeStamp.createLogAttr("dur_"+name);
+			
+			// Simple Scene state record - some values set in CEFSceneSequence.onExitScene 
+			
+			this._sceneData[element.logattr] = dataStr;
+			
+			// NOTE: if you don't use toString it will emit an XMLList object for some unknown reason.
+			
+			this._sceneData['phasename'] = element.logid.toString();
+						
+			try
+			{
+				this._sceneData['Rule0'] = CEFRoot.gTutor.ktSkills['rule0'].queryBelief();			
+				this._sceneData['Rule1'] = CEFRoot.gTutor.ktSkills['rule1'].queryBelief();			
+				this._sceneData['Rule2'] = CEFRoot.gTutor.ktSkills['rule2'].queryBelief();
+			}
+			catch(err)
+			{
+				CUtil.trace("Error - CVS Skills not defined:" + err);
+			}
 	
-	
-	/**
-	 * 
-	 * @param	tarObj
-	 * @param	tarXML
-	 */
-	private parseLogFactoryObj(tarObj:DisplayObject, element:string) : void
-	{		
-		let objArray:Array;
-		let dataStr:string;
-		let attrName:string;
-		
-		if(this.traceMode) CUtil.trace("Processing: " + element.localName() + " - named: " + element.@named);
-		
-		objArray = element.@objname.split(".");
-		
-		if(this.traceMode) CUtil.trace("Target Array: " + objArray[0]);
-		
-		if(objArray.length)
-			tarObj = this.decodeTarget(tarObj, objArray);
-
-		//@@ Mod Jun 03 2013 - Support for method based logging
-		//
-		// If there is a single property process it
-		
-		if (element.@objprop != undefined)
-		{
-			// process the logging instruction
 			
-			//@@ Mod Mar 13 2012 - removed phase and use @logid as direct child of state - avoids conflict with deprecated logging
-			//                     method used in tutor
-			
-			dataStr = (tarObj as CEFObject).createLogAttr(element.@objprop);				
-		}
-			
-		//@@ Mod Jun 03 2013 - Support for method based logging
-		//
-		// If there is a single command process it 
-			
-		else if (element.@objmethod != undefined)
-		{
-			dataStr = (tarObj as CEFObject).runXMLFunction(tarObj, element);
-		}
-
-		// NOTE: Phase State Attribute names: 
-		// currently simplified frameid + scenename + logattr + iteration
-		// TODO: support graph style encoding see framendx definition above for details
-
-		// Construct the unique log attribute name - 			
-		attrName = constructLogName(element.@logattr);
-		
-		navigator._phaseData[attrName] = new Object;			
-		
-		// update the phase specific log data - save in log progress packet - uses compound attribute name			
-		navigator._phaseData[attrName]['value'] = dataStr;
-		
-		navigator._phaseData[attrName]["start"] = gTutor.timeStamp.getStartTime("dur_"+name);
-		
-		navigator._phaseData[attrName]["duration"] = gTutor.timeStamp.createLogAttr("dur_"+name);
-		
-		// Simple Scene state record - some values set in CWOZSceneSequence.onExitScene 
-		
-		_sceneData[element.@logattr] = dataStr;
-		
-		// NOTE: if you don't use toString it will emit an XMLList object for some unknown reason.
-		
-		_sceneData['phasename'] = element.@logid.toString();
-					
-		try
-		{
-			_sceneData['Rule0'] = gTutor.ktSkills['rule0'].queryBelief();			
-			_sceneData['Rule1'] = gTutor.ktSkills['rule1'].queryBelief();			
-			_sceneData['Rule2'] = gTutor.ktSkills['rule2'].queryBelief();
-		}
-		catch(err:Error)
-		{
-			trace("Error - CVS Skills not defined:" + err);
-		}
-
-		
 // Use this if you want to keep kt history data centralized in the user account
 //			
 //			try
@@ -1347,70 +1350,345 @@ export class CEFObject extends CEFAnimator
 //			{
 //				trace("Error - CVS Rules not defined: 2" + err);
 //			}
+			
+			
+			return;			
+		}
 		
 		
-		return;			
-	}
-	
-	
-	/**
-	 * 
-	 */
-	private constructLogName(attr:string) : string
-	{
-		let attrName:string = "L00000";
-		let frame:string;
+		/**
+		 * 
+		 */
+		private constructLogName(attr:string) :string
+		{
+			var attrName:string = "L00000";
+			var frame:string;
+			
+			frame = CEFObject._framendx.toString();
+			
+			// Note: name here is the scene name itself which is the context in which we are executing
+			
+			//attrName = attrName.slice(0, 6-frame.length) + frame + "_" + name +"_" + attr + "_" + gTutor.gNavigator.iteration.toString(); 
+			
+			attrName = name +"_" + attr + "_" + CEFRoot.gTutor.gNavigator.iteration.toString();
+			
+			return attrName;
+		}
 		
-		frame = CEFObject._framendx.toString();
 		
-		// Note: name here is the scene name itself which is the context in which we are executing
+		/**
+		 * 
+		 * @param	tarObj
+		 * @param	tarXML
+		 */
+		private setXMLProperty(tarObj:DisplayObject, tarXML:any) : void
+		{		
+			if(this.traceMode) CUtil.trace("Processing: " + tarXML.localName() + " - named: " + tarXML.named + "- value: " + tarXML.value);
+			
+			if(tarObj.hasOwnProperty(tarXML.prop))
+			{
+				// This sequence of conversions is critical for correct type assignments (automatic conversions - see built in types e.g Boolean)
+				
+				var parmDef:Array<string> = tarXML.value.split(":");						
+				
+				if(parmDef[1] != "null")
+				{
+					//## Mod Feb 16 2012 - added support for array of comma delimited string initializers
+					
+					if(parmDef[1] == "Array")
+					{
+						(tarObj as any)[tarXML.prop] =  parmDef[0].split(",");						
+					}
+					else
+					{
+						var tClass:any = this.getDefinitionByName(parmDef[1]) as any;
+						
+						var value:string = parmDef[0];
+						
+						(tarObj as any)[tarXML.prop] =  new tClass(value);
+					}
+				}
+				else
+					(tarObj as any)[tarXML.prop] =  null;
+			}
+		}
 		
-		//attrName = attrName.slice(0, 6-frame.length) + frame + "_" + name +"_" + attr + "_" + gTutor.gNavigator.iteration.toString(); 
 		
-		attrName = name +"_" + attr + "_" + this.gTutor.gNavigator.iteration.toString();
+		/**
+		 * 
+		 * @@ Mod Jun 03 2013 - Support return values. For logging
+		 * 
+		 * @param	tarObj
+		 * @param	tarXML
+		 */
+		private runXMLFunction(tarObj:DisplayObject, tarXML:any) : any
+		{
+			var i1:number = 1;
+			var tClass:any;
+			var value:string;
+			var objArray:Array<any>;
+			var parmDef:Array<string>;
+			var parms:Array<any> = new Array;
+			
+			// unmarshal the typed parameter array from the XML representation
+			
+			while (tarXML["parm" + i1] != undefined)
+			{
+				parmDef = tarXML["parm" + i1].split(":");			
+				
+				// A displayobject on stage
+				
+				if(parmDef[1] == "symbol")
+				{
+					objArray = parmDef[0].split(".");
+					
+					if(objArray.length)
+						parms.push(this.decodeTarget(tarObj, objArray));					
+				}
+					
+					// a Builtin class
+					
+				else if(parmDef[1] != "null")
+				{
+					tClass = this.getDefinitionByName(parmDef[1]) as any;
+					
+					value = parmDef[0];
+					
+					parms.push(new tClass(value));
+				}
+					
+					// otherwise push a null
+				else
+					parms.push(null);
+				
+				i1++;
+			}	
+			
+			// Apply the command - this expands the parameter array
+			if(tarXML.cmnd != undefined)			
+				return (tarObj as any)[tarXML.cmnd].apply(tarObj, (parms));
+			
+			if(tarXML.objmethod != undefined)			
+				return (tarObj as any)[tarXML.objmethod].apply(tarObj, (parms));
+		}
 		
-		return attrName;
-	}
-	
-	
-	/**
-	 * 
-	 * @param	tarObj
-	 * @param	tarXML
-	 */
-	private setXMLProperty(tarObj:DisplayObject, tarXML:string) : void
-	{		
-	}
-	
-	
-	/**
-	 * 
-	 * @@ Mod Jun 03 2013 - Support return values. For logging
-	 * 
-	 * @param	tarObj
-	 * @param	tarXML
-	 */
-	private runXMLFunction(tarObj:DisplayObject, tarXML:string) : any
-	{
-	}
-	
-	
-	/**
-	 * 
-	 * @param	tarObj
-	 * @param	tarXML
-	 */
-	public parseFactoryObj(tarObj:DisplayObject, tarXML:string, xType:string) : void
-	{
-	}
-	
-	
-	/*
-	* 
-	*/
-	public loadXML(xmlSrc:Object) : void
-	{
 		
-		super.loadXML(xmlSrc);				
-	}
+		/**
+		 * 
+		 * @param	tarObj
+		 * @param	tarXML
+		 */
+		public parseOBJ(tarObj:DisplayObject, tarXML:any, xType:string) : void
+		{
+			var tarObject:DisplayObject;
+			var childList:any;
+			var objArray:Array<any>;
+			var element:any;
+			
+			if(this.traceMode) CUtil.trace("Parsing:" + tarXML[0].localName() + " - named: " + tarXML[0].named + " - Count: " + tarXML.length());
+			
+			for (element of tarXML)				
+			{
+				// reset tarObject - it may change on each iteration
+				
+				tarObject = tarObj;				
+				
+				// If initializer is featured - execute matching features
+				
+				if(element.features != undefined)
+				{
+					// Each element of the fFeature vector contains an id for a feature of the tutor.
+					// This permits the tutor to have multiple independently managed features.
+					// All identifiers of all the feature sets must be globally unique.
+					
+					if(!CEFRoot.gTutor.testFeatureSet(String(element.features)))
+						continue;
+				}
+				
+				try
+				{				
+					switch(element.localName())
+					{					
+						case "common":
+							this.parseOBJ(tarObj, CEFObject.gSceneConfig.scenedata[element.text()][xType].children(), xType);
+							break;
+															
+						case "log":
+							this.parseOBJLog(tarObject, element);
+							break;
+						
+						case "obj":
+							
+							if(this.traceMode) CUtil.trace("Processing: " + element.localName() + " - named: " + element.named);
+
+							try
+							{							
+								objArray = element.named.split(".");
+								
+								if(this.traceMode) CUtil.trace("Target Array: " + objArray[0]);
+								
+								if(objArray.length)
+									tarObject = this.decodeTarget(tarObject, objArray);
+							
+								// process any children if they exist
+								
+								childList = element.children();
+								
+								if(childList.length > 0)	
+								this.parseOBJ(tarObject, childList, "obj" );
+								
+								// If there is a single property process it now
+								
+								if (element.prop != undefined)
+								{
+									this.setXMLProperty(tarObject, element);						
+								}
+									
+									// If there is a single command process it now
+									
+								else if (element.cmnd != undefined)
+								{
+									this.runXMLFunction(tarObject, element);						
+								}
+							}
+							catch(err)
+							{
+								if(this.traceMode) CUtil.trace("Invalid 'obj' target");
+							}
+							
+							break;
+						
+						case "props":
+							
+							if(this.traceMode) CUtil.trace("Processing: " + element.localName() + " - named: " + element.named + "- value: " + element.value);
+							
+							this.setXMLProperty(tarObject, element);						
+							
+							break;
+						
+						case "cmnds":
+							
+							if(this.traceMode) CUtil.trace("Processing: " + element.localName() + " - named: " + element.named + "- value: " + element.value);
+							
+							this.runXMLFunction(tarObject, element);					
+							
+							break;
+						
+						case "symbol":
+							
+							//@@ mod Jan 22 2013 - enhanced to support nested children
+
+							try
+							{
+								objArray = element.named.split(".");
+								
+								if(this.traceMode) CUtil.trace("Target Array: " + objArray[0]);
+								
+								if(objArray.length)
+									tarObject = this.decodeTarget(tarObject, objArray);								
+							}
+							catch(err)
+							{
+								CUtil.trace("ParseXML Symbol named: " + element.named + " not found.");
+								tarObject = null;
+							}
+							
+							if(tarObject != null)
+							{
+								(tarObject as CEFObject).loadXML(element);
+							}
+							
+							break;
+						
+						case "object":
+							
+							if(this.hasOwnProperty(element.named) && ((this as any)[element.named] != null))
+							(this as any)[element.named].parseXML((this as any)[element.named], CEFObject.gSceneConfig.objectdata[element.named].children(), "object");
+							
+							break;
+						
+						case "initself":
+							
+							this.loadXML(element);
+							
+							break;											
+					}
+				}
+				catch(err)							
+				{
+					CUtil.trace("CEFObject:parseXML: " + err);
+				}					
+			}
+		}
+		
+		
+		/*
+		* 
+		*/
+		public loadOBJ(xmlSrc:any) : void
+		{
+			// Keep a pointer to the object spec
+			
+			this._XMLsrc = xmlSrc;
+			
+			if(xmlSrc.wozname != undefined)						
+				this.wozName = xmlSrc.wozname;			
+			
+			if(xmlSrc.x != undefined)						
+			this.x = Number(xmlSrc.x);
+			
+			if(xmlSrc.y != undefined)						
+			this.y = Number(xmlSrc.y);
+
+			if(xmlSrc.visible != undefined)
+			{
+				this.visible = (xmlSrc.visible == "true")? true:false;
+			}
+			
+			if(xmlSrc.alpha != undefined)						
+			this.alpha = Number(xmlSrc.alpha);
+			
+			if(xmlSrc.mask != undefined)
+			{
+				this._hasClickMask = true;
+				
+				// this.SclickMask = new Sprite;
+				
+				this.addChildAt(this.SclickMask,0);
+				
+				// this._maskColor = Number(xmlSrc.mask.color);
+				// this._maskAlpha = Number(xmlSrc.mask.alpha);
+			}
+			
+			if(xmlSrc.oncreate != undefined)		
+			{
+				try
+				{
+					// Note: it is imperitive that we precompile the script -
+					//       Doing it on each invokation causes failures
+					// onCreateScript = D.parseProgram(xmlSrc.oncreate);
+				}
+				catch(err)
+				{
+					CUtil.trace("Error: onCreateScript Invalid: " + xmlSrc.oncreate);
+				}
+			}
+			
+			if(xmlSrc.onexit != undefined)		
+			{
+				try
+				{
+					// Note: it is imperitive that we precompile the script -
+					//       Doing it on each invokation causes failures
+					// onExitScript = D.parseProgram(xmlSrc.onexit);
+				}
+				catch(err)
+				{
+					CUtil.trace("Error: onExitScript Invalid: " + xmlSrc.onExitScript);
+				}
+			}			
+			
+			
+			super.loadXML(xmlSrc);				
+		}
 }

@@ -9,9 +9,9 @@
 //  
 //   Copyright(c) 2008 Carnegie Mellon University. All Rights Reserved.   
 //                                                                        
-//  File:      CWOZSceneN.as
+//  File:      CEFSceneN.as
 //                                                                        
-//  Purpose:   CWOZSceneN object implementation
+//  Purpose:   CEFSceneN object implementation
 //                                                                        
 //  Author(s): Kevin Willows                                                           
 //  
@@ -28,60 +28,61 @@
 //*********************************************************************************
 
 
-package cmu.woz.scenes
+//** Imports
+
+import { CEFRoot } 			from "../core/CEFRoot";
+import { CEFButton } 		from "../core/CEFButton";
+import { CEFSceneSequence } from "../core/CEFSceneSequence";
+import { CEFEvent } 		from "../events/CEFEvent";
+import { CEFMouseEvent } 	from "../events/CEFMouseEvent";
+import { CUtil } 			from "../util/CUtil";
+
+
+import MovieClip     	  = createjs.MovieClip;
+import Point     		  = createjs.Point;
+import Tween     		  = createjs.Tween;
+
+
+export class CEFSceneN extends CEFSceneSequence
 {
-	import cmu.woz.*;
-	import cmu.woz.controls.*;
-	import cmu.woz.events.*;	
+	//************ Stage Symbols
 	
-	import flash.display.*;
-	import flash.events.*;
-	import flash.display.StageAlign;
-	import flash.display.StageScaleMode;
-	import flash.text.*;
+	public SreplaySession:CEFButton;
+	
+	// non-interactive elements
+	
+	public SbackGround:MovieClip;		
 
-	public class CWOZSceneN extends CWOZSceneSequence
+	//************ Stage Symbols
+	
+	public CEFSceneN():void
 	{
-		//************ Stage Symbols
+		CUtil.trace("CEFSceneN:Constructor");
 		
-		public var SreplaySession:CWOZButton;
-		
-		// non-interactive elements
-		
-		public var SbackGround:MovieClip;		
-
-		//************ Stage Symbols
-		
-		public function CWOZSceneN():void
-		{
-			trace("CWOZSceneN:Constructor");
-			
-			SreplaySession.addEventListener(CWOZMouseEvent.WOZCLICK, doReplay);
-		}
-
-		public function doReplay(evt:CWOZEvent) : void
-		{			
-			// relay the entire tutor interaction
-			//
-			gTutor.replayLiveStream();			
-		}										
-		
-		
-		// Walk the WOZ Objects to capture their default state
-		//
-		override public function captureDefState(TutScene:Object ) : void 
-		{
-			super.captureDefState(TutScene );
-		}
-		
-		
-		// Walk the WOZ Objects to restore their default state
-		//
-		override public function restoreDefState(TutScene:Object ) : void 
-		{
-			super.restoreDefState(TutScene );
-		}
-					
+		this.SreplaySession.addEventListener(CEFMouseEvent.WOZCLICK, this.doReplay);
 	}
 
+	public doReplay(evt:CEFEvent) : void
+	{			
+		// relay the entire tutor interaction
+		//
+		CEFRoot.gTutor.replayLiveStream();			
+	}										
+	
+	
+	// Walk the WOZ Objects to capture their default state
+	//
+	public captureDefState(TutScene:Object ) : void 
+	{
+		super.captureDefState(TutScene );
+	}
+	
+	
+	// Walk the WOZ Objects to restore their default state
+	//
+	public restoreDefState(TutScene:Object ) : void 
+	{
+		super.restoreDefState(TutScene );
+	}
+				
 }

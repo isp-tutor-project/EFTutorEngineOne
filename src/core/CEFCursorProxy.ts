@@ -27,16 +27,21 @@
 //
 //*********************************************************************************
 
+//** Imports
+
 import { CEFRoot }       	from "./CEFRoot";
 import { CEFObject }     	from "./CEFObject";
+import { CEFScene } 		from "./CEFScene";
+import { CEFMouseEvent } 	from "../events/CEFMouseEvent";
+import { CEFTextEvent } 	from "../events/CEFTextEvent";
 
 import { CUtil } 			from "../util/CUtil";
 
-
 import MovieClip     	  = createjs.MovieClip;
+import DisplayObject      = createjs.DisplayObject;
 import Point     		  = createjs.Point;
 import Tween     		  = createjs.Tween;
-import { CEFMouseEvent } from "../events/CEFMouseEvent";
+import Ease			      = createjs.Ease;
 
 
 
@@ -72,7 +77,7 @@ export class CEFCursorProxy extends CEFRoot
 	static readonly WOZLIVE:string		= "WOZLIVE";
 	static readonly WOZREPLAY:string	= "WOZREPLAY";		
 	
-	constructor() : void
+	constructor()
 	{
 		super();
 
@@ -94,7 +99,7 @@ export class CEFCursorProxy extends CEFRoot
 		this.Shand.visible      = false;
 		this.Sautomate.visible  = false;
 			
-		this[style].visible = true;
+		(this as any)[style].visible = true;
 	}					
 			
 //***************** Automation *******************************		
@@ -110,21 +115,21 @@ export class CEFCursorProxy extends CEFRoot
 	
 		// Input is being driven by user input
 		//
-		if(sMode == WOZLIVE)
+		if(sMode == CEFCursorProxy.WOZLIVE)
 		{
-			this.stage.addEventListener(CEFMouseEvent.MOUSE_MOVE  , liveMouseMove);
-			this.stage.addEventListener(MouseEvent.MOUSE_DOWN  , liveMouseDown);
-			this.stage.addEventListener(MouseEvent.MOUSE_UP    , liveMouseUp);		
-			this.stage.addEventListener(MouseEvent.DOUBLE_CLICK, liveMouseDblClick);		
+			this.stage.addEventListener(CEFMouseEvent.MOUSE_MOVE  , this.liveMouseMove);
+			this.stage.addEventListener(CEFMouseEvent.MOUSE_DOWN  , this.liveMouseDown);
+			this.stage.addEventListener(CEFMouseEvent.MOUSE_UP    , this.liveMouseUp);		
+			this.stage.addEventListener(CEFMouseEvent.DOUBLE_CLICK, this.liveMouseDblClick);		
 		}
 		// Input is being driven by log input
 		//
-		else if(sMode == WOZREPLAY)
+		else if(sMode == CEFCursorProxy.WOZREPLAY)
 		{
-			this.stage.removeEventListener(MouseEvent.MOUSE_MOVE  , liveMouseMove);
-			this.stage.removeEventListener(MouseEvent.MOUSE_DOWN  , liveMouseDown);
-			this.stage.removeEventListener(MouseEvent.MOUSE_UP    , liveMouseUp);						
-			this.stage.removeEventListener(MouseEvent.DOUBLE_CLICK, liveMouseDblClick);		
+			this.stage.removeEventListener(CEFMouseEvent.MOUSE_MOVE  , this.liveMouseMove);
+			this.stage.removeEventListener(CEFMouseEvent.MOUSE_DOWN  , this.liveMouseDown);
+			this.stage.removeEventListener(CEFMouseEvent.MOUSE_UP    , this.liveMouseUp);						
+			this.stage.removeEventListener(CEFMouseEvent.DOUBLE_CLICK, this.liveMouseDblClick);		
 		}			
 					
 		// Show the woz cursor 
@@ -133,7 +138,7 @@ export class CEFCursorProxy extends CEFRoot
 	}
 	
 	
-	public decodeTarget(baseObj:CEFRoot, objArray:Array ) : CEFObject
+	public decodeTarget(baseObj:any, objArray:Array<any> ) : CEFObject
 	{
 		let tmpObject:CEFObject = null;
 		let subObject:string;
@@ -143,7 +148,7 @@ export class CEFCursorProxy extends CEFRoot
 		if(this.traceMode) CUtil.trace("decoding: " + subObject );
 		
 //			if((subObject == "Cell10"))
-//							trace("test point");
+//							CUtil.trace("test point");
 		
 		if((subObject != "null") && (subObject != "none"))
 		{
@@ -165,54 +170,54 @@ export class CEFCursorProxy extends CEFRoot
 		this.lastFrameTime = 0;
 	}
 	
-	public playBackAction(wozEvt:XML ) : void
+	public playBackAction(wozEvt:any ) : void
 	{
 		let traceAction:boolean = false;
 		
 		let tarObject:CEFObject;
-		let objArray:Array;
+		let objArray:Array<any>;
 					
-		if (traceAction) trace("PlayBack Action: " + wozEvt);
+		if (traceAction) CUtil.trace("PlayBack Action: " + wozEvt);
 		
 		if(wozEvt.CEFMouseEvent != undefined)
 		{
-			x = wozEvt.CEFMouseEvent.@localX;
-			y = wozEvt.CEFMouseEvent.@localY;
+			this.x = wozEvt.CEFMouseEvent.localX;
+			this.y = wozEvt.CEFMouseEvent.localY;
 			
 			//*** Click indicator *************
 			//
-			if(fSparklerTest)
+			if(this.fSparklerTest)
 			{
-				fSparklerTest = false;
-				if(wozEvt.CEFMouseEvent.CEFEvent.@type.toString() == CEFMouseEvent.WOZMOVE) fSparklerDrag = true;
+				this.fSparklerTest = false;
+				if(wozEvt.CEFMouseEvent.CEFEvent.type.toString() == CEFMouseEvent.WOZMOVE) this.fSparklerDrag = true;
 			}
 
-			if((wozEvt.CEFMouseEvent.CEFEvent.@type.toString() == CEFMouseEvent.WOZDOWN) && fSparkler)
+			if((wozEvt.CEFMouseEvent.CEFEvent.type.toString() == CEFMouseEvent.WOZDOWN) && this.fSparkler)
 			{
-				fSparklerDrag = false;
-				fSparklerTest = true;
-				Ssparkle.gotoAndPlay(2);			
+				this.fSparklerDrag = false;
+				this.fSparklerTest = true;
+				this.Ssparkle.gotoAndPlay(2);			
 			}
 						
-			if((wozEvt.CEFMouseEvent.CEFEvent.@type.toString() == CEFMouseEvent.WOZUP) && fSparklerDrag)
-																							Ssparkle.gotoAndPlay(10);			
+			if((wozEvt.CEFMouseEvent.CEFEvent.type.toString() == CEFMouseEvent.WOZUP) && this.fSparklerDrag)
+																								this.Ssparkle.gotoAndPlay(10);			
 			//
 			//*** Click indicator *************
 	
 	
-			if(traceAction) trace("Splitting: " + wozEvt.CEFMouseEvent.CEFEvent.@target + " EVT TYPE: " +  wozEvt.CEFMouseEvent.CEFEvent.@type);
+			if(traceAction) CUtil.trace("Splitting: " + wozEvt.CEFMouseEvent.CEFEvent.target + " EVT TYPE: " +  wozEvt.CEFMouseEvent.CEFEvent.type);
 			
-			objArray = wozEvt.CEFMouseEvent.CEFEvent.@target.split(".");
+			objArray = wozEvt.CEFMouseEvent.CEFEvent.target.split(".");
 						
-			if(traceAction) trace("Target Array: " + objArray[0]);
+			if(traceAction) CUtil.trace("Target Array: " + objArray[0]);
 						
-			tarObject = decodeTarget(gTutor, objArray);
+			tarObject = this.decodeTarget(CEFRoot.gTutor, objArray);
 
 			if(tarObject)
 			{
-				if(traceAction) trace("Automation Target: " + tarObject + " Event: " + wozEvt.CEFMouseEvent.CEFEvent.@type);
-							
-				let evt:CEFMouseEvent = new CEFMouseEvent(tarObject.objID, wozEvt.CEFMouseEvent.CEFEvent.@type, true, false, wozEvt.CEFMouseEvent.@localX, wozEvt.CEFMouseEvent.@localY);						
+				if(traceAction) CUtil.trace("Automation Target: " + tarObject + " Event: " + wozEvt.CEFMouseEvent.CEFEvent.type);
+
+				let evt:CEFMouseEvent = new CEFMouseEvent(tarObject.objID, wozEvt.CEFMouseEvent.CEFEvent.type, wozEvt.bubbles, wozEvt.cancelable, wozEvt.stageX, wozEvt.stageY,wozEvt.nativeEvent, wozEvt.pointerID, wozEvt.primary, wozEvt.rawX, wozEvt.rawY);
 				
 				tarObject.dispatchEvent(evt);										
 			}
@@ -222,21 +227,21 @@ export class CEFCursorProxy extends CEFRoot
 		
 		else if(wozEvt.CEFTextEvent != undefined)
 		{	
-			if(traceAction) trace("Splitting: " + wozEvt.CEFTextEvent.CEFEvent.@target + " EVT TYPE: " +  wozEvt.CEFTextEvent.CEFEvent.@type);
+			if(traceAction) CUtil.trace("Splitting: " + wozEvt.CEFTextEvent.CEFEvent.target + " EVT TYPE: " +  wozEvt.CEFTextEvent.CEFEvent.type);
 			
-			if(wozEvt.CEFTextEvent.CEFEvent.@type == CEFTextEvent.WOZINPUTTEXT)
+			if(wozEvt.CEFTextEvent.CEFEvent.type == CEFTextEvent.WOZINPUTTEXT)
 			{
-				objArray = wozEvt.CEFTextEvent.CEFEvent.@target.split(".");
+				objArray = wozEvt.CEFTextEvent.CEFEvent.target.split(".");
 							
-				if(traceAction) trace("Target Array: " + objArray[0]);
+				if(traceAction) CUtil.trace("Target Array: " + objArray[0]);
 							
-				tarObject = decodeTarget(gTutor, objArray);
+				tarObject = this.decodeTarget(CEFRoot.gTutor, objArray);
 
 				if(tarObject)
 				{
-					if(traceAction) trace("Automation Target: " + tarObject + " Event: " + wozEvt.CEFTextEvent.CEFEvent.@type);
+					if(traceAction) CUtil.trace("Automation Target: " + tarObject + " Event: " + wozEvt.CEFTextEvent.CEFEvent.type);
 								
-					let tEvt:CEFTextEvent = new CEFTextEvent(tarObject.objID, wozEvt.CEFTextEvent.CEFEvent.@type, wozEvt.CEFTextEvent.@index1, wozEvt.CEFTextEvent.@index2, wozEvt.CEFTextEvent.@text, true, false );						
+					let tEvt:CEFTextEvent = new CEFTextEvent(tarObject.objID, wozEvt.CEFTextEvent.CEFEvent.type, wozEvt.CEFTextEvent.index1, wozEvt.CEFTextEvent.index2, wozEvt.CEFTextEvent.text, true, false );						
 					
 					tarObject.dispatchEvent(tEvt);										
 				}
@@ -246,144 +251,143 @@ export class CEFCursorProxy extends CEFRoot
 	}
 		
 		
-	public playBackMove(nextMove:XML, frameTime:number ) : void
+	public playBackMove(nextMove:any, frameTime:number ) : void
 	{			
-		let relTime:number = (frameTime - lastFrameTime) / (nextMove.@time - lastFrameTime);
+		let relTime:number = (frameTime - this.lastFrameTime) / (nextMove.time - this.lastFrameTime);
 
-		if (this.traceMode) trace("PlayBack Move");
+		if (this.traceMode) CUtil.trace("PlayBack Move");
 		
-		x += relTime * (nextMove.CEFMouseEvent.@localX - x);
-		y += relTime * (nextMove.CEFMouseEvent.@localY - y);
+		this.x += relTime * (nextMove.CEFMouseEvent.localX - this.x);
+		this.y += relTime * (nextMove.CEFMouseEvent.localY - this.y);
 		
 		// update the frametime last used 
 		//
-		lastFrameTime = frameTime;
+		this.lastFrameTime = frameTime;
 		
-		if(this.traceMode) trace("-- Target X: " + nextMove.CEFMouseEvent.@localX + " -- Target Y: " + nextMove.CEFMouseEvent.@localY);
-		if(this.traceMode) trace("-- Mouse  X: " + x + " -- Mouse  Y: " + y);
+		if(this.traceMode) CUtil.trace("-- Target X: " + nextMove.CEFMouseEvent.localX + " -- Target Y: " + nextMove.CEFMouseEvent.localY);
+		if(this.traceMode) CUtil.trace("-- Mouse  X: " + this.x + " -- Mouse  Y: " + this.y);
 	}
 		
 		
 //********************** Playback 
 
 
-	public replayEvent(xEvt:XMLList ) : void
+	public replayEvent(xEvt:any ) : void
 	{
 		let tarObject:CEFObject;
-		let objArray:Array;
+		let objArray:Array<any>;
 		
-		x = xEvt.@localX;
-		y = xEvt.@localY;
+		this.x = xEvt.localX;
+		this.y = xEvt.localY;
 		
 		//*** Click indicator *************
 		//
-		if(fSparklerTest)
+		if(this.fSparklerTest)
 		{
-			fSparklerTest = false;
-			if(xEvt.CEFEvent.@type.toString() == CEFMouseEvent.WOZMOVE) fSparklerDrag = true;
+			this.fSparklerTest = false;
+			if(xEvt.CEFEvent.type.toString() == CEFMouseEvent.WOZMOVE) this.fSparklerDrag = true;
 		}
 
-		if((xEvt.CEFEvent.@type.toString() == CEFMouseEvent.WOZDOWN) && fSparkler)
+		if((xEvt.CEFEvent.type.toString() == CEFMouseEvent.WOZDOWN) && this.fSparkler)
 		{
-			fSparklerDrag = false;
-			fSparklerTest = true;
-			Ssparkle.gotoAndPlay(2);			
+			this.fSparklerDrag = false;
+			this.fSparklerTest = true;
+			this.Ssparkle.gotoAndPlay(2);			
 		}
 					
-		if((xEvt.CEFEvent.@type.toString() == CEFMouseEvent.WOZUP) && fSparklerDrag)
-																	Ssparkle.gotoAndPlay(10);			
+		if((xEvt.CEFEvent.type.toString() == CEFMouseEvent.WOZUP) && this.fSparklerDrag)
+															this.Ssparkle.gotoAndPlay(10);			
 		//
 		//*** Click indicator *************
 																	
 																	
-		if(this.traceMode) trace("Splitting: " + xEvt.CEFEvent.@target + " EVT TYPE: " +  xEvt.CEFEvent.@type);
+		if(this.traceMode) CUtil.trace("Splitting: " + xEvt.CEFEvent.target + " EVT TYPE: " +  xEvt.CEFEvent.type);
 		
-		objArray = xEvt.CEFEvent.@target.split(".");
+		objArray = xEvt.CEFEvent.target.split(".");
 					
-		if(this.traceMode) trace("Target Array: " + objArray[0]);
+		if(this.traceMode) CUtil.trace("Target Array: " + objArray[0]);
 					
-		tarObject = decodeTarget(gTutor, objArray);
+		tarObject = this.decodeTarget(CEFRoot.gTutor, objArray);
 
 		if(tarObject)
 		{
-			if(this.traceMode) trace("Automation Target: " + tarObject + " Event: " + xEvt.CEFEvent.@type);
+			if(this.traceMode) CUtil.trace("Automation Target: " + tarObject + " Event: " + xEvt.CEFEvent.type);
 						
-//			if((tarObject.name == "Cell10"))// && (xEvt.CEFEvent.@type == CEFMouseEvent.WOZDOWN))
-//							trace("test point");
+//			if((tarObject.name == "Cell10"))// && (xEvt.CEFEvent.type == CEFMouseEvent.WOZDOWN))
+//							CUtil.trace("test point");
 						
-			let evt:CEFMouseEvent = new CEFMouseEvent(tarObject.objID, xEvt.CEFEvent.@type, true, false, xEvt.@localX, xEvt.@localY);						
+			let evt:CEFMouseEvent = new CEFMouseEvent(tarObject.objID, xEvt.CEFEvent.type, xEvt.bubbles, xEvt.cancelable, xEvt.stageX, xEvt.stageY,xEvt.nativeEvent, xEvt.pointerID, xEvt.primary, xEvt.rawX, xEvt.rawY);
 			
 			tarObject.dispatchEvent(evt);										
 		}
 	}
 	
 	
-	public replayEventB(xEvt:XMLList ) : void
+	public replayEventB(xEvt:any ) : void
 	{
 		let tarObject:CEFObject;
 		
-		x = xEvt.@localX;
-		y = xEvt.@localY;
+		this.x = xEvt.localX;
+		this.y = xEvt.localY;
 		
-		tarObject = hitTestCoord(x, y );
+		tarObject = this.hitTestCoord(this.x, this.y );
 
 		if(tarObject)
 		{
-			switch(xEvt.CEFEvent.@type.toString())
+			switch(xEvt.CEFEvent.type.toString())
 			{
 				case CEFMouseEvent.WOZMOVE:				// Ignore Event
 							return;			
-							break;
 							
 				case CEFMouseEvent.WOZOUT:					// Use "Current" Object
-							tarObject = curObject;			
+							tarObject = this.curObject;			
 							break;
 							
 				case CEFMouseEvent.WOZOVER:				// Set Current Object
-							curObject = tarObject;			
+							this.curObject = tarObject;			
 							break;
 							
 				case CEFMouseEvent.WOZUP:					// Direct "Up" to previous "Down" target
-							tarObject = actObject;	
+							tarObject = this.actObject;	
 							break;
 							
 				case CEFMouseEvent.WOZDOWN:				// remember Down target object
-							actObject = curObject;
-							tarObject = curObject;
+							this.actObject = this.curObject;
+							tarObject = this.curObject;
 							break;
 							
 				case CEFMouseEvent.WOZCLICKED:				// Direct "Click" to previous "Down" target
-							tarObject = actObject;	
+							tarObject = this.actObject;	
 							break;								
 							
 				case CEFMouseEvent.WOZDBLCLICK:			// Direct "Double Click" to previous "Down" target
-							tarObject = actObject;	
+							tarObject = this.actObject;	
 							break;								
 			}
 
-			if(this.traceMode) trace("Automation Target: " + tarObject + " Event: " + xEvt.CEFEvent.@type);
+			if(this.traceMode) CUtil.trace("Automation Target: " + tarObject + " Event: " + xEvt.CEFEvent.type);
 						
-			let evt:CEFMouseEvent = new CEFMouseEvent(tarObject.objID, xEvt.CEFEvent.@type, true, false, xEvt.@localX, xEvt.@localY);						
+			let evt:CEFMouseEvent = new CEFMouseEvent(tarObject.objID, xEvt.CEFEvent.type, xEvt.bubbles, xEvt.cancelable, xEvt.stageX, xEvt.stageY,xEvt.nativeEvent, xEvt.pointerID, xEvt.primary, xEvt.rawX, xEvt.rawY);
 			
 			tarObject.dispatchEvent(evt);										
 		}
 	}
 	
 	
-	public replayEventAndMove(xEvt:XMLList, laEvt:XMLList, l2Evt:XMLList ) : Array
+	public replayEventAndMove(xEvt:any, laEvt:any, l2Evt:any ) : Array<any>
 	{
-		let tweens:Array;
-		let easingX:Function;
-		let easingY:Function;
+		let tweens:Array<Tween>;
+		let easingX:any;
+		let easingY:any;
 		let v1:number;
 		let v2:number;
 		let dX:number;
 		let dY:number;
 		
-		replayEvent(xEvt );
+		this.replayEvent(xEvt );
 		
-		let replayTime:number = (laEvt.CEFEvent.@evtTime - xEvt.CEFEvent.@evtTime) / 1000;
-		let replayTim2:number = (l2Evt.CEFEvent.@evtTime - laEvt.CEFEvent.@evtTime) / 1000;
+		let replayTime:number = (laEvt.CEFEvent.evtTime - xEvt.CEFEvent.evtTime) / 1000;
+		let replayTim2:number = (l2Evt.CEFEvent.evtTime - laEvt.CEFEvent.evtTime) / 1000;
 		
 		//if(replayTime > .01)
 		if(replayTime > 0)
@@ -392,99 +396,99 @@ export class CEFCursorProxy extends CEFRoot
 			//				
 			if(l2Evt == null)
 			{
-				easingX = Exponential.easeOut;		// decelerate
-				easingY = Exponential.easeOut;		// decelerate
+				easingX = Ease.cubicOut;		// decelerate
+				easingY = Ease.cubicOut;		// decelerate
 			}				
 			else
 			{
-				dX = Math.abs(laEvt.@localX - xEvt.@localX);
+				dX = Math.abs(laEvt.localX - xEvt.localX);
 				v1 = dX / replayTime;
-				v2 = Math.abs(l2Evt.@localX - laEvt.@localX) / replayTim2;
+				v2 = Math.abs(l2Evt.localX - laEvt.localX) / replayTim2;
 				
-				if(this.traceMode) trace("delta T:" + replayTime + " : " + replayTim2);
-				if(this.traceMode) trace("X: v1/v2:  " + (v1/v2));						
+				if(this.traceMode) CUtil.trace("delta T:" + replayTime + " : " + replayTim2);
+				if(this.traceMode) CUtil.trace("X: v1/v2:  " + (v1/v2));						
 				
 				if(dX < 10)
 				{
-					if(this.traceMode) trace("Easing X: Linear.easeNone");												
-					easingX = Linear.easeNone;			// constant speed						
+					if(this.traceMode) CUtil.trace("Easing X: Ease.linear");												
+					easingX = Ease.linear;			// constant speed						
 				}
 				else if((v1 == 0) || (v2 == 0))
 				{
-					if(this.traceMode) trace("Easing X: Linear.easeNone");												
-					easingX = Linear.easeNone;			// constant speed						
+					if(this.traceMode) CUtil.trace("Easing X: Ease.linear");												
+					easingX = Ease.linear;			// constant speed						
 				}
 				else if((v1/v2) > 3.5) 
 				{
-					if(this.traceMode) trace("Easing X: Exponential.easeOut");						
-					easingX = Exponential.easeOut;		// decelerate
+					if(this.traceMode) CUtil.trace("Easing X: Ease.cubicOut");						
+					easingX = Ease.cubicOut;		// decelerate
 				}
 				else if((v1/v2) < .30) 
 				{
-					if(this.traceMode) trace("Easing X: Exponential.easeIn");						
-					easingX = Exponential.easeIn;	    // accelerate
+					if(this.traceMode) CUtil.trace("Easing X: Ease.cubicIn");						
+					easingX = Ease.cubicIn;	    // accelerate
 				}
 				else 
 				{
-					if(this.traceMode) trace("Easing X: Linear.easeNone");												
-					easingX = Linear.easeNone;			// constant speed
+					if(this.traceMode) CUtil.trace("Easing X: Ease.linear");												
+					easingX = Ease.linear;			// constant speed
 				}
 				
-				dY = Math.abs(laEvt.@localY - xEvt.@localY);
+				dY = Math.abs(laEvt.localY - xEvt.localY);
 				v1 = dY / replayTime;
-				v2 = Math.abs(l2Evt.@localY - laEvt.@localY) / replayTim2;
+				v2 = Math.abs(l2Evt.localY - laEvt.localY) / replayTim2;
 
-				if(this.traceMode) trace("Y: v1/v2:  " + (v1/v2));						
+				if(this.traceMode) CUtil.trace("Y: v1/v2:  " + (v1/v2));						
 				
 				if(dY < 10)
 				{
-					if(this.traceMode) trace("Easing X: Linear.easeNone");												
-					easingY = Linear.easeNone;			// constant speed						
+					if(this.traceMode) CUtil.trace("Easing X: Ease.linear");												
+					easingY = Ease.linear;			// constant speed						
 				}
 				else if((v1 == 0) || (v2 == 0))
 				{
-					if(this.traceMode) trace("Easing X: Linear.easeNone");												
-					easingY = Linear.easeNone;			// constant speed						
+					if(this.traceMode) CUtil.trace("Easing X: Ease.linear");												
+					easingY = Ease.linear;			// constant speed						
 				}
 				else if((v1/v2) > 3.5) 
 				{
-					if(this.traceMode) trace("Easing Y: Exponential.easeOut");						
-					easingY = Exponential.easeOut;		// decelerate
+					if(this.traceMode) CUtil.trace("Easing Y: Ease.cubicOut");						
+					easingY = Ease.cubicOut;		// decelerate
 				}
 				else if((v1/v2) < .30) 
 				{
-					if(this.traceMode) trace("Easing Y: Exponential.easeIn");						
-					easingY = Exponential.easeIn;	   	// accelerate
+					if(this.traceMode) CUtil.trace("Easing Y: Ease.cubicIn");						
+					easingY = Ease.cubicIn;	   	// accelerate
 				}
 				else
 				{
-					if(this.traceMode) trace("Easing Y: Linear.easeNone");						
-					easingY = Linear.easeNone;					    	// constant speed
+					if(this.traceMode) CUtil.trace("Easing Y: Ease.linear");						
+					easingY = Ease.linear;					    	// constant speed
 				}
 			}
 			
 			tweens = new Array;
 			
-			tweens[0] = new Tween(this, "x", easingX, x, laEvt.@localX, replayTime, true );
-			tweens[1] = new Tween(this, "y", easingY, y, laEvt.@localY, replayTime, true );				
+			tweens[0] = new Tween(this).to({x:laEvt.localX}, replayTime, easingX);
+			tweens[1] = new Tween(this).to({y:laEvt.localY}, replayTime, easingY);			
 		}
 		
 		return tweens;
 	}
 	
 	
-	public replayMove(oldTime:int, laEvt:XMLList ) : Array
+	public replayMove(oldTime:number, laEvt:any ) : Array<Tween>
 	{			
-		let tweens:Array;
+		let tweens:Array<Tween>;
 		
-		let replayTime:number = (laEvt.CEFEvent.@evtTime - oldTime) / 1000;
+		let replayTime:number = (laEvt.CEFEvent.evtTime - oldTime) / 1000;
 
 		if(replayTime > 0)
 		{
 			tweens = new Array;
 			
-			tweens[0] = new Tween(this, "x", Cubic.easeInOut, x, laEvt.@localX, replayTime, true );
-			tweens[1] = new Tween(this, "y", Cubic.easeInOut, y, laEvt.@localY, replayTime, true );
+			tweens[0] = new Tween(this).to({x:laEvt.localX}, replayTime, Ease.cubicInOut);
+			tweens[1] = new Tween(this).to({y:laEvt.localY}, replayTime, Ease.cubicInOut);			
 		}
 		
 		return tweens;
@@ -496,7 +500,7 @@ export class CEFCursorProxy extends CEFRoot
 	
 //***********  Live behaviors
 
-	public liveMouseMove(evt:MouseEvent)
+	public liveMouseMove(evt:CEFMouseEvent)
 	{
 		let evtMove:CEFMouseEvent;
 		let fUpdate:boolean = false;
@@ -518,47 +522,47 @@ export class CEFCursorProxy extends CEFRoot
 			fUpdate = true;
 		}
 
-		//trace("Mousex:" + this.x + " - Mousey:" + this.y);
+		//CUtil.trace("Mousex:" + this.x + " - Mousey:" + this.y);
 		
 		if(fUpdate)
 		{
 			// Hit test the mouse 
 			//
-			hitTestMouse(evt);	
+			this.hitTestMouse(evt);	
 			
-			if(curObject)
+			if(this.curObject)
 			{
-				if(this.traceMode) trace("CEF Mouse Move : " + curObject.objID);				
+				if(this.traceMode) CUtil.trace("CEF Mouse Move : " + this.curObject.objID);				
 				//
-				evtMove = new CEFMouseEvent(curObject.objID, CEFMouseEvent.WOZMOVE, true, false, locX, locY);
+				evtMove = new CEFMouseEvent("none", CEFMouseEvent.WOZMOVE, evt.bubbles, evt.cancelable, evt.stageX, evt.stageY, evt.nativeEvent, evt.pointerID, evt.primary, evt.rawX, evt.rawY);
 				
 				// Add this to the live event logging stream
 				//
-				if(fLiveLog)
-					gLogR.logLiveEvent(evtMove.captureLogState());				
+				if(this.fLiveLog)
+					this.gLogR.logLiveEvent(evtMove.captureLogState());				
 
 				// Log it before taking actions - state may change which would cause playback to freeze
 					
-				curObject.dispatchEvent(evtMove);				
+				this.curObject.dispatchEvent(evtMove);				
 			}
 			
 			// null hittest result
 			else
 			{
-				if(this.traceMode) trace("NULL Mouse Move : ");				
+				if(this.traceMode) CUtil.trace("NULL Mouse Move : ");				
 				
 				// Add this to the live event logging stream
 				//
-				evtMove = new CEFMouseEvent("none", CEFMouseEvent.WOZMOVE, true, false, locX, locY);
+				evtMove = new CEFMouseEvent("none", CEFMouseEvent.WOZMOVE, evt.bubbles, evt.cancelable, evt.stageX, evt.stageY, evt.nativeEvent, evt.pointerID, evt.primary, evt.rawX, evt.rawY);
 
-				if(fLiveLog)					
-					gLogR.logLiveEvent(evtMove.captureLogState());				
+				if(this.fLiveLog)					
+					this.gLogR.logLiveEvent(evtMove.captureLogState());				
 			}
 		}				
 	}
 		
 	
-	public liveMouseDown(evt:MouseEvent)
+	public liveMouseDown(evt:CEFMouseEvent)
 	{
 		let locX:number; 
 		let locY:number; 
@@ -569,98 +573,98 @@ export class CEFCursorProxy extends CEFRoot
 		// Hit test the mouse to ensure curTarget does not change while mouse is not moving
 		// e.g. after a click a button may be dismissed
 		//
-		hitTestMouse(evt);	
+		this.hitTestMouse(evt);	
 		
 		//@@ DEBUG
 		//dumpStage(stage, "stage");			
 		
-		if(curObject)
+		if(this.curObject)
 		{
-			if(this.traceMode) trace("CEF Mouse Down : " + curObject.objID);				
-			//
-			let evtDown:CEFMouseEvent = new CEFMouseEvent(curObject.objID, CEFMouseEvent.WOZDOWN, true, false, locX, locY);
+			if(this.traceMode) CUtil.trace("CEF Mouse Down : " + this.curObject.objID);				
+			//			
+			let evtDown:CEFMouseEvent = new CEFMouseEvent(this.curObject.objID, CEFMouseEvent.WOZDOWN, evt.bubbles, evt.cancelable, evt.stageX, evt.stageY, evt.nativeEvent, evt.pointerID, evt.primary, evt.rawX, evt.rawY);
 			
 			// Add this to the live event logging stream
 			//
-			if(fLiveLog)				
-				gLogR.logLiveEvent(evtDown.captureLogState());
+			if(this.fLiveLog)				
+				this.gLogR.logLiveEvent(evtDown.captureLogState());
 			
 			// Log it before taking actions - state may change which would cause playback to freeze					
 				
-			curObject.dispatchEvent(evtDown);	
+			this.curObject.dispatchEvent(evtDown);	
 			
-			actObject = curObject;
+			this.actObject = this.curObject;
 		}
 	}
 
 	
-	public liveMouseUp(evt:MouseEvent)
+	public liveMouseUp(evt:CEFMouseEvent)
 	{
-		if(this.traceMode) trace("CEF Mouse Up : " + ((curObject)? curObject.objID:"null"));				
+		if(this.traceMode) CUtil.trace("CEF Mouse Up : " + ((this.curObject)? this.curObject.objID:"null"));				
 		
 		let locX:number; 
 		let locY:number; 
 		
-		locX = evt.stageX;
-		locY = evt.stageY;
+		// locX = evt.stageX;		//** TODO */
+		// locY = evt.stageY;
 					
-		if(actObject)
+		if(this.actObject)
 		{
-			let evtUp:CEFMouseEvent = new CEFMouseEvent(actObject.objID, CEFMouseEvent.WOZUP, true, false, locX, locY);
+			let evtUp:CEFMouseEvent = new CEFMouseEvent(this.actObject.objID, CEFMouseEvent.WOZUP, evt.bubbles, evt.cancelable, evt.stageX, evt.stageY, evt.nativeEvent, evt.pointerID, evt.primary, evt.rawX, evt.rawY);
 			
 			// Add this to the live event logging stream
 			//
-			if(fLiveLog)				
-				gLogR.logLiveEvent(evtUp.captureLogState());				
+			if(this.fLiveLog)				
+				this.gLogR.logLiveEvent(evtUp.captureLogState());				
 		
 			// Log it before taking actions - state may change which would cause playback to freeze
 			
-			actObject.dispatchEvent(evtUp);	
+			this.actObject.dispatchEvent(evtUp);	
 			
-			if(actObject == curObject)		
+			if(this.actObject == this.curObject)		
 			{
-				if(this.traceMode) trace("CEF Mouse Click : " + curObject.objID +  "  At X:" + locX +  "  Y:" + locY);				
-				let evtClicked:CEFMouseEvent = new CEFMouseEvent(curObject.objID, CEFMouseEvent.WOZCLICKED, true, false, locX, locY);
+				if(this.traceMode) CUtil.trace("CEF Mouse Click : " + this.curObject.objID +  "  At X:" + locX +  "  Y:" + locY);				
+				let evtClicked:CEFMouseEvent = new CEFMouseEvent(this.curObject.objID, CEFMouseEvent.WOZCLICKED, evt.bubbles, evt.cancelable, evt.stageX, evt.stageY, evt.nativeEvent, evt.pointerID, evt.primary, evt.rawX, evt.rawY);
 								
 				// Add this to the live event logging stream
 				//
-				if(fLiveLog)					
-					gLogR.logLiveEvent(evtClicked.captureLogState());	
+				if(this.fLiveLog)					
+					this.gLogR.logLiveEvent(evtClicked.captureLogState());	
 					
 				// Log it before taking actions - state may change which would cause playback to freeze
 				
-				curObject.dispatchEvent(evtClicked);	
+				this.curObject.dispatchEvent(evtClicked);	
 			}
 		}
 		
 		// Object is no longer actObject
 		//
-		actObject = null;
+		this.actObject = null;
 	}				
 
 
-	public liveMouseDblClick(evt:MouseEvent)
+	public liveMouseDblClick(evt:CEFMouseEvent)
 	{
 		let locX:number; 
 		let locY:number; 
 		
-		locX = evt.stageX;
-		locY = evt.stageY;
+		// locX = evt.stageX;	//** TODO */
+		// locY = evt.stageY;
 					
-		if(curObject)
+		if(this.curObject)
 		{
-			if(this.traceMode) trace("CEF Mouse Dbl Clicked: " + curObject.objID);				
+			if(this.traceMode) CUtil.trace("CEF Mouse Dbl Clicked: " + this.curObject.objID);				
 			//
-			let evtDblClick:CEFMouseEvent = new CEFMouseEvent(curObject.objID, CEFMouseEvent.WOZDBLCLICK, true, false, locX, locY);
+			let evtDblClick:CEFMouseEvent = new CEFMouseEvent(this.curObject.objID, CEFMouseEvent.WOZDBLCLICK, evt.bubbles, evt.cancelable, evt.stageX, evt.stageY, evt.nativeEvent, evt.pointerID, evt.primary, evt.rawX, evt.rawY);
 			
 			// Add this to the live event logging stream
 			//
-			if(fLiveLog)			
-				gLogR.logLiveEvent(evtDblClick.captureLogState());
+			if(this.fLiveLog)			
+				this.gLogR.logLiveEvent(evtDblClick.captureLogState());
 			
 			// Log it before taking actions - state may change which would cause playback to freeze
 				
-			curObject.dispatchEvent(evtDblClick);	
+			this.curObject.dispatchEvent(evtDblClick);	
 		}
 	}
 	
@@ -671,28 +675,28 @@ export class CEFCursorProxy extends CEFRoot
 	{
 		let fTest:boolean = false;
 		
-		if(hitTestCoord(x, y ) == tarObj) fTest = true;
+		if(this.hitTestCoord(this.x, this.y ) == tarObj) fTest = true;
 								
 		return fTest;
 	}
 
-	public hitTestCoord(locX:int, locY:int ) : CEFObject
+	public hitTestCoord(locX:number, locY:number ) : CEFObject
 	{
-		let hitSet:Array;
+		let hitSet:Array<DisplayObject>;
 		let hitObj:Object;
 		let wozObj:CEFObject;
 		
-		cLocation.x = locX;
-		cLocation.y = locY;
+		this.cLocation.x = locX;
+		this.cLocation.y = locY;
 		
 		// NOTE: Changed to "stage" for Flex integration - was gTutor
 		//
 		// Since gTutor is not synonymous with the stage coordinates when working in Flex and since we are 
 		// using Stage coordinates we must "getObjectsUnderPoint" relative to the Stage rather than the gTutor
 		//
-		hitSet = stage.getObjectsUnderPoint(cLocation);
+		hitSet = this.stage.getObjectsUnderPoint(locX, locY, 0);
 		
-		if(this.traceMode) trace("Hittest results  - cursor name: " + name);
+		if(this.traceMode) CUtil.trace("Hittest results  - cursor name: " + name);
 		
 		// Find WOZ Object under cursor
 		//
@@ -700,7 +704,7 @@ export class CEFCursorProxy extends CEFRoot
 		{
 			hitObj = hitSet[hitSet.length - 1];
 			
-			wozObj = isWOZObject(hitObj);
+			wozObj = this.isWOZObject(hitObj);
 			
 			// if top object is a WOZ - skip this and process it otherwise 
 			// top object may be the cursor - so check "next" object if extant
@@ -709,52 +713,53 @@ export class CEFCursorProxy extends CEFRoot
 			{
 				hitObj = hitSet[hitSet.length - 2];
 				
-				wozObj = isWOZObject(hitObj);							
+				wozObj = this.isWOZObject(hitObj);							
 			}
 		}			
 		
 		if(wozObj)
-			if(this.traceMode) trace("HitTest WozObject Name - " + wozObj.name);
+			if(this.traceMode) CUtil.trace("HitTest WozObject Name - " + wozObj.name);
 			
 		return wozObj;
 	}
 		
 	
-	public hitTestMouse(evt:MouseEvent)
+	public hitTestMouse(evt:CEFMouseEvent)
 	{
 		let hitObj:CEFObject;
 		
-		hitObj = hitTestCoord(x, y );
+		hitObj = this.hitTestCoord(this.x, this.y );
 		
 		// if top object is a WOZ - process it 
 		//
-		if(hitObj || (!hitObj && (actObject == null)))
-						updateCurrentObject(evt, hitObj );				
+		if(hitObj || (!hitObj && (this.actObject == null)))
+						this.updateCurrentObject(evt, hitObj );				
 	}
 		
 	
+	// see: https://www.w3schools.com/jsref/prop_style_cursor.asp
 	public show(bFlag:boolean)	
 	{		
 		if(bFlag)
 		{
-			if(this.traceMode) trace("Hiding Hardware Mouse : ");
+			if(this.traceMode) CUtil.trace("Hiding Hardware Mouse : ");
 			
-			Mouse.hide();						
-			visible = true;
+			document.getElementById("canvas").style.cursor = "none";
+			this.visible = true;
 		}
 		else
 		{
-			if(this.traceMode) trace("Showing Hardware Mouse : ");
+			if(this.traceMode) CUtil.trace("Showing Hardware Mouse : ");
 							
-			Mouse.show();			
-			visible = false;				
+			document.getElementById("canvas").style.cursor = "none";
+			this.visible = false;				
 		}
 	}
 	
 	
-	private updateCurrentObject(evt:MouseEvent, hitObj:CEFObject)
+	private updateCurrentObject(evt:CEFMouseEvent, hitObj:CEFObject)
 	{
-		if(this.traceMode) (hitObj)? trace("updateCurrentObject hitObj: " + hitObj.objID): trace("updateCurrentObject hitObj: null");		
+		if(this.traceMode) (hitObj)? CUtil.trace("updateCurrentObject hitObj: " + hitObj.objID): CUtil.trace("updateCurrentObject hitObj: null");		
 		
 		let locX:number; 
 		let locY:number; 
@@ -764,62 +769,62 @@ export class CEFCursorProxy extends CEFRoot
 					
 		// Ignore Duplicates
 		//
-		if(hitObj == curObject)
+		if(hitObj == this.curObject)
 							return;									
 							
 		// Send mouse out / over
 		//
 		else
 		{
-			if(curObject)
+			if(this.curObject)
 			{
-				if(this.traceMode) trace("CEF Mouse Out : " + curObject.objID);				
-				let evtOut:CEFMouseEvent = new CEFMouseEvent(curObject.objID, CEFMouseEvent.WOZOUT, true, false, locX, locY);
+				if(this.traceMode) CUtil.trace("CEF Mouse Out : " + this.curObject.objID);				
+				let evtOut:CEFMouseEvent = new CEFMouseEvent(this.curObject.objID, CEFMouseEvent.WOZOUT, evt.bubbles, evt.cancelable, evt.stageX, evt.stageY, evt.nativeEvent, evt.pointerID, evt.primary, evt.rawX, evt.rawY);
 				
 				// Add this to the live event logging stream
 				//
-				if(fLiveLog)					
-					gLogR.logLiveEvent(evtOut.captureLogState());									
+				if(this.fLiveLog)					
+					this.gLogR.logLiveEvent(evtOut.captureLogState());									
 				
 				// Log it before taking actions - state may change which would cause playback to freeze
 				
-				curObject.dispatchEvent(evtOut);	
+				this.curObject.dispatchEvent(evtOut);	
 			}
 			
-			curObject = hitObj;				
+			this.curObject = hitObj;				
 			
-			if(curObject)
+			if(this.curObject)
 			{					
-				if(this.traceMode) trace("CEF Mouse Over: " + curObject.objID);
-				let evtOver:CEFMouseEvent = new CEFMouseEvent(curObject.objID, CEFMouseEvent.WOZOVER, true, false, locX, locY);
+				if(this.traceMode) CUtil.trace("CEF Mouse Over: " + this.curObject.objID);
+				let evtOver:CEFMouseEvent = new CEFMouseEvent(this.curObject.objID, CEFMouseEvent.WOZOVER, evt.bubbles, evt.cancelable, evt.stageX, evt.stageY, evt.nativeEvent, evt.pointerID, evt.primary, evt.rawX, evt.rawY);
 				
 				// Add this to the live event logging stream
 				//
-				if(fLiveLog)
-					gLogR.logLiveEvent(evtOver.captureLogState());	
+				if(this.fLiveLog)
+					this.gLogR.logLiveEvent(evtOver.captureLogState());	
 					
 				// Log it before taking actions - state may change which would cause playback to freeze					
 					
-				curObject.dispatchEvent(evtOver);	
+				this.curObject.dispatchEvent(evtOver);	
 			}
 		}
 	}
 	
 	
-	public isWOZObject(tObj:Object) : CEFObject
+	public isWOZObject(tObj:any) : CEFObject
 	{
 		// We don't enumerate top level objects in scenes that are not CEF
 		// i.e. to be interactive an object must be derived from CEFObject
 		//
-		if(!tObj || tObj is CEFScene)
+		if(!tObj || tObj instanceof CEFScene)
 							return null;
 		
 		// Hit test WOZ Objects - Exclude the cursor 
 		//
-		else if(tObj is CEFObject)  
-							return CEFObject(tObj);
+		else if(tObj instanceof CEFObject)  
+								return tObj;
 		
-		return isWOZObject(tObj.parent);
+		return this.isWOZObject(tObj.parent);
 	}
 	
 }

@@ -9,9 +9,9 @@
 //  
 //   Copyright(c) 2008 Carnegie Mellon University. All Rights Reserved.   
 //                                                                        
-//  File:      CWOZStartScene.as
+//  File:      CEFStartScene.as
 //                                                                        
-//  Purpose:   CWOZStartScene object implementation
+//  Purpose:   CEFStartScene object implementation
 //                                                                        
 //  Author(s): Kevin Willows                                                           
 //  
@@ -27,98 +27,96 @@
 //
 //*********************************************************************************
 
+//** Imports
 
-package cmu.woz.scenes
+import { CEFSceneSequence } from "../core/CEFSceneSequence";
+
+import MovieClip = createjs.MovieClip;
+import TextField = createjs.Text;
+import { CUtil } from "../util/CUtil";
+import { CEFRoot } from "../core/CEFRoot";
+
+
+
+export class CEFStartScene extends CEFSceneSequence
 {
-	import cmu.woz.*;
+	//************ Stage Symbols
 	
-	import flash.display.*;
-	import flash.events.*;
-	import flash.display.StageAlign;
-	import flash.display.StageScaleMode;
-	import flash.text.*;
-
-	public class CWOZStartScene extends CWOZSceneSequence
+	// non-interactive elements
+	
+	public Sstart:TextField;	
+	public Sicon:MovieClip;
+	
+	//************ Stage Symbols
+			
+	public CEFStartScene():void
 	{
-		//************ Stage Symbols
+		this.traceMode = false;
 		
-		// non-interactive elements
+		if(this.traceMode) CUtil.trace("CEFStartScene:Constructor");
 		
-		public var Sstart:TextField;	
-		public var Sicon:MovieClip;
-		
-		//************ Stage Symbols
-				
-		public function CWOZStartScene():void
-		{
-			traceMode = false;
-			
-			if(traceMode) trace("CWOZStartScene:Constructor");
-			
-			// No pacing here
-			fComplete = true;
-		}
-
-		// Walk the WOZ Objects to capture their default state
-		//
-		override public function captureDefState(TutScene:Object ) : void 
-		{
-			super.captureDefState(TutScene );
-		}
-		
-		
-		// Walk the WOZ Objects to restore their default state
-		//
-		override public function restoreDefState(TutScene:Object ) : void 
-		{
-			super.restoreDefState(TutScene );
-		}
-	
-//****** Overridable Behaviors
-
-//****** Navigation Behaviors
-
-		// Default behavior - Set the Tutor Title and return same target scene
-		// Direction can be - "WOZNEXT" , "WOZBACK" , "WOZGOTO"
-		// 
-		// return values - label of target scene or one of "WOZNEXT" or "WOZBACK"
-		//
-		override public function preEnterScene(lTutor:Object, sceneLabel:string, sceneTitle:string, scenePage:string, Direction:string ) : string
-		{
-			if(traceMode) trace("CWOZStartScene Pre-Enter Scene Behavior: " + sceneTitle);		
-			
-			gTutor.showReplay(false);			
-			gTutor.showPPlay(false);			
-						
-			return super.preEnterScene(lTutor, sceneLabel, sceneTitle, scenePage, Direction );
-		}
-
-		/**
-		 * Disable the default behavior - no Play / Pause
-		 * @param	Direction
-		 */
-		override public function onEnterScene(Direction:string) : void
-		{				
-			if (traceMode) trace("CWOZStartScene Enter Scene Behavior: CWOZRampScene0");
-		}		
-
-		// Direction can be - "NEXT" , "BACK" , "GOTO"
-		// 
-		override public function preExitScene(Direction:string, sceneCurr:int ) : string
-		{
-			if(traceMode) trace("CWOZStartScene Pre-Exit Scene Behavior:");
-
-			gTutor.showReplay(false);
-			gTutor.showPPlay(true);
-			
-			return("OK");
-		}
-
-//****** Navigation Behaviors
-		
-//****** Overridable Behaviors
-
-		
+		// No pacing here
+		this.fComplete = true;
 	}
 
+	// Walk the WOZ Objects to capture their default state
+	//
+	public captureDefState(TutScene:Object ) : void 
+	{
+		super.captureDefState(TutScene );
+	}
+	
+	
+	// Walk the WOZ Objects to restore their default state
+	//
+	public restoreDefState(TutScene:Object ) : void 
+	{
+		super.restoreDefState(TutScene );
+	}
+
+//****** Overridable Behaviors
+
+//****** Navigation Behaviors
+
+	// Default behavior - Set the Tutor Title and return same target scene
+	// Direction can be - "WOZNEXT" , "WOZBACK" , "WOZGOTO"
+	// 
+	// return values - label of target scene or one of "WOZNEXT" or "WOZBACK"
+	//
+	public preEnterScene(lTutor:Object, sceneLabel:string, sceneTitle:string, scenePage:string, Direction:string ) : string
+	{
+		if(this.traceMode) CUtil.trace("CEFStartScene Pre-Enter Scene Behavior: " + sceneTitle);		
+		
+		CEFRoot.gTutor.showReplay(false);			
+		CEFRoot.gTutor.showPPlay(false);			
+					
+		return super.preEnterScene(lTutor, sceneLabel, sceneTitle, scenePage, Direction );
+	}
+
+	/**
+	 * Disable the default behavior - no Play / Pause
+	 * @param	Direction
+	 */
+	public onEnterScene(Direction:string) : void
+	{				
+		if (this.traceMode) CUtil.trace("CEFStartScene Enter Scene Behavior: CEFRampScene0");
+	}		
+
+	// Direction can be - "NEXT" , "BACK" , "GOTO"
+	// 
+	public preExitScene(Direction:string, sceneCurr:number ) : string
+	{
+		if(this.traceMode) CUtil.trace("CEFStartScene Pre-Exit Scene Behavior:");
+
+		CEFRoot.gTutor.showReplay(false);
+		CEFRoot.gTutor.showPPlay(true);
+		
+		return("OK");
+	}
+
+//****** Navigation Behaviors
+	
+//****** Overridable Behaviors
+
+	
 }

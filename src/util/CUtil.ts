@@ -48,7 +48,7 @@ export class CUtil extends Object
 	}
             
 
-	public static trace(message:string|string[],...alt) : void {
+	public static trace(message:string|string[],...alt:any[]) : void {
 
 		let fullMessage:string = "";
 
@@ -57,7 +57,7 @@ export class CUtil extends Object
 		}
 		else if(arguments.length > 1) {
 
-			for(let item of arguments) {
+			for(let item in arguments) {
 				
 				fullMessage += fullMessage.concat(item," ");
 			}

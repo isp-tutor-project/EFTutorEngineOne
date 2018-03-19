@@ -78,14 +78,14 @@ export class CEFSkilloMeter extends CEFObject
 	
 	public updateSkill(index:number, newValue:number, tfVal:string) : void
 	{
-		this["Sskill" + index].level = newValue;
+		(this as any)["Sskill" + index].level = newValue;
 		
 		this.tfValue[index - 1] = tfVal;
 	}		
 
 	public updateName(index:number, newName:string) : void
 	{
-		this["Sskill" + index].skillName = newName;
+		(this as any)["Sskill" + index].skillName = newName;
 	}		
 
 	public set title(newTitle:string)
@@ -100,9 +100,9 @@ export class CEFSkilloMeter extends CEFObject
 		
 		for(i1 = 1 ; i1 <= 6 ; i1++)
 		{
-			SkillData += this["Sskill" + i1].skillName;
+			SkillData += (this as any)["Sskill" + i1].skillName;
 			SkillData += ": ";
-			SkillData += this["Sskill" + i1].level;
+			SkillData += (this as any)["Sskill" + i1].level;
 			SkillData += ": ";				
 			SkillData += this.tfValue[i1 - 1];
 			SkillData += "\n";

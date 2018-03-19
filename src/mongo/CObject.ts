@@ -43,7 +43,7 @@ export class CObject extends MObject
 	public getValue(tarObj:Object, path:string) : any
 	{
 		var objPath:Array<string>;
-		var dataObj:object;
+		var dataObj:any;
 		
 		// support nested children
 		
@@ -67,7 +67,7 @@ export class CObject extends MObject
 	
 	public setValue(tarObj:Object, objPath:Array<string>, value:any) : void
 	{
-		var dataObj:object;
+		var dataObj:any;
 		var name:string;
 		
 		// support nested children

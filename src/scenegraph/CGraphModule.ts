@@ -37,7 +37,7 @@ import { CUtil } 			from "../util/CUtil";
 
 export class CGraphModule extends CGraphNode
 {
-	private _scenes:Array = new Array;	
+	private _scenes:Array<any> = new Array;	
 	private _ndx:number = -1;
 	private _reuse:boolean;
 	
@@ -51,11 +51,11 @@ export class CGraphModule extends CGraphNode
 	// Note: moduleFactory can either be a CNode JSON specification or a CGraphModuleGroup JSON specification 
 	//      
 	
-	public static factory(parent:CSceneGraph, id:string, moduleFactory:Object, factory:Object) : CGraphModule
+	public static factory(parent:CSceneGraph, id:string, moduleFactory:any, factory:any) : CGraphModule
 	{
-		var moduleFactoryData:Object = factory.CModules[moduleFactory.name];
+		var moduleFactoryData:any = factory.CModules[moduleFactory.name];
 		
-		var node:CGraphModule = new CGraphModule;			
+		var node:any = new CGraphModule;			
 		
 		// polymorphically Initialize the base type - add the edges
 		// Note: ModuleGroup members dont have associated node edge data (nodeFactoryData) 
@@ -67,9 +67,9 @@ export class CGraphModule extends CGraphNode
 		
 		// add scene instances to the module
 		
-		var sceneList:Object = moduleFactoryData.scenes;			
+		var sceneList:any = moduleFactoryData.scenes;			
 		
-		for (var scene:Object of sceneList)
+		for (var scene of sceneList)
 		{
 			node._scenes.push(new CGraphScene(scene, parent));	
 		}
@@ -78,14 +78,14 @@ export class CGraphModule extends CGraphNode
 	}
 	
 	
-	public captureGraph(obj:Object) : Object
+	public captureGraph(obj:any) : Object
 	{
 		obj['index'] = this._ndx.toString();			
 		
 		return obj;
 	}
 	
-	public restoreGraph(obj:Object) : any
+	public restoreGraph(obj:any) : any
 	{			
 		this._ndx = Number(obj['index']);
 		

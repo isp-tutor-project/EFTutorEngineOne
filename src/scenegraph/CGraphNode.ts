@@ -45,7 +45,7 @@ export class CGraphNode extends EventDispatcher
 	protected _name:string;
 	protected _type:string;
 
-	protected _edges:Array = new Array;
+	protected _edges:Array<any> = new Array;
 
 	// Note: Graph pre Enter Exit execute within the context of the Navigator object
 	//       They (Their code) cannot have "Scene object" dependencies as scene existence is not 
@@ -61,7 +61,7 @@ export class CGraphNode extends EventDispatcher
 	}			
 	
 	
-	protected nodeFactory(parent:CSceneGraph, id:string, nodefactory:Object) : void
+	protected nodeFactory(parent:CSceneGraph, id:string, nodefactory:any) : void
 	{
 		this._parent = parent;
 		
@@ -77,7 +77,7 @@ export class CGraphNode extends EventDispatcher
 		if(this._preEnter == "") this._preEnter = null;
 		if(this._preExit == "")  this._preExit = null;
 		
-		for (let edge:Object of nodefactory.edges)
+		for (let edge of nodefactory.edges)
 		{
 			this._edges.push(CGraphEdge.factory(parent, edge));	
 		}
@@ -93,7 +93,7 @@ export class CGraphNode extends EventDispatcher
 		return obj;
 	}
 	
-	public restoreGraph(obj:Object) : *
+	public restoreGraph(obj:Object) : any
 	{
 		
 	}
@@ -123,7 +123,7 @@ export class CGraphNode extends EventDispatcher
 				
 				if(node != null && node._preEnter != null)
 				{
-					D.eval(node._preEnter, CEFRoot.gTutor.SnavPanel);
+					eval(node._preEnter);
 				}
 				
 				break;

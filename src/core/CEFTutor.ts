@@ -30,8 +30,12 @@
 
 import { CEFRoot }              from "./CEFRoot";
 import { CEFTutorRoot } 	    from "./CEFTutorRoot";	
+import { CEFMouseMask }         from "./CEFMouseMask";
 
 import { CSceneGraphNavigator } from "../scenegraph/CSceneGraphNavigator";
+import { CUtil } 		        from "../util/CUtil";
+import { CEFNavDemo }           from "../scenes/CEFNavDemo";
+import { CDialogDesignPrompt1 } from "../dialogs/CDialogDesignPrompt1";
 
 
 /**
@@ -62,7 +66,7 @@ export class CEFTutor extends CEFTutorRoot
     static ENQUEUE:boolean   = true;
     static NOENQUEUE:boolean = false;
         
-    public tutorScenes:Array = new Array();			
+    public tutorScenes:Array<any> = new Array();			
     
     public   Ramps_Pre_Title:string = "";
     public   designTitle:string     = "Design Ramp Experiments";
@@ -80,7 +84,7 @@ export class CEFTutor extends CEFTutorRoot
         CUtil.trace("CEFTutor:Constructor");						
         
         //*** Construct the default feature-vector (filter) for the tutor.
-        // This dictates which features of the sceneConfig (and any other uses of parseXML e.g. ActionTracks) are executed.
+        // This dictates which features of the sceneConfig (and any other uses of parseOBJ e.g. ActionTracks) are executed.
         // This also affects which scenes are enumerated in the sceneSeq when navigating
         // This is generally overridden in either COWZNavDemo or from the server 
         
@@ -94,8 +98,8 @@ export class CEFTutor extends CEFTutorRoot
         // Incomplete ramp setup prompt - hide it and add to stage - 
         // note: The dialog is not part of the scene sequence but must be added to the automation tree for playback purposes
         
-        this.SdlgPrompt       = new CDialogDesignPrompt1();
-        this.SdlgPrompt.sMask = new CEFMouseMask();
+        // this.SdlgPrompt       = new CDialogDesignPrompt1();
+        // this.SdlgPrompt.sMask = new CEFMouseMask();
         
         this.SdlgPrompt.name 	  = "SdlgPrompt";
         this.SdlgPrompt.sMask.name = "SdlgMask";

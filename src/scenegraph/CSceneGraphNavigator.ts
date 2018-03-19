@@ -32,11 +32,15 @@ import { CGraphHistory } 	from "./CGraphHistory";
 
 import { CEFSceneSequence } from "../core/CEFSceneSequence";
 import { CEFNavigator } 	from "../core/CEFNavigator";
+import { CEFRoot } 			from "../core/CEFRoot";
+import { CEFMouseEvent } 	from "../events/CEFMouseEvent";
 import { CEFEvent } 		from "../events/CEFEvent";
 
 import { CUtil } 			from "../util/CUtil";
-import { CEFRoot } from "../core/CEFRoot";
-import { CEFMouseEvent } from "../events/CEFMouseEvent";
+import { CGraphHistoryNode } from "./CGraphHistoryNode";
+import { MObject } from "../mongo/MObject";
+import { CMongo } from "../mongo/CMongo";
+import { CEFDoc } from "../core/CEFDoc";
 
 
 
@@ -46,9 +50,9 @@ import { CEFMouseEvent } from "../events/CEFMouseEvent";
 */
 export class CSceneGraphNavigator extends CEFNavigator
 {		
-	private static _history:CGraphHistory;				
-	private static _rootGraph:CSceneGraph;
-	private static _fSceneGraph:boolean = true;
+	public static _history:CGraphHistory;				
+	public static _rootGraph:CSceneGraph;
+	public static _fSceneGraph:boolean = true;
 	
 	public static readonly GOTONEXTSCENE:string     = "incSceneGraph";
 	public static readonly GOTONEXTANIMATION:string = "incAnimationGraph";
@@ -61,10 +65,9 @@ export class CSceneGraphNavigator extends CEFNavigator
 	
 	private _xType:string;
 	
-	private _iterations:Object = new Object;
+	private _iterations:any = new Object;
 
-	private _progressData:Object;
-	private _profileData:Object;
+	private _profileData:any;
 	
 	
 	/**
@@ -119,7 +122,7 @@ export class CSceneGraphNavigator extends CEFNavigator
 	/**
 		*  initializes the root sceneGraph instance 
 		*/
-	public static rootGraphFactory(factory:Object) : void
+	public static rootGraphFactory(factory:any) : void
 	{
 		let scene:CGraphScene; 
 		
@@ -185,8 +188,8 @@ export class CSceneGraphNavigator extends CEFNavigator
 		*/
 	public static set buttonBehavior(action:string)
 	{
-		if(action == GOTONEXTSCENE) this._fSceneGraph = true;
-							  else  this._fSceneGraph = false;
+		if(action == CSceneGraphNavigator.GOTONEXTSCENE) this._fSceneGraph = true;
+							  					   else  this._fSceneGraph = false;
 	}
 	
 
@@ -213,13 +216,13 @@ export class CSceneGraphNavigator extends CEFNavigator
 		
 		this._xType = "WOZNEXT";
 
-		CSceneGraphNavigator._rootGraph.parseSkills(sessionAccount.session.profile.stateData.ktSkills);
+		CSceneGraphNavigator._rootGraph.parseSkills(CEFRoot.sessionAccount.session.profile.stateData.ktSkills);
 		
-		globals         = sessionAccount.session.profile.stateData.globals;
-		gTutor.features = sessionAccount.session.profile.stateData.features;
-		_phaseData      = sessionAccount.session.profile.stateData.data;
+		this.globals         = CEFRoot.sessionAccount.session.profile.stateData.globals;
+		CEFRoot.gTutor.features = CEFRoot.sessionAccount.session.profile.stateData.features;
+		this._phaseData      = CEFRoot.sessionAccount.session.profile.stateData.data;
 		
-		seekToScene(CSceneGraphNavigator._rootGraph.restoreGraph(sessionAccount.session.profile.stateData.sceneGraph));
+		this.seekToScene(CSceneGraphNavigator._rootGraph.restoreGraph(CEFRoot.sessionAccount.session.profile.stateData.sceneGraph));
 	}
 
 	
@@ -256,22 +259,22 @@ export class CSceneGraphNavigator extends CEFNavigator
 			// debounce the next button - i.e. disallow multiple clicks on same next instance  			
 			// protect against recurrent calls			
 			
-			if(_inNavigation) 
+			if(this._inNavigation) 
 						return;
 			
-			_inNavigation = true;
+						this._inNavigation = true;
 			
 			// The next button can target either the scenegraph or the animationgraph.
 			// i.e. You either want it to trigger the next step in the animationGraph or the sceneGraph
 			// reset _fSceneGraph if you want the next button to drive the animationGraph
 			//      
-			if(_fSceneGraph || scene == null || scene.nextGraphAnimation(true) == null)
+			if(CSceneGraphNavigator._fSceneGraph || scene == null || scene.nextGraphAnimation(true) == null)
 			{
 				// If we are not at the head end of the history then use the historic 'next'.
 				// i.e. non-volatile history moves forward past the exact same sequence
 				// we back tracked through
 				
-				historyNode = this._history.next();
+				historyNode = CSceneGraphNavigator._history.next();
 				
 				// If we are at the HEAD of the history step through the sceneGraph
 				
@@ -279,13 +282,13 @@ export class CSceneGraphNavigator extends CEFNavigator
 				{
 					nextScene = CSceneGraphNavigator._rootGraph.nextScene();
 					
-					if(_currScene != nextScene && nextScene != null)
+					if(this._currScene != nextScene && nextScene != null)
 					{
-						this._history.push(CSceneGraphNavigator._rootGraph.node, nextScene);
+						CSceneGraphNavigator._history.push(CSceneGraphNavigator._rootGraph.node, nextScene);
 					}
 					
 					else if(nextScene == null)
-						enQueueTerminateEvent();
+						this.enQueueTerminateEvent();
 				}
 				
 				// if the history is non-volatile we go forward the same way we went back
@@ -299,11 +302,11 @@ export class CSceneGraphNavigator extends CEFNavigator
 				
 				// Do the scene Transition 
 				
-				_xType = "WOZNEXT";
+				this._xType = "WOZNEXT";
 				
-				if(_currScene != nextScene && nextScene != null)
+				if(this._currScene != nextScene && nextScene != null)
 				{
-					seekToScene(nextScene);
+					this.seekToScene(nextScene);
 				}
 
 				// We aren't going to be navigating so reset the flag to allow 
@@ -311,21 +314,21 @@ export class CSceneGraphNavigator extends CEFNavigator
 				
 				else
 				{
-					_inNavigation = false;
+					this._inNavigation = false;
 				}
 			}
 			else
 			{
-				_inNavigation = false;
+				this._inNavigation = false;
 			}
 		}
-		catch(err:Error)
+		catch(err)
 		{
-			trace("CSceneGraphNavigator.traceGraphEdge: " + err.toString());
+			CUtil.trace("CSceneGraphNavigator.traceGraphEdge: " + err.toString());
 			
 			let logData:Object = {'location':'traceGraphEdge', 'message':err.toString()};
 			
-			gLogR.logErrorEvent(logData);
+			this.gLogR.logErrorEvent(logData);
 		}				
 	}
 
@@ -343,10 +346,10 @@ export class CSceneGraphNavigator extends CEFNavigator
 			// debounce the back button - i.e. disallow multiple clicks on same instance  
 			// protect against recurrent calls
 			
-			if(_inNavigation) 
+			if(this._inNavigation) 
 				return;
 			
-			_inNavigation = true;
+				this._inNavigation = true;
 			
 			// If we are not at the end of the history then step back.
 			// Note we support historic scenes no longer being visitable.
@@ -354,19 +357,19 @@ export class CSceneGraphNavigator extends CEFNavigator
 			
 			do
 			{
-				historyNode = this._history.back();
+				historyNode = CSceneGraphNavigator._history.back();
 				
 				// If we are at the root of the history - stop
 				
 				if(historyNode != null)
 				{					
-					features = historyNode.scene.features;
+					this.features = historyNode.scene.features;
 					
 					// If scene no longer matches the feature set skip it
 					
-					if(features != "")
+					if(this.features != "")
 					{
-						if(!CEFRoot.Tutor.testFeatureSet(features))
+						if(!CEFRoot.gTutor.testFeatureSet(this.features))
 						{
 							continue;
 						}
@@ -378,7 +381,7 @@ export class CSceneGraphNavigator extends CEFNavigator
 					//
 					// If it is non-volatile we go whereever the history takes us.
 					
-					if(this._history.isVolatile)
+					if(CSceneGraphNavigator._history.isVolatile)
 					{
 						// Seek the scene graph to the historic node/scene because we may take 
 						// a different path when going forward again
@@ -389,9 +392,9 @@ export class CSceneGraphNavigator extends CEFNavigator
 					
 					// Do the scene Transition 
 					
-					_xType = "WOZBACK";
+					this._xType = "WOZBACK";
 					
-					seekToScene(historyNode.scene);
+					this.seekToScene(historyNode.scene);
 					
 					break;					
 				}
@@ -401,18 +404,18 @@ export class CSceneGraphNavigator extends CEFNavigator
 				
 				else
 				{
-					_inNavigation = false;
+					this._inNavigation = false;
 				}
 				
 			}while(historyNode != null)					
 		}
-		catch(err:Error)
+		catch(err)
 		{
-			trace("CSceneGraphNavigator.onButtonPrev: " + err.toString());
+			CUtil.trace("CSceneGraphNavigator.onButtonPrev: " + err.toString());
 			
 			let logData:Object = {'location':'onButtonPrev', 'message':err.toString()};
 			
-			gLogR.logErrorEvent(logData);
+			this.gLogR.logErrorEvent(logData);
 		}
 	}		
 	
@@ -427,59 +430,59 @@ export class CSceneGraphNavigator extends CEFNavigator
 		*/
 	private seekToScene(nextScene:CGraphScene) : void
 	{			
-		let _progressData:Object;
+		let _progressData:any;
 		
 		try
 		{
-			_nextScene = nextScene;
+			this._nextScene = nextScene;
 
-//			if(traceMode) trace("Nav To: " + nextScene);
+//			if(this.traceMode) CUtil.trace("Nav To: " + nextScene);
 			
 			let logData:Object;
 						
 			// In demo mode we defer any demo button clicks while scene changes are in progress			
-			if(fDemo)
-				fDeferDemoClick = true;
+			if(CEFRoot.fDemo)
+				CEFRoot.fDeferDemoClick = true;
 						
 			// remember current scene object			
-			_prevScene = _currScene;
+			this._prevScene = this._currScene;
 						
 			// Do the exit behavior			
-			if(_currScene)
-				TutAutomator[_currScene.scenename].instance.preExitScene(_xType, 0);
+			if(this._currScene)
+				CSceneGraphNavigator.TutAutomator[this._currScene.scenename].instance.preExitScene(this._xType, 0);
 						
 			// Do scene Specific initialization 
 			//
 			//*** Create scene on demand
 			//
-			if(TutAutomator[_nextScene.scenename] == undefined)
+			if(CSceneGraphNavigator.TutAutomator[this._nextScene.scenename] == undefined)
 			{
-				_nextScene.instantiateScene();
+				this._nextScene.instantiateScene();
 			}
 			
-			TutAutomator[_nextScene.scenename].instance.preEnterScene(prntTutor, _nextScene.scenename, _nextScene.title, _nextScene.page, _xType);
+			CSceneGraphNavigator.TutAutomator[this._nextScene.scenename].instance.preEnterScene(CSceneGraphNavigator.prntTutor, this._nextScene.scenename, this._nextScene.title, this._nextScene.page, this._xType);
 			
 //@@ Action Logging
 			
-			if(_currScene)
-				logData = {'curscene':_currScene.scenename, 'newscene':_nextScene.scenename};
+			if(this._currScene)
+				logData = {'curscene':this._currScene.scenename, 'newscene':this._nextScene.scenename};
 			else
-				logData = {'curscene':'null', 'newscene':_nextScene.scenename};
+				logData = {'curscene':'null', 'newscene':this._nextScene.scenename};
 			
-			gLogR.logNavEvent(logData);
+				this.gLogR.logNavEvent(logData);
 			
 //@@ Action Logging			
 
 
 			// Process the - Onexit behaviors - This will process the XML logging specification for the currScene results
 			
-			if(_currScene)
+			if(this._currScene)
 			{
-				TutAutomator[_currScene.scenename].instance.onExitScene();
+				CSceneGraphNavigator.TutAutomator[this._currScene.scenename].instance.onExitScene();
 				
 				//## Mod May 10 2014 - Support runtime scripting
 				
-				TutAutomator[_currScene.scenename].instance.doExitAction();					
+				CSceneGraphNavigator.TutAutomator[this._currScene.scenename].instance.doExitAction();					
 			}				
 			
 //@@ Progress Logging
@@ -487,7 +490,7 @@ export class CSceneGraphNavigator extends CEFNavigator
 			// Only scenes which can act as starting points - i.e. are independent of other scenes are eligible for
 			// progress logging
 			
-			if(_nextScene.isCheckPoint)
+			if(this._nextScene.isCheckPoint)
 			{
 				// On the first pass we need to generate an object scaffold to hold the progress update packet.
 				// On subsequent passes we just need to change the value fields and add the stateData
@@ -497,27 +500,27 @@ export class CSceneGraphNavigator extends CEFNavigator
 				
 				if(_progressData == null)
 				{
-					_progressData = new Object;			
-					_profileData  = new CObject;				 
+					_progressData 	  = new Object;			
+					this._profileData = new Object;				 
 																				
-					_progressData['reify']           = new CObject; 	// 'reify' is the portion that is parsed for update fields - it and any sub-documents  			
-					_progressData['reify']['phases'] = new CObject;		// should be either CObjects, MObjects or AS3 primitive data types String, Number,int,Boolean,Null,void
+					_progressData['reify']           = new Object; 	// 'reify' is the portion that is parsed for update fields - it and any sub-documents  			
+					_progressData['reify']['phases'] = new Object;		// should be either CObjects, MObjects or AS3 primitive data types String, Number,int,Boolean,Null,void
 					
-					_progressData['reify']['phases'][CEFRoot.sessionAccount.session.profile_Index] = _profileData;
+					_progressData['reify']['phases'][CEFRoot.sessionAccount.session.profile_Index] = this._profileData;
 					
-					_profileData['stateData']        = new MObject;			// Use a MObject ot force replacement of entire stateData sub-document in MongoDB 
+					this._profileData['stateData']   = new MObject;			// Use a MObject ot force replacement of entire stateData sub-document in MongoDB 
 				}
 				
-				_profileData.progress = CMongo._INPROGRESS;								
+				this._profileData.progress = CMongo._INPROGRESS;								
 				
-				_profileData['stateData']['sceneGraph'] = CSceneGraphNavigator._rootGraph.captureGraph(new Object);
+				this._profileData['stateData']['sceneGraph'] = CSceneGraphNavigator._rootGraph.captureGraph(new Object);
 				
-				_profileData['stateData']['ktSkills']   = gTutor.ktSkills;
-				_profileData['stateData']['globals']    = globals;
-				_profileData['stateData']['features']   = gTutor.features;
-				_profileData['stateData']['data']  		= _phaseData;
+				this._profileData['stateData']['ktSkills']  = CEFRoot.gTutor.ktSkills;
+				this._profileData['stateData']['globals']   = this.globals;
+				this._profileData['stateData']['features']  = CEFRoot.gTutor.features;
+				this._profileData['stateData']['data']  	= this._phaseData;
 
-				gLogR.logProgressEvent(_progressData);
+				this.gLogR.logProgressEvent(_progressData);
 			}
 			
 			
@@ -525,7 +528,7 @@ export class CSceneGraphNavigator extends CEFNavigator
 			//
 			// Session manager listens to the tutor for these to ensure we don't get ahead of the logging. 
 			
-			if(!gLogR.connectionActive)
+			if(!this.gLogR.connectionActive)
 			{				
 				CEFDoc.gApp.dispatchEvent(new Event("CONNECTION_LOST"));
 			}				
@@ -533,22 +536,22 @@ export class CSceneGraphNavigator extends CEFNavigator
 //@@ Progress Logging			
 							
 			// switch the curent active scene			
-			_currScene = _nextScene;		
+			this._currScene = this._nextScene;		
 			
 			// update the iteration count for this named scene 
-			updateSceneIteration();
+			this.updateSceneIteration();
 			
 			// Do the actual scene transitions			
-			prntTutor.xitions.addEventListener(CEFEvent.COMPLETE, doEnterScene);			
-			prntTutor.xitions.gotoScene(_nextScene.scenename);
+			CSceneGraphNavigator.prntTutor.xitions.addEventListener(CEFEvent.COMPLETE, this.doEnterScene);			
+			CSceneGraphNavigator.prntTutor.xitions.gotoScene(this._nextScene.scenename);
 		}
-		catch(err:Error)
+		catch(err)
 		{
-			trace("CSceneGraphNavigator.seekToScene: " + err.toString());
+			CUtil.trace("CSceneGraphNavigator.seekToScene: " + err.toString());
 			
-			logData = {'location':'seekToScene', 'message':err.toString()};
+			let logData:any = {'location':'seekToScene', 'message':err.toString()};
 			
-			gLogR.logErrorEvent(logData);
+			this.gLogR.logErrorEvent(logData);
 		}
 	}
 	
@@ -560,27 +563,27 @@ export class CSceneGraphNavigator extends CEFNavigator
 	{
 		try
 		{
-			if(traceMode) trace("doEnterScene: " , sceneCurr);
+			if(this.traceMode) CUtil.trace("doEnterScene: " , this.sceneCurr);
 			
-			prntTutor.xitions.removeEventListener(CEFEvent.COMPLETE, doEnterScene);						
+			CSceneGraphNavigator.prntTutor.xitions.removeEventListener(CEFEvent.COMPLETE, this.doEnterScene);						
 			
 			// increment the global frame ID - for logging 
 			
-			incFrameNdx();
+			this.incFrameNdx();
 						
 			//*** Destroy non persistent scenes
 			//
-			if(_prevScene && !_prevScene.persist)
+			if(this._prevScene && !this._prevScene.persist)
 			{
-				prntTutor.destroyScene(_prevScene.scenename);
+				CSceneGraphNavigator.prntTutor.destroyScene(this._prevScene.scenename);
 				
-				_prevScene.destroyScene();
+				this._prevScene.destroyScene();
 			}
 			
 			// Do scene Specific Enter Scripts
 			//
 			
-			TutAutomator[_currScene.scenename].instance.onEnterScene(_xType);
+			CSceneGraphNavigator.TutAutomator[this._currScene.scenename].instance.onEnterScene(this._xType);
 			
 			//## DEBUG May 11 2014 - dump display list
 			
@@ -594,24 +597,24 @@ export class CSceneGraphNavigator extends CEFNavigator
 			//	TODO: This should be rationalized with the standard preEnter when all the preEnter customizations
 			//        in CEFScene derivatives have been moved to the XML (JSON) spec. 		
 			//
-			TutAutomator[_currScene.scenename].instance.deferredEnterScene(_xType);			
+			CSceneGraphNavigator.TutAutomator[this._currScene.scenename].instance.deferredEnterScene(this._xType);			
 			
 			// In demo mode defer demo clicks while scene switches are in progress
 			
-			if(fDemo)
-				prntTutor.dispatchEvent(new Event("deferedDemoCheck"));
+			if(CEFRoot.fDemo)
+				CSceneGraphNavigator.prntTutor.dispatchEvent(new Event("deferedDemoCheck"));
 			
 			//@@ Mod Sep 27 2011 - protect against recursive calls
 			
-			_inNavigation = false;
+			this._inNavigation = false;
 		}
 		catch(err)
 		{
-			trace("CSceneGraphNavigator.doEnterScene: " + err.toString());
+			CUtil.trace("CSceneGraphNavigator.doEnterScene: " + err.toString());
 			
 			let logData:Object = {'location':'doEnterScene', 'message':err.toString()};
 			
-			gLogR.logErrorEvent(logData);
+			this.gLogR.logErrorEvent(logData);
 		}
 	}
 	

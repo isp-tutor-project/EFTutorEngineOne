@@ -41,7 +41,7 @@ export class CGraphEdge extends Object
 	
 	private _pid:string;			// GUID for stocastic object
 	private _cycle:number;			// recycle distance for looping
-	private _prob:Array;			// Array of probabliities for given PID 
+	private _prob:Array<number>;	// Array of probabliities for given PID 
 	
 	
 	constructor()
@@ -50,7 +50,7 @@ export class CGraphEdge extends Object
 	}				
 	
 	
-	public static factory(parent:CSceneGraph, factory:Object) : CGraphEdge
+	public static factory(parent:CSceneGraph, factory:any) : CGraphEdge
 	{
 		let edge:CGraphEdge = new CGraphEdge;			
 		
@@ -65,7 +65,7 @@ export class CGraphEdge extends Object
 		{				
 			edge._pid   = factory.pid;
 			edge._prob  = factory.$P.split('|');
-			edge._cycle = int(factory.cycle);
+			edge._cycle = Number(factory.cycle);
 		}
 		
 		return edge;

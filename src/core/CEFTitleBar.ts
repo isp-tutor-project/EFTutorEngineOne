@@ -205,7 +205,7 @@ export class CEFTitleBar extends CEFScene
 
 	// Walk the WOZ Objects to initialize their automation mode
 	//
-	public setObjMode(TutScene:Object, sMode:string) : void 
+	public setObjMode(TutScene:any, sMode:string) : void 
 	{
 		if(this.traceMode) CUtil.trace("\t*** Start - Walking Top Level Nav Objects***");
 
@@ -224,7 +224,7 @@ export class CEFTitleBar extends CEFScene
 	
 //***************** Debug *******************************		
 		
-	public dumpSceneObjs(TutScene:Object) : void
+	public dumpSceneObjs(TutScene:any) : void
 	{							
 		for(let sceneObj in TutScene)
 		{

@@ -29,9 +29,18 @@
 //*********************************************************************************
 
 
+import { CEFRoot } 			from "./CEFRoot";
 import { CEFObject } 		from "./CEFObject";
 
+import { CEFActionEvent } 	from "../events/CEFActionEvent";
+import { CEFScriptEvent } 	from "../events/CEFScriptEvent";
 import { CUtil } 			from "../util/CUtil";
+
+import { ILogManager } from "../network/ILogManager";
+import { CEFTutorRoot } from "./CEFTutorRoot";
+import { CEFSeekEvent } from "../events/CEFSeekEvent";
+
+import DisplayObject      = createjs.DisplayObject;
 
 
 export class CEFScene extends CEFObject
@@ -57,7 +66,7 @@ export class CEFScene extends CEFObject
 	public CEFScene():void
 	{
 		this.traceMode = false;
-		if(this.traceMode) trace("CEFScene:Constructor");			
+		if(this.traceMode) CUtil.trace("CEFScene:Constructor");			
 	}
 
 	
@@ -65,17 +74,17 @@ export class CEFScene extends CEFObject
 	{
 		// Parse the Tutor.config for create procedures for this scene 
 		
-		if((gSceneConfig != null) && (gSceneConfig.scenedata[name].create != undefined))
-			parseXML(this, gSceneConfig.scenedata[name].create.children(), "create");
+		if((CEFScene.gSceneConfig != null) && (CEFScene.gSceneConfig.scenedata[name].create != undefined))
+			this.parseOBJ(this, CEFScene.gSceneConfig.scenedata[name].create.children(), "create");
 
 		//## Mod May 04 2014 - support declarative button actions from scenedescr.xml <create>
-		if(onCreateScript != null)
-					doCreateAction();
+		if(this.onCreateScript != null)
+					this.doCreateAction();
 		
 		//## Mod Oct 25 2012 - support for demo scene-initialization
 		
-		if((gSceneConfig != null) && (gSceneConfig.scenedata[name].demoinit != undefined))
-			parseXML(this, gSceneConfig.scenedata[name].demoinit.children(), "demoinit");
+		if((CEFScene.gSceneConfig != null) && (CEFScene.gSceneConfig.scenedata[name].demoinit != undefined))
+			this.parseOBJ(this, CEFScene.gSceneConfig.scenedata[name].demoinit.children(), "demoinit");
 	}
 
 
@@ -87,26 +96,26 @@ export class CEFScene extends CEFObject
 	{
 		try
 		{
-			D.eval(onCreateScript, this);
+			eval(this.onCreateScript);
 		}
-		catch(e:*)
+		catch(e)
 		{
-			trace("Error in onCreate script: " + onCreateScript);
+			CUtil.trace("Error in onCreate script: " + this.onCreateScript);
 		}
 	}
 	
 	
 	public doExitAction() : void
 	{
-		if(onExitScript != null)
+		if(this.onExitScript != null)
 		{		
 			try
 			{
-				D.eval(onExitScript, this);
+				eval(this.onExitScript);
 			}
-			catch(e:*)
+			catch(e)
 			{
-				trace("Error in onExit script: " + onExitScript);
+				CUtil.trace("Error in onExit script: " + this.onExitScript);
 			}
 		}
 	}
@@ -125,38 +134,38 @@ export class CEFScene extends CEFObject
 	/**
 	 * 
 	 */	
-	public effectHandler(evt:CWOZActionEvent) : void
+	public effectHandler(evt:CEFActionEvent) : void
 	{
-		if(this.traceMode) trace("Effect Event: " + evt);
+		if(this.traceMode) CUtil.trace("Effect Event: " + evt);
 		
-		this[evt.prop1](evt.prop2, evt.prop3, evt.prop4, evt.prop5);
+		(this as any)[evt.prop1](evt.prop2, evt.prop3, evt.prop4, evt.prop5);
 	}		
 	
 	
 	/**
 	 * 
 	 */	
-	public scriptHandler(evt:CWOZScriptEvent) : void
+	public scriptHandler(evt:CEFScriptEvent) : void
 	{
 		var fTest:boolean = true;
 		
-		if(this.traceMode) trace("Effect Event: " + evt);
+		if(this.traceMode) CUtil.trace("Effect Event: " + evt);
 
 		// If initializer is featured - execute matching features
 		
-		if(evt.script.@features != undefined)
+		if(evt.script.features != undefined)
 		{
 			// Each element of the fFeature vector contains an id for a feature of the tutor.
 			// This permits the tutor to have multiple independently managed features.
 			// All identifiers of all the feature sets must be globally unique.
 			
-			fTest = gTutor.testFeatureSet(String(evt.script.@features));
+			fTest = CEFRoot.gTutor.testFeatureSet(String(evt.script.features));
 		}
 		
 		// Note "common" elements within the packet will search the SceneConfig space for matches,
 		// which may or may not be desirable. 
 		if(fTest)		
-			parseXML(this, evt.script.children(), "script");
+			this.parseOBJ(this, evt.script.children(), "script");
 	}		
 	
 //*************** Effect management - from Audio Stream
@@ -171,7 +180,7 @@ export class CEFScene extends CEFObject
 	{
 		//@@ State Logging - return polymorphic tag info
 		
-		return {'scenetag':sceneTag, 'attempt':sceneAttempt++};		
+		return {'scenetag':this.sceneTag, 'attempt':this.sceneAttempt++};		
 		
 		//@@ State Logging			
 	}			
@@ -183,23 +192,23 @@ export class CEFScene extends CEFObject
 //***************** Automation *******************************		
 	
 	
-	public initAutomation(_parentScene:CEFScene, scene:Object, ObjIdRef:string, lLogger:ILogManager, lTutor:CWOZTutorRoot) : void
+	public initAutomation(_parentScene:CEFScene, scene:any, ObjIdRef:string, lLogger:ILogManager, lTutor:CEFTutorRoot) : void
 	{								
 		// parse all the component objects - NOTE: everything must be derived from CEFObject
 		//
 		var sceneObj:DisplayObject;
 		var wozObj:CEFObject;
-		var wozRoot:CWOZRoot;
+		var wozRoot:CEFRoot;
 
 		// Do XML initialization
 		
-		onCreate();							
+		this.onCreate();							
 		
 		// Do Automation Capture
 		
-		for(var i1:int = 0 ; i1 < numChildren ; i1++)
+		for(var i1:number = 0 ; i1 < this.numChildren ; i1++)
 		{
-			sceneObj = getChildAt(i1) as DisplayObject;
+			sceneObj = this.getChildAt(i1) as DisplayObject;
 			
 			// Record each Object within scene
 			//
@@ -208,10 +217,10 @@ export class CEFScene extends CEFObject
 			
 			// Have Object determine its inplace size
 			//
-			if(sceneObj is CEFObject)
+			if(sceneObj instanceof CEFObject)
 			{
 				//## Mod Apr 14 2014 - maintain linkage to parent scene - used for D.eval execution context - e.g. button script execution
-				CEFObject(sceneObj).parentScene = _parentScene;
+				sceneObj.parentScene = _parentScene;
 				
 				(sceneObj as CEFObject).measure();					
 			}
@@ -219,21 +228,21 @@ export class CEFScene extends CEFObject
 			// Record object in-place position - This is only done for top level objects in scene to record their inplace positions 
 			// for inter-scene tweening.
 			//
-			scene[sceneObj.name].inPlace = {X:sceneObj.x, Y:sceneObj.y, Width:sceneObj.width, Height:sceneObj.height, Alpha:sceneObj.alpha};								
+			// scene[sceneObj.name].inPlace = {X:sceneObj.x, Y:sceneObj.y, Width:sceneObj.width, Height:sceneObj.height, Alpha:sceneObj.alpha};	 //** TODO */							
 
-			if(this.traceMode) trace("\t\tCEFScene found subObject named:" + sceneObj.name + " ... in-place: ");
+			if(this.traceMode) CUtil.trace("\t\tCEFScene found subObject named:" + sceneObj.name + " ... in-place: ");
 
 			// Recurse WOZ Children
 			//
-			if(sceneObj is CEFObject)
+			if(sceneObj instanceof CEFObject)
 			{
 				wozObj = sceneObj as CEFObject;				// Coerce the Object					
 				wozObj.initAutomation(_parentScene, scene[sceneObj.name], name+".", lLogger, lTutor);
 			}
 			
-			if(this.traceMode) for(var id:string in scene[sceneObj.name].inPlace)
+			if(this.traceMode) for(var id in scene[sceneObj.name].inPlace)
 			{
-				trace("\t\t\t\t" + id + " : " + scene[sceneObj.name].inPlace[id]);
+				CUtil.trace("\t\t\t\t" + id + " : " + scene[sceneObj.name].inPlace[id]);
 			}						
 		}	
 	}
@@ -241,56 +250,56 @@ export class CEFScene extends CEFObject
 	
 	// Walk the WOZ Objects to capture their default state
 	//
-	public captureDefState(TutScene:Object ) : void 
+	public captureDefState(TutScene:any ) : void 
 	{
-		if(this.traceMode) trace("\t*** Start Capture - Walking Top Level Objects***");
+		if(this.traceMode) CUtil.trace("\t*** Start Capture - Walking Top Level Objects***");
 
-		for(var sceneObj:string in TutScene)
+		for(var sceneObj in TutScene)
 		{			
-			if(sceneObj != "instance" && TutScene[sceneObj].instance is CEFObject)
+			if(sceneObj != "instance" && TutScene[sceneObj].instance instanceof CEFObject)
 			{
-				if(this.traceMode) trace("capturing: " + TutScene[sceneObj].instance.name);
+				if(this.traceMode) CUtil.trace("capturing: " + TutScene[sceneObj].instance.name);
 				
 				TutScene[sceneObj].instance.captureDefState(TutScene[sceneObj] );										
 			}					
 		}		
-		if(this.traceMode) trace("\t*** End Capture - Walking Top Level Objects***");
+		if(this.traceMode) CUtil.trace("\t*** End Capture - Walking Top Level Objects***");
 	}
 	
 	
 	// Walk the WOZ Objects to restore their default state
 	//
-	public restoreDefState(TutScene:Object ) : void 
+	public restoreDefState(TutScene:any ) : void 
 	{
-		if(this.traceMode) trace("\t*** Start Restore - Walking Top Level Objects***");
+		if(this.traceMode) CUtil.trace("\t*** Start Restore - Walking Top Level Objects***");
 
-		for(var sceneObj:string in TutScene)
+		for(var sceneObj in TutScene)
 		{			
-			if(sceneObj != "instance" && TutScene[sceneObj].instance is CEFObject)
+			if(sceneObj != "instance" && TutScene[sceneObj].instance instanceof CEFObject)
 			{
-				if(this.traceMode) trace("restoring: " + TutScene[sceneObj].instance.name);
+				if(this.traceMode) CUtil.trace("restoring: " + TutScene[sceneObj].instance.name);
 				
 				TutScene[sceneObj].instance.restoreDefState(TutScene[sceneObj] );									
 			}					
 		}		
-		if(this.traceMode) trace("\t*** End Restore - Walking Top Level Objects***");
+		if(this.traceMode) CUtil.trace("\t*** End Restore - Walking Top Level Objects***");
 	}
 	
 	
 	// Walk the WOZ Objects to initialize their automation mode
 	//
-	public setObjMode(TutScene:Object, sMode:string) : void 
+	public setObjMode(TutScene:any, sMode:string) : void 
 	{
-		if(this.traceMode) trace("\t*** Start - Walking Top Level Objects***");
+		if(this.traceMode) CUtil.trace("\t*** Start - Walking Top Level Objects***");
 
-		for(var sceneObj:string in TutScene)
+		for(var sceneObj in TutScene)
 		{			
-			if(sceneObj != "instance" && TutScene[sceneObj].instance is CEFObject)
+			if(sceneObj != "instance" && TutScene[sceneObj].instance instanceof CEFObject)
 			{
 				TutScene[sceneObj].instance.setAutomationMode(TutScene[sceneObj], sMode );										
 			}					
 		}		
-		if(this.traceMode) trace("\t*** End - Walking Top Level Objects***");
+		if(this.traceMode) CUtil.trace("\t*** End - Walking Top Level Objects***");
 	}
 	
 	
@@ -300,15 +309,15 @@ export class CEFScene extends CEFObject
 	
 //***************** Debug *******************************		
 		
-	public dumpSceneObjs(TutScene:Object) : void
+	public dumpSceneObjs(TutScene:any) : void
 	{				
-		for(var sceneObj:string in TutScene)
+		for(var sceneObj in TutScene)
 		{
-			if(this.traceMode) trace("\tSceneObj : " + sceneObj);
+			if(this.traceMode) CUtil.trace("\tSceneObj : " + sceneObj);
 			
-			if(sceneObj != "instance" && TutScene[sceneObj].instance is CEFObject)
+			if(sceneObj != "instance" && TutScene[sceneObj].instance instanceof CEFObject)
 			{
-				if(this.traceMode) trace("\tCWOZ***");
+				if(this.traceMode) CUtil.trace("\tCEF***");
 				
 				TutScene[sceneObj].instance.dumpSubObjs(TutScene[sceneObj], "\t");										
 			}					
@@ -324,17 +333,17 @@ export class CEFScene extends CEFObject
 	*/
 	public updateNav() : void 
 	{
-		if(this.traceMode) trace("UpdateNavigation: ", name, fComplete);
+		if(this.traceMode) CUtil.trace("UpdateNavigation: ", name, this.fComplete);
 		
 		// Update the Navigation
 		//
-		if(!fComplete)
-			gTutor.enableNext(false);		
+		if(!this.fComplete)
+			CEFRoot.gTutor.enableNext(false);		
 		else	
-			gTutor.enableNext(true);		
+			CEFRoot.gTutor.enableNext(true);		
 			
-		if(gForceBackButton)
-			gTutor.enableBack(fEnableBack);																		
+		if(this.gForceBackButton)
+			CEFRoot.gTutor.enableBack(CEFRoot.fEnableBack);																		
 	}
 
 	/**
@@ -344,11 +353,11 @@ export class CEFScene extends CEFObject
 	{
 		// User selection has been made
 		//
-		fComplete = true;
+		this.fComplete = true;
 		
 		// Update the Navigation
 		//
-		updateNav();
+		this.updateNav();
 	}
 
 	
@@ -359,7 +368,7 @@ export class CEFScene extends CEFObject
 	{
 		// User selection has been made
 		//
-		return fComplete;
+		return this.fComplete;
 	}
 
 	
@@ -370,9 +379,9 @@ export class CEFScene extends CEFObject
 	// 
 	// return values - label of target scene or one of "WOZNEXT" or "WOZBACK"
 	//
-	public preEnterScene(lTutor:Object, sceneLabel:string, sceneTitle:string, scenePage:string, Direction:string ) : string
+	public preEnterScene(lTutor:any, sceneLabel:string, sceneTitle:string, scenePage:string, Direction:string ) : string
 	{
-		if(this.traceMode) trace("Default Pre-Enter Scene Behavior: " + sceneTitle);		
+		if(this.traceMode) CUtil.trace("Default Pre-Enter Scene Behavior: " + sceneTitle);		
 		
 		// Update the title				
 		//
@@ -381,23 +390,23 @@ export class CEFScene extends CEFObject
 
 		// Set fComplete and do other demo specific processing here
 		// deprecated 
-		demoBehavior();
+		this.demoBehavior();
 		
 		// Parse the Tutor.config for preenter procedures for this scene 
 		
-		if((gSceneConfig != null) && (gSceneConfig.scenedata[name].preenter != undefined))			
-										parseXML(this, gSceneConfig.scenedata[name].preenter.children(), "preenter");				
+		if((CEFScene.gSceneConfig != null) && (CEFScene.gSceneConfig.scenedata[name].preenter != undefined))			
+										this.parseOBJ(this, CEFScene.gSceneConfig.scenedata[name].preenter.children(), "preenter");				
 
 		//@@ Mod May 22 2013 - moved to after the XML spec is executed - If the user uses the back button this should
 		//                     override the spec based on fComplete
 		// Update the Navigation
 		//
-		if(fComplete)
-			updateNav();						
+		if(this.fComplete)
+		this.updateNav();						
 		
-		// polymorphic UI initialization - must be done after ParseXML 
+		// polymorphic UI initialization - must be done after this.parseOBJ 
 		//
-		initUI();				
+		this.initUI();				
 			
 		return sceneLabel;
 	}
@@ -410,36 +419,36 @@ export class CEFScene extends CEFObject
 	
 	public onEnterScene(Direction:string) : void
 	{				
-		if (traceMode) trace("Default Enter Scene Behavior:");
+		if (this.traceMode) CUtil.trace("Default Enter Scene Behavior:");
 		
 		// Parse the Tutor.config for onenter procedures for this scene 
 		
-		if((gSceneConfig != null) && (gSceneConfig.scenedata[name].onenter != undefined))			
-										parseXML(this, gSceneConfig.scenedata[name].onenter.children(), "onenter");						
+		if((CEFScene.gSceneConfig != null) && (CEFScene.gSceneConfig.scenedata[name].onenter != undefined))			
+										this.parseOBJ(this, CEFScene.gSceneConfig.scenedata[name].onenter.children(), "onenter");						
 	}
 	
 	// Direction can be - "NEXT" , "BACK" , "GOTO"
 	// 
-	public preExitScene(Direction:string, sceneCurr:int ) : string
+	public preExitScene(Direction:string, sceneCurr:number ) : string
 	{
-		if(traceMode) trace("Default Pre-Exit Scene Behavior:");
+		if(this.traceMode) CUtil.trace("Default Pre-Exit Scene Behavior:");
 		
 		// Parse the Tutor.config for onenter procedures for this scene 
 		
-		if((gSceneConfig != null) && (gSceneConfig.scenedata[name].preexit != undefined))		
-										parseXML(this, gSceneConfig.scenedata[name].preexit.children(), "preexit");				
+		if((CEFScene.gSceneConfig != null) && (CEFScene.gSceneConfig.scenedata[name].preexit != undefined))		
+										this.parseOBJ(this, CEFScene.gSceneConfig.scenedata[name].preexit.children(), "preexit");				
 		
 		return(CEFObject.OKNAV);			
 	}
 
 	public onExitScene() : void
 	{				
-		if (traceMode) trace("Default Exit Scene Behavior:");
+		if (this.traceMode) CUtil.trace("Default Exit Scene Behavior:");
 		
 		// Parse the Tutor.config for onenter procedures for this scene 
 		
-		if((gSceneConfig != null) && (gSceneConfig.scenedata[name].onexit != undefined))			
-										parseXML(this, gSceneConfig.scenedata[name].onexit.children(), "onexit");						
+		if((CEFScene.gSceneConfig != null) && (CEFScene.gSceneConfig.scenedata[name].onexit != undefined))			
+										this.parseOBJ(this, CEFScene.gSceneConfig.scenedata[name].onexit.children(), "onexit");						
 	}
 	
 //****** DEMO Behaviors
@@ -448,7 +457,7 @@ export class CEFScene extends CEFObject
 	//
 	public demoBehavior() : void
 	{
-		if(traceMode) trace("Default demoBehavior: ");		
+		if(this.traceMode) CUtil.trace("Default demoBehavior: ");		
 	}
 
 //****** DEMO Behaviors
@@ -463,7 +472,7 @@ export class CEFScene extends CEFObject
 	}
 
 
-	public doSeekForward(evt:CWOZSeekEvent) : void
+	public doSeekForward(evt:CEFSeekEvent) : void
 	{
 		switch(evt.wozSeekSeq)
 		{
@@ -471,7 +480,7 @@ export class CEFScene extends CEFObject
 	}
 
 
-	public doSeekBackward(evt:CWOZSeekEvent) : void
+	public doSeekBackward(evt:CEFSeekEvent) : void
 	{
 		
 	}

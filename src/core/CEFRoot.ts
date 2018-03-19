@@ -38,7 +38,7 @@ import DisplayObject 		  = createjs.DisplayObject;
 import DisplayObjectContainer = createjs.Container;
 
 
-var EFengine;
+var EFengine:any;
 
 export class CEFRoot extends MovieClip
 {				
@@ -55,9 +55,9 @@ export class CEFRoot extends MovieClip
 	
 //*** global scene graph XML declaration
 		
-	public static gSceneConfig:any;							// The factory definition object used to create the scene structure
-	public static gSceneGraphDesc:any;						// The factory definition object used to create the scene Graph		
-	public static gAnimationGraphDesc:any;					// The factory definition object used to create animation graphs for specified scenes
+	public static gSceneConfig:any;								// The factory definition object used to create the scene structure
+	public static gSceneGraphDesc:any;							// The factory definition object used to create the scene Graph		
+	public static gAnimationGraphDesc:any;						// The factory definition object used to create animation graphs for specified scenes
 	
 //*** Demo configuration
 	
@@ -82,11 +82,11 @@ export class CEFRoot extends MovieClip
 
 //********
 	
-	public static sessionAccount:Object	   = new Object();		//@@ Mod Dec 03 2013 - session Account data  
+	public static sessionAccount:any	   = new Object();		//@@ Mod Dec 03 2013 - session Account data  
 	
 	public static fSessionID:string;							// Unique session identifier
 	public static fSessionTime:number;
-	public static serverUserID:number = 0;							// Numeric user ID assigned by the logging server DB
+	public static serverUserID:number = 0;						// Numeric user ID assigned by the logging server DB
 	
 	public static fPlaybackMode:boolean = false;
 	
@@ -95,10 +95,10 @@ export class CEFRoot extends MovieClip
 	public static WOZPAUSING:string = "rootpause"; 
 	public static WOZPLAYING:string = "rootplay"; 
 
-	public static gTutor:CEFTutorRoot;						// Root Tutor object - @@Mod Aug 7 2013 - public so scenegraph can access  		
+	public static gTutor:any;									// Root Tutor object - @@Mod Aug 7 2013 - public so scenegraph can access  		
 	
-	private static logR:ILogManager;						// Logging service connection
-	private static SceneData:string = "<data/>";			// Root Tutor data cache				
+	private static logR:ILogManager;							// Logging service connection
+	private static SceneData:string = "<data/>";				// Root Tutor data cache				
 	
 	private static _wozInstance:number = 1;		
 	private static _gNavigator:CEFNavigator;
@@ -155,7 +155,7 @@ export class CEFRoot extends MovieClip
 		// parse all the component objects - NOTE: everything must be derived from CWOZObject
 		//
 		let element:any;
-		let elementOBJ:Object = {};
+		let elementOBJ:any = {};
 		let elClass:string;
 		let elwozname:string;
 		
@@ -220,7 +220,7 @@ export class CEFRoot extends MovieClip
 	// @@@@@@@@@@@
 	public getSymbolClone(_cloneOf:string, _named:string) :string
 	{
-		let xClone:string = ""; 	// this.gSceneConfig.scenedata[_cloneOf].create.symbol.(@wozname==_named).table[0];
+		let xClone:string = ""; 	// CEFRoot.gSceneConfig.scenedata[_cloneOf].create.symbol.(@wozname==_named).table[0];
 		
 		CUtil.trace(xClone);
 		
@@ -417,7 +417,7 @@ export class CEFRoot extends MovieClip
 	{
 		if(this.traceMode) CUtil.trace(name + " is stopped at : " + frame + ":" + scene);		
 		
-		if(this.gTutor) CEFRoot.Tutor.playRemoveThis(this);
+		if(CEFRoot.gTutor) CEFRoot.gTutor.playRemoveThis(this);
 		
 		super.gotoAndStop(frame + ":" + scene);
 	}
@@ -430,7 +430,7 @@ export class CEFRoot extends MovieClip
 	{
 		if(this.traceMode) CUtil.trace(name + " is stopped");
 		
-		if(this.gTutor) CEFRoot.Tutor.playRemoveThis(this);
+		if(CEFRoot.gTutor) CEFRoot.gTutor.playRemoveThis(this);
 
 		super.stop();
 	}
@@ -448,7 +448,7 @@ export class CEFRoot extends MovieClip
 			CUtil.trace("SgenericPrompt Play Found in gotoAndPlay");
 		//@@
 		
-		if(this.gTutor) CEFRoot.Tutor.playAddThis(this);
+		if(CEFRoot.gTutor) CEFRoot.gTutor.playAddThis(this);
 		super.gotoAndPlay(frame + ":" + scene);
 	}
 	
@@ -465,7 +465,7 @@ export class CEFRoot extends MovieClip
 			CUtil.trace("SgenericPrompt Play Found in Play");
 		//@@
 		
-		if(this.gTutor) CEFRoot.Tutor.playAddThis(this);
+		if(CEFRoot.gTutor) CEFRoot.gTutor.playAddThis(this);
 		super.play();
 	}
 			
@@ -482,7 +482,7 @@ export class CEFRoot extends MovieClip
 					CUtil.trace("SgenericPrompt Play Found in BindPlay");
 		//@@
 		
-		if(this.gTutor) CEFRoot.Tutor.playAddThis(this);
+		if(CEFRoot.gTutor) CEFRoot.gTutor.playAddThis(this);
 		super.play();
 	}
 	
@@ -492,10 +492,10 @@ export class CEFRoot extends MovieClip
 		
 		try
 		{
-			if(this.gTutor) 
+			if(CEFRoot.gTutor) 
 			{
-				topPosition = this.gTutor.numChildren - 1;
-				this.gTutor.setChildIndex(this, topPosition);				
+				topPosition = CEFRoot.gTutor.numChildren - 1;
+				CEFRoot.gTutor.setChildIndex(this, topPosition);				
 			}
 		}
 		catch(err)
@@ -513,14 +513,14 @@ export class CEFRoot extends MovieClip
 	{
 		// Init the start time of the session
 		
-		CEFRoot.fSessionTime = this.getTimer();
+		CEFRoot.fSessionTime = CUtil.getTimer();
 	}
 
 	public get sessionTime() :string
 	{
 		let curTime:Number;
 		
-		curTime = (this.getTimer() - CEFRoot.fSessionTime) / 1000.0;
+		curTime = (CUtil.getTimer() - CEFRoot.fSessionTime) / 1000.0;
 		
 		return curTime.toString();
 	}

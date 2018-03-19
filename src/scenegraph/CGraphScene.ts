@@ -53,11 +53,11 @@ export class CGraphScene extends Object
 			
 	private _pid:string;			// GUID for stocastic object
 	private _cycle:number;			// recycle distance for looping
-	private _prob:Array;			// Array of probabliities for given PID 
+	private _prob:Array<number>;	// Array of probabliities for given PID 
 	
 	private _iteration:number = 0;
 	
-	constructor(factory:Object, parent:CSceneGraph)
+	constructor(factory:any, parent:CSceneGraph)
 	{
 		super();
 

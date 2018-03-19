@@ -34,7 +34,7 @@ import { CGraphScene } 	from "./CGraphScene";
 export class CGraphAction extends CGraphNode
 {
 	private _cmnd:string;	
-	private _parms:Array;
+	private _parms:Array<string>;
 	
 	
 	constructor()

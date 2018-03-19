@@ -27,6 +27,13 @@
 //
 //*********************************************************************************
 
+//** Imports
+
+import { CUtil } from "../util/CUtil";
+
+import Event = createjs.Event;
+
+
 
 export class CEFNavEvent extends Event
 {
@@ -56,16 +63,7 @@ export class CEFNavEvent extends Event
 	{
 		CUtil.trace("cloning WOZEvent:");
 		
-		return new CEFNavEvent(type, wozNavTarget, wozFeatures, bubbles, cancelable );		
+		return new CEFNavEvent(this.type, this.wozNavTarget, this.wozFeatures, this.bubbles, this.cancelable );		
 	}
 	
-	/**		
-	* Returns a String containing all the properties of the current		
-	* instance.		
-	* @return A string representation of the current instance.		
-	*/		
-	public toString():string		
-	{
-		return formatToString("CEFNavEvent", "type", "wozNavTarget", "wozFeatures", "bubbles", "cancelable");		
-	}		
 }
