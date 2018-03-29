@@ -1,13 +1,7 @@
 
-
 namespace EngineTest {
 
-    // import { Startup } from "./engine";
-
-    Startup.main();
-    Test.main();
-
-    export class BootLoader {
+    export class Test {
 
         public static anLibrary:object = {"test":"object"};
 
@@ -15,8 +9,7 @@ namespace EngineTest {
         }
 
         public static main(): number {
-            
-            Startup.main();
+            console.log('Hello World - From Startup');
             return 0;
         }
     }

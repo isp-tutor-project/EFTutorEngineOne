@@ -1,17 +1,18 @@
 {
-    // "files": [
-    //     "src/engine.ts",
-    //     "src/manifold.ts"
-    // ],
-    "include": [
-        "src/**/*"
+    "files": [
+        // "src/engine.ts",
+        "src/manifold.ts"
     ],
+    // "include": [
+    //     "src/**/*"
+    // ],
     "compilerOptions": {
-		"module": "UMD",
+		"module": "amd",
 		"target": "es5",
 		"sourceMap": true,
 		"declaration": true,
-		"outDir": "./lib",
+        // "outDir": "./lib",
+        "outFile": "./dist/edforgeEngine.js",
 		"lib": [ "es2015", "dom" ],	
         "noImplicitAny": true
     }

@@ -5,8 +5,11 @@
     "version": "2.0.0",
     "tasks": [
         {
-            "type": "gulp",
-            "task": "default",
+            "type": "typescript",
+            "tsconfig": "EFTutorEngineOne\\tsconfig.json",
+            "problemMatcher": [
+                "$tsc"
+            ],
             "group": {
                 "kind": "build",
                 "isDefault": true
