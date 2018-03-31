@@ -9,11 +9,12 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-//** Imports
+namespace TutorEngineOne {
+
+	//** Imports
 
 import Event = createjs.Event;
 
-import { CUtil } from "../util/CUtil";
 
 
 
@@ -42,4 +43,5 @@ export class CEFPropertyChangeEventKind
 	 *  
 	 */
 	public static readonly DELETE:string = "delete";
+}
 }

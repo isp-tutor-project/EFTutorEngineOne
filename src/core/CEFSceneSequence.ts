@@ -1,18 +1,9 @@
 ﻿//*********************************************************************************
-//                                                                        
-//         CARNEGIE MELLON UNIVERSITY PROPRIETARY INFORMATION             
-//  
-//  This software is supplied under the terms of a license agreement or   
-//  nondisclosure agreement with Carnegie Mellon University and may not   
-//  be copied or disclosed except in accordance with the terms of that   
-//  agreement.    
-//  
-//   Copyright(c) 2008 Carnegie Mellon University. All Rights Reserved.   
-//                                                                        
-//  Author(s): Kevin Willows                                                          
-//  
-//  History: File Creation 9/17/2008 2:45 PM 
-//                                                                        
+//
+//  Copyright(c) 2008,2018 Kevin Willows. All Rights Reserved
+//
+//	License: Proprietary
+//
 //  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 //  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 //  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -24,28 +15,14 @@
 //*********************************************************************************
 
 
-import { CEFRoot } 				from "./CEFRoot";
-import { CEFScene } 			from "./CEFScene";
-import { CEFNavigator } 		from "./CEFNavigator";
-import { CEFTimer } 			from "./CEFTimer";
 
-import { CEFNavEvent } 			from "../events/CEFNavEvent";
-import { CAnimationGraph } 		from "../animationgraph/CAnimationGraph";
-import { CSceneGraphNavigator } from "../scenegraph/CSceneGraphNavigator";
+namespace TutorEngineOne {
 
-import { CUtil } 				from "../util/CUtil";
-
+//** Imports
 
 import MovieClip     		  = createjs.MovieClip;
 import DisplayObject 		  = createjs.DisplayObject;
 import DisplayObjectContainer = createjs.Container;
-import { CEFTimerEvent } from "../events/CEFTimerEvent";
-import { CEFSceneCueEvent } from "../events/CEFSceneCueEvent";
-import { CEFCommandEvent } from "../events/CEFCommandEvent";
-import { CEFScriptEvent } from "../events/CEFScriptEvent";
-import { CEFActionEvent } from "../events/CEFActionEvent";
-import { CEFEvent } from "../events/CEFEvent";
-
 
 
 
@@ -734,5 +711,6 @@ export class CEFSceneSequence extends CEFScene
 	
 //****** Overridable Behaviors		
 	
+}
 }
 	

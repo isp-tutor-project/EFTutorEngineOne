@@ -1,22 +1,9 @@
 ﻿//*********************************************************************************
-//                                                                        
-//         CARNEGIE MELLON UNIVERSITY PROPRIETARY INFORMATION             
-//  
-//  This software is supplied under the terms of a license agreement or   
-//  nondisclosure agreement with Carnegie Mellon University and may not   
-//  be copied or disclosed except in accordance with the terms of that   
-//  agreement.    
-//  
-//   Copyright(c) 2008 Carnegie Mellon University. All Rights Reserved.   
-//                                                                        
-//  File:      CWOZActionEvent.as
-//                                                                        
-//  Purpose:   CWOZActionEvent object implementation
-//                                                                        
-//  Author(s): Kevin Willows                                                          
-//  
-//  History: File Creation 9/10/2008 3:29 PM 
-//                                                                        
+//
+//  Copyright(c) 2008,2018 Kevin Willows. All Rights Reserved
+//
+//	License: Proprietary
+//
 //  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 //  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 //  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -26,6 +13,8 @@
 //  THE SOFTWARE.
 //
 //*********************************************************************************
+
+namespace TutorEngineOne {
 
 //** Imports
 
@@ -65,4 +54,5 @@ export class CEFActionEvent extends Event
 		return new CEFActionEvent(this.type, this.prop1, this.prop2, this.prop3, this.prop4, this.prop5, this.bubbles, this.cancelable);
 	} 
 	
+}
 }

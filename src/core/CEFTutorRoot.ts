@@ -1,22 +1,9 @@
 ﻿//*********************************************************************************
-//                                                                        
-//         CARNEGIE MELLON UNIVERSITY PROPRIETARY INFORMATION             
-//  
-//  This software is supplied under the terms of a license agreement or   
-//  nondisclosure agreement with Carnegie Mellon University and may not   
-//  be copied or disclosed except in accordance with the terms of that   
-//  agreement.    
-//  
-//   Copyright(c) 2008 Carnegie Mellon University. All Rights Reserved.   
-//                                                                        
-//  File:      CEFTutorRoot.as
-//                                                                        
-//  Purpose:   CEFTutorRoot implementation
-//                                                                        
-//  Author(s): Kevin Willows                                                           
-//  
-//  History: File Creation Apr 21 2008  
-//                                                                        
+//
+//  Copyright(c) 2008,2018 Kevin Willows. All Rights Reserved
+//
+//	License: Proprietary
+//
 //  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 //  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 //  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -27,31 +14,16 @@
 //
 //*********************************************************************************
 
-import { CEFRoot } 	    	from "./CEFRoot";	
-import { CEFDoc }			from "./CEFDoc";
-import { CEFObject } 	    from "./CEFObject";	
-import { CEFCursorProxy } 	from "./CEFCursorProxy";	
-import { CEFTransitions } 	from "./CEFTransitions";	
-import { CEFNavigator } 	from "./CEFNavigator";	
-import { CEFTimeStamp } 	from "./CEFTimeStamp";	
-import { CEFScene } 		from "./CEFScene";
-import { CEFSceneSequence } from "./CEFSceneSequence";
-import { CEFTitleBar } 		from "./CEFTitleBar";
 
-import { CEFScene0 } 		from "../scenes/CEFScene0";
 
-import { CEFEvent } 		from "../events/CEFEvent";
-import { CEFNavEvent } 		from "../events/CEFNavEvent";
-import { CEFMouseEvent } 	from "../events/CEFMouseEvent";
+namespace TutorEngineOne {
+
+//** Imports
 
 import MovieClip     		  = createjs.MovieClip;
 import DisplayObject 		  = createjs.DisplayObject;
 import DisplayObjectContainer = createjs.Container;
 import Tween 				  = createjs.Tween;
-import { CUtil } from "../util/CUtil";
-import { CEFKTNode } from "../kt/CEFKTNode";
-import { CLogManagerType } from "../network/CLogManagerType";
-import { CEFKeyboardEvent } from "../events/CEFKeyboardEvent";
 
 
 export class CEFTutorRoot extends CEFRoot 
@@ -298,7 +270,7 @@ export class CEFTutorRoot extends CEFRoot
 	public addScene(sceneTitle:string, scenePage:string, sceneName:string, sceneClass:string, sceneFeatures:string, sceneEnqueue:boolean, sceneCreate:boolean, sceneVisible:boolean, scenePersist:boolean, sceneObj:any = null ) : void
 	{		
 		//@@ debug - for building XML spec of Tutor spec only - captureSceneGraph			
-		//sceneGraph.appendChild(<scene sceneTitle={sceneTitle} scenePage={scenePage} sceneName={sceneName} sceneClass={sceneClass} sceneFeatures={sceneFeatures} sceneEnqueue={sceneEnqueue? "true:boolean":":boolean"} sceneCreate={sceneCreate? "true:boolean":":boolean"} scenePersist={scenePersist? "true:boolean":":boolean"} sceneObj={sceneObj? sceneObj.name:"null"} condition="" />);
+		//sceneGraph.appendChild(<scene sceneTitle={sceneTitle} scenePage={scenePage} sceneName={sceneName} sceneClass={sceneClass} sceneFeatures={sceneFeatures} sceneEnqueue={sceneEnqueue? "true:boolean":":boolean"} sceneCreate={sceneCreate? "true:boolean":":boolean"} scenePersist={scenePersist? "true:boolean":":boolean"} sceneObj={sceneObj? sceneObj.name:"null"} condition=".ts" />);
 						
 		// Build the Navigation sequences
 		// Note that this adds the scene to the sequence as well as connecting the scene to the sequence
@@ -1245,4 +1217,5 @@ export class CEFTutorRoot extends CEFRoot
 		this.SnavPanel.goToScene(evt.wozNavTarget);			
 	}
 	
+}
 }

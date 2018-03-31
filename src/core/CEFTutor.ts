@@ -1,22 +1,10 @@
 //*********************************************************************************
-//                                                                        
-//         CARNEGIE MELLON UNIVERSITY PROPRIETARY INFORMATION             
-//  
-//  This software is supplied under the terms of a license agreement or   
-//  nondisclosure agreement with Carnegie Mellon University and may not   
-//  be copied or disclosed except in accordance with the terms of that   
-//  agreement.    
-//  
-//   Copyright(c) 2008 Carnegie Mellon University. All Rights Reserved.   
-//                                                                        
-//  File:      CEFTutor.as
-//                                                                        
-//  Purpose:   CEFTutor implementation
-//                                                                        
-//  Author(s): Kevin Willows                                                           
-//  
-//  History: File Creation Apr 21 2008  
-//                                                                        
+//
+//  Copyright(c) 2008,2018 Kevin Willows. All Rights Reserved
+//
+//	License: Proprietary
+//
+//  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 //  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 //  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
 //  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
@@ -26,16 +14,13 @@
 //
 //*********************************************************************************
 
+namespace TutorEngineOne {
+
 // Root Tutor object in the EdForge class framework
 
-import { CEFRoot }              from "./CEFRoot";
-import { CEFTutorRoot } 	    from "./CEFTutorRoot";	
-import { CEFMouseMask }         from "./CEFMouseMask";
+//** Imports
 
-import { CSceneGraphNavigator } from "../scenegraph/CSceneGraphNavigator";
-import { CUtil } 		        from "../util/CUtil";
-import { CEFNavDemo }           from "../scenes/CEFNavDemo";
-import { CDialogDesignPrompt1 } from "../dialogs/CDialogDesignPrompt1";
+
 
 
 /**
@@ -151,6 +136,7 @@ export class CEFTutor extends CEFTutorRoot
     
 // ******************* Overrides 		
 
+}
 }
 
 

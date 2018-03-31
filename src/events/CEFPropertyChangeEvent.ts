@@ -9,12 +9,13 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
+
+namespace TutorEngineOne {
+
 //** Imports
 
 import Event = createjs.Event;
 
-import { CEFPropertyChangeEventKind } from "./CEFPropertyChangeEventKind";
-import { CUtil }					  from "../util/CUtil";
 
 
 
@@ -265,4 +266,5 @@ export class CEFPropertyChangeEvent extends Event
 		return new CEFPropertyChangeEvent(this.type, this.bubbles, this.cancelable, this.kind,
 			this.property, this.oldValue, this.newValue, this.source);
 	}
+}
 }

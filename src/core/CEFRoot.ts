@@ -1,18 +1,9 @@
 ﻿//*********************************************************************************
-//                                                                        
+//
 //  Copyright(c) 2008,2018 Kevin Willows. All Rights Reserved
-//	
+//
 //	License: Proprietary
 //
-//  File:      CEFRoot.ts
-//                                                                        
-//  Purpose:   CEFRoot object implementation
-//                                                                        
-//  Author(s): Kevin Willows                                                           
-//  
-//  History: File Creation Apr 25 2008  
-//			 Conversion to Typescript Feb 23 2018
-//                                                                        
 //  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 //  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 //  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -22,16 +13,19 @@
 //  THE SOFTWARE.
 //
 //*********************************************************************************
+/// <reference types= "easeljs"/>
 
-/// <reference types="easeljs"/>
+/// <reference path = "CEFScene.ts"/>
+/// <reference path = "CEFNavigator.ts"/>
+/// <reference path = "../util/CUtil.ts"/>
+/// <reference path = "../network/ILogManager.ts"/>
 
-import { CEFScene }     from "./CEFScene";
-import { CEFTutorRoot } from "./CEFTutorRoot";
-import { CEFNavigator } from "./CEFNavigator";
 
-import { ILogManager }  from "../network/ILogManager";
 
-import { CUtil } 		from "../util/CUtil";
+
+namespace TutorEngineOne {
+
+//** Imports
 
 import MovieClip     		  = createjs.MovieClip;
 import DisplayObject 		  = createjs.DisplayObject;
@@ -39,6 +33,7 @@ import DisplayObjectContainer = createjs.Container;
 
 
 var EFengine:any;
+
 
 export class CEFRoot extends MovieClip
 {				
@@ -577,4 +572,5 @@ export class CEFRoot extends MovieClip
 			
 //***************** Debug *******************************		
 	
+}
 }

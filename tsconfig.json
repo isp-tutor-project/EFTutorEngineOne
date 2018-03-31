@@ -1,19 +1,45 @@
+// {
+//     // "files": [
+//         // "src/core/CEFRoot.ts"
+//     //     // "src/engine.ts",
+//     //     "src/manifold.ts"
+//     // ],
+//     // "include": [
+//     //     "src/**/*"
+//     // ],
+//     "compilerOptions": {
+// 		"module": "amd",
+// 		"target": "es5",
+// 		"sourceMap": true,
+// 		"declaration": true,
+//         // "outDir": "./lib",
+//         "outFile": "./dist/edforgeEngine.js",
+// 		"lib": [ "es2015", "dom" ],	
+//         "noImplicitAny": true
+//     }
+// }
+
+
 {
     "files": [
-        // "src/engine.ts",
-        "src/manifold.ts"
+        "src/core/CEFRoot.ts"
     ],
-    // "include": [
-    //     "src/**/*"
-    // ],
     "compilerOptions": {
-		"module": "amd",
-		"target": "es5",
-		"sourceMap": true,
-		"declaration": true,
-        // "outDir": "./lib",
-        "outFile": "./dist/edforgeEngine.js",
-		"lib": [ "es2015", "dom" ],	
-        "noImplicitAny": true
-    }
+        "target": "es5",
+        "sourceMap": true,
+        "declaration": true,
+        "allowUnreachableCode": true,
+        "outFile": "./dist/EdForgeEngine.js",
+        "newLine": "LF",
+        "lib": [
+            "es5",
+            "dom",
+            "es2015.promise",
+            "scripthost"
+        ]
+    },
+    "exclude": [
+        "node_modules",
+        "dist"
+    ]
 }
