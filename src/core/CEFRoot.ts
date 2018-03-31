@@ -1,18 +1,9 @@
 ﻿//*********************************************************************************
-//                                                                        
+//
 //  Copyright(c) 2008,2018 Kevin Willows. All Rights Reserved
-//	
+//
 //	License: Proprietary
 //
-//  File:      CEFRoot.ts
-//                                                                        
-//  Purpose:   CEFRoot object implementation
-//                                                                        
-//  Author(s): Kevin Willows                                                           
-//  
-//  History: File Creation Apr 25 2008  
-//			 Conversion to Typescript Feb 23 2018
-//                                                                        
 //  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 //  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 //  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE

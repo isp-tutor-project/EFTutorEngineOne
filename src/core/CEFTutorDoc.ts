@@ -1,24 +1,11 @@
 //*********************************************************************************
-//                                                                        
-//         CARNEGIE MELLON UNIVERSITY PROPRIETARY INFORMATION             
-//  
-//  This software is supplied under the terms of a license agreement or   
-//  nondisclosure agreement with Carnegie Mellon University and may not   
-//  be copied or disclosed except in accordance with the terms of that   
-//  agreement.    
-//  
-//   Copyright(c) 2008 Carnegie Mellon University. All Rights Reserved.   
-//                                                                        
-//  File:      CWOZTutorDoc.as
-//                                                                        
-//  Purpose:   CWOZTutorDoc object implementation
-//                                                                        
-//  Author(s): Kevin Willows                                                           
-//  
-//  History: File Creation Jun 05 2008  
-//                                                                        
+//
+//  Copyright(c) 2008,2018 Kevin Willows. All Rights Reserved
+//
+//	License: Proprietary
+//
 //  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-//  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRAOF MERCHANTABILITY,
+//  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 //  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
 //  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 //  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,

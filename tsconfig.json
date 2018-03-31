@@ -1,19 +1,16 @@
 {
-    "files": [
-        // "src/engine.ts",
-        "src/manifold.ts"
+    "include": [
+        "src/**/*"
     ],
-    // "include": [
-    //     "src/**/*"
-    // ],
     "compilerOptions": {
 		"module": "amd",
 		"target": "es5",
 		"sourceMap": true,
 		"declaration": true,
         // "outDir": "./lib",
-        "outFile": "./dist/edforgeEngine.js",
+        "outFile": "./dist/TutorEngineOne.js",
 		"lib": [ "es2015", "dom" ],	
-        "noImplicitAny": true
+        "noImplicitAny": true,
+        "removeComments":true
     }
 }
