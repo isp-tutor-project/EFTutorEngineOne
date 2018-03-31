@@ -1,0 +1,48 @@
+
+VSCode regex cheatsheet:
+
+Regex to convert external module import statements to namespace reference path statements
+
+find: ^import\s*\{\s*\w*\s*\}\s*from\s*(".*/\w*");
+replace: /// <reference path = $1 />
+
+
+
+Regex to normalize imports section header
+
+find: //[\*\#][\*\#]\s*Imports
+replace: //** Imports
+
+
+
+Visual Studio 2015 CheatSheet:
+
+Regex to find bottom line of copyright 
+
+find: (//\*\*\*\*{60,}\r\n\s*\r\n)
+
+Then add a namespace 
+
+replace with: $1namespace TutorEngineOne {\r\n\r\n
+
+
+Regex to find the end of file and add closing brace.
+Note: There is no regex to explicitly find eof so we use make an assumption that all classes end with } at the beginning of the line.
+
+find: (^})
+
+replace with: $1\r\n}
+
+
+
+
+Regex to find the copyright notice
+
+find: (^//\*\*\*\*{60,}\r\n)(//[\s\S\w\W]*\r\n)(^//\*\*\*\*{60,})
+
+Then add a new copyright/license
+
+replace with: 
+//*********************************************************************************\r\n//\r\n//  Copyright(c) 2008,2018 Kevin Willows. All Rights Reserved\r\n//\r\n//	License: Proprietary\r\n//\r\n//  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\r\n//  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,\r\n//  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE\r\n//  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER\r\n//  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,\r\n//  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN\r\n//  THE SOFTWARE.\r\n//\r\n//*********************************************************************************
+
+
