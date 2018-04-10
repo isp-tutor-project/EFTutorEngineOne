@@ -18,16 +18,17 @@
 //** Imports
 
 import { CEFRoot } from "./core/CEFRoot"
+import { CEFTutor } from "./core/CEFTutor";
 
-export class TutorEngineOne 
+
+export function start() : void
 {
 
-    public static efLibrary:any;
+    let efLibrary:CEFRoot = new CEFRoot();
 
-    public tutor:any;
-    
-    constructor() {
+    let tutor:CEFTutor = new CEFTutor();
 
-        this.tutor = new CEFRoot();
-    }
+    console.log("In TutorEngineOne startup");
+
+
 }

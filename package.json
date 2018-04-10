@@ -1,5 +1,5 @@
 {
-  "name": "tengine1",
+  "name": "tutor-engine-one",
   "version": "0.1.0",
   "description": "EdForge: Tutor Engine 1",
   "main": "engine.js",
@@ -8,7 +8,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/synaptek/TEngine1.git"
+    "url": "git+https://github.com/github.com/EdForge/EFTutorEngineOne.git"
   },
   "keywords": [
     "EdForge",
@@ -16,18 +16,15 @@
     "Engine"
   ],
   "author": "Kevin Willows",
-  "license": "MIT",
+  "license": "Proprietary",
   "bugs": {
-    "url": "https://github.com/synaptek/TEngine1/issues"
+    "url": "https://github.com/EdForge/EFTutorEngineOne/issues"
   },
-  "homepage": "https://github.com/synaptek/TEngine1#readme",
+  "homepage": "https://github.com/EdForge/EFTutorEngineOne#readme",
   "devDependencies": {
     "@types/createjs": "0.0.29",
-    "gulp": "^3.9.1",
-    "gulp-typescript": "^3.2.4",
+    "systemjs": "^0.21.2",
     "typescript": "^2.6.2"
   },
-  "dependencies": {
-    "tslint": "^5.9.1"
-  }
+  "dependencies": {}
 }

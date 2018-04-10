@@ -89,14 +89,14 @@ export class CEFTutor extends CEFTutorRoot
         // this.SdlgPrompt       = new CDialogDesignPrompt1();
         // this.SdlgPrompt.sMask = new CEFMouseMask();
         
-        this.SdlgPrompt.name 	  = "SdlgPrompt";
-        this.SdlgPrompt.sMask.name = "SdlgMask";
+        // this.SdlgPrompt.name 	  = "SdlgPrompt";
+        // this.SdlgPrompt.sMask.name = "SdlgMask";
         
-        this.addChild(this.SdlgPrompt);
-        this.addChild(this.SdlgPrompt.sMask);
+        // this.addChild(this.SdlgPrompt);
+        // this.addChild(this.SdlgPrompt.sMask);
         
-        this.SdlgPrompt.visible       = false;
-        this.SdlgPrompt.sMask.visible = false;
+        // this.SdlgPrompt.visible       = false;
+        // this.SdlgPrompt.sMask.visible = false;
         
         // Initialize the Knowledge tracing 
         
