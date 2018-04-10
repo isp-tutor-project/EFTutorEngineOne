@@ -300,7 +300,7 @@ export class CEFObject extends CEFAnimator
 		let newObject:CEFObject;
 		let maskDim:Point;
 		
-		let ClassRef:any = this.getDefinitionByName(objectClass);
+		let ClassRef:any = CEFRoot.getDefinitionByName(objectClass);
 		
 		newObject = new ClassRef();						
 		newObject.name = objectName;
@@ -1388,7 +1388,7 @@ export class CEFObject extends CEFAnimator
 					}
 					else
 					{
-						var tClass:any = this.getDefinitionByName(parmDef[1]) as any;
+						var tClass:any = CEFRoot.getDefinitionByName(parmDef[1]) as any;
 						
 						var value:string = parmDef[0];
 						
@@ -1437,7 +1437,7 @@ export class CEFObject extends CEFAnimator
 					
 				else if(parmDef[1] != "null")
 				{
-					tClass = this.getDefinitionByName(parmDef[1]) as any;
+					tClass = CEFRoot.getDefinitionByName(parmDef[1]) as any;
 					
 					value = parmDef[0];
 					

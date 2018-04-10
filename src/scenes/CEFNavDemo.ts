@@ -44,7 +44,7 @@ export class CEFNavDemo extends CEFSceneSequence
 
 		if(this.traceMode) CUtil.trace("CEFNavDemo:Constructor");
 					
-		this._demoPanel = this.instantiateObject("CDemoPanel") as MovieClip;	
+		this._demoPanel = CEFRoot.instantiateObject("CDemoPanel") as MovieClip;	
 		
 		this._demoPanel.x 	   = 0;					
 		this._demoPanel.y       = 0;					

@@ -14,6 +14,8 @@
 //
 //*********************************************************************************
 
+//** Imports
+
 import { CEFRoot } 	    	from "./CEFRoot";	
 import { CEFDoc }			from "./CEFDoc";
 import { CEFObject } 	    from "./CEFObject";	
@@ -22,8 +24,8 @@ import { CEFCursorProxy } 	from "./CEFCursorProxy";
 import { ILogManager }      from "../network/ILogManager";
 
 import { CEFEvent } 		from "../events/CEFEvent";
-import { CEFTutorRoot } from "./CEFTutorRoot";
-import { CUtil } from "../util/CUtil";
+import { CEFTutorRoot }     from "./CEFTutorRoot";
+import { CUtil }            from "../util/CUtil";
 
 
 export class CEFTutorDoc extends CEFDoc
@@ -75,7 +77,7 @@ export class CEFTutorDoc extends CEFDoc
         //
         if(this.Stutor == null)
         {
-            this.Stutor = this.instantiateObject("CEFTutor") as CEFTutorRoot;
+            this.Stutor = CEFRoot.instantiateObject("CEFTutor") as CEFTutorRoot;
             this.Stutor.name = "Stutor";
             
             //@@ Mod May 09 2012 - Demo Support - manage the features so that the demo can augment the default set.

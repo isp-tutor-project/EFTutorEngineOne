@@ -14,7 +14,8 @@
 //
 //*********************************************************************************
 
-/// <reference types="easeljs"/>
+
+//** Imports
 
 import { CEFScene }     from "./CEFScene";
 import { CEFTutorRoot } from "./CEFTutorRoot";
@@ -28,8 +29,7 @@ import MovieClip     		  = createjs.MovieClip;
 import DisplayObject 		  = createjs.DisplayObject;
 import DisplayObjectContainer = createjs.Container;
 
-
-var EFengine:any;
+var TutorEngineOne:any;
 
 export class CEFRoot extends MovieClip
 {				
@@ -522,28 +522,26 @@ export class CEFRoot extends MovieClip
 
 //****** Overridable Behaviors
 
+public static instantiateObject(objectClass:string) : DisplayObject
+{			
+	let tarObject:any;
+	
+	let ClassRef:any = this.getDefinitionByName(objectClass);
+	
+	tarObject = new ClassRef;
+	
+	return tarObject;			
+}
 
-	public instantiateObject(objectClass:string) : DisplayObject
-	{			
-		let tarObject:any;
-		
-		let ClassRef:any = this.getDefinitionByName(objectClass);
-		
-		tarObject = new ClassRef;
-		
-		return tarObject;			
-	}
 
+public static getDefinitionByName(className:string) : any {
 
-	public getDefinitionByName(className:string) : any {
+	let classConstructor:Function;
 
-		let classConstructor:Function;
+	classConstructor = TutorEngineOne.efLibrary[className];
 
-		classConstructor = EFengine.efLibrary[className];
-
-		return classConstructor;
-	}
-
+	return classConstructor;
+}
 
 //***************** Debug *******************************		
 	

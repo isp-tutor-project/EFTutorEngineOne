@@ -14,6 +14,7 @@
 //
 //*********************************************************************************
 
+//** Imports
 
 import { CEFRoot } 				from "./CEFRoot";
 import { CEFScene } 			from "./CEFScene";
@@ -24,18 +25,19 @@ import { CEFNavEvent } 			from "../events/CEFNavEvent";
 import { CAnimationGraph } 		from "../animationgraph/CAnimationGraph";
 import { CSceneGraphNavigator } from "../scenegraph/CSceneGraphNavigator";
 
+import { CEFTimerEvent } 		from "../events/CEFTimerEvent";
+import { CEFSceneCueEvent } 	from "../events/CEFSceneCueEvent";
+import { CEFCommandEvent } 		from "../events/CEFCommandEvent";
+import { CEFScriptEvent } 		from "../events/CEFScriptEvent";
+import { CEFActionEvent } 		from "../events/CEFActionEvent";
+import { CEFEvent } 			from "../events/CEFEvent";
+
 import { CUtil } 				from "../util/CUtil";
 
 
 import MovieClip     		  = createjs.MovieClip;
 import DisplayObject 		  = createjs.DisplayObject;
 import DisplayObjectContainer = createjs.Container;
-import { CEFTimerEvent } from "../events/CEFTimerEvent";
-import { CEFSceneCueEvent } from "../events/CEFSceneCueEvent";
-import { CEFCommandEvent } from "../events/CEFCommandEvent";
-import { CEFScriptEvent } from "../events/CEFScriptEvent";
-import { CEFActionEvent } from "../events/CEFActionEvent";
-import { CEFEvent } from "../events/CEFEvent";
 
 
 
@@ -382,7 +384,7 @@ export class CEFSceneSequence extends CEFScene
 						
 						if(this.animationGraph != null)
 						{
-							this.Saudio1 = this.bindAudio(this.getDefinitionByName(this.animationGraph.nextAnimation()));
+							this.Saudio1 = this.bindAudio(CEFRoot.getDefinitionByName(this.animationGraph.nextAnimation()));
 							this.Saudio1.stop();
 						}
 					}
@@ -424,7 +426,7 @@ export class CEFSceneSequence extends CEFScene
 					
 					try
 					{
-						this.Saudio1 = this.bindAudio(this.getDefinitionByName(element.type));
+						this.Saudio1 = this.bindAudio(CEFRoot.getDefinitionByName(element.type));
 						this.Saudio1.stop();
 					}
 					catch(err)							
@@ -468,7 +470,7 @@ export class CEFSceneSequence extends CEFScene
 			
 			if(nextSeq != null)
 			{
-				this.Saudio1 = this.bindAudio(this.getDefinitionByName(nextSeq) as any);
+				this.Saudio1 = this.bindAudio(CEFRoot.getDefinitionByName(nextSeq) as any);
 				
 				this.scenePlay();								
 			}

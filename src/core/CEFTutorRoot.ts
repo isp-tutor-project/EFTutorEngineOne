@@ -14,6 +14,8 @@
 //
 //*********************************************************************************
 
+//** Imports
+
 import { CEFRoot } 	    	from "./CEFRoot";	
 import { CEFDoc }			from "./CEFDoc";
 import { CEFObject } 	    from "./CEFObject";	
@@ -31,14 +33,17 @@ import { CEFEvent } 		from "../events/CEFEvent";
 import { CEFNavEvent } 		from "../events/CEFNavEvent";
 import { CEFMouseEvent } 	from "../events/CEFMouseEvent";
 
+import { CEFKTNode } 		from "../kt/CEFKTNode";
+import { CLogManagerType } 	from "../network/CLogManagerType";
+import { CEFKeyboardEvent } from "../events/CEFKeyboardEvent";
+
+import { CUtil } 			from "../util/CUtil";
+
+
 import MovieClip     		  = createjs.MovieClip;
 import DisplayObject 		  = createjs.DisplayObject;
 import DisplayObjectContainer = createjs.Container;
 import Tween 				  = createjs.Tween;
-import { CUtil } from "../util/CUtil";
-import { CEFKTNode } from "../kt/CEFKTNode";
-import { CLogManagerType } from "../network/CLogManagerType";
-import { CEFKeyboardEvent } from "../events/CEFKeyboardEvent";
 
 
 export class CEFTutorRoot extends CEFRoot 
@@ -310,7 +315,7 @@ export class CEFTutorRoot extends CEFRoot
 		let i1:number;
 		let tarScene:any;
 		let subScene:any;
-		let ClassRef:any = this.getDefinitionByName(sceneClass);
+		let ClassRef:any = CEFRoot.getDefinitionByName(sceneClass);
 		
 		tarScene = new ClassRef();			
 		
