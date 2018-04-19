@@ -14,49 +14,31 @@
 //
 //*********************************************************************************
 
+import { CEFSceneSequence } from "../../core/CEFSceneSequence";
+import { CUtil } 			from "../../util/CUtil";
 
-//** Imports
-
-import { CEFRoot } 			from "../core/CEFRoot";
-import { CEFButton } 		from "../core/CEFButton";
-import { CEFSceneSequence } from "../core/CEFSceneSequence";
-import { CEFEvent } 		from "../events/CEFEvent";
-import { CEFMouseEvent } 	from "../events/CEFMouseEvent";
-import { CUtil } 			from "../util/CUtil";
+import MovieClip     		  = createjs.MovieClip;
 
 
-import MovieClip     	  = createjs.MovieClip;
-import Point     		  = createjs.Point;
-import Tween     		  = createjs.Tween;
 
 
-export class CEFSceneN extends CEFSceneSequence
+export class CEFScene0 extends CEFSceneSequence
 {
 	//************ Stage Symbols
 	
-	public SreplaySession:CEFButton;
-	
 	// non-interactive elements
 	
-	public SbackGround:MovieClip;		
-
+	public SbackGround:MovieClip;
+	
 	//************ Stage Symbols
 	
-	public CEFSceneN():void
+	constructor() 
 	{
-		CUtil.trace("CEFSceneN:Constructor");
-		
-		this.SreplaySession.addEventListener(CEFMouseEvent.WOZCLICK, this.doReplay);
+		super();
+
+		CUtil.trace("CEFScene0:Constructor");
 	}
 
-	public doReplay(evt:CEFEvent) : void
-	{			
-		// relay the entire tutor interaction
-		//
-		CEFRoot.gTutor.replayLiveStream();			
-	}										
-	
-	
 	// Walk the WOZ Objects to capture their default state
 	//
 	public captureDefState(TutScene:Object ) : void 
@@ -73,3 +55,4 @@ export class CEFSceneN extends CEFSceneSequence
 	}
 				
 }
+

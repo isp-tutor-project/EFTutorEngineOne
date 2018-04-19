@@ -22,7 +22,7 @@ import { CEFMouseMask }         from "./CEFMouseMask";
 
 import { CSceneGraphNavigator } from "../scenegraph/CSceneGraphNavigator";
 import { CUtil } 		        from "../util/CUtil";
-import { CEFNavDemo }           from "../scenes/CEFNavDemo";
+import { CEFNavDemo }           from "../thermite/scene/CEFNavDemo";
 import { CDialogDesignPrompt1 } from "../dialogs/CDialogDesignPrompt1";
 
 

@@ -22,12 +22,9 @@ export class CLogManagerType
 	public static readonly LOGEVENTS:number     = 2;			// Log Events to Server
 	public static readonly RECLOGEVENTS:number  = 3;			// Record and Log all events
 	
-	public static readonly MODE_JSON:String    = "MODE_JSON";
+	public static readonly MODE_JSON:string    = "MODE_JSON";
 	
-	public static readonly JSON_ACKLOG:String  = "JSON_ACKLOG";
-	public static readonly JSON_ACKTERM:String = "JSON_ACKTERM";
+	public static readonly JSON_ACKLOG:string  = "JSON_ACKLOG";
+	public static readonly JSON_ACKTERM:string = "JSON_ACKTERM";
 	
-	readonlyructor()
-	{
-	}
 }

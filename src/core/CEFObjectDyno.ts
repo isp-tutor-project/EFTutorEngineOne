@@ -19,7 +19,7 @@ import { CEFTutorRoot } from "./CEFTutorRoot";
 import { CEFObject } 	from "./CEFObject";
 import { CEFScene } 	from "./CEFScene";
 
-import { ILogManager } 	from "../network/ILogManager";
+import { ILogManager } 	from "../managers/ILogManager";
 
 import { CUtil } 		from "../util/CUtil";
 

@@ -1,4 +1,7 @@
 {
+    "exclude": [
+        "src/managers/*"
+    ],
     "include": [
         "src/**/*"
     ],
@@ -8,7 +11,7 @@
 		"sourceMap": true,
 		"declaration": false,
         // "outDir": "./lib",
-        "outFile": "../EFTutorLoader/dist/TutorEngineOne.js",        
+        "outFile": "../dist/TutorEngineOne.js",        
 		"lib": [ "es2015", "dom" ],	
         "noImplicitAny": true,
         "removeComments":true

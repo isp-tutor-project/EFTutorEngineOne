@@ -1,10 +1,4 @@
-﻿import { CEFSceneSequence } from "../core/CEFSceneSequence";
-import { CEFEvent } from "../events/CEFEvent";
-import { CEFNavEvent } from "../events/CEFNavEvent";
-import { CUtil } from "../util/CUtil";
-import { CEFLabelButton } from "../controls/CEFLabelButton";
-
-//*********************************************************************************
+﻿//*********************************************************************************
 //
 //  Copyright(c) 2008,2018 Kevin Willows. All Rights Reserved
 //
@@ -21,6 +15,12 @@ import { CEFLabelButton } from "../controls/CEFLabelButton";
 //*********************************************************************************
 
 //** Imports 
+
+import { CEFSceneSequence } 	from "../../core/CEFSceneSequence";
+import { CEFEvent } 			from "../../events/CEFEvent";
+import { CEFNavEvent } 			from "../../events/CEFNavEvent";
+import { CUtil } 				from "../../util/CUtil";
+import { CEFLabelButton } 		from "../../controls/CEFLabelButton";
 
 import MovieClip     	  = createjs.MovieClip;
 import TextField    	  = createjs.Text;

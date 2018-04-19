@@ -21,7 +21,7 @@ import { CEFDoc }			from "./CEFDoc";
 import { CEFObject } 	    from "./CEFObject";	
 import { CEFCursorProxy } 	from "./CEFCursorProxy";	
 
-import { ILogManager }      from "../network/ILogManager";
+import { ILogManager }      from "../managers/ILogManager";
 
 import { CEFEvent } 		from "../events/CEFEvent";
 import { CEFTutorRoot }     from "./CEFTutorRoot";

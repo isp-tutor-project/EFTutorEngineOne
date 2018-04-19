@@ -17,14 +17,15 @@
 
 import { CEFRoot } 			from "./CEFRoot";
 import { CEFObject } 		from "./CEFObject";
+import { CEFTutorRoot } 	from "./CEFTutorRoot";
 
 import { CEFActionEvent } 	from "../events/CEFActionEvent";
 import { CEFScriptEvent } 	from "../events/CEFScriptEvent";
-import { CUtil } 			from "../util/CUtil";
+import { CEFSeekEvent }		from "../events/CEFSeekEvent";
 
-import { ILogManager } from "../network/ILogManager";
-import { CEFTutorRoot } from "./CEFTutorRoot";
-import { CEFSeekEvent } from "../events/CEFSeekEvent";
+import { ILogManager }  	from "../managers/ILogManager";
+
+import { CUtil } 			from "../util/CUtil";
 
 import DisplayObject      = createjs.DisplayObject;
 

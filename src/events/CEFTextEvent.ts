@@ -17,10 +17,10 @@
 
 //** Imports
 
-import Event = createjs.Event;
-
-import { CUtil } from "../util/CUtil";
 import { CEFEvent } from "./CEFEvent";
+import { CUtil } from "../util/CUtil";
+
+import Event = createjs.Event;
 
 
 

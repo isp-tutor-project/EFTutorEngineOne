@@ -16,16 +16,19 @@
 
 //** Imports
 
-import { CEFSceneNavigator } from "../core/CEFSceneNavigator";
-import { CUtil } from "../util/CUtil";
-import { CEFScene } from "../core/CEFScene";
-import { ILogManager } from "../network/ILogManager";
-import { CEFObject } from "../core/CEFObject";
-import { CEFRoot } from "../core/CEFRoot";
+import { CEFTutorRoot } 		from "../core/CEFTutorRoot";
+import { CEFSceneNavigator } 	from "../core/CEFSceneNavigator";
+import { CEFScene } 			from "../core/CEFScene";
+import { CEFObject } 			from "../core/CEFObject";
+import { CEFRoot } 				from "../core/CEFRoot";
 
+import { ILogManager } 			from "../managers/ILogManager";
+
+import { CUtil } 				from "../util/CUtil";
 
 import DisplayObject 		  = createjs.DisplayObject;
-import { CEFTutorRoot } from "../core/CEFTutorRoot";
+
+
 
 
 export class CEFNavPanel extends CEFSceneNavigator

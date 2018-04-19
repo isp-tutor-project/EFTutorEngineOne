@@ -28,9 +28,9 @@
 
 //** Imports
 
-import { CEFRoot } 				from "../core/CEFRoot";
-import { CUtil } 				from "../util/CUtil";
-import { CEFSceneSequence } 	from "../core/CEFSceneSequence";
+import { CEFRoot } 				from "../../core/CEFRoot";
+import { CUtil } 				from "../../util/CUtil";
+import { CEFSceneSequence } 	from "../../core/CEFSceneSequence";
 
 import MovieClip     		  = createjs.MovieClip;
 

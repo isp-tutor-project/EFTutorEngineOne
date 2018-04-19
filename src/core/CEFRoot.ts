@@ -21,7 +21,7 @@ import { CEFScene }     from "./CEFScene";
 import { CEFTutorRoot } from "./CEFTutorRoot";
 import { CEFNavigator } from "./CEFNavigator";
 
-import { ILogManager }  from "../network/ILogManager";
+import { ILogManager }  from "../managers/ILogManager";
 
 import { CUtil } 		from "../util/CUtil";
 

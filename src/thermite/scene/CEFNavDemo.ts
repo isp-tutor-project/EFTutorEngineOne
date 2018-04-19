@@ -17,11 +17,11 @@
 
 //** Imports
 
-import { CEFRoot } 				from "../core/CEFRoot";
-import { CEFDoc } 				from "../core/CEFDoc";
-import { CEFSceneSequence } 	from "../core/CEFSceneSequence";
-import { CEFNavEvent } 			from "../events/CEFNavEvent";
-import { CUtil } 				from "../util/CUtil";
+import { CEFRoot } 				from "../../core/CEFRoot";
+import { CEFDoc } 				from "../../core/CEFDoc";
+import { CEFSceneSequence } 	from "../../core/CEFSceneSequence";
+import { CEFNavEvent } 			from "../../events/CEFNavEvent";
+import { CUtil } 				from "../../util/CUtil";
 
 import MovieClip     		  = createjs.MovieClip;
 

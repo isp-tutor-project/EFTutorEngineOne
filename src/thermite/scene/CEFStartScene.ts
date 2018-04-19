@@ -16,12 +16,12 @@
 
 //** Imports
 
-import { CEFSceneSequence } from "../core/CEFSceneSequence";
+import { CEFRoot } 			from "../../core/CEFRoot";
+import { CEFSceneSequence } from "../../core/CEFSceneSequence";
+import { CUtil } 			from "../../util/CUtil";
 
 import MovieClip = createjs.MovieClip;
 import TextField = createjs.Text;
-import { CUtil } from "../util/CUtil";
-import { CEFRoot } from "../core/CEFRoot";
 
 
 

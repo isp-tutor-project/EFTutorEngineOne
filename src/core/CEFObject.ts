@@ -25,7 +25,7 @@ import { CEFScene }  		from "./CEFScene";
 
 import { CEFEvent }     	from "../events/CEFEvent";
 
-import { ILogManager }  	from "../network/ILogManager";
+import { ILogManager }  	from "../managers/ILogManager";
 
 import { CUtil } 			from "../util/CUtil";
 

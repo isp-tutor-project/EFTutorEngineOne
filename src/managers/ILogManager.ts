@@ -36,11 +36,9 @@ export interface ILogManager
 	
 	fLogging :number;		
 	
-	account(_account:object): void;
+	account: object;
 		
-	fTutorPart() :string;		
-	
-	fTutorPart(newval:string) : void;		
+	fTutorPart:string;		
 	
 	setQueueStreamState(startQueue:boolean) : void;
 	
@@ -62,7 +60,7 @@ export interface ILogManager
 	 * Determine if a session is active
 	 * 
 	 */
-	isSessionActive() :boolean;
+	isSessionActive: boolean;
 	
 	
 	recycleConnection(fRestart:boolean) : void;
@@ -71,29 +69,27 @@ export interface ILogManager
 	 * Determine if a session is active
 	 * 
 	 */
-	sessionStatus() :string;
+	sessionStatus: string;
 			
 	/**
 	 * Determine if a connection is active or pending
 	 * 
 	 */
-	connectionActive() :boolean;
+	connectionActive: boolean;
 	
-	getConnectionState() :string;
+	getConnectionState(): string;
 		
 	/**
 	 * Determine if a connection is active or pending
 	 * 
 	 */
-	connectionActiveOrPending() :boolean;
+	connectionActiveOrPending: boolean;
 			
-	sessionID() :string;			
+	sessionID: string;			
 	
-	sessionHost() :string;
-	sessionHost(newHost:string) : void;		
+	sessionHost: string;
 	
-	sessionPort() : number;
-	sessionPort(newPort:number) : void;		
+	sessionPort: number;
 	
 	/**
 	 * Prior to starting a session, decide whether we are using queued data
@@ -200,20 +196,17 @@ export interface ILogManager
 ///**** State Management
 	
 	
-	isDataStreaming() :boolean; 
+	isDataStreaming: boolean; 
 	
+	isQueueStreaming: boolean; 
 	
-	isQueueStreaming() :boolean; 
-	
-	
-	queueLength() : number; 
+	queueLength: number; 
 
-	queuePosition() : number; 
+	queuePosition: number; 
 	
-	isSending() :boolean; 
-	
-	
-	isConnected() :boolean; 
+	isSending: boolean; 
+		
+	isConnected: boolean; 
 	
 
 ///**** State Management

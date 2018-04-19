@@ -16,6 +16,8 @@
 
 //** Imports
 
+import { CEFEvent } from "./CEFEvent";
+
 import Event = createjs.Event;
 
 

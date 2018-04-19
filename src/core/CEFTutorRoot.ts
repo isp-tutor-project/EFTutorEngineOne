@@ -27,14 +27,14 @@ import { CEFScene } 		from "./CEFScene";
 import { CEFSceneSequence } from "./CEFSceneSequence";
 import { CEFTitleBar } 		from "./CEFTitleBar";
 
-import { CEFScene0 } 		from "../scenes/CEFScene0";
+import { CEFScene0 } 		from "../thermite/scene/CEFScene0";
 
 import { CEFEvent } 		from "../events/CEFEvent";
 import { CEFNavEvent } 		from "../events/CEFNavEvent";
 import { CEFMouseEvent } 	from "../events/CEFMouseEvent";
 
 import { CEFKTNode } 		from "../kt/CEFKTNode";
-import { CLogManagerType } 	from "../network/CLogManagerType";
+import { CLogManagerType } 	from "../managers/CLogManagerType";
 import { CEFKeyboardEvent } from "../events/CEFKeyboardEvent";
 
 import { CUtil } 			from "../util/CUtil";
