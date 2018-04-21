@@ -67,7 +67,9 @@ export class CEFDoc extends CEFRoot
 	
 	public logFrameID = 0;
 	public logStateID = 0;
+
 	
+
 	constructor()
 	{
 		super();
@@ -167,9 +169,9 @@ export class CEFDoc extends CEFRoot
 	public connectFrameCounter(fCon:boolean)
 	{
 		if (fCon)
-			addEventListener(CEFEvent.ENTER_FRAME, this.doEnterFrame);											
+			this.on(CEFEvent.ENTER_FRAME, this.doEnterFrame);											
 		else
-			removeEventListener(CEFEvent.ENTER_FRAME, this.doEnterFrame);								
+			this.off(CEFEvent.ENTER_FRAME, this.doEnterFrame);								
 	}
 
 

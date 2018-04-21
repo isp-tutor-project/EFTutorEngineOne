@@ -33,19 +33,19 @@ import { CUtil } 			from "../util/CUtil";
 
 export class CSceneGraph extends CGraphNode
 {		
-	private _nodes:any       = new Object;		
-	private _modules:any     = new Object;
-	private _actions:any     = new Object;
-	private _graphs:any      = new Object;
-	private _constraints:any = new Object;
-	private _skillSet:any	= new Object;
+	private _nodes:any       = {};		
+	private _modules:any     = {};
+	private _actions:any     = {};
+	private _graphs:any      = {};
+	private _constraints:any = {};
+	private _skillSet:any	= {};
 
 	private _currNode:CGraphNode;
 	private _currScene:CGraphScene;
 	private _prevScene:CGraphScene;
 
-	private static _pFeatures:any    = new Object; 
-	private static _pConstraints:any = new Object; 
+	private static _pFeatures:any    = {}; 
+	private static _pConstraints:any = {}; 
 	
 	
 	/**
@@ -77,7 +77,7 @@ export class CSceneGraph extends CGraphNode
 		// Capture the polymorphic node state
 		
 		obj['currNodeID'] = this._currNode.id;			
-		obj['currNode']   = this._currNode.captureGraph(new Object);
+		obj['currNode']   = this._currNode.captureGraph({});
 		
 		return obj;
 	}

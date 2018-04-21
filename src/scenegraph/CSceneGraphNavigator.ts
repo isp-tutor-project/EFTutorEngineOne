@@ -56,7 +56,7 @@ export class CSceneGraphNavigator extends CEFNavigator
 	
 	private _xType:string;
 	
-	private _iterations:any = new Object;
+	private _iterations:any = {};
 
 	private _profileData:any;
 	
@@ -491,11 +491,11 @@ export class CSceneGraphNavigator extends CEFNavigator
 				
 				if(_progressData == null)
 				{
-					_progressData 	  = new Object;			
-					this._profileData = new Object;				 
+					_progressData 	  = {};			
+					this._profileData = {};				 
 																				
-					_progressData['reify']           = new Object; 	// 'reify' is the portion that is parsed for update fields - it and any sub-documents  			
-					_progressData['reify']['phases'] = new Object;		// should be either CObjects, MObjects or AS3 primitive data types String, Number,int,Boolean,Null,void
+					_progressData['reify']           = {}; 	// 'reify' is the portion that is parsed for update fields - it and any sub-documents  			
+					_progressData['reify']['phases'] = {};		// should be either CObjects, MObjects or AS3 primitive data types String, Number,int,Boolean,Null,void
 					
 					_progressData['reify']['phases'][CEFRoot.sessionAccount.session.profile_Index] = this._profileData;
 					
@@ -504,7 +504,7 @@ export class CSceneGraphNavigator extends CEFNavigator
 				
 				this._profileData.progress = CMongo._INPROGRESS;								
 				
-				this._profileData['stateData']['sceneGraph'] = CSceneGraphNavigator._rootGraph.captureGraph(new Object);
+				this._profileData['stateData']['sceneGraph'] = CSceneGraphNavigator._rootGraph.captureGraph({});
 				
 				this._profileData['stateData']['ktSkills']  = CEFRoot.gTutor.ktSkills;
 				this._profileData['stateData']['globals']   = this.globals;

@@ -99,7 +99,7 @@ export class CWOZProdSys
 	
 	public resetWorkMem() : void
 	{
-		this.wm = new Object;			
+		this.wm = {};			
 	}
 	
 	public setWorkMem(prop:string, value:string) : void

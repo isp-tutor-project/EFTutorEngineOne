@@ -31,12 +31,12 @@ import { CEFSceneSequence }			from "../core/CEFSceneSequence";
 
 export class CAnimationGraph extends CAnimationNode 
 {
-	private _nodes:any       = new Object;		
-	private _modules:any     = new Object;
-	private _choicesets:any  = new Object;
-	private _actions:any     = new Object;
-	private _graphs:any      = new Object;
-	private _constraints:any = new Object;		
+	private _nodes:any       = {};		
+	private _modules:any     = {};
+	private _choicesets:any  = {};
+	private _actions:any     = {};
+	private _graphs:any      = {};
+	private _constraints:any = {};		
 	
 	private _currNode:CAnimationNode;
 	private _currAnimation:string;
@@ -46,7 +46,7 @@ export class CAnimationGraph extends CAnimationNode
 	
 	public  _graphFactory:any;
 
-	public static _pFeatures:any = new Object; 
+	public static _pFeatures:any = {}; 
 	
 	
 	public CAnimationGraph()

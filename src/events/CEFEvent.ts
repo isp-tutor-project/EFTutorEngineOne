@@ -57,7 +57,7 @@ export class CEFEvent extends Event
 
 	public captureLogState(obj:any = null) : Object
 	{
-		if(obj == null) obj = new Object;
+		if(obj == null) obj = {};
 		
 		obj['target']     = this.tarObjID;
 		obj['type']       = this.type;

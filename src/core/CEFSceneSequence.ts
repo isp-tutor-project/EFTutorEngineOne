@@ -650,7 +650,7 @@ export class CEFSceneSequence extends CEFScene
 		//@@ Emit State Log Packet for this scene			
 		// Parse the scenedescr.xml for logging procedures for this scene
 		
-		this._sceneData = new Object;			
+		this._sceneData = {};			
 		
 		if((CEFRoot.gSceneConfig != null) && (CEFRoot.gSceneConfig.scenedata[name].logging != undefined))
 		{

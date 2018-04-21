@@ -1,22 +1,9 @@
 //*********************************************************************************
-//                                                                        
-//         CARNEGIE MELLON UNIVERSITY PROPRIETARY INFORMATION             
-//  
-//  This software is supplied under the terms of a license agreement or   
-//  nondisclosure agreement with Carnegie Mellon University and may not   
-//  be copied or disclosed except in accordance with the terms of that   
-//  agreement.    
-//  
-//   Copyright(c) 2012 Carnegie Mellon University. All Rights Reserved.   
-//                                                                        
-//  File:      CTutorLoader.as
-//                                                                        
-//  Purpose:   CTutorLoader object implementation
-//                                                                        
-//  Author(s): Kevin Willows                                                           
-//  
-//  History: File Creation Dec 07 2012 
-//                                                                        
+//
+//  Copyright(c) 2008,2018 Kevin Willows. All Rights Reserved
+//
+//	License: Proprietary
+//
 //  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 //  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 //  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -32,20 +19,31 @@
 import { CLoadablePackage } from "./CLoadablePackage";
 import { CLoadableModule }  from "./CLoadableModule";
 import { CAuthenticator }   from "./CAuthenticator";
-import { ILogManager }      from "../network/ILogManager";
-import { CLogManagerType }  from "../network/CLogManagerType";
-import { CUtil } from "../util/CUtil";
+import { CLogManager }      from "./CLogManager";
+
+import { CAuthEvent }       from "../events/CAuthEvent";
+import { CLogEvent }        from "../events/CLogEvent";
+
+import { CURLLoader }       from "../network/CURLLoader";
+
+import { ILogManager }      from "../managers/ILogManager";
+import { CLogManagerType }  from "../managers/CLogManagerType";
+
+import { CUtil }            from "../util/CUtil";
+import { CIOErrorEvent } from "../events/CIOErrorEvent";
+import { CURLRequest } from "../network/CURLRequest";
+
 
 
 export class CSessionManager 
 {
             
-    private _useHeadPhoneCheck:Boolean = false;		// initialized from loader spec
-    private _useSoundCheck:Boolean 	   = false;		// initialized from loader spec	
-    private _useFullScreen:Boolean     = false;		// initialized from loader spec
+    private _useHeadPhoneCheck:boolean = false;		// initialized from loader spec
+    private _useSoundCheck:boolean 	   = false;		// initialized from loader spec	
+    private _useFullScreen:boolean     = false;		// initialized from loader spec
     
-    private _forceFullScreen:Boolean = true;		// Set this to true to force fullscreen mode
-    private _sndCheckDone:Boolean 	 = true;		// Set this to true to bypass sound checks
+    private _forceFullScreen:boolean = true;		// Set this to true to force fullscreen mode
+    private _sndCheckDone:boolean 	 = true;		// Set this to true to bypass sound checks
 
     private _loadablePackage:CLoadablePackage = new CLoadablePackage();
     private _loadableModule:CLoadableModule   = null;		
@@ -61,15 +59,15 @@ export class CSessionManager
     // For Browser Manager info see --- http://help.adobe.com/en_US/flex/using/WS2db454920e96a9e51e63e3d11c0bf64e50-7ff4.html
     
     private _urlObject:Object;
-    private _bootLoader:String = "LOCAL";			// This is either LOCAL or REMOTE
-    private _bootUI:String;							// If bootLoader is LOCAL - this is the startup UI panel
+    private _bootLoader:string = "LOCAL";			// This is either LOCAL or REMOTE
+    private _bootUI:string;							// If bootLoader is LOCAL - this is the startup UI panel
     
     private _logManager:ILogManager;
 
     private _Authenticator:CAuthenticator;
     
     //		
-    // Sessions can be in one of several finite states.  It listens to the _logManager to 
+    // Sessions can be in one of several finite states.  It listens to the this._logManager to 
     // determine state transitions. 
     //
     // SESSION_UNAUTHENTICATED:
@@ -96,59 +94,59 @@ export class CSessionManager
     //   connection.
     //
     
-    private _sessionState:String    = SESSION_INITIALSTATE;
-    private _oldSessionState:String = SESSION_INITIALSTATE;
-    private _oldCurrentState:String;
+    private _sessionState:string    = CSessionManager.SESSION_INITIALSTATE;
+    private _oldSessionState:string = CSessionManager.SESSION_INITIALSTATE;
+    private _oldcurrentState:string;
 
-    private static readonly SESSION_INITIALSTATE:String 		= "session_initialstate";
+    private static readonly SESSION_INITIALSTATE:string 		= "session_initialstate";
     
-    private static readonly SESSION_BOOTSETTINGS_REQUEST:String = "session_bootsettings_request";
+    private static readonly SESSION_BOOTSETTINGS_REQUEST:string = "session_bootsettings_request";
             
-    private static readonly SESSION_UNAUTHENTICATED:String 	    = "session_unauthenticated";
-    private static readonly SESSION_AUTH_GROUPID:String		    = "SESSION_AUTH_GROUPID";
-    private static readonly SESSION_AUTH_STUDY:String			= "SESSION_AUTH_STUDY";		
-    private static readonly SESSION_AUTH_USERPWD:String		    = "SESSION_AUTH_USERPWD";
-    private static readonly SESSION_DEMO:String				    = "SESSION_DEMO";
-    private static readonly SESSION_PUBLIC_PORTAL:String		= "SESSION_PUBLIC_PORTAL";
-    private static readonly SESSION_AUTH_ADMIN:String			= "SESSION_AUTH_ADMIN";
+    private static readonly SESSION_UNAUTHENTICATED:string 	    = "session_unauthenticated";
+    private static readonly SESSION_AUTH_GROUPID:string		    = "SESSION_AUTH_GROUPID";
+    private static readonly SESSION_AUTH_STUDY:string			= "SESSION_AUTH_STUDY";		
+    private static readonly SESSION_AUTH_USERPWD:string		    = "SESSION_AUTH_USERPWD";
+    private static readonly SESSION_DEMO:string				    = "SESSION_DEMO";
+    private static readonly SESSION_PUBLIC_PORTAL:string		= "SESSION_PUBLIC_PORTAL";
+    private static readonly SESSION_AUTH_ADMIN:string			= "SESSION_AUTH_ADMIN";
     
-    private static readonly SESSION_AUTHENTICATING:String  	    = "session_authenticating";		
-    private static readonly SESSION_AUTHENTICATED:String   	    = "session_authenticated";
-    private static readonly SESSION_INITIALIZED:String			= "session_initialized";
-    private static readonly SESSION_LOADING:String				= "session_loading";
-    private static readonly SESSION_LOAD:String				    = "session_load";
-    private static readonly SESSION_STUDYLOADER_REQUEST:String	= "SESSION_STUDYLOADER_REQUEST";
-    private static readonly SESSION_QUERY_BOOTLOADER:String     = "SESSION_QUERY_BOOTLOADER";
+    private static readonly SESSION_AUTHENTICATING:string  	    = "session_authenticating";		
+    private static readonly SESSION_AUTHENTICATED:string   	    = "session_authenticated";
+    private static readonly SESSION_INITIALIZED:string			= "session_initialized";
+    private static readonly SESSION_LOADING:string				= "session_loading";
+    private static readonly SESSION_LOAD:string				    = "session_load";
+    private static readonly SESSION_STUDYLOADER_REQUEST:string	= "SESSION_STUDYLOADER_REQUEST";
+    private static readonly SESSION_QUERY_BOOTLOADER:string     = "SESSION_QUERY_BOOTLOADER";
     
-    private static readonly SESSION_OPEN_CHANNEL:String		    = "session_open_channel";
+    private static readonly SESSION_OPEN_CHANNEL:string		    = "session_open_channel";
     
-    private static readonly SESSION_START:String				= "session_start";
-    private static readonly SESSION_HEADPHONECHECK:String		= "session_headphonecheck";
-    private static readonly SESSION_SOUNDCHECK:String			= "session_soundcheck";
+    private static readonly SESSION_START:string				= "session_start";
+    private static readonly SESSION_HEADPHONECHECK:string		= "session_headphonecheck";
+    private static readonly SESSION_SOUNDCHECK:string			= "session_soundcheck";
     
-    private static readonly SESSION_FULLSCREENCHECK:String		= "session_fullscreencheck";
-    private static readonly SESSION_FULLSCREENPROMPT:String	    = "session_fullscreenprompt";
-    private static readonly SESSION_ALLOWFULLSCREEN:String		= "session_allowfullscreen";
-    private static readonly SESSION_ENTERFULLSCREEN:String		= "session_enterfullscreen";
+    private static readonly SESSION_FULLSCREENCHECK:string		= "session_fullscreencheck";
+    private static readonly SESSION_FULLSCREENPROMPT:string	    = "session_fullscreenprompt";
+    private static readonly SESSION_ALLOWFULLSCREEN:string		= "session_allowfullscreen";
+    private static readonly SESSION_ENTERFULLSCREEN:string		= "session_enterfullscreen";
     
-    private static readonly SESSION_INPROGRESS:String			= "session_inprogress";
-    private static readonly SESSION_INTERRUPTED:String     	    = "session_interrupted";	
-    private static readonly SESSION_RESUMED:String		     	= "session_resumed";	
-    private static readonly SESSION_TERMINATED:String      	    = "session_terminating";
-    private static readonly SESSION_FLUSHING:String			    = "SESSION_FLUSHING";
+    private static readonly SESSION_INPROGRESS:string			= "session_inprogress";
+    private static readonly SESSION_INTERRUPTED:string     	    = "session_interrupted";	
+    private static readonly SESSION_RESUMED:string		     	= "session_resumed";	
+    private static readonly SESSION_TERMINATED:string      	    = "session_terminating";
+    private static readonly SESSION_FLUSHING:string			    = "SESSION_FLUSHING";
                     
-    private _enableConnectionManager:Boolean      		= false;
-    private _enableConnectionManagerUser:Boolean  		= false;
-    private _enableConnectionManagerDebug:Boolean 		= false;
+    private _enableConnectionManager:boolean      		= false;
+    private _enableConnectionManagerUser:boolean  		= false;
+    private _enableConnectionManagerDebug:boolean 		= false;
     
-    private static readonly CONNECTION_MANAGER:String 			= "connectionmanager";	
-    private static readonly CONNECTION_DEBUG:String   			= "connectiondebugger";	
-    private static readonly CONNECTION_DISABLE:String 			= "connectiondisable";	
+    private static readonly CONNECTION_MANAGER:string 			= "connectionmanager";	
+    private static readonly CONNECTION_DEBUG:string   			= "connectiondebugger";	
+    private static readonly CONNECTION_DISABLE:string 			= "connectiondisable";	
     
-    private traceMode:Boolean = true;
-    private _inTutor:Boolean = false;
+    private traceMode:boolean = true;
+    private _inTutor:boolean = false;
 
-    private _bootSource:String;						// Whether we are using webserver files or db queries for boot info 
+    private _bootSource:string;						// Whether we are using webserver files or db queries for boot info 
     
     private _loader:any;
     private _phase:any;
@@ -160,35 +158,35 @@ export class CSessionManager
     
     private _account:any;
     
-    private remoteMode:Boolean = false;
+    private remoteMode:boolean = false;
     
-    private libPath:String;
-    private modPath:String;
+    private libPath:string;
+    private modPath:string;
     // private RSLs:Array<SWFLoader> = new Vector.<SWFLoader>;
 
-    private fileLoader:CFXFileLoader;
-    private LOADER_URL:String = "./loader.json";
+    private fileLoader:CURLLoader;
+    private LOADER_URL:string = "./loader.json";
     
     private interfaceJSON:any;
-    private _accountMode:String;
-    private _stateInited:Boolean = false;
+    private _accountMode:string;
+    private _stateInited:boolean = false;
     
     // reconnection support
-    private pProtocolNext:String;
-    private pProtocolState:String;
+    private pProtocolNext:string;
+    private pProtocolState:string;
     
     
     // Google Analytics support
     
     private _tracker:any;//AnalyticsTracker;
-    private _trackerDebug:Boolean = false;
+    private _trackerDebug:boolean = false;
             
-    public static readonly WOZLIVE:String	= "WOZLIVE";
-    public static readonly WOZREPLAY:String	= "WOZREPLAY";		
+    public static readonly WOZLIVE:string	= "WOZLIVE";
+    public static readonly WOZREPLAY:string	= "WOZREPLAY";		
 
     // Make initFragment available to all 
     
-    static public _initFragment:String;					// Loader override support
+    public static _initFragment:string;					// Loader override support
     
     
     
@@ -201,7 +199,8 @@ export class CSessionManager
     {                    
         // Attach to the logManager instance and start listening for session protocol events.
         
-        this._logManager = CLogManagerType.getInstance();
+        this._logManager = new CLogManager({});
+        this._logManager = CLogManager.getInstance();
 
         // Get singleton authentication object
         
@@ -221,7 +220,7 @@ export class CSessionManager
         addEventListener(Event.PREINITIALIZE, this.preInitialize);  
         addEventListener(Event.CREATION_COMPLETE, this.creationCompleteHandler);  
         addEventListener(Event.ADDED_TO_STAGE, this.onStageHandler);						
-        addEventListener(Event.CURRENT_STATE_CHANGE, this.currentStateChanged );			
+        addEventListener(Event.CURRENT_STATE_CHANGE, this.this.currentStateChanged );			
     }
 
 
@@ -251,12 +250,12 @@ export class CSessionManager
         // If this fails we try and get it from the DB service - interfaceSpecErrorHandler
         // TODO: Currently this is legacy code but should be updated to allow JSON file based operation without DB  
         
-        if(_initFragment == "")
+        if(this._initFragment == "")
         {
-            fileLoader = new CFXFileLoader;
-            fileLoader.addEventListener(Event.COMPLETE, interfaceSpecLoaded);
-            fileLoader.addEventListener(IOErrorEvent.IO_ERROR, interfaceSpecErrorHandler);
-            fileLoader.loadFile(LOADER_URL);
+            this.fileLoader = new CURLLoader;
+            this.fileLoader.addEventListener(Event.COMPLETE, this.interfaceSpecLoaded);
+            this.fileLoader.addEventListener(CIOErrorEvent.IO_ERROR, this.interfaceSpecErrorHandler);
+            this.fileLoader.load(new CURLRequest(this.LOADER_URL);
         }
     }
     
@@ -297,17 +296,17 @@ export class CSessionManager
     
     
     /**
-     *  Note: currentState is called as part of the readonlyruction process but after the readonlyructor is complete.
-     * 	      currentState is not validated (commitCurrentState) until the UIComponent is "initialize"d  which happens just prior to
+     *  Note: this.currentState is called as part of the construction process but after the constructor is complete.
+     * 	      this.currentState is not validated (commitcurrentState) until the UIComponent is "initialize"d  which happens just prior to
      *        Event.CREATION_COMPLETE.
-     * 		  We want currentState to be correct before the children are created in "initialize" so we need
+     * 		  We want this.currentState to be correct before the children are created in "initialize" so we need
      *        to do browser initialization in the PreInitialize phase to get the browser fragment
      * 
      *  @private 
      */
-    public set currentState(value:String)
+    public set currentState(value:string)
     {
-        this.currentState = value;
+        this.this.currentState = value;
         
         // This is called when the object is created to init the state - we ignore this 
         // so we don't change the URL fragment for this default action.
@@ -329,7 +328,7 @@ export class CSessionManager
         
         // Init the browser manager from the singleton
         
-        let urlObject:Object = new Object;
+        let urlObject:Object = {};
         
         // e.g. simulate following URL			
         //http://go.tedtutor.org/#home=pubPortal;pubPortal=Student_SignIn;classid=OOL-PAU-SGO
@@ -359,7 +358,7 @@ export class CSessionManager
         // urlObject.pubPortal = 'Student_SignIn';
         // urlObject.classid   = 'PIL-JMT-GKS';			// Format 'MZF-ADT-UXY'
         
-        // let newFragment:String = URLUtil.objectToString(urlObject);
+        // let newFragment:string = URLUtil.objectToString(urlObject);
         
         
 //*#*#*#  See TutorLoader-config.xml
@@ -377,7 +376,7 @@ export class CSessionManager
     }
     
     
-    private initBrowserMan(newFragment:String) : void
+    private initBrowserMan(newFragment:string) : void
     {
         // let urlObject:Object;
         
@@ -386,7 +385,7 @@ export class CSessionManager
         
         // // This is required prior to acquiring the initfragment otherwise it will return ""
         // // If init finds a fragment it will fire browserURLchange - this will potentially result
-        // // in a call to currentState to reflect the URL
+        // // in a call to this.currentState to reflect the URL
         // //
         // _browserManager.addEventListener(BrowserChangeEvent.BROWSER_URL_CHANGE, browserURLchange);			
         // _browserManager.init(newFragment, "Welcome to TED!");
@@ -401,7 +400,7 @@ export class CSessionManager
         
         // // Record initial loader override
         // //
-        // _initFragment = _browserManager.fragment;
+        // this._initFragment = _browserManager.fragment;
                     
         return;
     }
@@ -411,155 +410,155 @@ export class CSessionManager
      *  This is Dispatched when the URL is changed by the browser - back / next / manually
      * 
      */
-    private browserURLchange(evt:BrowserChangeEvent) : void
-    {
-        let urlObject:Object;
+    // private browserURLchange(evt:BrowserChangeEvent) : void
+    // {
+    //     let urlObject:Object;
         
-        trace("browserURLchange:" + _browserManager.fragment);
+    //     CUtil.trace("browserURLchange:" + _browserManager.fragment);
         
-        // If we are in the tutor We want to backup into the pubPortal
+    //     // If we are in the tutor We want to backup into the pubPortal
         
-        if(_inTutor)
-        {
-            _inTutor     = false;
-            currentState = "pubPortal";
+    //     if(this._inTutor)
+    //     {
+    //         this._inTutor     = false;
+    //         this.currentState = "pubPortal";
             
-            _Authenticator.abandonConnection();
-        }
-        else
-        {
-            parseURL();
-        }
-    }
+    //         this._Authenticator.abandonConnection();
+    //     }
+    //     else
+    //     {
+    //         parseURL();
+    //     }
+    // }
     
     
-    private parseURL() : Boolean
-    {
-        let successFlag:Boolean = false;
-        let urlObject:Object;
+    // private parseURL() :boolean
+    // {
+    //     let successFlag:boolean = false;
+    //     let urlObject:Object;
         
-        //**** iniitalize the page from the browser URL fragment if extant
+    //     //**** iniitalize the page from the browser URL fragment if extant
         
-        if(_browserManager.fragment != "")
-            urlObject = URLUtil.stringToObject(_browserManager.fragment);
-        else
-            urlObject = new Object;
+    //     if(_browserManager.fragment != "")
+    //         urlObject = URLUtil.stringToObject(_browserManager.fragment);
+    //     else
+    //         urlObject = {};
         
-        if(urlObject.demo)
-        {
-            switch(urlObject.demo)
-            {
-                case "pretest":
-                    _Authenticator.groupID = "GO_GUEST";					
-                    _Authenticator.userPW  = "GO_GUEST";
-                    _Authenticator.userID  = "PREASSESS";
+    //     if(urlObject.demo)
+    //     {
+    //         switch(urlObject.demo)
+    //         {
+    //             case "pretest":
+    //                 this._Authenticator.groupID = "GO_GUEST";					
+    //                 this._Authenticator.userPW  = "GO_GUEST";
+    //                 this._Authenticator.userID  = "PREASSESS";
                     
-                    _Authenticator.addEventListener(CAuthEvent.AUTH_STATUS, sessionHandler);
+    //                 this._Authenticator.addEventListener(CAuthEvent.AUTH_STATUS, sessionHandler);
                     
-                    _Authenticator.authUser();
-                    break;
+    //                 this._Authenticator.authUser();
+    //                 break;
                 
-                case "posttest":
-                    _Authenticator.groupID = "GO_GUEST";					
-                    _Authenticator.userPW  = "GO_GUEST";
-                    _Authenticator.userID  = "POSTASSESS";
+    //             case "posttest":
+    //                 this._Authenticator.groupID = "GO_GUEST";					
+    //                 this._Authenticator.userPW  = "GO_GUEST";
+    //                 this._Authenticator.userID  = "POSTASSESS";
                     
-                    _Authenticator.addEventListener(CAuthEvent.AUTH_STATUS, sessionHandler);
+    //                 this._Authenticator.addEventListener(CAuthEvent.AUTH_STATUS, sessionHandler);
                     
-                    _Authenticator.authUser();
-                    break;
+    //                 this._Authenticator.authUser();
+    //                 break;
                                     
-                case "assess":
-                    _Authenticator.groupID = "GO_GUEST";					
-                    _Authenticator.userPW  = "GO_GUEST";
-                    _Authenticator.userID  = "ASSESS";
+    //             case "assess":
+    //                 this._Authenticator.groupID = "GO_GUEST";					
+    //                 this._Authenticator.userPW  = "GO_GUEST";
+    //                 this._Authenticator.userID  = "ASSESS";
                     
-                    _Authenticator.addEventListener(CAuthEvent.AUTH_STATUS, bootSessionHandler);
+    //                 this._Authenticator.addEventListener(CAuthEvent.AUTH_STATUS, bootSessionHandler);
                     
-                    _Authenticator.authUser();
+    //                 this._Authenticator.authUser();
                     
-                    successFlag  = true;
-                    break;
+    //                 successFlag  = true;
+    //                 break;
                 
-                case "tutor":
-                    _Authenticator.groupID = "GUEST";					
-                    _Authenticator.userPW  = "GUEST";
-                    _Authenticator.userID  = "TUTOR";
+    //             case "tutor":
+    //                 this._Authenticator.groupID = "GUEST";					
+    //                 this._Authenticator.userPW  = "GUEST";
+    //                 this._Authenticator.userID  = "TUTOR";
                     
-                    _Authenticator.addEventListener(CAuthEvent.AUTH_STATUS, bootSessionHandler);
+    //                 this._Authenticator.addEventListener(CAuthEvent.AUTH_STATUS, bootSessionHandler);
                     
-                    _Authenticator.authUser();
+    //                 this._Authenticator.authUser();
                     
-                    successFlag  = true;
-                    break;
-            }				
-        }
+    //                 successFlag  = true;
+    //                 break;
+    //         }				
+    //     }
             
-        else if(urlObject.home)
-        {
-            switch(urlObject.home)
-            {
-                case "pubPortal":
-                    currentState = "pubPortal";
-                    successFlag  = true;
-                    break;
+    //     else if(urlObject.home)
+    //     {
+    //         switch(urlObject.home)
+    //         {
+    //             case "pubPortal":
+    //                 this.currentState = "pubPortal";
+    //                 successFlag  = true;
+    //                 break;
                 
-                case "loginAdmin":						
-                    currentState = "loginAdmin";
-                    successFlag  = true;
-                    break;
+    //             case "loginAdmin":						
+    //                 this.currentState = "loginAdmin";
+    //                 successFlag  = true;
+    //                 break;
                 
-                case "tutorLoader":
-                    currentState = "tutorLoader";
-                    _sessionState = urlObject.protocol;					// SESSION_AUTH_USERPWD	 OR SESSION_AUTH_GROUPID						
-                    updateInteractiveStateFSM(urlObject.command);		// GET_USER_PWD		OR GET_GROUP_ID
+    //             case "tutorLoader":
+    //                 this.currentState = "tutorLoader";
+    //                 this._sessionState = urlObject.protocol;					// SESSION_AUTH_USERPWD	 OR SESSION_AUTH_GROUPID						
+    //                 updateInteractiveStateFSM(urlObject.command);		// GET_USER_PWD		OR GET_GROUP_ID
                     
-                    successFlag  = true;
-                    break;
+    //                 successFlag  = true;
+    //                 break;
                 
-                default:
-                    break;
-            }	
-        }			
+    //             default:
+    //                 break;
+    //         }	
+    //     }			
         
-        // update the browser history - 
-        // FireFox - Navigation clicks are caught by browserURLChange
-        // IE      - Navigation clicks are caught by browserURLChange
-        // Chrome  - We buffer up 50 entries to keep them from using the back button
-        //			 They will not get an error message
-        // 
-        //			for(let i1:int = 0 ; i1 < 10 ; i1++)
-        //				_browserManager.setFragment("TED"+(i1%2));
+    //     // update the browser history - 
+    //     // FireFox - Navigation clicks are caught by browserURLChange
+    //     // IE      - Navigation clicks are caught by browserURLChange
+    //     // Chrome  - We buffer up 50 entries to keep them from using the back button
+    //     //			 They will not get an error message
+    //     // 
+    //     //			for(let i1:number = 0 ; i1 < 10 ; i1++)
+    //     //				_browserManager.setFragment("TED"+(i1%2));
         
-        return successFlag;
-    }
+    //     return successFlag;
+    // }
 
     
     /**
      *   This is used to update the URL frament in the address bar of the browser
-     *   Once the component is init'd, changing the currentState will cause this to 
+     *   Once the component is init'd, changing the this.currentState will cause this to 
      *   reflect the state on the browser for state where we wish the user to be 
      *   able to navigate to with browser History (back / next).
      * 
      */
-    private changeURLFragment(newPortal:String) : void 
-    {
-        let urlObject:Object;
-        let newFragment:String;
+    // private changeURLFragment(newPortal:string) : void 
+    // {
+    //     let urlObject:Object;
+    //     let newFragment:string;
         
-        if(traceMode) trace("changeURLFragment:=" + newPortal);
+    //     if(this.traceMode) CUtil.trace("changeURLFragment:=" + newPortal);
         
-        if(_browserManager.fragment != "")
-            urlObject = URLUtil.stringToObject(_browserManager.fragment);
-        else
-            urlObject = new Object;
+    //     if(_browserManager.fragment != "")
+    //         urlObject = URLUtil.stringToObject(_browserManager.fragment);
+    //     else
+    //         urlObject = {};
         
-        urlObject.home = newPortal;
+    //     urlObject.home = newPortal;
         
-        newFragment = URLUtil.objectToString(urlObject);
+    //     newFragment = URLUtil.objectToString(urlObject);
         
-        _browserManager.setFragment(newFragment);						
-    }
+    //     _browserManager.setFragment(newFragment);						
+    // }
     
     
     private bootSessionHandler(evt:CAuthEvent) : void
@@ -569,21 +568,21 @@ export class CSessionManager
             case CAuthEvent.LOADER_SUCCESS:
                 // instantiate the browser manager update the title in the browser tab
                 
-                _browserManager.init("demo", "Welcome to TED!");			
+                // _browserManager.init("demo", "Welcome to TED!");			
                 
-                _inTutor      = true;
-                _sessionState = SESSION_START;
+                this._inTutor      = true;
+                this._sessionState = CSessionManager.SESSION_START;
                 
                 // Load the session UI
-                updateInteractiveStateFSM();
+                this.updateInteractiveStateFSM();
                 break;
             
             case  CAuthEvent.FAIL:							
                 // instantiate the browser manager update the title in the browser tab
                 
-                _browserManager.init("pubPortal", "Welcome to TED!");			
+                // _browserManager.init("pubPortal", "Welcome to TED!");			
                 
-                currentState = "pubPortal";
+                this.currentState = "pubPortal";
                 break;				
         }
     }
@@ -596,12 +595,12 @@ export class CSessionManager
      */
     private interfaceSpecLoaded(evt:Event):void
     {
-        fileLoader.removeEventListener(Event.COMPLETE, interfaceSpecLoaded);
-        fileLoader.removeEventListener(IOErrorEvent.IO_ERROR, interfaceSpecErrorHandler);
+        this.fileLoader.removeEventListener(Event.COMPLETE, this.interfaceSpecLoaded);
+        this.fileLoader.removeEventListener(CIOErrorEvent.IO_ERROR, this.interfaceSpecErrorHandler);
                     
         try
         {
-            this.interfaceJSON = JSON.parse(fileLoader.data);
+            this.interfaceJSON = JSON.parse(this.fileLoader.data);
             
             // Extract the local / remote operating mode
             
@@ -614,7 +613,7 @@ export class CSessionManager
             alert("JSON Syntax Error in Loader");
         }				
         
-        if(this.traceMode) CUtil.trace("Data loaded: ", this.interfaceJSON);				
+        if(this.this.traceMode) CUtil.trace("Data loaded: ", this.interfaceJSON);				
         
         // Determine the startup panel
         this.initBootLoader();
@@ -625,14 +624,14 @@ export class CSessionManager
      * Interface spec unavailable - attempt to get spec from server
      * 
      * Entering upateIntereactiveState with interfaceJSON as null will inititate the SESSION_BOOTSETTINGS_REQUEST
-     * to obtain a flex loader sequence - i.e. it defines a start "currentState" for the interface that defines
+     * to obtain a flex loader sequence - i.e. it defines a start "this.currentState" for the interface that defines
      * a login protocol. 
      * 
      */
     private interfaceSpecErrorHandler(evt:Event) : void
     {
-        fileLoader.removeEventListener(Event.COMPLETE, interfaceSpecLoaded);
-        fileLoader.removeEventListener(IOErrorEvent.IO_ERROR, interfaceSpecErrorHandler);
+        this.fileLoader.removeEventListener(Event.COMPLETE, this.interfaceSpecLoaded);
+        this.fileLoader.removeEventListener(CIOErrorEvent.IO_ERROR, this.interfaceSpecErrorHandler);
         
         this._bootSource  = "DB";		
         
@@ -649,11 +648,11 @@ export class CSessionManager
     {			
         // Then if we are hard coded for remote bootloader resolution - get it from the server
         
-        if(_bootLoader == "REMOTE")
+        if(this._bootLoader == "REMOTE")
         {					
             // Initial call to start the sessionState machine
             
-            updateInteractiveStateFSM();
+            this.updateInteractiveStateFSM();
         }
             
             // Otherwise use the hard coded start up panel.
@@ -662,7 +661,7 @@ export class CSessionManager
         {
             // instantiate the browser manager update the title in the browser tab
                                 
-            currentState = "pubPortal";
+            this.currentState = "pubPortal";
         }
     }
     
@@ -687,11 +686,11 @@ export class CSessionManager
         //	B: When reconnecting Authentication is done in a single step quietly without a UI
         //	   using the information gathered during the initial login sequence	
         //
-        switch(_logManager.sessionStatus)
+        switch(this._logManager.sessionStatus)
         {								
             case CLogManager.SESSION_START:
                 
-                updateInteractiveStateFSM(evt.subType, evt, evt.dataPacket );
+                this.updateInteractiveStateFSM(evt.subType, evt, evt.dataPacket );
                 
                 break;
             
@@ -702,13 +701,13 @@ export class CSessionManager
                     case CAuthEvent.AUTH_SUCCESS:
                         
                         // transition the log manager sessionState to RUNNING
-                        _logManager.activateSession();
+                        this._logManager.activateSession();
                         
                         // restart the Queue stream  
                         
-                        _logManager.setQueueStreamState(true);
+                        this._logManager.setQueueStreamState(true);
                         
-                        _Authenticator.removeEventListener(CAuthEvent.AUTH_STATUS, authenticationProtocol);					
+                        this._Authenticator.removeEventListener(CAuthEvent.AUTH_STATUS, this.authenticationProtocol);					
                         
                         break;
                     
@@ -717,7 +716,7 @@ export class CSessionManager
                         // If it fails we teardown the socket and retry - assuming there was a transmission error
                         // Note: this hsould never fail as we are reauthenticating with credentials that worked previously
                         
-                        _logManager.recycleConnection(false);
+                        this._logManager.recycleConnection(false);
                         
                         break;					
                 }
@@ -744,7 +743,7 @@ export class CSessionManager
         // Connection specific messages come through this listener.
         // We look for disconnects - to support auto reconnect 
         
-        updateInteractiveStateFSM(evt.subType, evt, evt.dataPacket );
+        this.updateInteractiveStateFSM(evt.subType, evt, evt.dataPacket );
     }
     
     
@@ -776,9 +775,9 @@ export class CSessionManager
     private connectionProtocol(evt:CLogEvent ) : void
     {
         let authMsg:XML;
-        let authStr:String;
+        let authStr:string;
         
-        trace(evt.subType);			
+        CUtil.trace(evt.subType);			
         
         // We keep watching the connection status even after sending authentication requests
         // in case the channel fails.  But always scrap the authenticationProtocol if anything
@@ -788,15 +787,15 @@ export class CSessionManager
         {
             case CLogEvent.CONNECTION_OPEN:
                 
-                switch(_logManager.sessionStatus)
+                switch(this._logManager.sessionStatus)
                 {								
                     case CLogManager.SESSION_START:
                         
-                        updateInteractiveStateFSM(SESSION_QUERY_BOOTLOADER );
+                        this.updateInteractiveStateFSM(CSessionManager.SESSION_QUERYthis._bootLoader );
 
                         // Start watching for special key code combinations that elicit the connectionManager
                         
-                        stage.addEventListener(KeyboardEvent.KEY_DOWN, checkCommandKeyHdlr);
+                        stage.addEventListener(KeyboardEvent.KEY_DOWN, this.checkCommandKeyHdlr);
                         
                         break;
                     
@@ -805,8 +804,8 @@ export class CSessionManager
 //							SauthenticationManager.protocolNext  = pProtocolNext;
 //							SauthenticationManager.protocolState = pProtocolState;
                         
-                        _Authenticator.addEventListener(CAuthEvent.AUTH_STATUS, authenticationProtocol);					
-                        _Authenticator.authForReconnect();
+                        this._Authenticator.addEventListener(CAuthEvent.AUTH_STATUS, this.authenticationProtocol);					
+                        this._Authenticator.authForReconnect();
                         
                         break;
                     
@@ -818,7 +817,7 @@ export class CSessionManager
             
             case CLogEvent.CONNECTION_CLOSED:
                 
-                switch(_logManager.sessionStatus)
+                switch(this._logManager.sessionStatus)
                 {
                     case CLogManager.SESSION_START:
                                                     
@@ -834,9 +833,9 @@ export class CSessionManager
                         
                         // stop the Queue stream until we reconnect 
                         
-                        _logManager.setQueueStreamState(false);						
+                        this._logManager.setQueueStreamState(false);						
                         
-                        _logManager.connectToReattach();
+                        this._logManager.connectToReattach();
                         break;
                     
                     default:
@@ -850,7 +849,7 @@ export class CSessionManager
             
             case CLogEvent.DDNS_FAILED:
                 
-                Alert.show("DDNS Lookup Failed!", "Error: Server Configuration Error");
+                alert("DDNS Lookup Failed!" + "Error: Server Configuration Error");
                 
                 break;
             
@@ -865,108 +864,108 @@ export class CSessionManager
      *  The session state-machine
      * 
      */
-    private updateInteractiveStateFSM(cmd:String = "", evt:any = null, dataPacket:any = null ) : void
+    private updateInteractiveStateFSM(cmd:string = "", evt:any = null, dataPacket:any = null ) : void
     {
                     
-        switch(_sessionState)
+        switch(this._sessionState)
         {										
-            case SESSION_START:
+            case CSessionManager.SESSION_START:
                 
                 // The load processor in the group document description will build an appropriate loader server-side
                 // So we now have the loader along with the progress data for the individual 
 
-                _account      = _Authenticator.userAccount;		
-                _loader       = _account.session._loader;
-                _interfaceLdr = _account.session._loader._xface;
+                this._account      = this._Authenticator.userAccount;		
+                this._loader       = this._account.session.this._loader;
+                this._interfaceLdr = this._account.session.this._loader._xface;
                 
-                switch(_loader.domain)
+                switch(this._loader.domain)
                 {
                     case 'flex':							
-                        _sessionState = SESSION_LOADING;
+                        this._sessionState = CSessionManager.SESSION_LOADING;
                         
-                        updateInteractiveStateFSM(SESSION_LOAD);
+                        this.updateInteractiveStateFSM(CSessionManager.SESSION_LOAD);
                         break;
                     
                     case 'flash':							
                         try
                         {
-                            _phase        = _account.session.profile._phase;
-                            _features     = _account.session._features;
+                            this._phase        = this._account.session.profile.this._phase;
+                            this._features     = this._account.session.this._features;
                             
-                            _moduleLdr    = _loader._module;
-                            _spellerLdr   = _loader._speller;
-                            _libraryLdr   = _loader._library;
+                            this._moduleLdr    = this._loader._module;
+                            this._spellerLdr   = this._loader._speller;
+                            this._libraryLdr   = this._loader._library;
                             
-                            _useHeadPhoneCheck = _interfaceLdr.hpcheck;
-                            _useSoundCheck	   = _interfaceLdr.sdcheck;
-                            _useFullScreen     = _interfaceLdr.fscheck;
+                            this._useHeadPhoneCheck = this._interfaceLdr.hpcheck;
+                            this._useSoundCheck	   = this._interfaceLdr.sdcheck;
+                            this._useFullScreen     = this._interfaceLdr.fscheck;
                         }
                         catch(e:Error)
                         {
-                            trace(e);
-                            Alert.show("Loader Spec Invalid - JSON Syntax Error in Account Record", "Error");
+                            CUtil.trace(e);
+                            alert("Loader Spec Invalid - JSON Syntax Error in Account Record" + "Error");
                         }					
                                                     
                         // Move to the desired loader state
                         
-                        _sessionState = SESSION_HEADPHONECHECK;								
-                        updateInteractiveStateFSM(SESSION_HEADPHONECHECK);
+                        this._sessionState = CSessionManager.SESSION_HEADPHONECHECK;								
+                        this.updateInteractiveStateFSM(CSessionManager.SESSION_HEADPHONECHECK);
                         break;
                 }
                 break;				
             
             
-            case SESSION_HEADPHONECHECK:		// waiting for initial user click to confirm headphones ready 	
+            case CSessionManager.SESSION_HEADPHONECHECK:		// waiting for initial user click to confirm headphones ready 	
                 
                 switch(cmd)
                 {
-                    case SESSION_HEADPHONECHECK:
+                    case CSessionManager.SESSION_HEADPHONECHECK:
                         
-                        if(_useHeadPhoneCheck)
+                        if(this._useHeadPhoneCheck)
                         {
-                            currentState="headPhoneCheck";
+                            this.currentState="headPhoneCheck";
                         }
                         else 
                         {
-                            _sessionState = SESSION_SOUNDCHECK;					
-                            updateInteractiveStateFSM(SESSION_SOUNDCHECK);
+                            this._sessionState = CSessionManager.SESSION_SOUNDCHECK;					
+                            this.updateInteractiveStateFSM(CSessionManager.SESSION_SOUNDCHECK);
                         }								
                         break;
                     
-                    case SESSION_SOUNDCHECK:
+                    case CSessionManager.SESSION_SOUNDCHECK:
                         
-                        _sessionState = SESSION_SOUNDCHECK;									
-                        updateInteractiveStateFSM(SESSION_SOUNDCHECK);
+                        this._sessionState = CSessionManager.SESSION_SOUNDCHECK;									
+                        this.updateInteractiveStateFSM(CSessionManager.SESSION_SOUNDCHECK);
                         
                         break;						
                 }
                 break;
             
             
-            case SESSION_SOUNDCHECK:		// waiting for sound check
+            case CSessionManager.SESSION_SOUNDCHECK:		// waiting for sound check
                 
                 // as soon as we flip to fullscreen interactive we need to set the prompt
                 // to ensure the user clicks the allow button
                 
                 switch(cmd)
                 {
-                    case SESSION_SOUNDCHECK:
+                    case CSessionManager.SESSION_SOUNDCHECK:
                         
-                        if(_useSoundCheck)
+                        if(this._useSoundCheck)
                         {
-                            currentState="soundCheck";
+                            this.currentState="soundCheck";
                         }
                         else 
                         {
-                            _sessionState = SESSION_FULLSCREENCHECK;								
-                            updateInteractiveStateFSM(SESSION_FULLSCREENCHECK);
+                            this._sessionState = CSessionManager.SESSION_FULLSCREENCHECK;								
+                            this.updateInteractiveStateFSM(CSessionManager.SESSION_FULLSCREENCHECK);
                         }								
                         break;						
                     
-                    case SESSION_ENTERFULLSCREEN:
+                    case CSessionManager.SESSION_ENTERFULLSCREEN:
                         
-                        _sessionState = SESSION_FULLSCREENPROMPT;								
-                        updateInteractiveStateFSM(SESSION_ENTERFULLSCREEN);
+                        this._sessionState = CSessionManager.SESSION_FULLSCREENPROMPT;								
+                        this.updateInteractiveStateFSM(CSessionManager.SESSION_ENTERFULLSCREEN);
                         
                         break;							
                 }
@@ -975,236 +974,236 @@ export class CSessionManager
             // If we don't have sound or headphone checks we need a separate scene to "click on"
             // as Flash will disallow mode changes that aren't the result of a click
             // 
-            case SESSION_FULLSCREENCHECK:		
+            case CSessionManager.SESSION_FULLSCREENCHECK:		
                 
                 // as soon as we flip to fullscreen interactive we need to set the prompt
                 // to ensure the user clicks the allow button
                 
                 switch(cmd)
                 {
-                    case SESSION_FULLSCREENCHECK:
+                    case CSessionManager.SESSION_FULLSCREENCHECK:
                         
-                        if(_useFullScreen)
+                        if(this._useFullScreen)
                         {
-                            if((!_useSoundCheck) && (!_useHeadPhoneCheck))							
+                            if((!this._useSoundCheck) && (!this._useHeadPhoneCheck))							
                             {
-                                currentState="noSoundFullScreen";
+                                this.currentState="noSoundFullScreen";
                             }
                             else 
                             {
-                                _sessionState = SESSION_FULLSCREENPROMPT;								
-                                updateInteractiveStateFSM(SESSION_ENTERFULLSCREEN);
+                                this._sessionState = CSessionManager.SESSION_FULLSCREENPROMPT;								
+                                this.updateInteractiveStateFSM(CSessionManager.SESSION_ENTERFULLSCREEN);
                             }
                         }
                         else 
                         {
-                            _sessionState = SESSION_LOADING;								
-                            updateInteractiveStateFSM(SESSION_LOAD);		
+                            this._sessionState = CSessionManager.SESSION_LOADING;								
+                            this.updateInteractiveStateFSM(CSessionManager.SESSION_LOAD);		
                         }								
                         break;						
                     
-                    case SESSION_ENTERFULLSCREEN:
+                    case CSessionManager.SESSION_ENTERFULLSCREEN:
                         
-                        _sessionState = SESSION_FULLSCREENPROMPT;								
-                        updateInteractiveStateFSM(SESSION_ENTERFULLSCREEN);
+                        this._sessionState = CSessionManager.SESSION_FULLSCREENPROMPT;								
+                        this.updateInteractiveStateFSM(CSessionManager.SESSION_ENTERFULLSCREEN);
                         
                         break;							
                 }
                 break;
             
             
-            case SESSION_FULLSCREENPROMPT:	// waiting for user to accept full screen interactive mode
+            case CSessionManager.SESSION_FULLSCREENPROMPT:	// waiting for user to accept full screen interactive mode
                 
                 // as soon as we flip to fullscreen interactive we need to set the prompt
                 // to ensure the user clicks the allow button
                 
                 switch(cmd)
                 {
-                    case SESSION_INTERRUPTED:						// exit from full screen
-                        _oldCurrentState = currentState;
-                        currentState     = "exitedFullScreen";
-                        _oldSessionState = _sessionState;
-                        _sessionState    = SESSION_INTERRUPTED;
+                    case CSessionManager.SESSION_INTERRUPTED:						// exit from full screen
+                        this._oldthis.currentState = this.currentState;
+                        this.currentState     = "exitedFullScreen";
+                        this._oldSessionState = this._sessionState;
+                        this._sessionState    = CSessionManager.SESSION_INTERRUPTED;
                         break;							
                     
-                    case SESSION_RESUMED:
+                    case CSessionManager.SESSION_RESUMED:
                         break;
                         
-                    case SESSION_ENTERFULLSCREEN:
+                    case CSessionManager.SESSION_ENTERFULLSCREEN:
                         
-                        if(_useFullScreen)
+                        if(this._useFullScreen)
                         {																
-                            currentState="allowFullScreen";
+                            this.currentState="allowFullScreen";
                             
                             // NOTE: do this after setting state to avoid screen flash
                             stage.displayState = StageDisplayState.FULL_SCREEN_INTERACTIVE;								
                         }
                         else 
                         {
-                            _sessionState = SESSION_LOADING;								
-                            updateInteractiveStateFSM(SESSION_LOAD);		
+                            this._sessionState = CSessionManager.SESSION_LOADING;								
+                            this.updateInteractiveStateFSM(CSessionManager.SESSION_LOAD);		
                         }								
                         break;			
                     
-                    case SESSION_ALLOWFULLSCREEN:
+                    case CSessionManager.SESSION_ALLOWFULLSCREEN:
                         
-                        _sessionState = SESSION_LOADING;								
-                        updateInteractiveStateFSM(SESSION_LOAD);		
+                        this._sessionState = CSessionManager.SESSION_LOADING;								
+                        this.updateInteractiveStateFSM(CSessionManager.SESSION_LOAD);		
                         
                         break;
                 }					
                 break;
 
             
-            case SESSION_LOADING:
+            case CSessionManager.SESSION_LOADING:
                 
                     switch(cmd)
                     {
-                        case SESSION_INTERRUPTED:						// exit from full screen
-                            trace("exiting full screen");
+                        case CSessionManager.SESSION_INTERRUPTED:						// exit from full screen
+                            CUtil.trace("exiting full screen");
                             
-                            _oldCurrentState = currentState;
-                            currentState     = "exitedFullScreen";
-                            _oldSessionState = _sessionState;
-                            _sessionState    = SESSION_INTERRUPTED;
+                            this._oldthis.currentState = this.currentState;
+                            this.currentState     = "exitedFullScreen";
+                            this._oldSessionState = this._sessionState;
+                            this._sessionState    = CSessionManager.SESSION_INTERRUPTED;
                             break;							
                         
                         // Load interrupted
 
-                        case SESSION_LOAD:
+                        case CSessionManager.SESSION_LOAD:
                             
                             //addEventListener(Event.ENTER_FRAME, initApp);
                                                             
-                            initApp(null);
+                            this.initApp(null);
                             
                             break;													
                         
                         
-                        case SESSION_RESUMED:
+                        case CSessionManager.SESSION_RESUMED:
 
                             // If the load completed in the background - Add the Flash Tutor to the container
                             
-                            if(_tutorObject)
+                            if(this.this._tutorObject)
                             {
                                 // ## Mod Apr 2014 - Support for different aspect ratios
                                 
-                                if(_tutorObject.hasOwnProperty("extAspectRatio"))
+                                if(this._tutorObject.hasOwnProperty("extAspectRatio"))
                                 {
-                                    switch(_tutorObject["extAspectRatio"])
+                                    switch(this._tutorObject["extAspectRatio"])
                                     {
                                         case "STD":
-                                            currentState  = "tutor";
-                                            // Note: StutorContainer will not exist until currentState == tutor
+                                            this.currentState  = "tutor";
+                                            // Note: StutorContainer will not exist until this.currentState == tutor
                                             
-                                            StutorContainer.SsceneContainer.addChild(_tutorObject);		//CWOZTutorDoc
+                                            StutorContainer.SsceneContainer.addChild(this._tutorObject);		//CWOZTutorDoc
                                             break;
                                             
                                         case "WIDE":
-                                            currentState  = "wstutor";
-                                            // Note: SwsTutorContainer will not exist until currentState == wstutor
+                                            this.currentState  = "wstutor";
+                                            // Note: SwsTutorContainer will not exist until this.currentState == wstutor
                                             
-                                            SwsTutorContainer.SsceneContainer.addChild(_tutorObject);		//CWOZTutorDoc
+                                            SwsTutorContainer.SsceneContainer.addChild(this._tutorObject);		//CWOZTutorDoc
                                             break;
                                     }
                                 }
                                 else
                                 {
-                                    currentState  = "tutor";
-                                    // Note: StutorContainer will not exist until currentState == tutor
+                                    this.currentState  = "tutor";
+                                    // Note: StutorContainer will not exist until this.currentState == tutor
                                     
-                                    StutorContainer.SsceneContainer.addChild(_tutorObject);		//CWOZTutorDoc
+                                    StutorContainer.SsceneContainer.addChild(this._tutorObject);		//CWOZTutorDoc
                                 }
                                 
-                                _sessionState = SESSION_INPROGRESS;										
+                                this._sessionState = CSessionManager.SESSION_INPROGRESS;										
                             }
                             
                             // Otherwise show the loader again
                             
                             else
                             {
-                                currentState = "tutorLoader";
+                                this.currentState = "tutorLoader";
                             }
                             break;
                         
                         // session start
                         
-                        case SESSION_INITIALIZED:
+                        case CSessionManager.SESSION_INITIALIZED:
                             
                             // ## Mod Apr 2014 - Support for different aspect ratios
                             
-                            if(_tutorObject.hasOwnProperty("extAspectRatio"))
+                            if(this._tutorObject.hasOwnProperty("extAspectRatio"))
                             {
-                                switch(_tutorObject["extAspectRatio"])
+                                switch(this._tutorObject["extAspectRatio"])
                                 {
                                     case "STD":
-                                        currentState  = "tutor";
+                                        this.currentState  = "tutor";
                                         break;
                                     
                                     case "WIDE":
-                                        currentState  = "wstutor";
+                                        this.currentState  = "wstutor";
                                         break;
                                 }
                             }
                             else
                             {
-                                currentState  = "tutor";
+                                this.currentState  = "tutor";
                             }
                                                             
-                            _sessionState = SESSION_INPROGRESS;
+                            this._sessionState = CSessionManager.SESSION_INPROGRESS;
                             
-                            _logManager.addEventListener(CLogEvent.SESSION_STATUS, sessionProtocol);
+                            this._logManager.addEventListener(CLogEvent.SESSION_STATUS, this.sessionProtocol);
 
                             break;
                     }
                     break;
 
             
-            case  SESSION_INTERRUPTED:
+            case  CSessionManager.SESSION_INTERRUPTED:
                 
                     switch(cmd)
                     {
-                        case SESSION_INTERRUPTED:						// exit from full screen during resume
-                            currentState     = "exitedFullScreen";
+                        case CSessionManager.SESSION_INTERRUPTED:						// exit from full screen during resume
+                            this.currentState     = "exitedFullScreen";
                             break;							
                         
                         // resuming full screen mode - first transition to allow fullscreen interactive
                         
-                        case SESSION_ENTERFULLSCREEN:														
-                            currentState  = "allowFullScreen";
+                        case CSessionManager.SESSION_ENTERFULLSCREEN:														
+                            this.currentState  = "allowFullScreen";
                             break;
                         
                         // When accepted - go back to whereever we were.
                         
-                        case SESSION_ALLOWFULLSCREEN:
-                            _sessionState = _oldSessionState;
-                            currentState  = _oldCurrentState;
+                        case CSessionManager.SESSION_ALLOWFULLSCREEN:
+                            this._sessionState = this._oldSessionState;
+                            this.currentState  = this._oldthis.currentState;
                             
                             // Handle the special case where we are returning to allowFullScreen itself
                             // so we send the resume message to initiate the process
                             
-                            updateInteractiveStateFSM(SESSION_RESUMED);		
+                            this.updateInteractiveStateFSM(SESSION_RESUMED);		
                             break;														
                     }						
                     break;
             
 
-            case  SESSION_INPROGRESS:
+            case  CSessionManager.SESSION_INPROGRESS:
                 
                     switch(cmd)
                     {		
-                        case SESSION_INTERRUPTED:						// exit from full screen
-                            _oldCurrentState = currentState;
+                        case CSessionManager.SESSION_INTERRUPTED:						// exit from full screen
+                            _oldthis.currentState = this.currentState;
                             
-                            if(!_logManager.connectionActive)
+                            if(!this._logManager.connectionActive)
                             {
-                                currentState = "requestConnectionFix";
+                                this.currentState = "requestConnectionFix";
                             }
                             else
                             {
-                                currentState = "exitedFullScreen";
+                                this.currentState = "exitedFullScreen";
                             }
-                            _oldSessionState = _sessionState;
-                            _sessionState    = SESSION_INTERRUPTED;
+                            _oldSessionState = this._sessionState;
+                            this._sessionState    = CSessionManager.SESSION_INTERRUPTED;
                             break;							
                         
                         case  CLogEvent.SESSION_TERMINATED:
@@ -1212,7 +1211,7 @@ export class CSessionManager
                             // This means that the terminate log packet has been sent to the server and the queue is 
                             // in the process of being flushed.
                             //
-                            _sessionState = SESSION_TERMINATED;
+                            this._sessionState = CSessionManager.SESSION_TERMINATED;
                             
                             updateInteractiveStateFSM(SESSION_FLUSHING);							
                             break;
@@ -1222,25 +1221,25 @@ export class CSessionManager
                             // This case was added to support instances where we are not logging (i.e. demo modes) but need to 
                             // show the finished scene
                             //
-                            _sessionState = SESSION_TERMINATED;
+                            this._sessionState = CSessionManager.SESSION_TERMINATED;
                             
                             updateInteractiveStateFSM(CLogEvent.SESSION_FLUSHED);							
                             break;																	
                     }						
                     break;
                 
-            case  SESSION_TERMINATED:
+            case  CSessionManager.SESSION_TERMINATED:
                 
                     switch(cmd)
                     {		
                         case SESSION_INTERRUPTED:						// exit from full screen
-                            _oldCurrentState = currentState;
-                            currentState     = "exitedFullScreen";
-                            _oldSessionState = _sessionState;
-                            _sessionState    = SESSION_INTERRUPTED;
+                            _oldthis.currentState = this.currentState;
+                            this.currentState     = "exitedFullScreen";
+                            _oldSessionState = this._sessionState;
+                            this._sessionState    = CSessionManager.SESSION_INTERRUPTED;
                             break;							
                         
-                        case SESSION_FLUSHING:
+                        case CSessionManager.SESSION_FLUSHING:
                             
                             // We use a delay on the transition so the submitting data is not seen if the queue 
                             // empties in a timely fashion
@@ -1249,17 +1248,17 @@ export class CSessionManager
                             SconnectionManager.horizontalCenter = 0;
                             SconnectionManager.validateNow();		//?? is this required
                             
-                            currentState  = "dataSubmission";
+                            this.currentState  = "dataSubmission";
                             break;
                         
                         case  CLogEvent.SESSION_FLUSHED:
                             
                             stage.displayState = StageDisplayState.NORMAL; 	
-                            _inTutor    	   = false;							//## Mod Sep 29 2014 - reset inTutor so browserURLchange doesn't switch us back to the pubPortal
-                                                                                // when currentState changes below
-                            currentState = "thankyou";
+                            this._inTutor    	   = false;							//## Mod Sep 29 2014 - reset inTutor so browserURLchange doesn't switch us back to the pubPortal
+                                                                                // when this.currentState changes below
+                            this.currentState = "thankyou";
                             
-                            _logManager.removeEventListener(CLogEvent.SESSION_STATUS, sessionProtocol);								
+                            this._logManager.removeEventListener(CLogEvent.SESSION_STATUS, sessionProtocol);								
                             break;							
                     }					
                     break;
@@ -1279,12 +1278,12 @@ export class CSessionManager
      */
     private currentStateChanged(evt:mx.events.StateChangeEvent ) : void
     {
-        trace("Home New-State: " + evt.newState);
+        CUtil.trace("Home New-State: " + evt.newState);
 
         
         //***********************************************************************
         // remove the Flash Tutor to the container when leaving tutor mode					
-        //## Mod Sep 2014 - _tutorObject has stage event handlers that cause doOnStage calls
+        //## Mod Sep 2014 - this._tutorObject has stage event handlers that cause doOnStage calls
         //                  so we need to ensure that when a tutorObject is invalidated it is removed
         //                  from the display list.
         //					Ensures that multiple CWOZTutorDoc.doOnStage calls are not emitted when 
@@ -1303,22 +1302,22 @@ export class CSessionManager
             case "tutor":					
             case "wstutor":					
                 
-                if(_tutorObject && (evt.newState == "pubPortal"))
+                if(this._tutorObject && (evt.newState == "pubPortal"))
                 {
-                    trace("leaving Tutor");
+                    CUtil.trace("leaving Tutor");
                     
-                    if(_tutorObject.hasOwnProperty("extAspectRatio"))
+                    if(this._tutorObject.hasOwnProperty("extAspectRatio"))
                     {
-                        if(_tutorObject["extAspectRatio"]=='STD' && StutorContainer)
-                            StutorContainer.SsceneContainer.removeChild(_tutorObject);			//CWOZTutorDoc
+                        if(this._tutorObject["extAspectRatio"]=='STD' && StutorContainer)
+                            StutorContainer.SsceneContainer.removeChild(this._tutorObject);			//CWOZTutorDoc
                             
-                        else if (_tutorObject["extAspectRatio"]=='WIDE' && SwsTutorContainer)
-                            SwsTutorContainer.SsceneContainer.removeChild(_tutorObject);		//CWOZTutorDoc
+                        else if (this._tutorObject["extAspectRatio"]=='WIDE' && SwsTutorContainer)
+                            SwsTutorContainer.SsceneContainer.removeChild(this._tutorObject);		//CWOZTutorDoc
                     }
                     else
                     {
                         if(StutorContainer)
-                            StutorContainer.SsceneContainer.removeChild(_tutorObject);			//CWOZTutorDoc
+                            StutorContainer.SsceneContainer.removeChild(this._tutorObject);			//CWOZTutorDoc
                     }
                 }					
                 break;
@@ -1337,48 +1336,48 @@ export class CSessionManager
         switch(evt.oldState)
         {
             case "pubPortal":
-                SpublicPortal.removeEventListener(CPortal_Event.PORTAL_EVENT, PortalEventHandler);
+                SpublicPortal.removeEventListener(CPortal_Event.PORTAL_EVENT, this.PortalEventHandler);
                 break;						
             
             case "dataSubmission":
-                removeEventListener(MouseEvent.CLICK, clickForDataSubmission);			
+                removeEventListener(MouseEvent.CLICK, this.clickForDataSubmission);			
                 break;
             
             case "noSoundFullScreen":
-                removeEventListener(MouseEvent.CLICK, clickForFullScreen);			
+                removeEventListener(MouseEvent.CLICK, this.clickForFullScreen);			
                 break;
             
             case "exitedFullScreen":										
-                removeEventListener(MouseEvent.CLICK, resumeFullScreen);			
+                removeEventListener(MouseEvent.CLICK, this.resumeFullScreen);			
                 break;	
             
             case "headPhoneCheck":
-                removeEventListener(MouseEvent.CLICK, onHeadPhonesReady);			
+                removeEventListener(MouseEvent.CLICK, this.onHeadPhonesReady);			
                 break;	
             
             case "soundCheck":
-                SsoundCheck.removeEventListener(Event.COMPLETE, soundCheckHdlr);
+                SsoundCheck.removeEventListener(Event.COMPLETE, this.soundCheckHdlr);
                 break;
             
             case "allowFullScreen":				
-                stage.removeEventListener(FullScreenEvent.FULL_SCREEN_INTERACTIVE_ACCEPTED, fullScreenInteractiveHdlr);		
+                stage.removeEventListener(FullScreenEvent.FULL_SCREEN_INTERACTIVE_ACCEPTED, this.fullScreenInteractiveHdlr);		
                 break;	
             
             case "loginTED":					
                 // Stop listening for connectionProtocol messages from the logManager
                 
-                _logManager.removeEventListener(CLogEvent.CONNECT_STATUS, connectionProtocol);										
-                SauthenticationManager.removeEventListener(CAuthEvent.AUTH_STATUS, authenticationProtocol);
+                this._logManager.removeEventListener(CLogEvent.CONNECT_STATUS, connectionProtocol);										
+                SauthenticationManager.removeEventListener(CAuthEvent.AUTH_STATUS, this.authenticationProtocol);
                 break;
                 
             case "loginAdmin":					
-                SauthenticationManager.removeEventListener(CAuthEvent.AUTH_STATUS, sessionHandler);
+                SauthenticationManager.removeEventListener(CAuthEvent.AUTH_STATUS, this.sessionHandler);
                 break;
 
             case "interfaceLoader":					
                 // Stop listening for connectionProtocol messages from the logManager
                 
-                _logManager.removeEventListener(CLogEvent.CONNECT_STATUS, connectionProtocol);										
+                this._logManager.removeEventListener(CLogEvent.CONNECT_STATUS, this.connectionProtocol);										
                 
                 break;
 
@@ -1401,54 +1400,54 @@ export class CSessionManager
                 break;						
             
             case "dataSubmission":
-                addEventListener(MouseEvent.CLICK, clickForDataSubmission);			
+                addEventListener(MouseEvent.CLICK, this.clickForDataSubmission);			
                 break;
             
             case "noSoundFullScreen":
-                addEventListener(MouseEvent.CLICK, clickForFullScreen);			
+                addEventListener(MouseEvent.CLICK, this.clickForFullScreen);			
                 break;
             
             case "exitedFullScreen":	
-                addEventListener(MouseEvent.CLICK, resumeFullScreen);			
+                addEventListener(MouseEvent.CLICK, this.resumeFullScreen);			
                 break;
             
             case "headPhoneCheck":		
-                addEventListener(MouseEvent.CLICK, onHeadPhonesReady);			
+                addEventListener(MouseEvent.CLICK, this.onHeadPhonesReady);			
                 break;	
             
             case "soundCheck":
-                SsoundCheck.addEventListener(Event.COMPLETE, soundCheckHdlr);
-                seqSoundCheck.addEventListener(EffectEvent.EFFECT_END, fireSoundCheck);
+                SsoundCheck.addEventListener(Event.COMPLETE, this.soundCheckHdlr);
+                seqSoundCheck.addEventListener(EffectEvent.EFFECT_END, this.fireSoundCheck);
                 break;
             
             case "allowFullScreen":					
-                stage.addEventListener(FullScreenEvent.FULL_SCREEN, fullScreenHdlr);
-                stage.addEventListener(FullScreenEvent.FULL_SCREEN_INTERACTIVE_ACCEPTED, fullScreenInteractiveHdlr);							
+                stage.addEventListener(FullScreenEvent.FULL_SCREEN, this.fullScreenHdlr);
+                stage.addEventListener(FullScreenEvent.FULL_SCREEN_INTERACTIVE_ACCEPTED, this.fullScreenInteractiveHdlr);							
                 break;	
             
             case "loginTED":					
                 // Stop listening for connectionProtocol messages from the logManager
                 
-                _logManager.addEventListener(CLogEvent.CONNECT_STATUS, connectionProtocol);					
+                this._logManager.addEventListener(CLogEvent.CONNECT_STATUS, this.connectionProtocol);					
                 
-                SauthenticationManager.addEventListener(CAuthEvent.AUTH_STATUS, authenticationProtocol);					
+                SauthenticationManager.addEventListener(CAuthEvent.AUTH_STATUS, this.authenticationProtocol);					
                 break;
             
             case "loginAdmin":				
                                     
-                SauthenticationManager.addEventListener(CAuthEvent.AUTH_STATUS, sessionHandler);					
+                SauthenticationManager.addEventListener(CAuthEvent.AUTH_STATUS, this.sessionHandler);					
                 break;
             
             case "interfaceLoader":					
                 // Stop listening for connectionProtocol messages from the logManager
                 
-                _logManager.addEventListener(CLogEvent.CONNECT_STATUS, connectionProtocol);										
+                this._logManager.addEventListener(CLogEvent.CONNECT_STATUS, connectionProtocol);										
                 
                 break;
             
             case "tutor":					
             case "wstutor":					
-                _logManager.addEventListener(CLogEvent.CONNECT_STATUS, connectionProtocol);					
+                this._logManager.addEventListener(CLogEvent.CONNECT_STATUS, connectionProtocol);					
                 break;
             
             default:
@@ -1464,43 +1463,43 @@ export class CSessionManager
         switch(e.subType)
         {
             case CPortal_Event.ADMIN_ACCESS:
-                currentState = "loginAdmin";
+                this.currentState = "loginAdmin";
                 break;
             
             case CPortal_Event.PRE_DEMO:
-                _Authenticator.groupID = "GO_GUEST";					
-                _Authenticator.userPW  = "GO_GUEST";
-                _Authenticator.userID  = "PREASSESS";
+                this._Authenticator.groupID = "GO_GUEST";					
+                this._Authenticator.userPW  = "GO_GUEST";
+                this._Authenticator.userID  = "PREASSESS";
                 
-                _Authenticator.addEventListener(CAuthEvent.AUTH_STATUS, sessionHandler);
+                this._Authenticator.addEventListener(CAuthEvent.AUTH_STATUS, sessionHandler);
                 
-                _Authenticator.authUser();
+                this._Authenticator.authUser();
                 break;
             
             case CPortal_Event.POST_DEMO:
-                _Authenticator.groupID = "GO_GUEST";					
-                _Authenticator.userPW  = "GO_GUEST";
-                _Authenticator.userID  = "POSTASSESS";
+                this._Authenticator.groupID = "GO_GUEST";					
+                this._Authenticator.userPW  = "GO_GUEST";
+                this._Authenticator.userID  = "POSTASSESS";
                 
-                _Authenticator.addEventListener(CAuthEvent.AUTH_STATUS, sessionHandler);
+                this._Authenticator.addEventListener(CAuthEvent.AUTH_STATUS, sessionHandler);
                 
-                _Authenticator.authUser();
+                this._Authenticator.authUser();
                 break;
             
             case CPortal_Event.TUTOR_DEMO:
-                _Authenticator.groupID = "GO_GUEST";					
-                _Authenticator.userPW  = "GO_GUEST";
-                _Authenticator.userID  = "TUTOR";
+                this._Authenticator.groupID = "GO_GUEST";					
+                this._Authenticator.userPW  = "GO_GUEST";
+                this._Authenticator.userID  = "TUTOR";
                 
-                _Authenticator.addEventListener(CAuthEvent.AUTH_STATUS, sessionHandler);
+                this._Authenticator.addEventListener(CAuthEvent.AUTH_STATUS, sessionHandler);
                 
-                _Authenticator.authUser();
+                this._Authenticator.authUser();
                 break;
             
             case CPortal_Event.USER_ACCESS:
             
-                _inTutor      = true;
-                _sessionState = SESSION_START;
+                this._inTutor      = true;
+                this._sessionState = SESSION_START;
                 
                 // Load the session UI
                 updateInteractiveStateFSM();				
@@ -1518,8 +1517,8 @@ export class CSessionManager
         {
             case CAuthEvent.LOADER_SUCCESS:
                 
-                _inTutor      = true;
-                _sessionState = SESSION_START;
+                this._inTutor      = true;
+                this._sessionState = SESSION_START;
                 
                 // Load the session UI
                 updateInteractiveStateFSM();
@@ -1535,7 +1534,7 @@ export class CSessionManager
      */
     private fireSoundCheck(e:EffectEvent):void
     {
-        trace("fire sound Check");
+        CUtil.trace("fire sound Check");
         
         seqSoundCheck.removeEventListener(EffectEvent.EFFECT_END, fireSoundCheck);			
         
@@ -1584,8 +1583,8 @@ export class CSessionManager
             // When the tutor goes off screen we need to update the cursorproxy since it's stage property 
             // become invalid
             
-            if(_tutorObject && _tutorObject.hasOwnProperty("setCursor"))
-                                    _tutorObject["setCursor"](WOZREPLAY);
+            if(this._tutorObject && this._tutorObject.hasOwnProperty("setCursor"))
+                                    this._tutorObject["setCursor"](WOZREPLAY);
 
             updateInteractiveStateFSM(SESSION_INTERRUPTED);
             
@@ -1595,7 +1594,7 @@ export class CSessionManager
         }		
         else
         {
-            trace("Entered Full Screen - noop");
+            CUtil.trace("Entered Full Screen - noop");
         }
     }		
     private fullScreenInteractiveHdlr(e:FullScreenEvent) : void
@@ -1615,12 +1614,12 @@ export class CSessionManager
     {
         // If we are not in or left fullscreen and are re/entering 
         
-        if(_logManager.connectionActive)
+        if(this._logManager.connectionActive)
         {
             if(stage.displayState != StageDisplayState.FULL_SCREEN_INTERACTIVE)
             {
-                if(stage.allowsFullScreen) trace("full screen OK");
-                if(stage.allowsFullScreenInteractive) trace("full screen interactive OK");
+                if(stage.allowsFullScreen) CUtil.trace("full screen OK");
+                if(stage.allowsFullScreenInteractive) CUtil.trace("full screen interactive OK");
                 
                 stage.addEventListener(FullScreenEvent.FULL_SCREEN, fullScreenHdlr);
                 stage.addEventListener(FullScreenEvent.FULL_SCREEN_INTERACTIVE_ACCEPTED, fullScreenInteractiveHdlr);		
@@ -1632,7 +1631,7 @@ export class CSessionManager
             }
         }
     }
-    private clickForFullScreen(e:MouseEvent) : void
+    private this.clickForFullScreen(e:MouseEvent) : void
     {
         // Wait for user to click to start session when no sound is required 
         // but fullscreen is
@@ -1641,19 +1640,19 @@ export class CSessionManager
     }
     
     
-    private clickForDataSubmission(e:MouseEvent) : void
+    private this.clickForDataSubmission(e:MouseEvent) : void
     {
-        removeEventListener(MouseEvent.CLICK, clickForDataSubmission);			
+        removeEventListener(MouseEvent.CLICK, this.clickForDataSubmission);			
         
-        _logManager.flushGlobalStateLocally(_Authenticator.userID);
+        this._logManager.flushGlobalStateLocally(this._Authenticator.userID);
 
-        addEventListener(MouseEvent.CLICK, clickForDataSubmission);						
+        addEventListener(MouseEvent.CLICK, this.clickForDataSubmission);						
     }
     
     
     private saveLogDataManually(e:Event) : void
     {
-        _logManager.flushGlobalStateLocally(_Authenticator.userID);
+        this._logManager.flushGlobalStateLocally(this._Authenticator.userID);
     }
 
     
@@ -1697,7 +1696,7 @@ export class CSessionManager
     }
     
     
-    private enableConnectionManager(_enable:String) : void
+    private enableConnectionManager(_enable:string) : void
     {
         
         // SconnectionManager may not exist yet
@@ -1708,7 +1707,7 @@ export class CSessionManager
                 stage.removeEventListener(KeyboardEvent.KEY_DOWN, checkCommandKeyHdlr);
                 stage.addEventListener(KeyboardEvent.KEY_UP, checkCommandKeyHdlr);
                 
-                trace("Enable Connection Manager");
+                CUtil.trace("Enable Connection Manager");
                 _enableConnectionManagerUser = true;
                 _enableConnectionManager     = true;
                 
@@ -1721,7 +1720,7 @@ export class CSessionManager
                 stage.removeEventListener(KeyboardEvent.KEY_DOWN, checkCommandKeyHdlr);					
                 stage.addEventListener(KeyboardEvent.KEY_UP, checkCommandKeyHdlr);
                 
-                trace("Enable Connection Debugger");
+                CUtil.trace("Enable Connection Debugger");
                 _enableConnectionManagerDebug = true;
                 _enableConnectionManager      = true;
 
@@ -1733,7 +1732,7 @@ export class CSessionManager
                 stage.addEventListener(KeyboardEvent.KEY_DOWN, checkCommandKeyHdlr);					
                 stage.removeEventListener(KeyboardEvent.KEY_UP, checkCommandKeyHdlr);
                 
-                trace("Disable Connection Manager");
+                CUtil.trace("Disable Connection Manager");
                 _enableConnectionManager      = false;					
                 _enableConnectionManagerUser  = false;					
                 _enableConnectionManagerDebug = false;
@@ -1749,19 +1748,19 @@ export class CSessionManager
                     
         // Load the collection of modules
         //
-        switch(_loader.domain)
+        switch(this._loader.domain)
         {
             case "flash":
                 
-                currentState = _interfaceLdr.state;
+                this.currentState = this._interfaceLdr.state;
                 
-                xfaceLoader(_loader);
+                xfaceLoader(this._loader);
                 
                 break;
             
             case "flex":
                 
-                currentState = _interfaceLdr.state;
+                this.currentState = this._interfaceLdr.state;
                 
                 break;
         }
@@ -1776,7 +1775,7 @@ export class CSessionManager
         
         // recover the selected user account
         
-        _loader = loader;
+        this._loader = loader;
                     
         // unload the signin elements 
         
@@ -1789,8 +1788,8 @@ export class CSessionManager
             // Note that the incoming XML data in the loader has to be assigned to a 
             // variable, in this case "sceneGraphXML" 
             
-            if(_loader.sgxml != null)			
-                _loadablePackage.addModule(new CFXFileLoader(), "loadFile", new Array(_loader.sgpath + _loader.sgxml), this, "_sceneGraphXML");
+            if(this._loader.sgxml != null)			
+                _loadablePackage.addModule(new CFXthis.fileLoader(), "loadFile", new Array(this._loader.sgpath + this._loader.sgxml), this, "_sceneGraphXML");
             
             
             //**************************************************************************
@@ -1799,8 +1798,8 @@ export class CSessionManager
             // variable, in this case "sceneGraphXML"
             //@@ Mod Jul 17 2013 - Separated scenegraph from scene description
             
-            if(_loader.scenesxml != null)			
-                _loadablePackage.addModule(new CFXFileLoader(), "loadFile", new Array(_loader.scenespath + _loader.scenesxml), this, "_sceneDescrXML");
+            if(this._loader.scenesxml != null)			
+                _loadablePackage.addModule(new CFXthis.fileLoader(), "loadFile", new Array(this._loader.scenespath + this._loader.scenesxml), this, "_sceneDescrXML");
             
             
             //**************************************************************************
@@ -1809,8 +1808,8 @@ export class CSessionManager
             // variable, in this case "sceneGraphJSON"
             //@@ Mod Jul 17 2013 - Separated scenegraph from scene description
             
-            if(_loader.graphjson != null)			
-                _loadablePackage.addModule(new CFXFileLoader(), "loadFile", new Array(_loader.graphpath + _loader.graphjson), this, "_sceneGraphJSON");
+            if(this._loader.graphjson != null)			
+                _loadablePackage.addModule(new CFXthis.fileLoader(), "loadFile", new Array(this._loader.graphpath + this._loader.graphjson), this, "_sceneGraphJSON");
             
             
             //**************************************************************************
@@ -1819,8 +1818,8 @@ export class CSessionManager
             // variable, in this case "animationGraphJSON"
             //@@ Mod Jul 17 2013 - Separated scenegraph from scene description
             
-            if(_loader.anigraphjson != null)			
-                _loadablePackage.addModule(new CFXFileLoader(), "loadFile", new Array(_loader.graphpath + _loader.anigraphjson), this, "_animationGraphJSON");
+            if(this._loader.anigraphjson != null)			
+                _loadablePackage.addModule(new CFXthis.fileLoader(), "loadFile", new Array(this._loader.graphpath + this._loader.anigraphjson), this, "_animationGraphJSON");
             
             
             //**************************************************************************
@@ -1828,8 +1827,8 @@ export class CSessionManager
             // Note that no data assignment is required for this as the object itself 
             // like the SWF loader contains the data 
             
-            if(_spellerLdr != null)
-                _loadablePackage.addModule(_spellDictionary, "load", new Array(_spellerLdr.path + _spellerLdr.rules, _spellerLdr.path + _spellerLdr.dict));
+            if(this._spellerLdr != null)
+                _loadablePackage.addModule(_spellDictionary, "load", new Array(this._spellerLdr.path + this._spellerLdr.rules, this._spellerLdr.path + this._spellerLdr.dict));
             
             
             //**************************************************************
@@ -1851,13 +1850,13 @@ export class CSessionManager
             
             
             // Extract the libraries path and files from the XML loader spec
-            // Note: _libraryLdr and path MAY NOT be null - should throw on error 
+            // Note: this._libraryLdr and path MAY NOT be null - should throw on error 
             
-            libPath  = _libraryLdr.path;
+            libPath  = this._libraryLdr.path;
             
             if(libPath != null)
             {						
-                libArray = _libraryLdr.libs.split(",");
+                libArray = this._libraryLdr.libs.split(",");
                 
                 // Then add the qualified path etc to the loadablePackage
                 
@@ -1870,12 +1869,12 @@ export class CSessionManager
             // Extract the module path and files from the XML loader spec  
             // Note: this may be null if there are no extra modules
             
-            if(_moduleLdr != null)
-                modPath  = _moduleLdr.path;
+            if(this._moduleLdr != null)
+                modPath  = this._moduleLdr.path;
             
             if(modPath != null)
             {
-                modArray = _moduleLdr.mods.split(",");
+                modArray = this._moduleLdr.mods.split(",");
                 
                 // Then add the qualified path etc to the loadablePackage
                 
@@ -1887,7 +1886,7 @@ export class CSessionManager
         }
         catch(e:Error)
         {
-            trace(e);
+            CUtil.trace(e);
             Alert.show("Library spec invalid - JSON Syntax Error in Loader", "Error");					
         }
                     
@@ -1907,7 +1906,7 @@ export class CSessionManager
         }	
         else
         {
-            trace("Module Specification Error");
+            CUtil.trace("Module Specification Error");
         }
     }
     
@@ -1940,7 +1939,7 @@ export class CSessionManager
         {
             // Increment the target ring segment
             
-            trace("lOADING: " + _loadableModule.loadParms);
+            CUtil.trace("lOADING: " + _loadableModule.loadParms);
             
             Sprogress.listenTo(EventDispatcher(_loadableModule.loader));
             
@@ -1984,94 +1983,94 @@ export class CSessionManager
 
         //## Mod Oct 31 2012 - Google Analytics support
         
-        _tracker.trackEvent("Loader", _loader._id, "Selected" );
+        _tracker.trackEvent("Loader", this._loader._id, "Selected" );
         
         // initialize the logging mode
         // set the logging state - based on the CWOZRoot global
         
         //@@MOD Sep 23 2013 - Support for local logging - i.e. save to local path
         
-        switch(_interfaceLdr.log)
+        switch(this._interfaceLdr.log)
         {
             case "REMOTE":
-                _logManager.fLogging = CLogManagerType.RECLOGEVENTS;		// standard mode is - RECLOGEVENTS								
+                this._logManager.fLogging = CLogManagerType.RECLOGEVENTS;		// standard mode is - RECLOGEVENTS								
                 break;
             
             case "LOCAL":
-                _logManager.fLogging = CLogManagerType.RECORDEVENTS;		// Records events to the queue for local save							
+                this._logManager.fLogging = CLogManagerType.RECORDEVENTS;		// Records events to the queue for local save							
                 break;
             
             case "NONE":
             default:				
-                _logManager.fLogging = CLogManagerType.RECLOGNONE;			// queue disabled - no logging
+                this._logManager.fLogging = CLogManagerType.RECLOGNONE;			// queue disabled - no logging
                 break;
         }
 
         // tell logmanager about the account
         
-        _logManager.account = _account;
+        this._logManager.account = this._account;
         
         // load the target application and let it run
         
-        _tutorObject = instantiateObject(_loader.appclass);
-        _tutorObject.name = "Document";
+        this._tutorObject = instantiateObject(this._loader.appclass);
+        this._tutorObject.name = "Document";
                     
-        if(_tutorObject.hasOwnProperty("extAccount"))		
-            _tutorObject["extAccount"] = _account;							//@@ Mod Dec 03 2013 - Pass the DB account data to Flash
+        if(this._tutorObject.hasOwnProperty("extAccount"))		
+            this._tutorObject["extAccount"] = this._account;							//@@ Mod Dec 03 2013 - Pass the DB account data to Flash
         
-        _tutorObject["extLoader"] 	      = true;							//@@ deprecated - Jun 27 2012 - All tutor instances that 
+        this._tutorObject["extLoader"] 	      = true;							//@@ deprecated - Jun 27 2012 - All tutor instances that 
                                                                             //   use the ConcreteAbstract CWOZTutorDoc codebase no longer 
                                                                             //   support internal loading		
-        _tutorObject["extFDeferDemoClick"] = true;
+        this._tutorObject["extFDeferDemoClick"] = true;
 
-        _logManager.fTutorPart            = _phase;							//@@ Mod Nov 20 2013 - placed features in phase table
-        _tutorObject["extTutorFeatures"]  = _features;
+        this._logManager.fTutorPart            = this._phase;							//@@ Mod Nov 20 2013 - placed features in phase table
+        this._tutorObject["extTutorFeatures"]  = this._features;
                     
-        _tutorObject["extFDemo"]  	      = _interfaceLdr.demo;
-        _tutorObject["extFDebug"]  	      = _interfaceLdr.debug;			
-        _tutorObject["extFRemoteMode"]    = _interfaceLdr.remote;			
+        this._tutorObject["extFDemo"]  	      = this._interfaceLdr.demo;
+        this._tutorObject["extFDebug"]  	      = this._interfaceLdr.debug;			
+        this._tutorObject["extFRemoteMode"]    = this._interfaceLdr.remote;			
         
-        if(_tutorObject.hasOwnProperty("extFSkillometer"))		
-            _tutorObject["extFSkillometer"] = _interfaceLdr.skillometer;
+        if(this._tutorObject.hasOwnProperty("extFSkillometer"))		
+            this._tutorObject["extFSkillometer"] = this._interfaceLdr.skillometer;
         
         //@@ Mod Apr 20 2012 - added support for module path specification - This simplifies running
         //                     multiple simultaneous tutors / demos - everything is expected to be 
         //					   relative to this path. 
         
-        if(_tutorObject.hasOwnProperty("extmodPath") && _moduleLdr)		
-            _tutorObject["extmodPath"] = _moduleLdr.path;
+        if(this._tutorObject.hasOwnProperty("extmodPath") && this._moduleLdr)		
+            this._tutorObject["extmodPath"] = this._moduleLdr.path;
         
-        if(_tutorObject.hasOwnProperty("extLogManager"))		
-            _tutorObject["extLogManager"] = _logManager;
+        if(this._tutorObject.hasOwnProperty("extLogManager"))		
+            this._tutorObject["extLogManager"] = this._logManager;
         
         //@@ Mod Feb 16 2013 - support spell checking FLA TextField
-        if(_tutorObject.hasOwnProperty("extSpellManager"))		
-            _tutorObject["extSpellManager"] = _spellManagerProxy; 
+        if(this._tutorObject.hasOwnProperty("extSpellManager"))		
+            this._tutorObject["extSpellManager"] = _spellManagerProxy; 
         
         //@@ Mod Feb 22 2013 - support single spelling dictionary preload
-        if(_tutorObject.hasOwnProperty("extSpellDictionary"))		
-            _tutorObject["extSpellDictionary"] = _spellDictionary; 
+        if(this._tutorObject.hasOwnProperty("extSpellDictionary"))		
+            this._tutorObject["extSpellDictionary"] = _spellDictionary; 
         
         //@@ Mod Feb 23 2013 - support sceneGraph dynamic loading 
         //@@ Mod Jul 17 2013 - Separated scenegraph from scene description 
-        if(_tutorObject.hasOwnProperty("extSceneGraphXML") && (_sceneGraphXML != null))		
-            _tutorObject["extSceneGraphXML"] = _sceneGraphXML; 
+        if(this._tutorObject.hasOwnProperty("extSceneGraphXML") && (_sceneGraphXML != null))		
+            this._tutorObject["extSceneGraphXML"] = _sceneGraphXML; 
         
         //@@ Mod Feb 23 2013 - support sceneGraph dynamic loading 
-        if(_tutorObject.hasOwnProperty("extSceneDescr") && (_sceneDescrXML != null))		
-            _tutorObject["extSceneDescr"] = _sceneDescrXML; 
+        if(this._tutorObject.hasOwnProperty("extSceneDescr") && (_sceneDescrXML != null))		
+            this._tutorObject["extSceneDescr"] = _sceneDescrXML; 
         
         //@@ Mod Jul 17 2013 - Separated scenegraph from scene description 
-        if(_tutorObject.hasOwnProperty("extSceneGraph") && (_sceneGraphJSON != null))		
-            _tutorObject["extSceneGraph"] = _sceneGraphJSON; 
+        if(this._tutorObject.hasOwnProperty("extSceneGraph") && (_sceneGraphJSON != null))		
+            this._tutorObject["extSceneGraph"] = _sceneGraphJSON; 
         
         //@@ Mod Aug 31 2013 - Separated animation graph from scene description 
-        if(_tutorObject.hasOwnProperty("extAnimationGraph") && (_animationGraphJSON != null))		
-            _tutorObject["extAnimationGraph"] = _animationGraphJSON; 
+        if(this._tutorObject.hasOwnProperty("extAnimationGraph") && (_animationGraphJSON != null))		
+            this._tutorObject["extAnimationGraph"] = _animationGraphJSON; 
         
         //@@ Mod May 22 2013 - support prepost back button processing 
-        if(_tutorObject.hasOwnProperty("extForceBackButton") && (_interfaceLdr.forcebackbutton != undefined))		
-            _tutorObject["extForceBackButton"] = _interfaceLdr.forcebackbutton; 
+        if(this._tutorObject.hasOwnProperty("extForceBackButton") && (this._interfaceLdr.forcebackbutton != undefined))		
+            this._tutorObject["extForceBackButton"] = this._interfaceLdr.forcebackbutton; 
         
         //			enumChildren(this, this.name);					// @@ debug
         //			enumChildren(stage, "Stage");					// @@ debug	
@@ -2099,12 +2098,12 @@ export class CSessionManager
         //
         // Session manager listens to the tutor for these to ensure we don't get ahead of the logging. 
         
-        _tutorObject.addEventListener("CONNECTION_LOST", doWaitForConnFix);
+        this._tutorObject.addEventListener("CONNECTION_LOST", doWaitForConnFix);
 
         
         // Kick start the queue 
         
-        _logManager.setQueueStreamState(true);
+        this._logManager.setQueueStreamState(true);
         
         // Add the Flash Tutor to the container
         // Check the contained has been created - If the user exits fullscreen while loading it may
@@ -2112,18 +2111,18 @@ export class CSessionManager
         
         // ## Mod Apr 2014 - Support for different aspect ratios
         
-        if(_tutorObject.hasOwnProperty("extAspectRatio"))
+        if(this._tutorObject.hasOwnProperty("extAspectRatio"))
         {
-            if(_tutorObject["extAspectRatio"]=='STD' && StutorContainer)
-                StutorContainer.SsceneContainer.addChild(_tutorObject);			//CWOZTutorDoc
+            if(this._tutorObject["extAspectRatio"]=='STD' && StutorContainer)
+                StutorContainer.SsceneContainer.addChild(this._tutorObject);			//CWOZTutorDoc
             
-            else if (_tutorObject["extAspectRatio"]=='WIDE' && SwsTutorContainer)
-                SwsTutorContainer.SsceneContainer.addChild(_tutorObject);		//CWOZTutorDoc
+            else if (this._tutorObject["extAspectRatio"]=='WIDE' && SwsTutorContainer)
+                SwsTutorContainer.SsceneContainer.addChild(this._tutorObject);		//CWOZTutorDoc
         }
         else
         {
             if(StutorContainer)
-                StutorContainer.SsceneContainer.addChild(_tutorObject);			//CWOZTutorDoc
+                StutorContainer.SsceneContainer.addChild(this._tutorObject);			//CWOZTutorDoc
         }
         
         return;			
@@ -2140,22 +2139,22 @@ export class CSessionManager
         
         stage.displayState = StageDisplayState.NORMAL; 	
         
-        _logManager.addEventListener(CLogEvent.CONNECT_STATUS, connectionStateProtocol);			
+        this._logManager.addEventListener(CLogEvent.CONNECT_STATUS, connectionStateProtocol);			
     }
     
     private connectionStateProtocol(evt:CLogEvent ) : void
     {			
         // When connection reestablished allow the user to continue.
         
-        if(_logManager.connectionActive)
+        if(this._logManager.connectionActive)
         {				
-            _logManager.removeEventListener(CLogEvent.CONNECT_STATUS, connectionStateProtocol);
-            currentState = "exitedFullScreen";				
+            this._logManager.removeEventListener(CLogEvent.CONNECT_STATUS, connectionStateProtocol);
+            this.currentState = "exitedFullScreen";				
         }
     }		
     
     
-    private instantiateObject(objectClass:String) : *
+    private instantiateObject(objectClass:string) : *
     {			
         let tarObject:any;
         
@@ -2173,9 +2172,9 @@ export class CSessionManager
     
     private screenCaptureHdlr(event:KeyboardEvent):void 
     { 
-        trace(event.currentTarget.name + " hears key press: " + String.fromCharCode(event.charCode) + " (key code: " + event.keyCode + " character code: " + event.charCode + ")");
+        CUtil.trace(event.currentTarget.name + " hears key press: " + String.fromCharCode(event.charCode) + " (key code: " + event.keyCode + " character code: " + event.charCode + ")");
         
-        if(_tutorObject && event.ctrlKey && String.fromCharCode(event.charCode) == "c")
+        if(this._tutorObject && event.ctrlKey && String.fromCharCode(event.charCode) == "c")
                                                                                 screenCap();
     }		
     
@@ -2186,16 +2185,16 @@ export class CSessionManager
         let scaleMatrix:Matrix        = new Matrix();
         let file:FileReference		  = new FileReference();
         
-        if(_tutorObject)
+        if(this._tutorObject)
         {
             // ## Mod Apr 2014 - Support for different aspect ratios
             
-            if(_tutorObject.hasOwnProperty("extAspectRatio"))
+            if(this._tutorObject.hasOwnProperty("extAspectRatio"))
             {
-                if(_tutorObject["extAspectRatio"]=='STD')
+                if(this._tutorObject["extAspectRatio"]=='STD')
                     scaleMatrix.scale(myRectangle.width / 1024, myRectangle.height / 768);
                 
-                else if(_tutorObject["extAspectRatio"]=='WIDE')
+                else if(this._tutorObject["extAspectRatio"]=='WIDE')
                     scaleMatrix.scale(myRectangle.width / 1366, myRectangle.height / 768);
             }
             else
@@ -2203,7 +2202,7 @@ export class CSessionManager
                 scaleMatrix.scale(myRectangle.width / 1024, myRectangle.height / 768);
             }
             
-            stage_snapshot.draw(_tutorObject, scaleMatrix, null, null, myRectangle);
+            stage_snapshot.draw(this._tutorObject, scaleMatrix, null, null, myRectangle);
             
             let png_binary:ByteArray = new ByteArray();
             

@@ -19,6 +19,7 @@
 
 import { CEFRoot }              from "./core/CEFRoot";
 import { CEFTutor }             from "./core/CEFTutor";
+
 import { ILoaderOptions }       from "./util/ILoaderOptions";
 import { IModuleDesc }          from "./util/IModuleDesc";
 
@@ -38,7 +39,7 @@ import { CUtil }                from "./util/CUtil";
 export class CEngine {
 
     public loader:CURLLoader;
-
+    public bootTutor:string;
     public bootSpec:ILoaderOptions;
     public timerID:number;
 
@@ -46,11 +47,12 @@ export class CEngine {
     public static LOCAL:string          = "LOCAL";
     public static WAIT:number           = 250;
 
-    public start() : void
+    public start(_bootTutor:string ) : void
     {
         let efLibrary:CEFRoot = new CEFRoot();
+        let tutor:CEFTutor    = new CEFTutor();
 
-        let tutor:CEFTutor = new CEFTutor();
+        this.bootTutor = _bootTutor;
 
         console.log("In TutorEngineOne startup");
 
@@ -109,12 +111,16 @@ export class CEngine {
 
     public loadAnModules() {
         
+        let engine = this;
         let modulePromises = this.bootSpec.AnModules.map(module => this.injectAnScript(module))
 
         Promise.all(modulePromises)        
             .then(() => {
 
                 console.log("module load complete");
+
+                CUtil.preLoader(false);
+
             }).catch(() => {
 
                 console.log("module load failed");

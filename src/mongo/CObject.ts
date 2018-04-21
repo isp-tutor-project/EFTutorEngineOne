@@ -72,7 +72,7 @@ export class CObject extends MObject
 			name = objPath.shift();
 			
 			if(dataObj[name] == null)
-				dataObj[name] = new Object
+				dataObj[name] = {}
 			
 			dataObj = dataObj[name];	
 		}

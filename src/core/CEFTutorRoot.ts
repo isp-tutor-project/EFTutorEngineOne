@@ -112,7 +112,7 @@ export class CEFTutorRoot extends CEFRoot
 			  baseTime:number;
 			
 			// knowledge tracing 
-			public 	 ktNets:any				= new Object;				// deprecated Aug 28 2013
+			public 	 ktNets:any				= {};				// deprecated Aug 28 2013
 			public   ktSkills:any;										//@@ Mod Aug 28 2013 - support for new kt structure in sceneGraph
 	
 	private sceneGraph:string = "<sceneGraph/>";						// export purposes only  
@@ -132,7 +132,7 @@ export class CEFTutorRoot extends CEFRoot
 		//*** Init the Tutor Global Variables
 		
 		CEFRoot.gTutor       = this;						// Connect to the Tutor
-		this.tutorAutoObj = new Object;						// Create the Automation Object			
+		this.tutorAutoObj = {};						// Create the Automation Object			
 	}
 	
 	public resetZorder()
@@ -428,7 +428,7 @@ export class CEFTutorRoot extends CEFRoot
 		
 		// Record each SCENE Object
 		//
-		this.tutorAutoObj[sceneName] = new Object;
+		this.tutorAutoObj[sceneName] = {};
 		this.tutorAutoObj[sceneName].instance = sceneObj;			
 		
 		// Propogate to children  

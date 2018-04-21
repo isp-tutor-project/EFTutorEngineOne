@@ -47,9 +47,9 @@ export class CEFTransitions extends CEFAnimator
 	public prntTutor:Object;					// The parent CEFTutorRoot of these transitions
 	public tutorAutoObj:any;					// The location of this tutor to automation array
 	
-	private activeObjs:any  = new Object;		// Pointers to the objects in the most recent scene + persistent ojects
+	private activeObjs:any  = {};		// Pointers to the objects in the most recent scene + persistent ojects
 	private currentObjs:Array<any>;				// Pointers to the objects in the current scene
-	private persistObjs:any = new Object;		// Pointers to persistent objects - these live thorughout the tutor lifecycle
+	private persistObjs:any = {};		// Pointers to persistent objects - these live thorughout the tutor lifecycle
 	private fSwapObjects:boolean = false;		// flag - true - swap objects  - false - use deep state copy 
 	
 	
@@ -67,14 +67,14 @@ export class CEFTransitions extends CEFAnimator
 		this.prntTutor = parentTutor;
 		this.tutorAutoObj = autoTutor;
 		
-		this.activeObjs = new Object;	// Start with an empty activeObj - nothing currently on stage									
+		this.activeObjs = {};	// Start with an empty activeObj - nothing currently on stage									
 	}
 	
 	//## Mod Oct 29 2012 - Support for scene reentry in demo mode. 
 	//
 	public resetTransitions() : void 
 	{
-		this.activeObjs = new Object;
+		this.activeObjs = {};
 	}
 	
 	
@@ -449,7 +449,7 @@ export class CEFTransitions extends CEFAnimator
 		// Update the active object with objects from the current scene and persistent objects 
 		// Throw away the old activeObj array for GC - keeps the tutor compact
 		
-		this.activeObjs = new Object;										
+		this.activeObjs = {};										
 		
 		for (let objRec of this.currentObjs)
 		{

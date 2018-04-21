@@ -73,7 +73,7 @@ export class CEFRoot extends MovieClip
 
 //********
 	
-	public static sessionAccount:any	   = new Object();		//@@ Mod Dec 03 2013 - session Account data  
+	public static sessionAccount:any	   = {};				//@@ Mod Dec 03 2013 - session Account data  
 	
 	public static fSessionID:string;							// Unique session identifier
 	public static fSessionTime:number;

@@ -1,6 +1,3 @@
-import { CLogManagerType } from "../network/CLogManagerType";
-import { ILogManager } from "../network/ILogManager";
-
 //*********************************************************************************
 //         CARNEGIE MELLON UNIVERSITY PROPRIETARY INFORMATION             
 //  
@@ -23,8 +20,16 @@ import { ILogManager } from "../network/ILogManager";
 //
 //*********************************************************************************
 
-//## Imports	
+//** Imports	
 	
+import { CLogManager } 		from "./CLogManager";
+import { CLogManagerType } 	from "./CLogManagerType";
+import { ILogManager }		from "./ILogManager";
+
+
+import EventDispatcher = createjs.EventDispatcher;
+
+
 
 /**
  *	The CAuthenticator class provides multiple ways to authenticate.
@@ -113,17 +118,17 @@ export class CAuthenticator extends EventDispatcher
 		//TODO: implement function
 		super();
 		
-		if(enforcer == null) 
+		if(enforcer == null || enforcer !instanceof SingletonObj) 
 			throw(new Error("Invalid CLogManager Invokation"));		
 					
 		// base protocol state object
 		
-		this._data = new Object();
+		this._data = {};
 	
 		// create the log manager if not extant
 		
 		if(!this._logManager)
-			this._logManager = CLogManagerType.getInstance();			
+			this._logManager = CLogManager.getInstance();			
 	}
 	
 	
@@ -260,7 +265,7 @@ export class CAuthenticator extends EventDispatcher
 	
 	public authTeacher() : void
 	{
-		_userAccount = new Object;
+		_userAccount = {};
 		
 		protocolChain	  = new Array();
 		protocolChainData = new Array();		
@@ -287,7 +292,7 @@ export class CAuthenticator extends EventDispatcher
 	
 	public authAdminGuest() : void
 	{
-		_userAccount = new Object;
+		_userAccount = {};
 		
 		protocolChain	  = new Array();
 		protocolChainData = new Array();		
@@ -315,7 +320,7 @@ export class CAuthenticator extends EventDispatcher
 	
 	public authAdminUI() : void
 	{
-		_userAccount = new Object;
+		_userAccount = {};
 		
 		protocolChain	  = new Array();
 		protocolChainData = new Array();		
@@ -345,7 +350,7 @@ export class CAuthenticator extends EventDispatcher
 	
 	public authUser() : void
 	{
-		_userAccount = new Object;
+		_userAccount = {};
 		
 		protocolChain	  = new Array();
 		protocolChainData = new Array();		
@@ -398,7 +403,7 @@ export class CAuthenticator extends EventDispatcher
 		{
 			// Configure initial protocol state object
 			
-			obj = new Object();			
+			obj = {};			
 			obj.protocolState = "START_CONNECTION_PROTOCOL";			
 			
 			protocolChain.push(connectProtocol); 
@@ -413,7 +418,7 @@ export class CAuthenticator extends EventDispatcher
 		
 		// Configure initial protocol state object
 		
-		obj = new Object();			
+		obj = {};			
 		obj.protocolState = "START_UPDATE";
 		
 		protocolChain.push(updateProtocol); 
@@ -427,7 +432,7 @@ export class CAuthenticator extends EventDispatcher
 		
 		// Configure initial protocol state object
 		
-		obj = new Object();			
+		obj = {};			
 		obj.protocolState = "START_GROUP_AUTH";
 		obj.grpID         = _grpID;
 		
@@ -446,7 +451,7 @@ export class CAuthenticator extends EventDispatcher
 		
 		// Configure initial protocol state object
 		
-		obj = new Object();			
+		obj = {};			
 		
 		obj.protocolState = "START_USRID_AUTH";
 		
@@ -469,7 +474,7 @@ export class CAuthenticator extends EventDispatcher
 		
 		// Configure initial protocol state object
 		
-		obj = new Object();			
+		obj = {};			
 		
 		obj.protocolState = "START_USRPWD_AUTH";
 
@@ -493,7 +498,7 @@ export class CAuthenticator extends EventDispatcher
 		
 		// Configure initial protocol state object
 		
-		obj = new Object();			
+		obj = {};			
 		
 		obj.protocolState 	= "START_ACCOUNT_LOADER";			
 		obj.protocolNext  	= _protocolNext;

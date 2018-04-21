@@ -63,7 +63,7 @@ export class CEFNavPanel extends CEFSceneNavigator
 		{
 			sceneObj = this.getChildAt(i1) as DisplayObject;
 			
-			scene[sceneObj.name] = new Object;
+			scene[sceneObj.name] = {};
 			scene[sceneObj.name].instance = sceneObj;										
 
 			if(this.traceMode) CUtil.trace("\t\tCEFNavPanel found subObject named:" + sceneObj.name + " ... in-place: ");

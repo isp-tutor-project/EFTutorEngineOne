@@ -417,13 +417,13 @@ export class CMongo
 	 */
 	public static encodeAsObject(host:Object, _fields:any, parent:any) : Object
 	{
-		let tempObj:Object = new Object;
+		let tempObj:Object = {};
 		let leafObj:any;
 		let subDocName:string;
 		let pathArray:Array<string>;
 		
 		if(host == null)
-			tempObj = new Object;
+			tempObj = {};
 		else
 			tempObj = host;
 		
@@ -438,7 +438,7 @@ export class CMongo
 				subDocName = pathArray.shift();
 				
 				if(leafObj[subDocName] == undefined)
-					leafObj[subDocName] = new Object;
+					leafObj[subDocName] = {};
 				
 				leafObj = this.objectBuilder(leafObj[subDocName], pathArray); 
 			}	
@@ -460,7 +460,7 @@ export class CMongo
 			subDocName = pathArray.shift();
 			
 			if(leafObj[subDocName] == undefined)
-				leafObj[subDocName] = new Object;
+				leafObj[subDocName] = {};
 			
 			leafObj = this.objectBuilder(leafObj, pathArray); 
 		}	

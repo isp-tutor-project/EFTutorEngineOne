@@ -124,10 +124,10 @@ export class CEFObject extends CEFAnimator
 	
 	private _features:string;									//## Mod Aug 13 2013 - to support object unique features (used in scenegraph currently) 
 
-	private static _globals:any = new Object;					//## Added Sep 23 2013 - to support global variables
+	private static _globals:any = {};					//## Added Sep 23 2013 - to support global variables
 	
-	protected _sceneData:any = new Object;						//## Added Dec 11 2013 - DB based state logging
-	public    _phaseData:any = new Object;						//## Added Dec 12 2013 - DB based state logging
+	protected _sceneData:any = {};						//## Added Dec 11 2013 - DB based state logging
+	public    _phaseData:any = {};						//## Added Dec 12 2013 - DB based state logging
 	
 	// mask specific values		
 
@@ -852,7 +852,7 @@ export class CEFObject extends CEFAnimator
 
 	public captureLogState(obj:Object = null) : Object
 	{
-		if(obj == null) obj = new Object;
+		if(obj == null) obj = {};
 		
 		return obj;
 	}		
@@ -915,7 +915,7 @@ export class CEFObject extends CEFAnimator
 							
 			// Record each Sub-Object - only maintain pointers
 			//
-			sceneObj[subObj.name] = new Object;
+			sceneObj[subObj.name] = {};
 			sceneObj[subObj.name].instance = subObj;										
 
 			// Have Object determine its inplace size
@@ -1087,7 +1087,7 @@ export class CEFObject extends CEFAnimator
 	
 	public static initGlobals() : void
 	{
-		CEFObject._globals = new Object;
+		CEFObject._globals = {};
 	}
 	
 	
@@ -1288,7 +1288,7 @@ export class CEFObject extends CEFAnimator
 			// Construct the unique log attribute name - 			
 			attrName = this.constructLogName(element.logattr);
 			
-			this.navigator._phaseData[attrName] = new Object;			
+			this.navigator._phaseData[attrName] = {};			
 			
 			// update the phase specific log data - save in log progress packet - uses compound attribute name			
 			this.navigator._phaseData[attrName]['value'] = dataStr;
@@ -1322,7 +1322,7 @@ export class CEFObject extends CEFAnimator
 //			try
 //			{
 //				if(navigator._phaseData.skills == null)
-//					navigator._phaseData.skills = new Object;
+//					navigator._phaseData.skills = {};
 //				
 //				attrName = constructLogName("Rule0");
 //				navigator._phaseData.skills[attrName] = gTutor.ktSkills["rule0"].queryBelief();			

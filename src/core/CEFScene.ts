@@ -199,7 +199,7 @@ export class CEFScene extends CEFObject
 			
 			// Record each Object within scene
 			//
-			scene[sceneObj.name] = new Object;
+			scene[sceneObj.name] = {};
 			scene[sceneObj.name].instance = sceneObj;										
 			
 			// Have Object determine its inplace size

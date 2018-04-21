@@ -28,6 +28,7 @@ import { CEFTutorRoot }     from "./CEFTutorRoot";
 import { CUtil }            from "../util/CUtil";
 
 
+
 export class CEFTutorDoc extends CEFDoc
 {
     
@@ -50,7 +51,7 @@ export class CEFTutorDoc extends CEFDoc
         // We need to wait to initialize until the object is instantiated 
         // on the stage when the "stage" property is then valid
         //
-        addEventListener(CEFEvent.ADDED_TO_STAGE, this.initOnStage);
+        this.on(CEFEvent.ADDED_TO_STAGE, this.initOnStage);
         
         //@@ Mod Sept 22 2014 - reset global object - only required for demo sequences - more than one demo may be loaded in a single session
         
@@ -66,8 +67,8 @@ export class CEFTutorDoc extends CEFDoc
     {	
         CUtil.trace("CWOZTutorDoc:Object OnStage");
         
-        removeEventListener(CEFEvent.ADDED_TO_STAGE, this.initOnStage);									
-        addEventListener(CEFEvent.REMOVED_FROM_STAGE, this.doOffStage);						
+        this.off(CEFEvent.ADDED_TO_STAGE, this.initOnStage);									
+        this.on(CEFEvent.REMOVED_FROM_STAGE, this.doOffStage);						
         
         // do default processing
         
@@ -135,8 +136,8 @@ export class CEFTutorDoc extends CEFDoc
     {
         CUtil.trace("going off stage");
         
-        removeEventListener(CEFEvent.REMOVED_FROM_STAGE, this.doOffStage);
-        addEventListener(CEFEvent.ADDED_TO_STAGE, this.doOnStage);						
+        this.off(CEFEvent.REMOVED_FROM_STAGE, this.doOffStage);
+        this.on(CEFEvent.ADDED_TO_STAGE, this.doOnStage);						
     
         // Pause the tutor while it is off screen
         if(!CEFRoot.gTutor.isPaused)
@@ -162,8 +163,8 @@ export class CEFTutorDoc extends CEFDoc
     {	
         CUtil.trace("coming on stage");
         
-        removeEventListener(CEFEvent.ADDED_TO_STAGE, this.doOnStage);						
-        addEventListener(CEFEvent.REMOVED_FROM_STAGE, this.doOffStage);
+        this.off(CEFEvent.ADDED_TO_STAGE, this.doOnStage);						
+        this.on(CEFEvent.REMOVED_FROM_STAGE, this.doOffStage);
         
         // Start the tutor once back on screen
         if(this._forcedPause)

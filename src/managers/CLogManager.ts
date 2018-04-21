@@ -17,23 +17,28 @@
 
 //** Imports
 
-import { ILogManager } 	from "./ILogManager";
-import { CEFTimer } 	from "../core/CEFTimer";
-import { CMongo } 		from "../mongo/CMongo";
-import { CObject } 		from "../mongo/CObject";
-import { CLogSocket } 	from "../network/CLogSocket";
-import { CLogQueue } 	from "../network/CLogQueue";
-import { CLogEvent } 	from "../events/CLogEvent";
-import { CTimerEvent } 	from "../events/CTimerEvent";
-import { CDataEvent } 	from "../events/CDataEvent";
-import { CDDnsLoader } 	from "../network/CDDnsLoader";
+import { ILogManager } 		from "./ILogManager";
+import { CLogManagerType } 	from "./CLogManagerType";
 
-import { CUtil } 		from "../util/CUtil";
+import { CEFTimer } 		from "../core/CEFTimer";
+
+import { CMongo } 			from "../mongo/CMongo";
+import { CObject } 			from "../mongo/CObject";
+
+import { CSocket } 			from "../network/CSocket";
+import { CLogSocket } 		from "../network/CLogSocket";
+import { CLogQueue } 		from "../network/CLogQueue";
+import { CDDnsLoader } 		from "../network/CDDnsLoader";
+
+import { CLogEvent } 		from "../events/CLogEvent";
+import { CTimerEvent } 		from "../events/CTimerEvent";
+import { CDataEvent } 		from "../events/CDataEvent";
+import { CDnsEvent } 		from "../events/CDnsEvent";
+
+import { CUtil } 			from "../util/CUtil";
 
 
 import EventDispatcher = createjs.EventDispatcher;
-import { CDnsEvent } from "../events/CDnsEvent";
-import { CLogManagerType } from "./CLogManagerType";
 
 
 
@@ -53,7 +58,7 @@ export class CLogManager extends EventDispatcher implements ILogManager
 	private dnsLoader:CDDnsLoader;
 	private logSocket:CLogSocket;
 
-	// private xmlEvents:XMLList;
+	private JSONEvents:any;
 	
 	private _logHostAddress:string;					// Result of DNS lookup
 	private _logHostPort:number;					// *
@@ -125,8 +130,8 @@ export class CLogManager extends EventDispatcher implements ILogManager
 	public static readonly xmlACKAUTH:string			=	"ackauth";
 	public static readonly xmlNAKAUTH:string			=	"nakauth";
 	
-	public static readonly xmlACKPROGLOG:string		=	"ackprogresslog";
-	public static readonly xmlNAKPROGLOG:string		=	"nakprogresslog";
+	public static readonly xmlACKPROGLOG:string			=	"ackprogresslog";
+	public static readonly xmlNAKPROGLOG:string			=	"nakprogresslog";
 	
 	public static readonly xmlACKSTATEQUERY:string		=	"ackstatequery";
 	public static readonly xmlNAKSTATEQUERY:string		=	"nakstatequery";
@@ -158,7 +163,7 @@ export class CLogManager extends EventDispatcher implements ILogManager
 	
 			
 	/**
-	 * readonlyructor has an optional tracearea object that is used for
+	 * constructor has an optional tracearea object that is used for
 	 * development purposed only
 	 *  
 	 * @param _StextArea
@@ -168,7 +173,7 @@ export class CLogManager extends EventDispatcher implements ILogManager
 	{
 		super();
 		
-		if(enforcer == null) 
+		if(enforcer == null || enforcer !instanceof SingletonObj) 
 			throw(new Error("Invalid CLogManager Invokation"));
 		
 		// generate the queue associated with this manager
@@ -835,7 +840,7 @@ export class CLogManager extends EventDispatcher implements ILogManager
 		
 		// Generate the log record
 		//
-		let termMsg:any = new Object;
+		let termMsg:any = {};
 		
 		// should be either CObjects, MObjects or AS3 primitive data types string, Number,int,boolean,Null,void
 		let profileNdx:string = this._sessionAccount.session.profile_Index;
@@ -1370,9 +1375,9 @@ export class CLogManager extends EventDispatcher implements ILogManager
 	 * 	Error modes:
 	 * 		
 	 * 		1:  Connection attempt on non-responsive or non-existant server
-	 * 			CXMLSocket: openSocket			- attempt to open socket
-	 * 			CXMLSocket: ioErrorHandler		- connection failure ( ~1  sec delay)
-	 * 			CXMLSocket: securityErrorHandler- connection failure ( ~20 sec delay)
+	 * 			CSocket: openSocket			- attempt to open socket
+	 * 			CSocket: ioErrorHandler		- connection failure ( ~1  sec delay)
+	 * 			CSocket: securityErrorHandler- connection failure ( ~20 sec delay)
 	 * 
 	 * 		2:  Transmission attempt on now non-responsive or non-existant server
 	 * 			
@@ -1513,7 +1518,7 @@ export class CLogManager extends EventDispatcher implements ILogManager
 			}
 			else
 			{
-				// Note: If the socket is still connecting it will be managed by the abandon logic in CXMLSocket 
+				// Note: If the socket is still connecting it will be managed by the abandon logic in CSocket 
 				
 				this.logSocket.removeEventListener(CLogEvent.CONNECT_STATUS, this.socketConnectionHdlr);
 				this.logSocket.removeEventListener(CDataEvent.DATA,this.protocolHandlerLGR);
@@ -1641,8 +1646,8 @@ export class CLogManager extends EventDispatcher implements ILogManager
 			
 	private protocolHandlerLGR(evt:CDataEvent) : void
 	{
-		let servermessage:XML;
-		let dataPacket:object;
+		let servermessage:any;
+		let dataPacket:any;
 		let seqID:number
 		
 		//--------------------------------------------------------------------------------
@@ -1794,11 +1799,11 @@ export class CLogManager extends EventDispatcher implements ILogManager
 		// process XML response			
 		else 
 		{			
-			servermessage = new XML(evt.data);
+			servermessage = evt.data;
 		
 			if(this.traceMode) CUtil.trace("Logger Responded: " + servermessage.name() + "\n\nFull Packet: \n" + servermessage);
 			
-			if(servermessage.name() == CXMLSocket.xmlSERVER_MESSAGE)							
+			if(servermessage.name() == CSocket.xmlSERVER_MESSAGE)							
 			{
 				for (let msgClass in servermessage.children())
 				{
@@ -1809,9 +1814,9 @@ export class CLogManager extends EventDispatcher implements ILogManager
 						//** Authentication Protocol Management
 						//
 						
-						case CXMLSocket.xmlACKAUTH:
+						case CSocket.xmlACKAUTH:
 							if(this.traceMode) CUtil.trace("Authentication success: " + msgClass.type );
-							if(this.tracer) this.tracer.TRACE("Authentication Successful...", "#000088" );
+							// if(this.tracer) this.tracer.TRACE("Authentication Successful...", "#000088" );
 							
 							// Authentication succeeded - return userID in @type => db index 
 							
@@ -1821,16 +1826,16 @@ export class CLogManager extends EventDispatcher implements ILogManager
 							// Set the Session ID - used for reconnection if required							
 							
 							this._sessionActive = true;
-							this._sessionStatus = SESSION_RUNNING;
+							this._sessionStatus = CLogManager.SESSION_RUNNING;
 							this._sessionID     = msgClass.type;
 							
 							if(this.hasEventListener(CLogEvent.SESSION_STATUS))										
 								this.dispatchEvent(new CLogEvent(CLogEvent.SESSION_STATUS, CLogEvent.AUTH_SUCCESS, 0, 0, msgClass.type));														
 							break;
 						
-						case CXMLSocket.xmlNAKAUTH:
+						case CSocket.xmlNAKAUTH:
 							if(this.traceMode) CUtil.trace("Authentication failed: " + msgClass.type );
-							if(this.tracer) this.tracer.TRACE("Authentication Failed...", "#880000" );
+							// if(this.tracer) this.tracer.TRACE("Authentication Failed...", "#880000" );
 							
 							this._authenticating = false;
 							
@@ -1838,9 +1843,9 @@ export class CLogManager extends EventDispatcher implements ILogManager
 								this.dispatchEvent(new CLogEvent(CLogEvent.SESSION_STATUS, CLogEvent.AUTH_FAILED ));
 							break;
 						
-						case CXMLSocket.xmlSQLERROR:
+						case CSocket.xmlSQLERROR:
 							if(this.traceMode) CUtil.trace("Server failure: " + msgClass.type + " " + msgClass.message );
-							if(this.tracer) this.tracer.TRACE("Authentication - SQL Failed...", "#880000" );
+							// if(this.tracer) this.tracer.TRACE("Authentication - SQL Failed...", "#880000" );
 							
 							this._authenticating = false;
 							
@@ -1858,7 +1863,7 @@ export class CLogManager extends EventDispatcher implements ILogManager
 						//  to create an entirely new session.
 						//
 						
-						case CXMLSocket.xmlACKATTACH:
+						case CSocket.xmlACKATTACH:
 							
 							if(this.traceMode) CUtil.trace("@@@@@@@  SESSION REATTACH ACK: ");
 							
@@ -1870,22 +1875,22 @@ export class CLogManager extends EventDispatcher implements ILogManager
 							// transition back to the running state
 							
 							this._sessionID     = msgClass.type;
-							this._sessionStatus = SESSION_RUNNING;
+							this._sessionStatus = CLogManager.SESSION_RUNNING;
 							
 							// A leading # indicates there has been a file error at the server.
 							// i.e. the user files are no longer extant
 							// This requires creation of a new session and recommit of all data 
 							
-							if(sessionID.charAt(0) == '#') 
+							if(this.sessionID.charAt(0) == '#') 
 							{
-								if(this.tracer) this.tracer.TRACE("Reauthentication Failed...", "#000088" );
+								// if(this.tracer) this.tracer.TRACE("Reauthentication Failed...", "#000088" );
 								
 								if(this.hasEventListener(CLogEvent.SESSION_STATUS))			
 									this.dispatchEvent(new CLogEvent(CLogEvent.SESSION_STATUS, CLogEvent.AUTH_FAILED ));
 							}
 							else
 							{
-								if(this.tracer) this.tracer.TRACE("Reauthentication Successful...", "#000088" );
+								// if(this.tracer) this.tracer.TRACE("Reauthentication Successful...", "#000088" );
 								
 								// Let anyone listening know that the connection is live again. e.g. UI components
 
@@ -1901,7 +1906,7 @@ export class CLogManager extends EventDispatcher implements ILogManager
 						//** NOOP Protocol Management
 						//
 						
-						case CXMLSocket.xmlACK:
+						case CSocket.xmlACK:
 							
 							if(this.traceMode) CUtil.trace("@@@@@@@  SIMPLE PACKET ACK: ");	
 							break;
@@ -1913,10 +1918,10 @@ export class CLogManager extends EventDispatcher implements ILogManager
 						//** Session Protocol Management
 						//
 						
-						case CXMLSocket.xmlACKSESSION:		
+						case CSocket.xmlACKSESSION:		
 							
 							if(this.traceMode) CUtil.trace("@@@@@@@  SESSION PACKET ACK: ");	
-							if(this.tracer) this.tracer.TRACE("*");
+							// if(this.tracer) this.tracer.TRACE("*");
 							
 							// Get the session ID from the server reponse
 							
@@ -1933,7 +1938,7 @@ export class CLogManager extends EventDispatcher implements ILogManager
 								// disconnect logger
 								// Disconnects the listeners prior to close - so UI will not be informed of operation
 								// 
-								cleanupSocket();															
+								this.cleanupSocket();															
 								
 								if(this.hasEventListener(CLogEvent.SERVER_FAILED))			
 									this.dispatchEvent(new CLogEvent(CLogEvent.SERVER_FAILED, this._sessionID));
@@ -1942,16 +1947,16 @@ export class CLogManager extends EventDispatcher implements ILogManager
 						
 						
 						
-						case CXMLSocket.xmlACKTERM:
+						case CSocket.xmlACKTERM:
 							
-							if(this.tracer) this.tracer.TRACE("*");
-							if(this.tracer) this.tracer.TRACE("@@term@@\n");
+							// if(this.tracer) this.tracer.TRACE("*");
+							// if(this.tracer) this.tracer.TRACE("@@term@@\n");
 
 							// Abandon the session - 
 							// This resets the queue and closes the socket 
 							// also resets all session flags
 							
-							abandonSession(false);
+							this.abandonSession(false);
 							
 							// Let everyone know what has happened.
 							
@@ -1966,9 +1971,9 @@ export class CLogManager extends EventDispatcher implements ILogManager
 						//** Logging Protocol Management
 						//
 						
-						case CXMLSocket.xmlACKLOG:						
+						case CSocket.xmlACKLOG:						
 							
-							if(this.tracer) this.tracer.TRACE("*");
+							// if(this.tracer) this.tracer.TRACE("*");
 							
 							seqID = msgClass.type;
 							
@@ -1993,9 +1998,9 @@ export class CLogManager extends EventDispatcher implements ILogManager
 								
 								if(!CLogManager._logQueue.isQueueEmpty())
 								{
-									if(sendXMLPacket(CLogManager._logQueue.nextPacket()))
+									if(this.sendXMLPacket(CLogManager._logQueue.nextPacket()))
 									{
-										if(this.tracer) this.tracer.TRACE("#");
+										// if(this.tracer) this.tracer.TRACE("#");
 									}
 									
 									if(this.hasEventListener(CLogEvent.QUEUE_STATUS))
@@ -2007,7 +2012,7 @@ export class CLogManager extends EventDispatcher implements ILogManager
 								
 								else 
 								{
-									_logWaiting = true;
+									this._logWaiting = true;
 									
 									if(this.hasEventListener(CLogEvent.QUEUE_STATUS))
 										this.dispatchEvent(new CLogEvent(CLogEvent.QUEUE_STATUS, CLogEvent.QUEUE_WAITING));			
@@ -2040,7 +2045,7 @@ export class CLogManager extends EventDispatcher implements ILogManager
 	public activateSession(sessionID:string = null) : void
 	{
 		if(this.traceMode) CUtil.trace("Authentication success: " + sessionID );
-		if(this.tracer) this.tracer.TRACE("Authentication Successful...", "#000088" );
+		// if(this.tracer) this.tracer.TRACE("Authentication Successful...", "#000088" );
 		
 		// Authentication succeeded - return userID in @type => db index 
 		
@@ -2050,7 +2055,7 @@ export class CLogManager extends EventDispatcher implements ILogManager
 		// Set the Session ID - used for reconnection if required							
 		
 		this._sessionActive = true;
-		this._sessionStatus = SESSION_RUNNING;
+		this._sessionStatus = CLogManager.SESSION_RUNNING;
 		
 		if(sessionID != null)
 			this._sessionID = sessionID;
@@ -2063,7 +2068,7 @@ export class CLogManager extends EventDispatcher implements ILogManager
 	public failSession() : void
 	{
 		if(this.traceMode) CUtil.trace("Authentication failed: " );
-		if(this.tracer) this.tracer.TRACE("Authentication Failed...", "#880000" );
+		// if(this.tracer) this.tracer.TRACE("Authentication Failed...", "#880000" );
 		
 		this._authenticating = false;		
 	}
@@ -2079,37 +2084,37 @@ export class CLogManager extends EventDispatcher implements ILogManager
 			
 	// Set where the playback data comes from
 	//
-	public setPlayBackSource(logSource:XMLList ) 
+	public setPlayBackSource(logSource:any ) 
 	{
 		// null logSource plays back from the live log
 		// note: the live log is wrapped in a TutorShop clientmessage wrapper
 		
 		if(logSource == null)
 		{
-			LogSource   = "logCache";
-		//	xmlEvents   = logEvents.clientmessage;
-			playBackSiz = CLogManager._logQueue.length;
+			this.LogSource   = "logCache";
+		//	this.JSONEvents   	= logEvents.clientmessage;
+			this.playBackSiz = CLogManager._logQueue.length;
 		}
 		else
 		{
-			LogSource   = "xmlSource";
-			xmlEvents   = logSource;
-			playBackSiz = logSource.length();
+			this.LogSource   = "xmlSource";
+			this.JSONEvents   = logSource;
+			this.playBackSiz = logSource.length();
 			
-			if(this.traceMode) CUtil.trace("playBackSiz: " + playBackSiz);
+			if(this.traceMode) CUtil.trace("playBackSiz: " + this.playBackSiz);
 		}			
 		
 		// Init playback counters
 		//
-		fPlayBackDone		 = false;
-		playBackNdx          = 0;
+		this.fPlayBackDone		 = false;
+		this.playBackNdx          = 0;
 //			CWOZDoc.gApp.frameID = 0;
 //			CWOZDoc.gApp.stateID = 0;
 		
 		//@@ init legacy playback counters
 		
-		lastAction = -1;
-		lastMove   = 0;			
+		this.lastAction = -1;
+		this.lastMove   = 0;			
 	}
 	
 	
@@ -2117,7 +2122,7 @@ export class CLogManager extends EventDispatcher implements ILogManager
 	 *  Remove the <clientmessage> wrapper from the log
 	 * 
 	 */
-	public unWrapLog() : XMLList
+	public unWrapLog() : any
 	{
 		let unWrapped:any = "<unwrapped/>";
 		
@@ -2137,19 +2142,19 @@ export class CLogManager extends EventDispatcher implements ILogManager
 	 */
 	public normalizePlayBackTime() : void
 	{
-		let nBaseTime:Number;
+		let nBaseTime:number;
 		let nEvent:number;
 		
-		nBaseTime = xmlEvents[0].time;
+		nBaseTime = this.JSONEvents[0].time;
 		
 		// If the recording has not already been normalized then process it
 		//
 		if(nBaseTime != 0)
 		{			
-			for(nEvent = 0 ; nEvent < playBackSiz ; nEvent++)
+			for(nEvent = 0 ; nEvent < this.playBackSiz ; nEvent++)
 			{		
-				xmlEvents[nEvent].time -= nBaseTime;
-				xmlEvents[nEvent].time *= 1000;
+				this.JSONEvents[nEvent].time -= nBaseTime;
+				this.JSONEvents[nEvent].time *= 1000;
 			}
 		}
 	}
@@ -2161,15 +2166,15 @@ export class CLogManager extends EventDispatcher implements ILogManager
 	 */
 	public normalizePlayBack() : void
 	{
-		let xmlEvent:XML;
-		let nBaseTime:Number;
+		let xmlEvent:any;
+		let nBaseTime:number;
 		let nBaseState:number;
 		let nBaseFrame:number;
 		let nEvent:number;
 		
 		// This is playing a event inside a TutorShop wrapper
 		
-		xmlEvent = xmlEvents[0];					// for live log use - logEvents.children().logrecord[0]
+		xmlEvent = this.JSONEvents[0];					// for live log use - logEvents.children().logrecord[0]
 		
 		nBaseTime  = xmlEvent.time;
 		nBaseState = xmlEvent.stateID;
@@ -2179,9 +2184,9 @@ export class CLogManager extends EventDispatcher implements ILogManager
 		
 		if(nBaseTime != 0)
 		{			
-			for(nEvent = 0 ; nEvent < playBackSiz ; nEvent++)
+			for(nEvent = 0 ; nEvent < this.playBackSiz ; nEvent++)
 			{		
-				xmlEvent = xmlEvents[nEvent];		// for live log use - logEvents.children()[nEvent].logrecord[0]
+				xmlEvent = this.JSONEvents[nEvent];		// for live log use - logEvents.children()[nEvent].logrecord[0]
 				
 				xmlEvent.time    -= nBaseTime;
 				xmlEvent.stateID -= nBaseState;
@@ -2197,9 +2202,9 @@ export class CLogManager extends EventDispatcher implements ILogManager
 	 */
 	public getNextEventState() :number
 	{	
-		let xmlEvent:XML;
+		let xmlEvent:any;
 		
-		xmlEvent = xmlEvents[playBackNdx]; 			// logEvents.children()[playBackNdx].logrecord[0];
+		xmlEvent = this.JSONEvents[this.playBackNdx]; 			// logEvents.children()[playBackNdx].logrecord[0];
 		
 		return xmlEvent.stateID;
 	}
@@ -2209,16 +2214,16 @@ export class CLogManager extends EventDispatcher implements ILogManager
 	 *  return the next event between lastEvent and the new Frame Time. 
 	 *
 	 */
-	public getNextEvent(stateID:number, frameID:number) : XML
+	public getNextEvent(stateID:number, frameID:number) : any
 	{
-		let xmlEvent:XML;
-		let xResult:XML = null;
+		let xmlEvent:any;
+		let xResult:any = null;
 		
 		if(this.traceMode) CUtil.trace("getEvent for State: " + stateID + " : Frame : " + frameID);
 		
-		for( ; playBackNdx < playBackSiz ; playBackNdx++)
+		for( ; this.playBackNdx < this.playBackSiz ; this.playBackNdx++)
 		{			
-			xmlEvent = xmlEvents[playBackNdx]; 			// logEvents.children()[playBackNdx].logrecord[0];
+			xmlEvent = this.JSONEvents[this.playBackNdx]; 			// logEvents.children()[playBackNdx].logrecord[0];
 			
 			// We only return WOZEvents
 			//
@@ -2238,7 +2243,7 @@ export class CLogManager extends EventDispatcher implements ILogManager
 				if(xmlEvent.CWOZMouseEvent != undefined)
 				{
 					xResult = xmlEvent;
-					playBackNdx++;
+					this.playBackNdx++;
 					break;
 				}
 					
@@ -2247,7 +2252,7 @@ export class CLogManager extends EventDispatcher implements ILogManager
 				else if(xmlEvent.CWOZTextEvent != undefined)
 				{
 					xResult = xmlEvent;
-					playBackNdx++;
+					this.playBackNdx++;
 					break;
 				}
 			}
@@ -2259,8 +2264,8 @@ export class CLogManager extends EventDispatcher implements ILogManager
 		
 		// Set flag if we reach the end of the log
 		
-		if(playBackNdx >= playBackSiz)
-			fPlayBackDone = true;								
+		if(this.playBackNdx >= this.playBackSiz)
+			this.fPlayBackDone = true;								
 		
 		return xResult;
 	}
@@ -2272,7 +2277,7 @@ export class CLogManager extends EventDispatcher implements ILogManager
 	 */
 	public playBackDone() : boolean
 	{
-		return fPlayBackDone;
+		return this.fPlayBackDone;
 	}
 	
 	
@@ -2283,37 +2288,37 @@ export class CLogManager extends EventDispatcher implements ILogManager
 	 *  return the next action event between lastAction and the new Frame Time. 
 	 *
 	 */
-	public getActionEvent(frameTime:Number) : XML
+	public getActionEvent(frameTime:Number) : any
 	{
-		let xResult:XML = null;
+		let xResult:any = null;
 		let nAction:number;
 		
 		if(this.traceMode) CUtil.trace("getActionEvent: " + frameTime);
 		
-		for(nAction = lastAction + 1 ; nAction < playBackSiz ; nAction++)
+		for(nAction = this.lastAction + 1 ; nAction < this.playBackSiz ; nAction++)
 		{			
 			// We only return WOZEvents
 			//
-			if(xmlEvents[nAction].type != "WOZevent")
+			if(this.JSONEvents[nAction].type != "WOZevent")
 				continue;
 				
-			else if(xmlEvents[nAction].CWOZMouseEvent != undefined)
+			else if(this.JSONEvents[nAction].CWOZMouseEvent != undefined)
 			{
-				if(xmlEvents[nAction].time <= frameTime)
+				if(this.JSONEvents[nAction].time <= frameTime)
 				{
-					if(xmlEvents[nAction].CWOZMouseEvent.CWOZEvent.type != "WOZMOUSE_MOVE")
+					if(this.JSONEvents[nAction].CWOZMouseEvent.CWOZEvent.type != "WOZMOUSE_MOVE")
 					{								
-						xResult = xmlEvents[nAction];
+						xResult = this.JSONEvents[nAction];
 						break;
 					}
 				}
 				else break;
 			}
-			else if(xmlEvents[nAction].CWOZTextEvent != undefined)
+			else if(this.JSONEvents[nAction].CWOZTextEvent != undefined)
 			{
-				if(xmlEvents[nAction].time <= frameTime)
+				if(this.JSONEvents[nAction].time <= frameTime)
 				{
-					xResult = xmlEvents[nAction];
+					xResult = this.JSONEvents[nAction];
 					break;
 				}
 				else break;
@@ -2322,12 +2327,12 @@ export class CLogManager extends EventDispatcher implements ILogManager
 		
 		// if either the move or actions are finished then we are done.
 		//
-		if(nAction >= playBackSiz)
-			fPlayBackDone = true;								
+		if(nAction >= this.playBackSiz)
+			this.fPlayBackDone = true;								
 		
 		// Track last action done
 		if(xResult != null)
-			lastAction = nAction;
+			this.lastAction = nAction;
 		
 		return xResult;
 	}
@@ -2337,7 +2342,7 @@ export class CLogManager extends EventDispatcher implements ILogManager
 	 */
 	public setPlayBackDone(val:boolean) 
 	{
-		fPlayBackDone = val;	
+		this.fPlayBackDone = val;	
 	}
 	
 	
@@ -2346,23 +2351,23 @@ export class CLogManager extends EventDispatcher implements ILogManager
 	 *
 	 *  This is used to interpolate the Playback position at Frame Time
 	 */
-	public getMoveEvent(frameTime:Number) : XML
+	public getMoveEvent(frameTime:Number) : any
 	{
-		let xResult:XML = null;
+		let xResult:any = null;
 		let nMove:number;
 		
-		for(nMove = lastMove ; nMove < playBackSiz ; nMove++)
+		for(nMove = this.lastMove ; nMove < this.playBackSiz ; nMove++)
 		{			
 			// We only return WOZEvents
 			//
-			if(xmlEvents[nMove].type != "WOZevent")
+			if(this.JSONEvents[nMove].type != "WOZevent")
 				continue;
 			
-			if(xmlEvents[nMove].time >= frameTime)
+			if(this.JSONEvents[nMove].time >= frameTime)
 			{
-				if(xmlEvents[nMove].CWOZMouseEvent.CWOZEvent.type == "WOZMOUSE_MOVE")
+				if(this.JSONEvents[nMove].CWOZMouseEvent.CWOZEvent.type == "WOZMOUSE_MOVE")
 				{								
-					xResult = xmlEvents[nMove];
+					xResult = this.JSONEvents[nMove];
 					break;
 				}
 			}
@@ -2370,11 +2375,11 @@ export class CLogManager extends EventDispatcher implements ILogManager
 		
 		// if either the move or actions are finished then we are done.
 		//
-		if(nMove >= playBackSiz)
-			fPlayBackDone = true;								
+		if(nMove >= this.playBackSiz)
+			this.fPlayBackDone = true;								
 		
 		// Track last move done
-		lastMove = nMove;
+		this.lastMove = nMove;
 		
 		return xResult;
 	}
@@ -2388,7 +2393,7 @@ export class CLogManager extends EventDispatcher implements ILogManager
 	
 }
 
-// class at file scope
+// class at Module scope
 
 class SingletonObj
 {

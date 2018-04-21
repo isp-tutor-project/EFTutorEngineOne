@@ -95,7 +95,7 @@ export class CGraphModuleGroup extends CGraphNode
 		obj['_moduleShown'] = this._moduleShown.toString(); 
 		obj['_shownCount']  = this._shownCount.toString();			
 		
-		obj['moduleNode']   =  this._modules[this._ndx].captureGraph(new Object);		
+		obj['moduleNode']   =  this._modules[this._ndx].captureGraph({});		
 		
 		return obj;
 	}
