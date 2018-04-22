@@ -19,6 +19,7 @@
 
 import { CEFRoot }              from "./core/CEFRoot";
 import { CEFTutor }             from "./core/CEFTutor";
+import { CEFAnimator }          from "./core/CEFAnimator";
 
 import { ILoaderOptions }       from "./util/ILoaderOptions";
 import { IModuleDesc }          from "./util/IModuleDesc";
@@ -33,7 +34,7 @@ import { CIOErrorEvent }        from "./events/CIOErrorEvent";
 
 import { CUtil }                from "./util/CUtil";
 
-
+import MovieClip     		  = createjs.MovieClip;
 
 
 export class CEngine {
@@ -49,41 +50,14 @@ export class CEngine {
 
     public start(_bootTutor:string ) : void
     {
-        let efLibrary:CEFRoot = new CEFRoot();
-        let tutor:CEFTutor    = new CEFTutor();
+        // let efLibrary:CEFRoot = new CEFRoot();
+        // let tutor:CEFTutor    = new CEFTutor();
 
         this.bootTutor = _bootTutor;
 
-        console.log("In TutorEngineOne startup");
+        console.log("In TutorEngineOne startup: " + _bootTutor);
 
-        this.timerID = this.waitForCreateJS(this.CJSLoadCheck);
-    }
-
-
-    public waitForCreateJS(listener : any ) : number {
-
-        var scope = this;
-
-        if (listener.handleEvent) {
-            scope = scope||listener;
-            listener = listener.handleEvent;
-        }
-
-        scope = scope||this;
-
-        return setInterval(function() {
-                listener.call(scope);
-            }, CEngine.WAIT);
-    }
-
-
-    public CJSLoadCheck() : void {
-
-        if(EFLoadManager && EFLoadManager.loaded) {
-            
-            clearInterval(this.timerID);
-            this.loadBootOptions();
-        }
+        this.loadBootOptions();
     }
 
 
@@ -171,10 +145,40 @@ export class CEngine {
 		let queue = evt.target;
 		let ssMetadata = lib.ssMetadata;
 
+        let temp0:any;
+        let temp1:any;
+        let temp2:CEFTutor;
+
 		for(let i = 0 ; i < ssMetadata.length ; i++) {
 
 			ss[ssMetadata[i].name] = new createjs.SpriteSheet( {"images": [queue.getResult(ssMetadata[i].name)], "frames": ssMetadata[i].frames} )
 		}
+
+        for(comp in lib) {
+
+            if(comp.startsWith("thermite")) {
+
+                temp0 = new lib[comp]();
+                temp1 = {prototype:{}};
+
+                temp1.prototype.constructor   = lib[comp].prototype.constructor;
+                temp1.prototype.clone         = lib[comp].prototype.clone;
+                temp1.prototype.nominalBounds = lib[comp].prototype.nominalBounds;
+                temp1.prototype.frameBounds   = lib[comp].prototype.frameBounds;
+
+                lib[comp].prototype = Object.create(CEFTutor.prototype);
+
+                lib[comp].prototype.clone           = temp1.prototype.clone;
+                lib[comp].prototype.nominalBounds   = temp1.prototype.nominalBounds;
+                lib[comp].prototype.frameBounds     = temp1.prototype.frameBounds;
+
+                temp2 = new lib[comp]();
+
+                temp2.Destructor();
+                break;
+            }
+        }
+
 
 		AdobeAn.compositionLoaded(lib.properties.id);
 	}	

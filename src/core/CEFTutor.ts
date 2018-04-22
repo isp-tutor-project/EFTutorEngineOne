@@ -104,6 +104,23 @@ export class CEFTutor extends CEFTutorRoot
         
     }
 
+    public CEFTutorInitialize() {
+        this.CEFTutorRootInitialize();
+
+        this.init2();
+    }
+
+    public initialize() {
+        this.CEFTutorRootInitialize();
+
+        this.init2();
+    }
+
+    private init2() {
+
+		console.log("Init called on: CEFTutor");
+    }
+	    
 // ******************* Overrides 		
     
     

@@ -145,10 +145,30 @@ export class CUtil extends Object
             }
         }
     
-    }
-
-
+	}
 	
+
+	public static strMap2Obj(strMap:Map<string,Object>) {
+
+		let obj = Object.create(null);
+
+		for (let [k,v] of strMap) {
+			obj[k] = v;
+		}
+
+		return obj;
+	}
+	public static obj2StrMap(obj:any) {
+
+		let strMap = new Map<string,Object>();
+
+		for (let k of Object.keys(obj)) {
+			strMap.set(k, obj[k]);
+		}
+		
+		return strMap;
+	}		
+
 }
 
 let __global = this.__global || this;

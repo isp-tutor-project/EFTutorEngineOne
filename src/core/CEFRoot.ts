@@ -36,7 +36,7 @@ export class CEFRoot extends MovieClip
 	public traceMode:boolean;
 	
 	public wozName:string;
-	private _listenerArr:Array<Function|Object> = new Array;	// Array of listeners on this object - 
+	private _listenerArr:Array<Function|Object>;				// Array of listeners on this object - 
 		
 	public static STAGEWIDTH:number  = 1024;  
 	public static STAGEHEIGHT:number = 768;  
@@ -105,7 +105,27 @@ export class CEFRoot extends MovieClip
 	{
 		super();
 
-		this.traceMode = false;
+        this.init0();
+	}
+
+	/*  ###########   CREATEJS SUBCLASS PROBLEM ###########   */
+
+	public CEFRootInitialize() {
+        MovieClip.call(this);
+
+        this.init0();
+    }
+
+    public initialize() {
+        MovieClip.call(this);
+		
+        this.init0();
+    }
+
+    private init0() {
+
+		this._listenerArr = new Array;
+		this.traceMode    = false;
 		
 		if (this.traceMode) CUtil.trace("CEFRoot:Constructor");		
 		
@@ -114,8 +134,14 @@ export class CEFRoot extends MovieClip
 		//
 		this.wozName = "CEF" + CEFRoot._wozInstance.toString();
 		
-		CEFRoot._wozInstance++;			
-	}
+		CEFRoot._wozInstance++;					
+
+		console.log("Init called on: CEFRoot");
+    }
+	
+	/*  ###########   CREATEJS SUBCLASS PROBLEM ###########   */
+
+
 	
 	public Destructor() : void
 	{

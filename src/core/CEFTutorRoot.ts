@@ -135,6 +135,26 @@ export class CEFTutorRoot extends CEFRoot
 		this.tutorAutoObj = {};						// Create the Automation Object			
 	}
 	
+
+    public CEFTutorRootInitialize() {
+        this.CEFRootInitialize();
+
+        this.init1();
+    }
+
+    public initialize() {
+        this.CEFRootInitialize();
+
+        this.init1();
+    }
+
+    private init1() {
+
+		console.log("Init called on: CEFTutorRoot");
+    }
+	
+
+
 	public resetZorder()
 	{
 			this.StitleBar.setTopMost();			

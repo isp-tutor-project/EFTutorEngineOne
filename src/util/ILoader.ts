@@ -1,11 +1,8 @@
 interface _account {
-    _id:string;
-
     EB2:string;
     EB3:string;
     EB4:string;
 
-    user:string;
     _loader:string;
     _feature:string;
     roles:string;
@@ -261,19 +258,19 @@ interface _settings {
     Modified:string;
 }
 
-interface loaderPackage {
+interface IloaderPackage {
 
-    bootLoader: _bootloader[];
+    bootLoader: Map<string, _bootloader>;
     
-    settings: _settings[];
+    settings: Map<string, _settings>;
     
-    accounts: _account[];
+    accounts: Map<string, _account>;
     
-	loaders: _loader[];
+	loaders: Map<string, _loader>;
 		
-	modules: _module[];
+	modules: Map<string, _module>;
 	
-	conditions: _condition[];
+	conditions: Map<string, _condition>;
 	
-	interfaces: _interface[];
+	interfaces: Map<string, _interface>;
 }
