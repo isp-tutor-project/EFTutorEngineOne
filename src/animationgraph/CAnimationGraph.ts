@@ -26,6 +26,8 @@ import { CAnimationConstraint } 	from "./CAnimationConstraint";
 import { CEFRoot }					from "../core/CEFRoot";
 import { CEFSceneSequence }			from "../core/CEFSceneSequence";
 
+import { CTutorState }  			from "../util/CTutorState";
+import { CONST }            		from "../util/CONST";
 
 
 
@@ -46,7 +48,6 @@ export class CAnimationGraph extends CAnimationNode
 	
 	public  _graphFactory:any;
 
-	public static _pFeatures:any = {}; 
 	
 	
 	public CAnimationGraph()
@@ -57,7 +58,7 @@ export class CAnimationGraph extends CAnimationNode
 	{			
 		let animationgraph:CAnimationGraph = new CAnimationGraph;			
 	
-		animationgraph._graphFactory = CEFRoot.gAnimationGraphDesc[factoryName];
+		animationgraph._graphFactory = CTutorState.gAnimationGraphDesc[factoryName];
 		
 		animationgraph.sceneInstance = parent;
 
@@ -112,21 +113,21 @@ export class CAnimationGraph extends CAnimationNode
 		// On subsequent accesses we increment the iteration count 
 		// If it has surpassed the size of the pFeature array we cycle on the last 'cycle' entries
 
-		if(CAnimationGraph._pFeatures[pid] != undefined)
+		if(CTutorState._pFeatures[pid] != undefined)
 		{
-			iter = CAnimationGraph._pFeatures[pid] + 1;
+			iter = CTutorState._pFeatures[pid] + 1;
 			
 			if(iter >= size)
 			{
 				iter = size - cycle;					
 			}
 			
-			CAnimationGraph._pFeatures[pid] = iter;
+			CTutorState._pFeatures[pid] = iter;
 		}
 		
 		// On first touch we have to create the property
 		
-		else CAnimationGraph._pFeatures[pid] = 0;
+		else CTutorState._pFeatures[pid] = 0;
 		
 		return iter;
 	}

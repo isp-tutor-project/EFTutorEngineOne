@@ -32,9 +32,14 @@ import { CProgressEvent }       from "./events/CProgressEvent";
 import { CSecurityErrorEvent }  from "./events/CSecurityErrorEvent";
 import { CIOErrorEvent }        from "./events/CIOErrorEvent";
 
+import { CEFButton }            from "./core/CEFButton";
+
+import { CONST }                from "./util/CONST";
 import { CUtil }                from "./util/CUtil";
 
 import MovieClip     		  = createjs.MovieClip;
+import DisplayObject          = createjs.DisplayObject;
+
 
 
 export class CEngine {
@@ -44,18 +49,16 @@ export class CEngine {
     public bootSpec:ILoaderOptions;
     public timerID:number;
 
-    public static BOOT_OPTIONS:string   = "./data/bootOptions.json";
-    public static LOCAL:string          = "LOCAL";
-    public static WAIT:number           = 250;
-
     public start(_bootTutor:string ) : void
     {
-        // let efLibrary:CEFRoot = new CEFRoot();
-        // let tutor:CEFTutor    = new CEFTutor();
+        let efLibrary:CEFRoot = new CEFRoot();
+        let tutor:CEFTutor    = new CEFTutor();
 
         this.bootTutor = _bootTutor;
 
         console.log("In TutorEngineOne startup: " + _bootTutor);
+
+        // let thisButton = new CEFButton();
 
         this.loadBootOptions();
     }
@@ -65,12 +68,12 @@ export class CEngine {
 
         this.loader = new CURLLoader();
 
-        this.loader.load(new CURLRequest(CEngine.BOOT_OPTIONS))
+        this.loader.load(new CURLRequest(CONST.BOOT_OPTIONS))
             .then((_data) => {
 
                 this.bootSpec = JSON.parse(_data);
 
-                if(this.bootSpec.Mode === CEngine.LOCAL) {
+                if(this.bootSpec.Mode === CONST.LOCAL) {
         
                     console.log("In Module Loader");
 
@@ -154,35 +157,36 @@ export class CEngine {
 			ss[ssMetadata[i].name] = new createjs.SpriteSheet( {"images": [queue.getResult(ssMetadata[i].name)], "frames": ssMetadata[i].frames} )
 		}
 
-        for(comp in lib) {
+        // for(comp in lib) {
 
-            if(comp.startsWith("thermite")) {
+        //     if(comp.startsWith("thermite")) {
 
-                temp0 = new lib[comp]();
-                temp1 = {prototype:{}};
+        //         temp0 = new lib[comp]();
+        //         temp1 = {prototype:{}};
 
-                temp1.prototype.constructor   = lib[comp].prototype.constructor;
-                temp1.prototype.clone         = lib[comp].prototype.clone;
-                temp1.prototype.nominalBounds = lib[comp].prototype.nominalBounds;
-                temp1.prototype.frameBounds   = lib[comp].prototype.frameBounds;
+        //         temp1.prototype.constructor   = lib[comp].prototype.constructor;
+        //         temp1.prototype.clone         = lib[comp].prototype.clone;
+        //         temp1.prototype.nominalBounds = lib[comp].prototype.nominalBounds;
+        //         temp1.prototype.frameBounds   = lib[comp].prototype.frameBounds;
 
-                lib[comp].prototype = Object.create(CEFTutor.prototype);
+        //         lib[comp].prototype = Object.create(CEFTutor.prototype);
 
-                lib[comp].prototype.clone           = temp1.prototype.clone;
-                lib[comp].prototype.nominalBounds   = temp1.prototype.nominalBounds;
-                lib[comp].prototype.frameBounds     = temp1.prototype.frameBounds;
+        //         lib[comp].prototype.clone           = temp1.prototype.clone;
+        //         lib[comp].prototype.nominalBounds   = temp1.prototype.nominalBounds;
+        //         lib[comp].prototype.frameBounds     = temp1.prototype.frameBounds;
 
-                temp2 = new lib[comp]();
+        //         temp2 = new lib[comp]();
 
-                temp2.Destructor();
-                break;
-            }
-        }
+        //         temp2.Destructor();
+        //         break;
+        //     }
+        // }
 
+
+        this.mapSubClasses(lib);
 
 		AdobeAn.compositionLoaded(lib.properties.id);
 	}	
-
 
 
 
@@ -208,17 +212,25 @@ export class CEngine {
 
     public EFsubClass(AnObject:any, superClass:string) {
 
-        let ClassObj:any = SystemJS.get(superClass);
+
+        let ClassObj:any = SystemJS.registry.get("http://127.0.0.1/ISP_Tutor/"+superClass);
+        let temp1:any;
 
         if(ClassObj) {
 
-            let p = new ClassObj();
+            temp1 = {};
 
-            p.prototype.clone = AnObject.prototype.clone;
-            p.prototype.clone = AnObject.prototype.nominalBounds;
-            p.prototype.clone = AnObject.prototype.frameBounds;        
+            temp1.constructor   = AnObject.prototype.constructor;
+            temp1.clone         = AnObject.prototype.clone;
+            temp1.nominalBounds = AnObject.prototype.nominalBounds;
+            temp1.frameBounds   = AnObject.prototype.frameBounds;
 
-            AnObject.prototype = p;
+            AnObject.prototype = Object.create(ClassObj.prototype);
+
+            AnObject.prototype.clone           = temp1.clone;
+            AnObject.prototype.nominalBounds   = temp1.nominalBounds;
+            AnObject.prototype.frameBounds     = temp1.frameBounds;
+
         }
     }
 

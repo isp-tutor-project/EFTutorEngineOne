@@ -17,9 +17,11 @@
 
 //** imports
 
-import { CSceneGraph } from "./CSceneGraph";
-import { CEFRoot } from "../core/CEFRoot";
+import { CSceneGraph } 		from "./CSceneGraph";
+import { CEFRoot } 			from "../core/CEFRoot";
 
+import { CTutorState }      from "../util/CTutorState";
+import { CONST }            from "../util/CONST";
 import { CUtil } 			from "../util/CUtil";
 
 
@@ -57,7 +59,7 @@ export class CGraphConstraint extends Object
 		{
 			case "test":
 				
-				result = CEFRoot.gTutor.testFeatureSet(this._code);
+				result = CTutorState.gTutor.testFeatureSet(this._code);
 				
 				//let sresult = result? " :passed.":" :failed.";					
 				//trace("Graph Constraint: " + this._code + sresult);
@@ -72,7 +74,7 @@ export class CGraphConstraint extends Object
 				}
 				catch(err)
 				{
-					CUtil.trace("CSceneGraphNavigator.execute: " + err.toString());
+					CUtil.trace("CONST.execute: " + err.toString());
 																
 					result = false;
 				}

@@ -17,14 +17,5 @@
 
 export class CLogManagerType
 {
-	public static readonly RECLOGNONE:number    = 0;			// Disable all recording
-	public static readonly RECORDEVENTS:number  = 1;			// Record Events
-	public static readonly LOGEVENTS:number     = 2;			// Log Events to Server
-	public static readonly RECLOGEVENTS:number  = 3;			// Record and Log all events
-	
-	public static readonly MODE_JSON:string    = "MODE_JSON";
-	
-	public static readonly JSON_ACKLOG:string  = "JSON_ACKLOG";
-	public static readonly JSON_ACKTERM:string = "JSON_ACKTERM";
 	
 }

@@ -25,6 +25,8 @@ import { CEFSeekEvent }		from "../events/CEFSeekEvent";
 
 import { ILogManager }  	from "../managers/ILogManager";
 
+import { CTutorState }      from "../util/CTutorState";
+import { CONST }            from "../util/CONST";
 import { CUtil } 			from "../util/CUtil";
 
 import DisplayObject      = createjs.DisplayObject;
@@ -50,8 +52,10 @@ export class CEFScene extends CEFObject
 	/**
 	 * Scene Constructor
 	 */
-	public CEFScene():void
+	constructor()
 	{
+		super();
+
 		this.traceMode = false;
 		if(this.traceMode) CUtil.trace("CEFScene:Constructor");			
 	}
@@ -61,8 +65,8 @@ export class CEFScene extends CEFObject
 	{
 		// Parse the Tutor.config for create procedures for this scene 
 		
-		if((CEFScene.gSceneConfig != null) && (CEFScene.gSceneConfig.scenedata[name].create != undefined))
-			this.parseOBJ(this, CEFScene.gSceneConfig.scenedata[name].create.children(), "create");
+		if((CTutorState.gSceneConfig != null) && (CTutorState.gSceneConfig.scenedata[name].create != undefined))
+			this.parseOBJ(this, CTutorState.gSceneConfig.scenedata[name].create.children(), "create");
 
 		//## Mod May 04 2014 - support declarative button actions from scenedescr.xml <create>
 		if(this.onCreateScript != null)
@@ -70,8 +74,8 @@ export class CEFScene extends CEFObject
 		
 		//## Mod Oct 25 2012 - support for demo scene-initialization
 		
-		if((CEFScene.gSceneConfig != null) && (CEFScene.gSceneConfig.scenedata[name].demoinit != undefined))
-			this.parseOBJ(this, CEFScene.gSceneConfig.scenedata[name].demoinit.children(), "demoinit");
+		if((CTutorState.gSceneConfig != null) && (CTutorState.gSceneConfig.scenedata[name].demoinit != undefined))
+			this.parseOBJ(this, CTutorState.gSceneConfig.scenedata[name].demoinit.children(), "demoinit");
 	}
 
 
@@ -146,7 +150,7 @@ export class CEFScene extends CEFObject
 			// This permits the tutor to have multiple independently managed features.
 			// All identifiers of all the feature sets must be globally unique.
 			
-			fTest = CEFRoot.gTutor.testFeatureSet(String(evt.script.features));
+			fTest = CTutorState.gTutor.testFeatureSet(String(evt.script.features));
 		}
 		
 		// Note "common" elements within the packet will search the SceneConfig space for matches,
@@ -325,12 +329,12 @@ export class CEFScene extends CEFObject
 		// Update the Navigation
 		//
 		if(!this.fComplete)
-			CEFRoot.gTutor.enableNext(false);		
+			CTutorState.gTutor.enableNext(false);		
 		else	
-			CEFRoot.gTutor.enableNext(true);		
+			CTutorState.gTutor.enableNext(true);		
 			
-		if(this.gForceBackButton)
-			CEFRoot.gTutor.enableBack(CEFRoot.fEnableBack);																		
+		if(CTutorState.gForceBackButton)
+			CTutorState.gTutor.enableBack(CTutorState.fEnableBack);																		
 	}
 
 	/**
@@ -381,8 +385,8 @@ export class CEFScene extends CEFObject
 		
 		// Parse the Tutor.config for preenter procedures for this scene 
 		
-		if((CEFScene.gSceneConfig != null) && (CEFScene.gSceneConfig.scenedata[name].preenter != undefined))			
-										this.parseOBJ(this, CEFScene.gSceneConfig.scenedata[name].preenter.children(), "preenter");				
+		if((CTutorState.gSceneConfig != null) && (CTutorState.gSceneConfig.scenedata[name].preenter != undefined))			
+										this.parseOBJ(this, CTutorState.gSceneConfig.scenedata[name].preenter.children(), "preenter");				
 
 		//@@ Mod May 22 2013 - moved to after the XML spec is executed - If the user uses the back button this should
 		//                     override the spec based on fComplete
@@ -410,8 +414,8 @@ export class CEFScene extends CEFObject
 		
 		// Parse the Tutor.config for onenter procedures for this scene 
 		
-		if((CEFScene.gSceneConfig != null) && (CEFScene.gSceneConfig.scenedata[name].onenter != undefined))			
-										this.parseOBJ(this, CEFScene.gSceneConfig.scenedata[name].onenter.children(), "onenter");						
+		if((CTutorState.gSceneConfig != null) && (CTutorState.gSceneConfig.scenedata[name].onenter != undefined))			
+										this.parseOBJ(this, CTutorState.gSceneConfig.scenedata[name].onenter.children(), "onenter");						
 	}
 	
 	// Direction can be - "NEXT" , "BACK" , "GOTO"
@@ -422,10 +426,10 @@ export class CEFScene extends CEFObject
 		
 		// Parse the Tutor.config for onenter procedures for this scene 
 		
-		if((CEFScene.gSceneConfig != null) && (CEFScene.gSceneConfig.scenedata[name].preexit != undefined))		
-										this.parseOBJ(this, CEFScene.gSceneConfig.scenedata[name].preexit.children(), "preexit");				
+		if((CTutorState.gSceneConfig != null) && (CTutorState.gSceneConfig.scenedata[name].preexit != undefined))		
+										this.parseOBJ(this, CTutorState.gSceneConfig.scenedata[name].preexit.children(), "preexit");				
 		
-		return(CEFObject.OKNAV);			
+		return(CONST.OKNAV);			
 	}
 
 	public onExitScene() : void
@@ -434,8 +438,8 @@ export class CEFScene extends CEFObject
 		
 		// Parse the Tutor.config for onenter procedures for this scene 
 		
-		if((CEFScene.gSceneConfig != null) && (CEFScene.gSceneConfig.scenedata[name].onexit != undefined))			
-										this.parseOBJ(this, CEFScene.gSceneConfig.scenedata[name].onexit.children(), "onexit");						
+		if((CTutorState.gSceneConfig != null) && (CTutorState.gSceneConfig.scenedata[name].onexit != undefined))			
+										this.parseOBJ(this, CTutorState.gSceneConfig.scenedata[name].onexit.children(), "onexit");						
 	}
 	
 //****** DEMO Behaviors

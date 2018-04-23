@@ -23,6 +23,8 @@ import { CEFButton } 		from "./CEFButton";
 
 import { CEFButtonEvent } 	from "../events/CEFButtonEvent";
 
+import { CTutorState }  	from "../util/CTutorState";
+import { CONST }            from "../util/CONST";
 import { CUtil } 			from "../util/CUtil";
 
 
@@ -322,7 +324,7 @@ export class CEFButtonGroup extends CEFObject
 		}
 		
 		if(_feature != "")
-			CEFRoot.gTutor.addFeature = _feature;
+			CTutorState.gTutor.addFeature = _feature;
 		
 		// Assert button specific features 
 		//
@@ -354,7 +356,7 @@ export class CEFButtonGroup extends CEFObject
 		}
 		
 		if(_feature != "")
-			CEFRoot.gTutor.delFeature = _feature;
+			CTutorState.gTutor.delFeature = _feature;
 		
 		// Assert button specific features 
 		//

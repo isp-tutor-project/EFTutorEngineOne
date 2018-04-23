@@ -101,7 +101,7 @@ export class CGraphNode extends EventDispatcher
 		
 		if(this._preExit != null)
 		{
-			// D.eval(this._preExit, CEFRoot.Tutor.SnavPanel);			
+			// D.eval(this._preExit, CONST.Tutor.SnavPanel);			
 		}
 		
 		for (let edge of this._edges)

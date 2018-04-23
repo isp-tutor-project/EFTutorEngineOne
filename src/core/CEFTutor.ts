@@ -21,9 +21,12 @@ import { CEFTutorRoot } 	    from "./CEFTutorRoot";
 import { CEFMouseMask }         from "./CEFMouseMask";
 
 import { CSceneGraphNavigator } from "../scenegraph/CSceneGraphNavigator";
-import { CUtil } 		        from "../util/CUtil";
 import { CEFNavDemo }           from "../thermite/scene/CEFNavDemo";
 import { CDialogDesignPrompt1 } from "../dialogs/CDialogDesignPrompt1";
+
+import { CTutorState }          from "../util/CTutorState";
+import { CONST }                from "../util/CONST";
+import { CUtil } 			    from "../util/CUtil";
 
 
 /**
@@ -133,8 +136,8 @@ export class CEFTutor extends CEFTutorRoot
         // ******************************************************************************************
         
         // This manufactures the sceneGraph from the JSON object spec file 			
-        if(CEFRoot.gSceneGraphDesc != null)
-            CSceneGraphNavigator.rootGraphFactory(CEFRoot.gSceneGraphDesc);
+        if(CTutorState.gSceneGraphDesc != null)
+             CSceneGraphNavigator.rootGraphFactory(CTutorState.gSceneGraphDesc);
         
         // Setup the demo Button on the title bar
         if(this.StitleBar != null)

@@ -1,7 +1,4 @@
-﻿import { CEFNavigator } from "./CEFNavigator";
-import { CEFRoot } from "./CEFRoot";
-
-//*********************************************************************************
+﻿//*********************************************************************************
 //
 //  Copyright(c) 2008,2018 Kevin Willows. All Rights Reserved
 //
@@ -19,6 +16,13 @@ import { CEFRoot } from "./CEFRoot";
 
 
 //** Imports
+
+import { CEFRoot } 		from "./CEFRoot";
+import { CEFNavigator } from "./CEFNavigator";
+
+import { CTutorState }  from "../util/CTutorState";
+import { CONST }        from "../util/CONST";
+import { CUtil } 		from "../util/CUtil";
 
 
 
@@ -111,7 +115,7 @@ export class CEFSceneNavigator extends CEFNavigator
 		{
 			// If this scene is not in the feature set for the tutor then check the next one.
 			
-			if(!CEFRoot.gTutor.testFeatureSet(this.StsceneFeatures[this.StsceneCurr])) this.StsceneCurr++;
+			if(!CTutorState.gTutor.testFeatureSet(this.StsceneFeatures[this.StsceneCurr])) this.StsceneCurr++;
 																					else break;
 		}
 		
@@ -132,7 +136,7 @@ export class CEFSceneNavigator extends CEFNavigator
 		{
 			// If this scene is not in the feature set for the tutor then check the next one.
 			
-			if(!CEFRoot.gTutor.testFeatureSet(this.StsceneFeatures[this.StsceneCurr])) this.StsceneCurr++;
+			if(!CTutorState.gTutor.testFeatureSet(this.StsceneFeatures[this.StsceneCurr])) this.StsceneCurr++;
 																else break;
 		}
 		

@@ -21,6 +21,9 @@ import { CEFTutorRoot } 	from "./CEFTutorRoot";
 import { CEFObjectMask } 	from "./CEFObjectMask";
 
 import { CEFEvent } 		from "../events/CEFEvent";
+
+import { CTutorState }      from "../util/CTutorState";
+import { CONST }            from "../util/CONST";
 import { CUtil } 			from "../util/CUtil";
 
 import Tween    		  	= createjs.Tween;
@@ -297,13 +300,13 @@ export class CEFTransitions extends CEFAnimator
 						
 						// Get their locations in the display list
 						
-						let dI1:number = CEFRoot.gTutor[this.currScene].getChildIndex(dO1);
-						let dI2:number = CEFRoot.gTutor[this.newScene].getChildIndex(dO2);
+						let dI1:number = CTutorState.gTutor[this.currScene].getChildIndex(dO1);
+						let dI2:number = CTutorState.gTutor[this.newScene].getChildIndex(dO2);
 						
 						// Swap them in the scenes display lists
 						
-						CEFRoot.gTutor[this.currScene].addChildAt(dO2, dI1 );
-						CEFRoot.gTutor[this.newScene].addChildAt(dO1, dI2);
+						CTutorState.gTutor[this.currScene].addChildAt(dO2, dI1 );
+						CTutorState.gTutor[this.newScene].addChildAt(dO1, dI2);
 						
 						// Swap the instances in the TutorObj
 						

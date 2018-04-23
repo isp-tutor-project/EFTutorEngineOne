@@ -28,6 +28,8 @@ import { CGraphAction } 	from "./CGraphAction";
 import { CGraphModule } 	from "./CGraphModule";
 import { CGraphModuleGroup } from "./CGraphModuleGroup";
 
+import { CTutorState }      from "../util/CTutorState";
+import { CONST }            from "../util/CONST";
 import { CUtil } 			from "../util/CUtil";
 
 
@@ -107,12 +109,12 @@ export class CSceneGraph extends CGraphNode
 			//
 			if(this._prevScene != null)
 			{
-				objInstance = CEFNavigator.TutAutomator[this._prevScene.scenename].instance as CEFObject;
+				objInstance = CTutorState.TutAutomator[this._prevScene.scenename].instance as CEFObject;
 			}
 		}
 		catch(err)
 		{
-			CUtil.trace("CSceneGraphNavigator.sceneInstance: " + err.toString());
+			CUtil.trace("CONST.sceneInstance: " + err.toString());
 			
 			objInstance = null;
 		}
@@ -330,7 +332,7 @@ export class CSceneGraph extends CGraphNode
 		
 		// Make accessible globally
 		
-		CEFRoot.gTutor.ktSkills = this._skillSet;
+		CTutorState.gTutor.ktSkills = this._skillSet;
 		
 		return true;
 	}

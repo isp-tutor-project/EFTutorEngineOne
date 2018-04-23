@@ -23,7 +23,9 @@ import { CGraphScene } 	from "./CGraphScene";
 
 import { CEFRoot } 		from "../core/CEFRoot";
 
-import { CUtil } 			from "../util/CUtil";
+import { CTutorState }  from "../util/CTutorState";
+import { CONST }        from "../util/CONST";
+import { CUtil } 		from "../util/CUtil";
 
 
 export class CGraphModule extends CGraphNode
@@ -108,7 +110,7 @@ export class CGraphModule extends CGraphNode
 				
 				if(features != "")
 				{
-					if(CEFRoot.gTutor.testFeatureSet(features))
+					if(CTutorState.gTutor.testFeatureSet(features))
 					{
 						// Check stocastic Feature if present
 						

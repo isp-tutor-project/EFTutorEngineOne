@@ -23,6 +23,8 @@ import { CAnimationTrack } 	from "./CAnimationTrack";
 
 import { CEFRoot } 			from "../core/CEFRoot";
 
+import { CTutorState }  	from "../util/CTutorState";
+import { CONST }            from "../util/CONST";
 import { CUtil } 			from "../util/CUtil";
 
 import EventDispatcher = createjs.EventDispatcher;
@@ -106,7 +108,7 @@ export class CAnimationModule extends CAnimationNode
 				
 				if(features != "")
 				{
-					featurePass = CEFRoot.gTutor.testFeatureSet(features);
+					featurePass = CTutorState.gTutor.testFeatureSet(features);
 
 					if(featurePass)
 					{

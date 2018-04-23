@@ -34,6 +34,7 @@
 import { CLogEvent } 		from "../events/CLogEvent";
 import { CLogManagerType } 	from "../managers/CLogManagerType";
 
+import { CONST }            from "../util/CONST";
 import { CUtil } 			from "../util/CUtil";
 
 import EventDispatcher = createjs.EventDispatcher;
@@ -67,13 +68,8 @@ export class CLogQueue extends EventDispatcher
 	private _queueOpen:boolean = false;				// Whether queue acepts data
 	private _queueStreaming:boolean = false;		// Whether data is streaming over the wire
 	
-	private _queueMode:string = CLogManagerType.MODE_JSON;
+	private _queueMode:string = CONST.MODE_JSON;
 	
-	public static readonly RECLOGNONE:number    = 0;			// Disable all recording
-	public static readonly RECORDEVENTS:number  = 1;			// Record Events
-	public static readonly LOGEVENTS:number     = 2;			// Log Events to Server
-	public static readonly REClogEvents:number  = 3;			// Record and Log all events
-
 	
 	
 	public CLogQueue():void
@@ -229,7 +225,7 @@ export class CLogQueue extends EventDispatcher
 	 */
 	public nextPacket() : any
 	{
-		if(this._queueMode == CLogManagerType.MODE_JSON)
+		if(this._queueMode == CONST.MODE_JSON)
 			return this.jsonEvents[this.logAckIndex+1];
 		else
 			return this.logEvents.children()[this.logAckIndex+1];			
@@ -274,7 +270,7 @@ export class CLogQueue extends EventDispatcher
 			
 			// If Queueing - Enqueue the event
 			
-			if(this._queueMode == CLogManagerType.MODE_JSON)
+			if(this._queueMode == CONST.MODE_JSON)
 				this.jsonEvents.push(dataEvt);
 			else
 				this.logEvents.appendChild(dataEvt);

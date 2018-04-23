@@ -1993,16 +1993,16 @@ export class CSessionManager
         switch(this._interfaceLdr.log)
         {
             case "REMOTE":
-                this._logManager.fLogging = CLogManagerType.RECLOGEVENTS;		// standard mode is - RECLOGEVENTS								
+                this._logManager.fLogging = CONST.RECLOGEVENTS;		// standard mode is - RECLOGEVENTS								
                 break;
             
             case "LOCAL":
-                this._logManager.fLogging = CLogManagerType.RECORDEVENTS;		// Records events to the queue for local save							
+                this._logManager.fLogging = CONST.RECORDEVENTS;		// Records events to the queue for local save							
                 break;
             
             case "NONE":
             default:				
-                this._logManager.fLogging = CLogManagerType.RECLOGNONE;			// queue disabled - no logging
+                this._logManager.fLogging = CONST.RECLOGNONE;			// queue disabled - no logging
                 break;
         }
 
@@ -2012,7 +2012,7 @@ export class CSessionManager
         
         // load the target application and let it run
         
-        this._tutorObject = instantiateObject(this._loader.appclass);
+        this._tutorObject = CUtil.instantiateObject(this._loader.appclass);
         this._tutorObject.name = "Document";
                     
         if(this._tutorObject.hasOwnProperty("extAccount"))		
@@ -2152,19 +2152,7 @@ export class CSessionManager
             this.currentState = "exitedFullScreen";				
         }
     }		
-    
-    
-    private instantiateObject(objectClass:string) : *
-    {			
-        let tarObject:any;
-        
-        let ClassRef:Class = getDefinitionByName(objectClass) as Class;
-        
-        tarObject = new ClassRef;
-        
-        return tarObject;			
-    }
-    
+      
 
     private spellCheckHdlr(event:CSpellEvent):void 
     { 

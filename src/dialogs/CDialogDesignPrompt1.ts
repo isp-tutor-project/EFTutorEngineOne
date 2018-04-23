@@ -16,11 +16,17 @@
 
 //** Imports
 
-import { CEFMouseEvent } from "../events/CEFMouseEvent";
-import { CEFDialogBox } from "./CEFDialogBox";
+import { CEFDialogBox } 	from "./CEFDialogBox";
+
+import { CEFLabelButton } 	from "../controls/CEFLabelButton";
+
+import { CEFMouseEvent } 	from "../events/CEFMouseEvent";
+
+import { CONST }            from "../util/CONST";
+import { CUtil } 			from "../util/CUtil";
+
 
 import TextField = createjs.Text;
-import { CEFLabelButton } from "../controls/CEFLabelButton";
 
 
 
@@ -37,8 +43,6 @@ export class CDialogDesignPrompt1 extends CEFDialogBox
 	
 	//************ Stage Symbols
 	
-	public static readonly DLGSTAY:string	= "DLGStay";
-	public static readonly DLGNEXT:string	= "DLGNext";
 	
 	/**
 	 * 
@@ -63,7 +67,7 @@ export class CDialogDesignPrompt1 extends CEFDialogBox
 	 */
 	public doCancel(evt:CEFMouseEvent) 
 	{
-		this.endModal(CDialogDesignPrompt1.DLGSTAY);
+		this.endModal(CONST.DLGSTAY);
 	}
 	
 //****** Overridable Behaviors

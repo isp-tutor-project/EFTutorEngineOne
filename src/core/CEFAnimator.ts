@@ -19,8 +19,11 @@ import { CEFRoot } 			from "./CEFRoot";
 import { CEFDoc } 			from "./CEFDoc";
 import { CEFObject }		from "./CEFObject";
 
-import { CUtil } 			from "../util/CUtil";
 import { CEFEvent } 		from "../events/CEFEvent";
+
+import { CTutorState }  	from "../util/CTutorState";
+import { CONST }            from "../util/CONST";
+import { CUtil } 			from "../util/CUtil";
 
 import Tween 				  = createjs.Tween;
 
@@ -38,8 +41,9 @@ export class CEFAnimator extends CEFRoot
 	/**
 	 * Abstract base class providing object animation features
 	 */
-	public CEFAnimator() 
+	constructor() 
 	{
+		super();
 	}
 	
 	
@@ -97,7 +101,7 @@ export class CEFAnimator extends CEFRoot
 		
 		// the interface is now in a new state - 
 		
-		CEFDoc.gApp.incStateID();				
+		CTutorState.gApp.incStateID();				
 	}					
 	
 			

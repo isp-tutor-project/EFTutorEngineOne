@@ -20,7 +20,11 @@
 import { CEFRoot } 				from "../../core/CEFRoot";
 import { CEFDoc } 				from "../../core/CEFDoc";
 import { CEFSceneSequence } 	from "../../core/CEFSceneSequence";
+
 import { CEFNavEvent } 			from "../../events/CEFNavEvent";
+
+import { CTutorState }      	from "../../util/CTutorState";
+import { CONST }                from "../../util/CONST";
 import { CUtil } 				from "../../util/CUtil";
 
 import MovieClip     		  = createjs.MovieClip;
@@ -44,7 +48,7 @@ export class CEFNavDemo extends CEFSceneSequence
 
 		if(this.traceMode) CUtil.trace("CEFNavDemo:Constructor");
 					
-		this._demoPanel = CEFRoot.instantiateObject("CDemoPanel") as MovieClip;	
+		this._demoPanel = CUtil.instantiateObject("CDemoPanel") as MovieClip;	
 		
 		this._demoPanel.x 	   = 0;					
 		this._demoPanel.y       = 0;					
@@ -52,7 +56,7 @@ export class CEFNavDemo extends CEFSceneSequence
 		this._demoPanel.visible = true;					
 		this._demoPanel.name    = "SdemoPanel";
 		
-		this._demoPanel["demoPath"] = (CEFDoc.gApp as any)["_modulePath"];
+		this._demoPanel["demoPath"] = (CTutorState.gApp as any)["_modulePath"];
 		
 		// add it to this container
 		
@@ -62,7 +66,7 @@ export class CEFNavDemo extends CEFSceneSequence
 		
 		// Add the loaded scene image to the automation matrix
 		
-		CEFRoot.gTutor.automateScene("SdemoScene", this );		
+		CTutorState.gTutor.automateScene("SdemoScene", this );		
 	}
 
 	private gotoScene(evt:CEFNavEvent) : void
@@ -76,21 +80,21 @@ export class CEFNavDemo extends CEFSceneSequence
 		// Disjunctive features come as a colon delimited list
 		
 		if(evt.wozFeatures != null)
-			CEFRoot.gTutor.setTutorFeatures(evt.wozFeatures);
+			CTutorState.gTutor.setTutorFeatures(evt.wozFeatures);
 		
 		// Show the default components to cleanup the demo instantiation 
 		
 		if(!this._scenesShown)
 		{
-			CEFRoot.gTutor.SnavPanel.visible = true;
-			CEFRoot.gTutor.StitleBar.visible = true; 
+			CTutorState.gTutor.SnavPanel.visible = true;
+			CTutorState.gTutor.StitleBar.visible = true; 
 			
 			this._scenesShown = true;
 		}
 
-		CEFRoot.gTutor.xitions.resetTransitions();
+		CTutorState.gTutor.xitions.resetTransitions();
 		
-		CEFRoot.gTutor.goToScene(new CEFNavEvent(CEFNavEvent.WOZNAVTO, evt.wozNavTarget ));
+		CTutorState.gTutor.goToScene(new CEFNavEvent(CEFNavEvent.WOZNAVTO, evt.wozNavTarget ));
 	}
 	
 }

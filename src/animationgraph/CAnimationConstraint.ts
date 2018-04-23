@@ -21,6 +21,8 @@ import { CAnimationGraph } 	from "./CAnimationGraph";
 
 import { CEFRoot } 			from "../core/CEFRoot";
 
+import { CTutorState }  	from "../util/CTutorState";
+import { CONST }            from "../util/CONST";
 import { CUtil } 			from "../util/CUtil";
 
 
@@ -58,7 +60,7 @@ export class CAnimationConstraint extends Object
 		{
 			case "test":
 				
-				result = CEFRoot.gTutor.testFeatureSet(this._code);
+				result = CTutorState.gTutor.testFeatureSet(this._code);
 									
 				sresult = result? " :passed.":" :failed.";
 				CUtil.trace("Animation Constraint: " + this._code + sresult);
@@ -68,7 +70,7 @@ export class CAnimationConstraint extends Object
 				
 				// result = D.eval(this._code, this._parent.sceneInstance);
 				
-				CUtil.trace("R0 Belief: " + CEFRoot.gTutor.ktSkills['rule0'].queryBelief());
+				CUtil.trace("R0 Belief: " + CTutorState.gTutor.ktSkills['rule0'].queryBelief());
 				break;
 		}
 		

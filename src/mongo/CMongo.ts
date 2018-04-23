@@ -22,51 +22,6 @@ import { CObject } from "./CObject";
 
 export class CMongo
 {
-	public static readonly FIND:string   	 	= '"find"';					// NOTE: these must be "quoted" 
-	public static readonly INSERT:string 	 	= '"insert"'; 
-	public static readonly CREATEACCT:string	= '"createacct"'; 
-	public static readonly UPSERT:string 	 	= '"upsert"'; 
-	public static readonly UPDATE:string 	 	= '"update"'; 
-	public static readonly UNSET:string 		= '"unset"'; 
-	public static readonly REMOVE:string 	 	= '"remove"';
-	public static readonly RECYCLE:string	 	= '"recycle"';
-	public static readonly RECOVER:string	 	= '"recover"';
-	public static readonly DBCOMMAND:string   	= '"dbcommand"';
-	
-	public static readonly DBRUN_DBCOMMAND:string	= "dbcommand";	
-	public static readonly DBRUN_LISTDBS:string		= "listdatabases";	
-	public static readonly DBRUN_LISTCOLS:string	= "listcollections";	
-	
-	public static readonly DBRUN_DROPCOLLECTION:string = "dropcollection";		
-	public static readonly DBRUN_UPDATEDOCUMENT:string = "updatedocument";
-	
-	public static readonly ACK_FIND:string    		= 'find';					// NOTE: these must not be "quoted" 
-	public static readonly ACK_INSERT:string  		= 'insert'; 
-	public static readonly ACK_CREATEACCT:string	= 'createacct'; 
-	public static readonly ACK_UPSERT:string  		= 'upsert'; 
-	public static readonly ACK_UPDATE:string  		= 'update'; 
-	public static readonly ACK_UNSET:string  		= 'unset'; 
-	public static readonly ACK_REMOVE:string  		= 'remove';
-	public static readonly ACK_RECYCLE:string 		= 'recycle';
-	public static readonly ACK_RECOVER:string 		= 'recover';
-	public static readonly ACK_DBCOMMAND:string  	= 'dbcommand';
-	
-	public static readonly QUERY_ALL:string = "";
-	
-	public static readonly LOG_PACKET:string    = '"LOG_PACKET"';
-	public static readonly LOG_TERMINATE:string = '"LOG_TERMINATE"';
-	public static readonly LOG_PROGRESS:string  = '"LOG_PROGRESS"';		
-	
-	public static readonly ACKLOG_PACKET:string    = 'LOG_PACKET';
-	public static readonly ACKLOG_TERMINATE:string = 'LOG_TERMINATE';
-	public static readonly ACKLOG_PROGRESS:string  = 'LOG_PROGRESS';		
-	public static readonly ACKLOG_NAK:string 	   = 'NAK_ERROR';		
-	
-	// These must match the equivalents in protocolStudyLdr.dart
-	
-	public static readonly _READY:string      = "READY";
-	public static readonly _INPROGRESS:string = "IN PROGRESS";
-	public static readonly _COMPLETE:string   = "COMPLETE";
 	
 	
 	constructor()

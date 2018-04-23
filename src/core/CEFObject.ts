@@ -27,6 +27,8 @@ import { CEFEvent }     	from "../events/CEFEvent";
 
 import { ILogManager }  	from "../managers/ILogManager";
 
+import { CTutorState } 		from "../util/CTutorState";
+import { CONST }            from "../util/CONST";
 import { CUtil } 			from "../util/CUtil";
 
 import Point     		  = createjs.Point;
@@ -63,9 +65,6 @@ export class CEFObject extends CEFAnimator
 	public bSubTweenable:boolean;  								// Certain objects have subobject that will require tweening - we only do this when we have to - keep tutorAutoObj object as small as possible
 	public bPersist:boolean;									// Some objects persist throughout the life of the session
 
-	//*************** Navigator static constants
-	public static readonly CANCELNAV:string  = "CancelNav";
-	public static readonly OKNAV:string		 = "OK";
 
 	// basic object characteristics
 	//
@@ -98,12 +97,6 @@ export class CEFObject extends CEFAnimator
 	private glowIncrement:number = 1/this.glowFrames;
 	private glowTarget:string;
 	
-	// RGB to Luminance conversion constants
-	
-	private static readonly LUMA_R:number = 0.212671;
-	private static readonly LUMA_G:number = 0.71516;
-	private static readonly LUMA_B:number = 0.072169;
-
 	private _tarObj:string;
 
 	// Factory Object Initialization data for this object - maintains a pointer to the original data source for the object
@@ -123,11 +116,6 @@ export class CEFObject extends CEFAnimator
 	protected _invalidFeature:string = "";						//## Added Sep 28 2012 - to support dynamic features	
 	
 	private _features:string;									//## Mod Aug 13 2013 - to support object unique features (used in scenegraph currently) 
-
-	private static _globals:any = {};					//## Added Sep 23 2013 - to support global variables
-	
-	protected _sceneData:any = {};						//## Added Dec 11 2013 - DB based state logging
-	public    _phaseData:any = {};						//## Added Dec 12 2013 - DB based state logging
 	
 	// mask specific values		
 
@@ -147,20 +135,6 @@ export class CEFObject extends CEFAnimator
 	
 	
 	
-	// Global logging support - each scene instance and subscene animation instance represent 
-	//                          object instances in the log.
-	//                          The frameid is a '.' delimited string representing the:
-	//
-	//     framendx:graphnode.nodemodule.moduleelement... :animationnode.animationelement...iterationNdx
-	//
-	//			Semantics - each ':' represents the root of a new different (sub)graph	
-	//  e.g.
-	//
-	//	  000001:root.start.SstartSplash...:root.Q0A.CSSbSRule1Part1AS...
-	
-	private static _framendx:number   = 0;
-			
-	
 	constructor()
 	{
 		super();
@@ -179,8 +153,8 @@ export class CEFObject extends CEFAnimator
 	{
 		// Parse the Tutor.config for create procedures for this scene 
 		
-		if((CEFRoot.gSceneConfig != null) && (CEFRoot.gSceneConfig.objectdata[name] != undefined))
-						this.parseOBJ(this, CEFRoot.gSceneConfig.objectdata[name].children(), name);
+		if((CTutorState.gSceneConfig != null) && (CTutorState.gSceneConfig.objectdata[name] != undefined))
+						this.parseOBJ(this, CTutorState.gSceneConfig.objectdata[name].children(), name);
 		
 		//## Mod May 04 2014 - support declarative button actions from scenedescr.xml <create>
 		if(this.onCreateScript != null)
@@ -217,7 +191,7 @@ export class CEFObject extends CEFAnimator
 	
 	public incFrameNdx() : void
 	{
-		CEFObject._framendx++;
+		CTutorState._framendx++;
 	}
 
 	/**
@@ -300,9 +274,7 @@ export class CEFObject extends CEFAnimator
 		let newObject:CEFObject;
 		let maskDim:Point;
 		
-		let ClassRef:any = CEFRoot.getDefinitionByName(objectClass);
-		
-		newObject = new ClassRef();						
+		newObject = CUtil.instantiateObject(objectClass) as CEFObject;
 		newObject.name = objectName;
 		
 		newObject.onCreate();		// perform object initialization
@@ -322,7 +294,7 @@ export class CEFObject extends CEFAnimator
 			newObject.SclickMask.graphics.setStrokeStyle(0);							// we don't need a border so leave default - NaN
 			newObject.SclickMask.graphics.beginFill(newObject._maskColor); //, newObject._maskAlpha);
 			
-			newObject.SclickMask.graphics.drawRect( 0, 0, CEFObject.STAGEWIDTH, CEFObject.STAGEHEIGHT);			
+			newObject.SclickMask.graphics.drawRect( 0, 0, CTutorState.STAGEWIDTH, CTutorState.STAGEHEIGHT);			
 			newObject.SclickMask.graphics.endFill();									
 		}			
 		
@@ -535,9 +507,9 @@ export class CEFObject extends CEFAnimator
 		let iblum:number;
 		
 		sInv = (1 - s);
-		irlum = (sInv * CEFObject.LUMA_R);
-		iglum = (sInv * CEFObject.LUMA_G);
-		iblum = (sInv * CEFObject.LUMA_B);
+		irlum = (sInv * CONST.LUMA_R);
+		iglum = (sInv * CONST.LUMA_G);
+		iblum = (sInv * CONST.LUMA_B);
 		
 		return new ColorMatrixFilter([(irlum + s), iglum, iblum, 0, 0, 
 			irlum, (iglum + s), iblum, 0, 0, 
@@ -1073,78 +1045,15 @@ export class CEFObject extends CEFAnimator
 	public assertFeature(_feature:string) : void			//## Added Feb 27 2013 - to support dynamic features
 	{	
 		if(_feature != "")
-			CEFRoot.gTutor.addFeature = _feature;
+			CTutorState.gTutor.addFeature = _feature;
 	}
 	
 	public retractFeature(_feature:string) : void			//## Added Feb 27 2013 - to support dynamic features
 	{	
 		if(_feature != "")
-			CEFRoot.gTutor.delFeature = _feature;
+			CTutorState.gTutor.delFeature = _feature;
 	}
 
-
-//****************** START Globals		
-	
-	public static initGlobals() : void
-	{
-		CEFObject._globals = {};
-	}
-	
-	
-	public incrGlobal(_id:string, _max:number = -1, _cycle:number = 0) : number			//## Added Feb 10 2014 - global counter support
-	{	
-		let result:any;
-		
-		if(CEFObject._globals.hasOwnProperty(_id))
-		{		
-			CEFObject._globals[_id]++;
-			
-			result = CEFObject._globals[_id];
-			
-			// Roll over at max value > -1 will never roll
-			
-			if(CEFObject._globals[_id] == _max)
-					CEFObject._globals[_id] = _cycle;
-		}
-		else
-			result = CEFObject._globals[_id] = 1;
-		
-		return result; 
-	}
-	
-	public assertGlobal(_id:string, _value:any) : void				//## Added Sep 23 2013 - to support global variables
-	{	
-		CEFObject._globals[_id] = _value;
-	}
-	
-	public retractGlobal(_id:string) : void						//## Added Sep 23 2013 - to support global variables
-	{	
-		CEFObject._globals[_id] = "";
-	}
-	
-	public queryGlobal(_id:string) : any							//## Added Sep 23 2013 - to support global variables
-	{	
-		let result:any;
-		
-		if(CEFObject._globals.hasOwnProperty(_id))
-		{		
-			result = CEFObject._globals[_id];
-		}
-		else result = "null";
-		
-		return result; 
-	}		
-
-	public set globals(gval:Object) 
-	{
-		CEFObject._globals = gval;			
-	}
-	
-	public get globals() : Object
-	{			
-		return CEFObject._globals;						
-	}
-	
 	
 //****************** END Globals		
 	
@@ -1288,28 +1197,28 @@ export class CEFObject extends CEFAnimator
 			// Construct the unique log attribute name - 			
 			attrName = this.constructLogName(element.logattr);
 			
-			this.navigator._phaseData[attrName] = {};			
+			CTutorState._phaseData[attrName] = {};			
 			
 			// update the phase specific log data - save in log progress packet - uses compound attribute name			
-			this.navigator._phaseData[attrName]['value'] = dataStr;
+			CTutorState._phaseData[attrName]['value'] = dataStr;
 			
-			this.navigator._phaseData[attrName]["start"] = CEFRoot.gTutor.timeStamp.getStartTime("dur_"+name);
+			CTutorState._phaseData[attrName]["start"] = CTutorState.gTutor.timeStamp.getStartTime("dur_"+name);
 			
-			this.navigator._phaseData[attrName]["duration"] = CEFRoot.gTutor.timeStamp.createLogAttr("dur_"+name);
+			CTutorState._phaseData[attrName]["duration"] = CTutorState.gTutor.timeStamp.createLogAttr("dur_"+name);
 			
 			// Simple Scene state record - some values set in CEFSceneSequence.onExitScene 
 			
-			this._sceneData[element.logattr] = dataStr;
+			CTutorState._sceneData[element.logattr] = dataStr;
 			
 			// NOTE: if you don't use toString it will emit an XMLList object for some unknown reason.
 			
-			this._sceneData['phasename'] = element.logid.toString();
+			CTutorState._sceneData['phasename'] = element.logid.toString();
 						
 			try
 			{
-				this._sceneData['Rule0'] = CEFRoot.gTutor.ktSkills['rule0'].queryBelief();			
-				this._sceneData['Rule1'] = CEFRoot.gTutor.ktSkills['rule1'].queryBelief();			
-				this._sceneData['Rule2'] = CEFRoot.gTutor.ktSkills['rule2'].queryBelief();
+				CTutorState._sceneData['Rule0'] = CTutorState.gTutor.ktSkills['rule0'].queryBelief();			
+				CTutorState._sceneData['Rule1'] = CTutorState.gTutor.ktSkills['rule1'].queryBelief();			
+				CTutorState._sceneData['Rule2'] = CTutorState.gTutor.ktSkills['rule2'].queryBelief();
 			}
 			catch(err)
 			{
@@ -1351,13 +1260,13 @@ export class CEFObject extends CEFAnimator
 			var attrName:string = "L00000";
 			var frame:string;
 			
-			frame = CEFObject._framendx.toString();
+			frame = CTutorState._framendx.toString();
 			
 			// Note: name here is the scene name itself which is the context in which we are executing
 			
 			//attrName = attrName.slice(0, 6-frame.length) + frame + "_" + name +"_" + attr + "_" + gTutor.gNavigator.iteration.toString(); 
 			
-			attrName = name +"_" + attr + "_" + CEFRoot.gTutor.gNavigator.iteration.toString();
+			attrName = name +"_" + attr + "_" + CTutorState.gTutor.gNavigator.iteration.toString();
 			
 			return attrName;
 		}
@@ -1388,7 +1297,7 @@ export class CEFObject extends CEFAnimator
 					}
 					else
 					{
-						var tClass:any = CEFRoot.getDefinitionByName(parmDef[1]) as any;
+						var tClass:any = CUtil.getDefinitionByName(parmDef[1]) as any;
 						
 						var value:string = parmDef[0];
 						
@@ -1437,7 +1346,7 @@ export class CEFObject extends CEFAnimator
 					
 				else if(parmDef[1] != "null")
 				{
-					tClass = CEFRoot.getDefinitionByName(parmDef[1]) as any;
+					tClass = CUtil.getDefinitionByName(parmDef[1]) as any;
 					
 					value = parmDef[0];
 					
@@ -1488,7 +1397,7 @@ export class CEFObject extends CEFAnimator
 					// This permits the tutor to have multiple independently managed features.
 					// All identifiers of all the feature sets must be globally unique.
 					
-					if(!CEFRoot.gTutor.testFeatureSet(String(element.features)))
+					if(!CTutorState.gTutor.testFeatureSet(String(element.features)))
 						continue;
 				}
 				
@@ -1497,7 +1406,7 @@ export class CEFObject extends CEFAnimator
 					switch(element.localName())
 					{					
 						case "common":
-							this.parseOBJ(tarObj, CEFObject.gSceneConfig.scenedata[element.text()][xType].children(), xType);
+							this.parseOBJ(tarObj, CTutorState.gSceneConfig.scenedata[element.text()][xType].children(), xType);
 							break;
 															
 						case "log":
@@ -1590,7 +1499,7 @@ export class CEFObject extends CEFAnimator
 						case "object":
 							
 							if(this.hasOwnProperty(element.named) && ((this as any)[element.named] != null))
-							(this as any)[element.named].parseXML((this as any)[element.named], CEFObject.gSceneConfig.objectdata[element.named].children(), "object");
+							(this as any)[element.named].parseXML((this as any)[element.named], CTutorState.gSceneConfig.objectdata[element.named].children(), "object");
 							
 							break;
 						

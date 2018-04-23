@@ -15,12 +15,15 @@
 //*********************************************************************************
 
 
-import { CMongo }    		from "../mongo/CMongo";
-
 import { CEFRoot }    		from "./CEFRoot";
 import { CEFTutorRoot }     from "./CEFTutorRoot";
+
 import { CEFEvent }    		from "../events/CEFEvent";
 
+import { CMongo }    		from "../mongo/CMongo";
+
+import { CTutorState }  	from "../util/CTutorState";
+import { CONST }            from "../util/CONST";
 import { CUtil } 			from "../util/CUtil";
 
 
@@ -31,12 +34,6 @@ export class CEFDoc extends CEFRoot
 	public Stutor:CEFTutorRoot;			// every WOZObject must be associated with a specific tutor
 	
 	//************ Stage Symbols
-	
-	public static tutorAutoObj:any;		// The tutor object hierarchy
-	public static gApp:CEFDoc;
-	
-	public static designWidth:number = 1024;
-	public static designHeight:number = 768;
 	
 	// These are used for log playback
 	//
@@ -78,7 +75,7 @@ export class CEFDoc extends CEFRoot
 
 		// First get the Root Tutor movie object - this encapsulates all the scenes and navigation features
 		//
-		CEFDoc.gApp = this;			
+		CTutorState.gApp = this;			
 	}
 
 	
@@ -91,8 +88,8 @@ export class CEFDoc extends CEFRoot
 		
 		this.connectFrameCounter(true);		
 		
-		// CEFRoot.STAGEWIDTH  = this.stage.canvas["width"];		//** TODO */
-		// CEFRoot.STAGEHEIGHT = this.stage.canvas["height"];
+		// CTutorState.STAGEWIDTH  = this.stage.canvas["width"];		//** TODO */
+		// CTutorState.STAGEHEIGHT = this.stage.canvas["height"];
 	}
 	
 
@@ -103,13 +100,13 @@ export class CEFDoc extends CEFRoot
 		this.resetStateFrameID();
 		
 		// force the tutor to start - use null target object ID
-		if(CEFRoot.sessionAccount["session"].profile.progress == CMongo._INPROGRESS)
+		if(CTutorState.sessionAccount["session"].profile.progress == CONST._INPROGRESS)
 		{
-			CEFDoc.tutorAutoObj["SnavPanel"].instance.recoverState();
+			CTutorState.tutorAutoObj["SnavPanel"].instance.recoverState();
 		}
 		else
 		{
-			CEFDoc.tutorAutoObj["SnavPanel"].instance.gotoNextScene();
+			CTutorState.tutorAutoObj["SnavPanel"].instance.gotoNextScene();
 		}
 	}
 	
@@ -195,15 +192,15 @@ export class CEFDoc extends CEFRoot
 	{
 		if(this.traceMode) CUtil.trace("\n*** Start root dump ALL tutors ***");
 		
-		for(let tutor of CEFDoc.tutorAutoObj)
+		for(let tutor of CTutorState.tutorAutoObj)
 		{
 			if(this.traceMode) CUtil.trace("TUTOR : " + tutor);
 		
-			if(CEFDoc.tutorAutoObj[tutor].instance instanceof CEFTutorRoot) 
+			if(CTutorState.tutorAutoObj[tutor].instance instanceof CEFTutorRoot) 
 			{
 				if(this.traceMode) CUtil.trace("CEF***");
 				
-				CEFDoc.tutorAutoObj[tutor].instance.dumpScenes(CEFDoc.tutorAutoObj[tutor]);
+				CTutorState.tutorAutoObj[tutor].instance.dumpScenes(CTutorState.tutorAutoObj[tutor]);
 			}				
 		}			
 		

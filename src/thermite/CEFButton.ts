@@ -16,11 +16,11 @@
 
 //** Imports
 
-import { CEFRoot }			from "./CEFRoot";
-import { CEFObject }     	from "./CEFObject";
+import { CEFRoot }			from "../core/CEFRoot";
+import { CEFObject }     	from "../core/CEFObject";
 import { CEFMouseEvent }    from "../events/CEFMouseEvent";
 
-import { CTutorState }  	from "../util/CTutorState";
+import { CTutorState }      from "../util/CTutorState";
 import { CONST }            from "../util/CONST";
 import { CUtil } 			from "../util/CUtil";
 

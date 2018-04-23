@@ -24,6 +24,8 @@ import { CEFMouseEvent } 	from "../events/CEFMouseEvent";
 import { CEFNavEvent } 		from "../events/CEFNavEvent";
 import { CEFSkilloMeter } 	from "../controls/CEFSkilloMeter";
 
+import { CTutorState }      from "../util/CTutorState";
+import { CONST }            from "../util/CONST";
 import { CUtil } 			from "../util/CUtil";
 
 import TextField = createjs.Text;
@@ -79,7 +81,7 @@ export class CEFTitleBar extends CEFScene
 			this.Splay.visible = false;			
 						
 			//Sprediction.title = "prediction";			
-			this.Sskill.visible = CEFRoot.fSkillometer;
+			this.Sskill.visible = CTutorState.fSkillometer;
 			this.Sskill.title   = "skills";
 			
 			this.Sskill.updateName(1, "rule0");
@@ -100,7 +102,7 @@ export class CEFTitleBar extends CEFScene
 	public configDemoButton(_Tutor:CEFTutorRoot):void
 	{
 		
-		if(CEFRoot.fDemo)
+		if(CTutorState.fDemo)
 		{
 			if(this.traceMode) CUtil.trace("Title in Demo Mode");
 			
@@ -132,24 +134,24 @@ export class CEFTitleBar extends CEFScene
 	
 	private doDemoClick(evt:CEFMouseEvent)
 	{
-		// If currently in a scene transition CEFRoot.fDeferDemoClick is true
+		// If currently in a scene transition CTutorState.fDeferDemoClick is true
 		// when new scene OnEnter is complete - doDeferedDemoClick completes the demo click
 		
-		if(CEFRoot.fDeferDemoClick)
+		if(CTutorState.fDeferDemoClick)
 			this._demoClicked = true;
 		else
-			CEFRoot.gTutor.goToScene(new CEFNavEvent(CEFNavEvent.WOZNAVTO, "SdemoScene"));
+			CTutorState.gTutor.goToScene(new CEFNavEvent(CEFNavEvent.WOZNAVTO, "SdemoScene"));
 	}
 
 	private doDeferedDemoClick(evt:Event)
 	{		
-		CEFRoot.fDeferDemoClick = false;
+		CTutorState.fDeferDemoClick = false;
 		
 		if(this._demoClicked)
 		{
 			this._demoClicked = false;
 		
-			CEFRoot.gTutor.goToScene(new CEFNavEvent(CEFNavEvent.WOZNAVTO, "SdemoScene"));
+			CTutorState.gTutor.goToScene(new CEFNavEvent(CEFNavEvent.WOZNAVTO, "SdemoScene"));
 		}
 	}
 	
@@ -162,7 +164,7 @@ export class CEFTitleBar extends CEFScene
 	{
 		if(this.traceMode) CUtil.trace("onTutorPlay: " );
 		
-		CEFRoot.gTutor.wozPlay();
+		CTutorState.gTutor.wozPlay();
 		
 		this.Splay.visible  = false;
 		this.Spause.visible = true;
@@ -172,7 +174,7 @@ export class CEFTitleBar extends CEFScene
 	{
 		if (this.traceMode) CUtil.trace("onTutorPause: " );
 		
-		CEFRoot.gTutor.wozPause();
+		CTutorState.gTutor.wozPause();
 		
 		this.Spause.visible = false;
 		this.Splay.visible  = true;
@@ -182,7 +184,7 @@ export class CEFTitleBar extends CEFScene
 	{
 		if (this.traceMode) CUtil.trace("onTutorReplay: " );
 		
-		CEFRoot.gTutor.wozReplay();
+		CTutorState.gTutor.wozReplay();
 	}	
 	
 	

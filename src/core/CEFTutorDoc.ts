@@ -19,12 +19,15 @@
 import { CEFRoot } 	    	from "./CEFRoot";	
 import { CEFDoc }			from "./CEFDoc";
 import { CEFObject } 	    from "./CEFObject";	
+import { CEFTutorRoot }     from "./CEFTutorRoot";
 import { CEFCursorProxy } 	from "./CEFCursorProxy";	
 
 import { ILogManager }      from "../managers/ILogManager";
 
 import { CEFEvent } 		from "../events/CEFEvent";
-import { CEFTutorRoot }     from "./CEFTutorRoot";
+
+import { CTutorState }      from "../util/CTutorState";
+import { CONST }            from "../util/CONST";
 import { CUtil }            from "../util/CUtil";
 
 
@@ -55,7 +58,7 @@ export class CEFTutorDoc extends CEFDoc
         
         //@@ Mod Sept 22 2014 - reset global object - only required for demo sequences - more than one demo may be loaded in a single session
         
-        CEFObject.initGlobals();									 			
+        this.initGlobals();									 			
     }
     
     /**
@@ -78,7 +81,7 @@ export class CEFTutorDoc extends CEFDoc
         //
         if(this.Stutor == null)
         {
-            this.Stutor = CEFRoot.instantiateObject("CEFTutor") as CEFTutorRoot;
+            this.Stutor = CUtil.instantiateObject("CEFTutor") as CEFTutorRoot;
             this.Stutor.name = "Stutor";
             
             //@@ Mod May 09 2012 - Demo Support - manage the features so that the demo can augment the default set.
@@ -91,7 +94,7 @@ export class CEFTutorDoc extends CEFDoc
         
         // Init the automation Object
         
-        CEFDoc.tutorAutoObj = this.Stutor.tutorAutoObj;
+        CTutorState.tutorAutoObj = this.Stutor.tutorAutoObj;
         
         
         // ****** Use to capture Tutor Layout in XML format
@@ -114,7 +117,7 @@ export class CEFTutorDoc extends CEFDoc
         //					   we allow dynamic creation of the navPanel etc.
         // Parse the active Tutor
         //
-        this.Stutor.initAutomation(CEFDoc.tutorAutoObj);										
+        this.Stutor.initAutomation(CTutorState.tutorAutoObj);										
         
         // NOTE: Logger Connections must be made before cursor replacement
         //
@@ -140,10 +143,10 @@ export class CEFTutorDoc extends CEFDoc
         this.on(CEFEvent.ADDED_TO_STAGE, this.doOnStage);						
     
         // Pause the tutor while it is off screen
-        if(!CEFRoot.gTutor.isPaused)
+        if(!CTutorState.gTutor.isPaused)
         {
             this._forcedPause = true;
-            CEFRoot.gTutor.wozPause();			
+            CTutorState.gTutor.wozPause();			
         }
         
         // dettach the cursor proxy while the stage property is invalid
@@ -170,7 +173,7 @@ export class CEFTutorDoc extends CEFDoc
         if(this._forcedPause)
         {
             this._forcedPause = false;
-            CEFRoot.gTutor.wozPlay();
+            CTutorState.gTutor.wozPlay();
         }
         
         // rettach the cursor proxy when the stage property is valid
@@ -183,40 +186,40 @@ export class CEFTutorDoc extends CEFDoc
     
     public set extAccount(Obj:any)
     {
-        CEFRoot.sessionAccount = Obj;
+        CTutorState.sessionAccount = Obj;
     }		
     
     public set extFTutorPart(str:string)
     {
-        //CEFRoot.fTutorPart = str;		
+        //CONST.fTutorPart = str;		
         //LogManager.fTutorPart = str;
     }
     public set extFFullSignIn(val:string)
     {
-        CEFRoot.fFullSignIn = (val == "true")? true:false;
+        CTutorState.fFullSignIn = (val == "true")? true:false;
     }
     public set extFDemo(val:boolean)
     {
-        CEFRoot.fDemo = val;
+        CTutorState.fDemo = val;
     }
     public set extFDebug(val:boolean)
     {
-        CEFRoot.fDebug = val;
+        CTutorState.fDebug = val;
     }
     public set extFRemoteMode(val:boolean)
     {
-        CEFRoot.fRemoteMode = val;			
+        CTutorState.fRemoteMode = val;			
     }
     public set extFDeferDemoClick(val:string)
     {
-        CEFRoot.fDeferDemoClick = (val == "true")? true:false;
+        CTutorState.fDeferDemoClick = (val == "true")? true:false;
     }
     
     //@@ Mod Mar2 2012 - support for showing skillometer in loader
     
     public set extFSkillometer(val:string)
     {
-        CEFRoot.fSkillometer = (val == "true")? true:false;
+        CTutorState.fSkillometer = (val == "true")? true:false;
     }
     
     
@@ -250,7 +253,7 @@ export class CEFTutorDoc extends CEFDoc
     
     public set extLogManager(val:ILogManager) 
     {
-        this.gLogR = val;			
+        CTutorState.gLogR = val;			
     }
 
     
@@ -258,7 +261,7 @@ export class CEFTutorDoc extends CEFDoc
     
     public set extSceneDescr(val:string) 
     {
-        CEFRoot.gSceneConfig = JSON.parse(val);			
+        CTutorState.gSceneConfig = JSON.parse(val);			
     }
     
     
@@ -266,7 +269,7 @@ export class CEFTutorDoc extends CEFDoc
     
     public set extSceneGraph(val:string) 
     {
-        CEFRoot.gSceneGraphDesc = JSON.parse(val);						
+        CTutorState.gSceneGraphDesc = JSON.parse(val);						
     }
     
     
@@ -274,16 +277,16 @@ export class CEFTutorDoc extends CEFDoc
     
     public set extAnimationGraph(val:string) 
     {
-        CEFRoot.gAnimationGraphDesc = JSON.parse(val);			
+        CTutorState.gAnimationGraphDesc = JSON.parse(val);			
     }
 
     
     public set extForceBackButton(fForce:any) 
     {		
         if(typeof fForce === 'string')
-            this.gForceBackButton = (fForce == "true")? true:false;
+            CTutorState.gForceBackButton = (fForce == "true")? true:false;
         else if(typeof fForce === 'boolean')
-            this.gForceBackButton = fForce;
+            CTutorState.gForceBackButton = fForce;
     }
     
     public get extAspectRatio() : string 
@@ -293,6 +296,66 @@ export class CEFTutorDoc extends CEFDoc
     
     
     
-//*************** FLEX integration 
-    
+    //****************** START Globals		
+        
+    public initGlobals() : void
+    {
+        CTutorState._globals = {};
+    }
+
+
+    public incrGlobal(_id:string, _max:number = -1, _cycle:number = 0) : number			//## Added Feb 10 2014 - global counter support
+    {	
+        let result:any;
+        
+        if(CTutorState._globals.hasOwnProperty(_id))
+        {		
+            CTutorState._globals[_id]++;
+            
+            result = CTutorState._globals[_id];
+            
+            // Roll over at max value > -1 will never roll
+            
+            if(CTutorState._globals[_id] == _max)
+                    CTutorState._globals[_id] = _cycle;
+        }
+        else
+            result = CTutorState._globals[_id] = 1;
+        
+        return result; 
+    }
+
+    public assertGlobal(_id:string, _value:any) : void				//## Added Sep 23 2013 - to support global variables
+    {	
+        CTutorState._globals[_id] = _value;
+    }
+
+    public retractGlobal(_id:string) : void						//## Added Sep 23 2013 - to support global variables
+    {	
+        CTutorState._globals[_id] = "";
+    }
+
+    public queryGlobal(_id:string) : any							//## Added Sep 23 2013 - to support global variables
+    {	
+        let result:any;
+        
+        if(CTutorState._globals.hasOwnProperty(_id))
+        {		
+            result = CTutorState._globals[_id];
+        }
+        else result = "null";
+        
+        return result; 
+    }		
+
+    public set globals(gval:Object) 
+    {
+        CTutorState._globals = gval;			
+    }
+
+    public get globals() : Object
+    {			
+        return CTutorState._globals;						
+    }
+
 }

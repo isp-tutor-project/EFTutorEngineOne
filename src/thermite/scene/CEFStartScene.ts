@@ -18,6 +18,9 @@
 
 import { CEFRoot } 			from "../../core/CEFRoot";
 import { CEFSceneSequence } from "../../core/CEFSceneSequence";
+
+import { CTutorState }      from "../../util/CTutorState";
+import { CONST }            from "../../util/CONST";
 import { CUtil } 			from "../../util/CUtil";
 
 import MovieClip = createjs.MovieClip;
@@ -74,8 +77,8 @@ export class CEFStartScene extends CEFSceneSequence
 	{
 		if(this.traceMode) CUtil.trace("CEFStartScene Pre-Enter Scene Behavior: " + sceneTitle);		
 		
-		CEFRoot.gTutor.showReplay(false);			
-		CEFRoot.gTutor.showPPlay(false);			
+		CTutorState.gTutor.showReplay(false);			
+		CTutorState.gTutor.showPPlay(false);			
 					
 		return super.preEnterScene(lTutor, sceneLabel, sceneTitle, scenePage, Direction );
 	}
@@ -95,8 +98,8 @@ export class CEFStartScene extends CEFSceneSequence
 	{
 		if(this.traceMode) CUtil.trace("CEFStartScene Pre-Exit Scene Behavior:");
 
-		CEFRoot.gTutor.showReplay(false);
-		CEFRoot.gTutor.showPPlay(true);
+		CTutorState.gTutor.showReplay(false);
+		CTutorState.gTutor.showPPlay(true);
 		
 		return("OK");
 	}

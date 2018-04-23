@@ -23,6 +23,8 @@ import { CEFRoot } from "../core/CEFRoot";
 
 import EventDispatcher 	  = createjs.EventDispatcher;
 
+import { CTutorState }  	from "../util/CTutorState";
+import { CONST }            from "../util/CONST";
 import { CUtil } 			from "../util/CUtil";
 
 
@@ -82,7 +84,7 @@ export class CAnimationAction extends CAnimationNode
 		{
 			case "test":
 				
-				result = CEFRoot.gTutor.testFeatureSet(this._code);
+				result = CTutorState.gTutor.testFeatureSet(this._code);
 				break
 			
 			case "exec":

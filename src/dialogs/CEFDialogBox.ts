@@ -19,7 +19,11 @@
 import { CEFObject } 		from "../core/CEFObject";
 import { CEFDoc } 			from "../core/CEFDoc";
 import { CEFMouseMask } 	from "../core/CEFMouseMask";
+
 import { CEFDialogEvent } 	from "../events/CEFDialogEvent";
+
+import { CTutorState }      from "../util/CTutorState";
+import { CONST }            from "../util/CONST";
 import { CUtil } 			from "../util/CUtil";
 
 
@@ -42,7 +46,6 @@ export class CEFDialogBox extends CEFObject
 	public sMask:CEFMouseMask;
 	public fAddDlg:boolean;
 	
-	public static readonly ENDMODAL:string = "ENDMODAL";
 	
 	/**
 	 * 
@@ -79,7 +82,7 @@ export class CEFDialogBox extends CEFObject
 	 */
 	public centerDialog()
 	{
-		// this.moveDialog(((CEFDoc.designWidth - this.width) / 2), ((CEFDoc.designHeight - this.height) / 2));   //** TODO */
+		// this.moveDialog(((CONST.designWidth - this.width) / 2), ((CONST.designHeight - this.height) / 2));   //** TODO */
 	}
 	
 	
@@ -106,10 +109,10 @@ export class CEFDialogBox extends CEFObject
 			this.sMask.visible = true;
 			this.visible  = true;
 		
-			if(CEFDoc.gApp && CEFDoc.gApp.Stutor)
+			if(CTutorState.gApp && CTutorState.gApp.Stutor)
 			{
-				CEFDoc.gApp.Stutor.addChild(this.sMask);
-				CEFDoc.gApp.Stutor.addChild(this);
+				CTutorState.gApp.Stutor.addChild(this.sMask);
+				CTutorState.gApp.Stutor.addChild(this);
 			}
 		}
 		else
@@ -126,8 +129,8 @@ export class CEFDialogBox extends CEFObject
 			this.setTopMost();
 		}
 		
-		if(CEFDoc.gApp && CEFDoc.gApp.Stutor && CEFDoc.gApp.Stutor.cCursor)
-										CEFDoc.gApp.Stutor.cCursor.setTopMost();
+		if(CTutorState.gApp && CTutorState.gApp.Stutor && CTutorState.gApp.Stutor.cCursor)
+										CTutorState.gApp.Stutor.cCursor.setTopMost();
 	}					
 
 	
@@ -142,10 +145,10 @@ export class CEFDialogBox extends CEFObject
 		{	
 			this.visible = false;
 				
-			if(CEFDoc.gApp && CEFDoc.gApp.Stutor)
+			if(CTutorState.gApp && CTutorState.gApp.Stutor)
 			{
-				CEFDoc.gApp.Stutor.removeChild(this.sMask);
-				CEFDoc.gApp.Stutor.removeChild(this);				
+				CTutorState.gApp.Stutor.removeChild(this.sMask);
+				CTutorState.gApp.Stutor.removeChild(this);				
 			}
 			this.sMask = null;
 		}

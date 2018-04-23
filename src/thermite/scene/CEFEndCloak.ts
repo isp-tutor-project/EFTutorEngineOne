@@ -29,8 +29,11 @@
 //** Imports
 
 import { CEFRoot } 				from "../../core/CEFRoot";
-import { CUtil } 				from "../../util/CUtil";
 import { CEFSceneSequence } 	from "../../core/CEFSceneSequence";
+
+import { CTutorState }    		from "../../util/CTutorState";
+import { CONST }                from "../../util/CONST";
+import { CUtil } 				from "../../util/CUtil";
 
 import MovieClip     		  = createjs.MovieClip;
 
@@ -79,13 +82,13 @@ export class CEFEndCloak extends CEFSceneSequence
 		if(this.traceMode) CUtil.trace("CEFEndCloak Pre-Enter Scene Behavior: " + sceneTitle);		
 				
 		// No buttons on these panels
-		CEFRoot.gTutor.showPPlay(false);			
-		CEFRoot.gTutor.showReplay(false);			
+		CTutorState.gTutor.showPPlay(false);			
+		CTutorState.gTutor.showReplay(false);			
 
 		// Update the Navigation
 		//
-		CEFRoot.gTutor.SnavPanel.SnextButton.enableButton(false);		
-		CEFRoot.gTutor.SnavPanel.SbackButton.enableButton(false);																		
+		CTutorState.gTutor.SnavPanel.SnextButton.enableButton(false);		
+		CTutorState.gTutor.SnavPanel.SbackButton.enableButton(false);																		
 														
 		return super.preEnterScene(lTutor, sceneLabel, sceneTitle, scenePage, Direction );
 	}

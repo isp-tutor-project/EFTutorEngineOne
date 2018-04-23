@@ -14,16 +14,20 @@
 //
 //*********************************************************************************
 
-import { CEFScene } from "./CEFScene";
-
-import { CUtil } 			from "../util/CUtil";
-import { CEFNavNext } from "../navigation/CEFNavNext";
-import { CEFNavBack } from "../navigation/CEFZNavBack";
-import { CEFMouseEvent } from "../events/CEFMouseEvent";
+import { CEFScene } 		from "./CEFScene";
 import { CEFSceneSequence } from "./CEFSceneSequence";
-import { CEFTutorRoot } from "./CEFTutorRoot";
-import { CEFEvent } from "../events/CEFEvent";
-import { CEFRoot } from "./CEFRoot";
+import { CEFTutorRoot } 	from "./CEFTutorRoot";
+import { CEFRoot } 			from "./CEFRoot";
+
+import { CEFNavNext } 		from "../navigation/CEFNavNext";
+import { CEFNavBack } 		from "../navigation/CEFZNavBack";
+import { CEFMouseEvent } 	from "../events/CEFMouseEvent";
+import { CEFEvent } 		from "../events/CEFEvent";
+
+import { CTutorState }  	from "../util/CTutorState";
+import { CONST }            from "../util/CONST";
+import { CUtil } 			from "../util/CUtil";
+
 
 /**
 * ...
@@ -40,12 +44,6 @@ export class CEFNavigator extends CEFScene
 	//************ Stage Symbols
 	
 	sceneCnt:number = 0;
-	
-	//*************** Navigator
-	//@@Mod Aug 10 2013 - tutorautomator made public so CSceneGraph can access it.
-	
-	public static prntTutor:any;				// The parent CEFTutorRoot of these transitions
-	public static TutAutomator:any;				// The location of this tutor automation object			
 	
 	//*************** Navigator "ROOT INSTANCE" CONSTANTS - 
 	// Place these within a subclass to set the root of a navigation sequence
@@ -66,7 +64,7 @@ export class CEFNavigator extends CEFScene
 		this.SnextButton.addEventListener(CEFMouseEvent.WOZCLICK, this.onButtonNext);
 		this.SbackButton.addEventListener(CEFMouseEvent.WOZCLICK, this.onButtonPrev);		
 		
-		this.gNavigator = this;
+		CTutorState.gNavigator = this;
 	}
 
 	
@@ -97,8 +95,8 @@ export class CEFNavigator extends CEFScene
 	
 	public connectToTutor(parentTutor:CEFTutorRoot, autoTutor:Object) : void
 	{
-		CEFNavigator.prntTutor = parentTutor;
-		CEFNavigator.TutAutomator = autoTutor;
+		CTutorState.prntTutor = parentTutor;
+		CTutorState.TutAutomator = autoTutor;
 	}
 	
 	
@@ -255,8 +253,8 @@ export class CEFNavigator extends CEFScene
 		
 		// In demo mode we defer any demo button clicks while scene changes are in progress
 		
-		if(CEFRoot.fDemo)
-			CEFRoot.fDeferDemoClick = true;
+		if(CTutorState.fDemo)
+			CTutorState.fDeferDemoClick = true;
 		
 		// Find the ordinal for the requested scene Label
 		//
@@ -278,7 +276,7 @@ export class CEFNavigator extends CEFScene
 			{
 				// Do the exit behavior
 				
-				CEFNavigator.TutAutomator[this.sceneSeq[this.sceneCurr]].instance.preExitScene("WOZGOTO", this.sceneCurr);
+				CTutorState.TutAutomator[this.sceneSeq[this.sceneCurr]].instance.preExitScene("WOZGOTO", this.sceneCurr);
 				
 				// switch the curent active scene
 				
@@ -286,11 +284,11 @@ export class CEFNavigator extends CEFScene
 			}
 			// Allow current scene to update next scene dynamically
 			
-			else switch(redScene = CEFNavigator.TutAutomator[this.sceneSeq[this.sceneCurr]].instance.preExitScene("WOZGOTO", this.sceneCurr))
+			else switch(redScene = CTutorState.TutAutomator[this.sceneSeq[this.sceneCurr]].instance.preExitScene("WOZGOTO", this.sceneCurr))
 			{
-				case CEFNavigator.CANCELNAV: 						// Do not allow scene to change
-						if(CEFRoot.fDemo)
-							CEFRoot.fDeferDemoClick = false;
+				case CONST.CANCELNAV: 						// Do not allow scene to change
+						if(CTutorState.fDemo)
+							CTutorState.fDeferDemoClick = false;
 						
 						//@@ Mod Sep 27 2011 - protect against recurrent calls
 						
@@ -298,7 +296,7 @@ export class CEFNavigator extends CEFScene
 						
 						return;				
 						
-				case CEFNavigator.OKNAV: 							// Move to GOTO scene 
+				case CONST.OKNAV: 							// Move to GOTO scene 
 					this.sceneCurr = ordScene;						
 						break;
 				
@@ -314,14 +312,14 @@ export class CEFNavigator extends CEFScene
 			{
 				//*** Create scene on demand
 				//
-				if(CEFNavigator.TutAutomator[this.sceneSeq[this.sceneCurr]] == undefined)
+				if(CTutorState.TutAutomator[this.sceneSeq[this.sceneCurr]] == undefined)
 				{
-					CEFNavigator.prntTutor.instantiateScene(this.sceneName[this.sceneCurr], this.sceneClass[this.sceneCurr]);
+					CTutorState.prntTutor.instantiateScene(this.sceneName[this.sceneCurr], this.sceneClass[this.sceneCurr]);
 				}
 				
 				newScene = redScene;
 				
-				redScene = CEFNavigator.TutAutomator[this.sceneSeq[this.sceneCurr]].instance.preEnterScene(CEFNavigator.prntTutor, newScene, this.sceneTitle[this.sceneCurr], this.scenePage[this.sceneCurr], "WOZGOTO");
+				redScene = CTutorState.TutAutomator[this.sceneSeq[this.sceneCurr]].instance.preEnterScene(CTutorState.prntTutor, newScene, this.sceneTitle[this.sceneCurr], this.scenePage[this.sceneCurr], "WOZGOTO");
 
 				//@@@ NOTE: either discontinue support for redirection through PreEnterScene - or manage scene creation and destruction here
 				
@@ -345,20 +343,20 @@ export class CEFNavigator extends CEFScene
 			let logData:any = {'navevent':'navgoto', 'curscene':this.scenePrev, 'newscene':redScene};
 			//letxmlVal:XML = <navgoto curscene={this.scenePrev} newscene={redScene}/>
 							
-			this.gLogR.logNavEvent(logData);				
+			CTutorState.gLogR.logNavEvent(logData);				
 			//@@ Action Logging			
 			
 			// On exit behaviors
 			
-			CEFNavigator.TutAutomator[this.sceneSeq[this.scenePrev]].instance.onExitScene();
+			CTutorState.TutAutomator[this.sceneSeq[this.scenePrev]].instance.onExitScene();
 			
 			// Initialize the stategraph for the new scene
 			
 			
 			// Do the scene transitions
 			
-			CEFNavigator.prntTutor.xitions.addEventListener(CEFEvent.COMPLETE, this.doEnterScene);			
-			CEFNavigator.prntTutor.xitions.gotoScene(redScene);							
+			CTutorState.prntTutor.xitions.addEventListener(CEFEvent.COMPLETE, this.doEnterScene);			
+			CTutorState.prntTutor.xitions.gotoScene(redScene);							
 		}
 	}
 
@@ -369,7 +367,7 @@ export class CEFNavigator extends CEFScene
 	public onButtonNext(evt:CEFMouseEvent) : void
 	{
 		//@@ debug - for building XML spec of Tutor spec only - captureSceneGraph
-		//			 note allowed for non-click events - i.e. virtual invocations see: CEFDoc.launchTutors():
+		//			 note allowed for non-click events - i.e. virtual invocations see: CONST.launchTutors():
 //			if(evt != null)
 //				gTutor.captureSceneGraph();			
 		
@@ -377,7 +375,7 @@ export class CEFNavigator extends CEFScene
 	}
 	
 	/**
-	 * 	recoverState - called from CEFDoc.launchTutors to restart an interrupted session
+	 * 	recoverState - called from CONST.launchTutors to restart an interrupted session
 	 */
 	public recoverState() : void
 	{
@@ -404,8 +402,8 @@ export class CEFNavigator extends CEFScene
 		//@@ 						
 		// In demo mode we defer any demo button clicks while scene changes are in progress
 		
-		if(CEFRoot.fDemo)
-			CEFRoot.fDeferDemoClick = true;
+		if(CTutorState.fDemo)
+			CTutorState.fDeferDemoClick = true;
 					
 		if(this.sceneCurr < this.sceneCnt)
 		{
@@ -420,11 +418,11 @@ export class CEFNavigator extends CEFScene
 			
 			// Allow current scene to update next scene dynamically
 			//
-			switch(redScene = CEFNavigator.TutAutomator[this.sceneSeq[this.sceneCurr]].instance.preExitScene("WOZNEXT", this.sceneCurr))
+			switch(redScene = CTutorState.TutAutomator[this.sceneSeq[this.sceneCurr]].instance.preExitScene("WOZNEXT", this.sceneCurr))
 			{
-				case CEFNavigator.CANCELNAV: 						// Do not allow scene to change
-						if(CEFRoot.fDemo)
-							CEFRoot.fDeferDemoClick = false;
+				case CONST.CANCELNAV: 						// Do not allow scene to change
+						if(CTutorState.fDemo)
+							CTutorState.fDeferDemoClick = false;
 						
 						//@@ Mod Sep 27 2011 - protect against recurrent calls
 						
@@ -432,7 +430,7 @@ export class CEFNavigator extends CEFScene
 						
 						return;				
 						
-				case CEFNavigator.OKNAV: 							// Move to next scene in sequence
+				case CONST.OKNAV: 							// Move to next scene in sequence
 						this.sceneCurrINC;					
 						break;
 				
@@ -446,23 +444,23 @@ export class CEFNavigator extends CEFScene
 			//
 			for(redScene = this.sceneSeq[this.sceneCurr] ; redScene != newScene ; )
 			{
-				//CEFNavigator.prntTutor.enumScenes();	//@@debug
+				//CTutorState.prntTutor.enumScenes();	//@@debug
 				
 				//*** Create scene on demand
 				//
 				CUtil.trace(this.sceneSeq[this.sceneCurr]);
-				CUtil.trace(CEFNavigator.TutAutomator[this.sceneSeq[this.sceneCurr]]);
+				CUtil.trace(CTutorState.TutAutomator[this.sceneSeq[this.sceneCurr]]);
 				
-				if(CEFNavigator.TutAutomator[this.sceneSeq[this.sceneCurr]] == undefined)
+				if(CTutorState.TutAutomator[this.sceneSeq[this.sceneCurr]] == undefined)
 				{
-					CEFNavigator.prntTutor.instantiateScene(this.sceneName[this.sceneCurr], this.sceneClass[this.sceneCurr]);
+					CTutorState.prntTutor.instantiateScene(this.sceneName[this.sceneCurr], this.sceneClass[this.sceneCurr]);
 				}
 				
 				newScene = redScene;
 				
 				//@@@ NOTE: either discontinue support for redirection through PreEnterScene - or manage scene creation and destruction here
 				
-				redScene = CEFNavigator.TutAutomator[this.sceneSeq[this.sceneCurr]].instance.preEnterScene(CEFNavigator.prntTutor, newScene, this.sceneTitle[this.sceneCurr], this.scenePage[this.sceneCurr], "WOZNEXT");
+				redScene = CTutorState.TutAutomator[this.sceneSeq[this.sceneCurr]].instance.preEnterScene(CTutorState.prntTutor, newScene, this.sceneTitle[this.sceneCurr], this.scenePage[this.sceneCurr], "WOZNEXT");
 				
 				// Skip to next scene in sequence
 				if(redScene == "WOZNEXT")
@@ -486,16 +484,16 @@ export class CEFNavigator extends CEFScene
 			let logData:Object = {'navevent':'navnext', 'curscene':this.scenePrev, 'newscene':redScene};
 			//letxmlVal:XML = <navnext curscene={this.scenePrev} newscene={redScene}/>
 			
-			this.gLogR.logNavEvent(logData);				
+			CTutorState.gLogR.logNavEvent(logData);				
 			//@@ Action Logging							
 			
 			// On exit behaviors
 			
-			CEFNavigator.TutAutomator[this.sceneSeq[this.scenePrev]].instance.onExitScene();
+			CTutorState.TutAutomator[this.sceneSeq[this.scenePrev]].instance.onExitScene();
 			
 			// Do the scene transitions
-			CEFNavigator.prntTutor.xitions.addEventListener(CEFEvent.COMPLETE, this.doEnterNext);			
-			CEFNavigator.prntTutor.xitions.gotoScene(redScene);							
+			CTutorState.prntTutor.xitions.addEventListener(CEFEvent.COMPLETE, this.doEnterNext);			
+			CTutorState.prntTutor.xitions.gotoScene(redScene);							
 		}
 	}
 
@@ -530,8 +528,8 @@ export class CEFNavigator extends CEFScene
 		//@@ 
 		// In demo mode we defer any demo button clicks while scene changes are in progress
 		
-		if(CEFRoot.fDemo)
-			CEFRoot.fDeferDemoClick = true;
+		if(CTutorState.fDemo)
+			CTutorState.fDeferDemoClick = true;
 					
 		if(this.sceneCurr >= 1)		
 		{
@@ -541,11 +539,11 @@ export class CEFNavigator extends CEFScene
 
 			// Allow current scene to update next scene dynamically
 			//
-			switch(redScene = CEFNavigator.TutAutomator[this.sceneSeq[this.sceneCurr]].instance.preExitScene("WOZBACK", this.sceneCurr))
+			switch(redScene = CTutorState.TutAutomator[this.sceneSeq[this.sceneCurr]].instance.preExitScene("WOZBACK", this.sceneCurr))
 			{
-				case CEFNavigator.CANCELNAV: 						// Do not allow scene to change
-						if(CEFRoot.fDemo)
-							CEFRoot.fDeferDemoClick = false;
+				case CONST.CANCELNAV: 						// Do not allow scene to change
+						if(CTutorState.fDemo)
+							CTutorState.fDeferDemoClick = false;
 					
 						//@@ Mod Sep 27 2011 - protect against recurrent calls
 						
@@ -553,7 +551,7 @@ export class CEFNavigator extends CEFScene
 						
 						return;				
 						
-				case CEFNavigator.OKNAV: 							// Move to next scene in sequence
+				case CONST.OKNAV: 							// Move to next scene in sequence
 						this.sceneCurrDEC;					
 						break;
 				
@@ -569,7 +567,7 @@ export class CEFNavigator extends CEFScene
 			{
 				newScene = redScene;
 				
-				redScene = CEFNavigator.TutAutomator[this.sceneSeq[this.sceneCurr]].instance.preEnterScene(CEFNavigator.prntTutor, newScene, this.sceneTitle[this.sceneCurr], this.scenePage[this.sceneCurr], "WOZBACK");
+				redScene = CTutorState.TutAutomator[this.sceneSeq[this.sceneCurr]].instance.preEnterScene(CTutorState.prntTutor, newScene, this.sceneTitle[this.sceneCurr], this.scenePage[this.sceneCurr], "WOZBACK");
 								
 				if(redScene == "WOZNEXT")
 				{
@@ -591,16 +589,16 @@ export class CEFNavigator extends CEFScene
 			let logData:Object = {'navevent':'navback', 'curscene':this.scenePrev, 'newscene':redScene};
 			//letxmlVal:XML = <navback curscene={this.scenePrev} newscene={redScene}/>
 			
-			this.gLogR.logNavEvent(logData);				
+			CTutorState.gLogR.logNavEvent(logData);				
 			//@@ Action Logging			
 			
 			// On exit behaviors
 			
-			CEFNavigator.TutAutomator[this.sceneSeq[this.scenePrev]].instance.onExitScene();
+			CTutorState.TutAutomator[this.sceneSeq[this.scenePrev]].instance.onExitScene();
 			
 			// Do the scene transitions
-			CEFNavigator.prntTutor.xitions.addEventListener(CEFEvent.COMPLETE, this.doEnterBack);			
-			CEFNavigator.prntTutor.xitions.gotoScene(redScene);							
+			CTutorState.prntTutor.xitions.addEventListener(CEFEvent.COMPLETE, this.doEnterBack);			
+			CTutorState.prntTutor.xitions.gotoScene(redScene);							
 		}
 	}
 
@@ -612,7 +610,7 @@ export class CEFNavigator extends CEFScene
 	{
 		if(this.traceMode) CUtil.trace("this.doEnterNext: " , this.sceneCurr);
 		
-		CEFNavigator.prntTutor.xitions.removeEventListener(CEFEvent.COMPLETE, this.doEnterNext);						
+		CTutorState.prntTutor.xitions.removeEventListener(CEFEvent.COMPLETE, this.doEnterNext);						
 		
 		//*** Destroy non persistent scenes
 		//
@@ -620,19 +618,19 @@ export class CEFNavigator extends CEFScene
 		{
 			// remove it from the tutor itself
 			
-			CEFNavigator.prntTutor.destroyScene(this.sceneName[this.scenePrev]);
+			CTutorState.prntTutor.destroyScene(this.sceneName[this.scenePrev]);
 		}
 		
 		// Do scene Specific Enter Scripts
 		//
-		CEFNavigator.TutAutomator[this.sceneSeq[this.sceneCurr]].instance.onEnterScene("WOZNEXT");
+		CTutorState.TutAutomator[this.sceneSeq[this.sceneCurr]].instance.onEnterScene("WOZNEXT");
 		
-		//CEFNavigator.prntTutor.enumScenes();	//@@debug
+		//CTutorState.prntTutor.enumScenes();	//@@debug
 
 		// In demo mode defer demo clicks while scene switches are in progress
 		
-		if(CEFRoot.fDemo)
-			CEFNavigator.prntTutor.dispatchEvent(new Event("deferedDemoCheck"));
+		if(CTutorState.fDemo)
+			CTutorState.prntTutor.dispatchEvent(new Event("deferedDemoCheck"));
 		
 		//@@ Mod Sep 27 2011 - protect against recurrent calls
 		
@@ -650,23 +648,23 @@ export class CEFNavigator extends CEFScene
 	{
 		if(this.traceMode) CUtil.trace("doEnterBack: " , this.sceneCurr);
 		
-		CEFNavigator.prntTutor.xitions.removeEventListener(CEFEvent.COMPLETE, this.doEnterBack);						
+		CTutorState.prntTutor.xitions.removeEventListener(CEFEvent.COMPLETE, this.doEnterBack);						
 
 		//*** Destroy non persistent scenes
 		//
 		if(!this.scenePersist[this.scenePrev])
 		{
-			CEFNavigator.prntTutor.destroyScene(this.sceneName[this.scenePrev]);
+			CTutorState.prntTutor.destroyScene(this.sceneName[this.scenePrev]);
 		}
 		
 		// Do scene Specific Enter Scripts
 		//
-		CEFNavigator.TutAutomator[this.sceneSeq[this.sceneCurr]].instance.onEnterScene("WOZBACK");
+		CTutorState.TutAutomator[this.sceneSeq[this.sceneCurr]].instance.onEnterScene("WOZBACK");
 		
 		// In demo mode defer demo clicks while scene switches are in progress
 		
-		if(CEFRoot.fDemo)
-			CEFNavigator.prntTutor.dispatchEvent(new Event("deferedDemoCheck"));
+		if(CTutorState.fDemo)
+			CTutorState.prntTutor.dispatchEvent(new Event("deferedDemoCheck"));
 
 		//@@ Mod Sep 27 2011 - protect against recurrent calls
 		
@@ -681,23 +679,23 @@ export class CEFNavigator extends CEFScene
 	{
 		if(this.traceMode) CUtil.trace("this.doEnterScene: " , this.sceneCurr);
 		
-		CEFNavigator.prntTutor.xitions.removeEventListener(CEFEvent.COMPLETE, this.doEnterScene);						
+		CTutorState.prntTutor.xitions.removeEventListener(CEFEvent.COMPLETE, this.doEnterScene);						
 
 		//*** Destroy non persistent scenes
 		//
 		if(!this.scenePersist[this.scenePrev])
 		{
-			CEFNavigator.prntTutor.destroyScene(this.sceneName[this.scenePrev]);
+			CTutorState.prntTutor.destroyScene(this.sceneName[this.scenePrev]);
 		}
 		
 		// Do scene Specific Enter Scripts
 		//
-		CEFNavigator.TutAutomator[this.sceneSeq[this.sceneCurr]].instance.onEnterScene("WOZGOTO");
+		CTutorState.TutAutomator[this.sceneSeq[this.sceneCurr]].instance.onEnterScene("WOZGOTO");
 		
 		// In demo mode defer demo clicks while scene switches are in progress
 		
-		if(CEFRoot.fDemo)
-			CEFNavigator.prntTutor.dispatchEvent(new Event("deferedDemoCheck"));
+		if(CTutorState.fDemo)
+			CTutorState.prntTutor.dispatchEvent(new Event("deferedDemoCheck"));
 		
 		//@@ Mod Sep 27 2011 - protect against recurrent calls
 		

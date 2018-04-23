@@ -35,6 +35,7 @@ import { CTimerEvent } 		from "../events/CTimerEvent";
 import { CDataEvent } 		from "../events/CDataEvent";
 import { CDnsEvent } 		from "../events/CDnsEvent";
 
+import { CONST }            from "../util/CONST";
 import { CUtil } 			from "../util/CUtil";
 
 
@@ -84,11 +85,6 @@ export class CLogManager extends EventDispatcher implements ILogManager
 	private _sessionStatus:string 	= CLogManager.SESSION_START;
 	private _sessionAccount:any;
 			
-	public static readonly SESSION_START:string 		= "sessionstart";
-	public static readonly SESSION_RUNNING:string 		= "sessionrunning";
-	public static readonly SESSION_INTERRUPTED:string 	= "sessioninterrupted";
-	public static readonly SESSION_COMPLETE:string		= "sessioncomplete";
-				
 	private logEventTimer:CEFTimer = new CEFTimer(60);			// queue packets on every tick
 	private logTimeout:CEFTimer    = new CEFTimer(10000, 1);	// use a 40sec time out on responses from TED service
 	
@@ -106,62 +102,25 @@ export class CLogManager extends EventDispatcher implements ILogManager
 	
 	private _fLogging:number;
 
-
-
 	// Playback counters
 	
-	private LogSource:string;						// Playback can come from either Recorded Events (cached playback) or and object (Logged playback) 
+	private LogSource:string;							// Playback can come from either Recorded Events (cached playback) or and object (Logged playback) 
 	
 	private lastAction:number;							//@@Legacy playback
 	private lastMove:number;							//@@Legacy playback
 	
-	private fPlayBackDone:boolean;					// set when playBackNdx reaches playBackSiz
+	private fPlayBackDone:boolean;						// set when playBackNdx reaches playBackSiz
 	private playBackNdx:number;							// replay progress counter
 	private playBackSiz:number;							// size of the current playback object
-			
-	
-	// ** Network message types - Server Response packet contents
-	
-	public static readonly xmlUSER_AUTH:string			=	"userAuth";
-	public static readonly xmlUPDATE_PROGRESS:string	=	"updateProgress";
-	public static readonly xmlLOG_STATE:string			=	"logState";
-	public static readonly xmlQUERY_STATE:string		=	"queryState";
-			
-	public static readonly xmlACKAUTH:string			=	"ackauth";
-	public static readonly xmlNAKAUTH:string			=	"nakauth";
-	
-	public static readonly xmlACKPROGLOG:string			=	"ackprogresslog";
-	public static readonly xmlNAKPROGLOG:string			=	"nakprogresslog";
-	
-	public static readonly xmlACKSTATEQUERY:string		=	"ackstatequery";
-	public static readonly xmlNAKSTATEQUERY:string		=	"nakstatequery";
-	
-	public static readonly xmlACKLATESTSTATEQUERY:string=	"acklateststatequery";
-	public static readonly xmlNAKLATESTSTATEQUERY:string=	"naklateststatequery";
-	
-	public static readonly xmlACKSTATELOG:string		=	"ackstatelog";
-	public static readonly xmlNAKSTATELOG:string		=	"nakstatelog";
-	
-	public static readonly xmlERROR:string				=	"error";
-	public static readonly xmlMESSAGE:string			=	"message";
-	public static readonly xmlSQLERROR:string			=	"sqlerror";
-	
-	public static readonly INVALID_USER:string			=	"INVALID_USERPASS";
-	
-	// Custom Port Constants
-		
-	public static PORT_NTP:number     =	12000;
-	public static PORT_ARBITER:number =	12001;
-	public static PORT_SERVER:number  =	12002;
-	public static PORT_LOGGER:number  =	12003;				
 
 	// Singleton implementation
 	
-	private static _instance:CLogManager;		// 
+	private static _instance:CLogManager;	
 	private static _logQueue:CLogQueue;
 	
+
 	
-			
+	
 	/**
 	 * constructor has an optional tracearea object that is used for
 	 * development purposed only
@@ -710,7 +669,7 @@ export class CLogManager extends EventDispatcher implements ILogManager
 		// Generate an mongo insert packet for the log event
 		
 		logData = CMongo.insertPacket('logmanager', 
-										CMongo.LOG_PACKET, 
+										CONST.LOG_PACKET, 
 										'unused',
 										logData);
 					
@@ -814,7 +773,7 @@ export class CLogManager extends EventDispatcher implements ILogManager
 		// Generate the log record
 		//						
 		logData = CMongo.updatePacket('logManager',
-										CMongo.LOG_PROGRESS,
+										CONST.LOG_PROGRESS,
 										'unused',
 										{"_id":this._sessionAccount.userData._id},
 										logData['reify']);			
@@ -848,10 +807,10 @@ export class CLogManager extends EventDispatcher implements ILogManager
 		termMsg['phases']             = new CObject;												
 		termMsg['phases'][profileNdx] = new CObject; 
 		
-		termMsg['phases'][profileNdx]['progress'] = CMongo._COMPLETE;								
+		termMsg['phases'][profileNdx]['progress'] = CONST._COMPLETE;								
 		
 		termMsg = CMongo.updatePacket('logManager',
-										CMongo.LOG_TERMINATE,
+										CONST.LOG_TERMINATE,
 										'unused',
 										{"_id":this._sessionAccount.userData._id},
 										termMsg);			
@@ -1652,7 +1611,7 @@ export class CLogManager extends EventDispatcher implements ILogManager
 		
 		//--------------------------------------------------------------------------------
 		// Determine if response if JSON or XML
-		if(CLogManager._logQueue.queueMode == CLogManagerType.MODE_JSON)
+		if(CLogManager._logQueue.queueMode == CONST.MODE_JSON)
 		{			
 			try
 			{					
@@ -1665,8 +1624,8 @@ export class CLogManager extends EventDispatcher implements ILogManager
 					//** Logging Protocol Management
 					//
 					
-					case CMongo.ACKLOG_PACKET:
-					case CMongo.ACKLOG_PROGRESS:
+					case CONST.ACKLOG_PACKET:
+					case CONST.ACKLOG_PROGRESS:
 															
 						// If the last packet was NOT correct then we have a problem 
 						// The server is requesting something out of sequence 
@@ -1726,7 +1685,7 @@ export class CLogManager extends EventDispatcher implements ILogManager
 						}
 						break;					
 				
-					case CMongo.ACKLOG_NAK:		// Resend packet
+					case CONST.ACKLOG_NAK:		// Resend packet
 
 						// We got the ack in time - don't allow the timer to expire
 						
@@ -1751,7 +1710,7 @@ export class CLogManager extends EventDispatcher implements ILogManager
 						}
 						break;						
 					
-					case CMongo.ACKLOG_TERMINATE:
+					case CONST.ACKLOG_TERMINATE:
 						
 						// We got the ack in time - don't allow the timer to expire
 						
@@ -1759,7 +1718,7 @@ export class CLogManager extends EventDispatcher implements ILogManager
 						
 						// if(this.tracer) this.tracer.TRACE("*");
 						// if(this.tracer) this.tracer.TRACE("@@term@@\n");
-						if(this.traceMode) CUtil.trace("@@@@@@@@@@@@@@@@@@@@@@ CMongo.ACKLOG_TERMINATE @@@@@@@@@@@@@@@@@@@@@@@@@@@@@");							
+						if(this.traceMode) CUtil.trace("@@@@@@@@@@@@@@@@@@@@@@ CONST.ACKLOG_TERMINATE @@@@@@@@@@@@@@@@@@@@@@@@@@@@@");							
 						
 						// Abandon the session - 
 						// This resets the queue and closes the socket 

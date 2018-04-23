@@ -21,6 +21,9 @@ import { CEFObject } 		from "./CEFObject";
 import { CEFRoot } 			from "./CEFRoot";
 
 import { CEFMouseEvent } 	from "../events/CEFMouseEvent";
+
+import { CTutorState }  	from "../util/CTutorState";
+import { CONST }            from "../util/CONST";
 import { CUtil } 			from "../util/CUtil";
 
 import MovieClip     		  = createjs.MovieClip;
@@ -244,7 +247,7 @@ export class CEFCheckButton extends CEFButton
 		
 		if(this._activeFeature != "")
 		{
-			CEFRoot.gTutor.addFeature = this._activeFeature;
+			CTutorState.gTutor.addFeature = this._activeFeature;
 		}
 		return this.activeFeature;
 	}
@@ -255,11 +258,11 @@ export class CEFCheckButton extends CEFButton
 		
 		if(this._ftrChecked != "")
 		{
-			CEFRoot.gTutor.delFeature = this._ftrChecked;
+			CTutorState.gTutor.delFeature = this._ftrChecked;
 		}
 		if(this._ftrUnchecked != "")
 		{
-			CEFRoot.gTutor.delFeature = this._ftrUnchecked;
+			CTutorState.gTutor.delFeature = this._ftrUnchecked;
 		}							
 	}
 	

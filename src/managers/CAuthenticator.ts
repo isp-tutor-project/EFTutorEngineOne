@@ -224,7 +224,7 @@ export class CAuthenticator extends EventDispatcher
 	{
 		this._accountActive = false;
 		
-		this._logManager.abandonSession(true, CLogManagerType.SESSION_START);			// abandon data and close socket and move back to sessionStart state
+		this._logManager.abandonSession(true, CONST.SESSION_START);			// abandon data and close socket and move back to sessionStart state
 	}
 	
 
@@ -514,9 +514,9 @@ export class CAuthenticator extends EventDispatcher
 	 * 
 	 * These commands are managed in the LogManager - anything else is forwarded here
 	 * 
-	 * 		CMongo.ACKLOG_PACKET
-	 * 		CMongo.ACKLOG_PROGRESS
-	 * 		CMongo.ACKLOG_TERMINATE
+	 * 		CONST.ACKLOG_PACKET
+	 * 		CONST.ACKLOG_PROGRESS
+	 * 		CONST.ACKLOG_TERMINATE
 	 * 
 	 * This may receive any of the following messages
 	 *	   
@@ -1154,7 +1154,7 @@ export class CAuthenticator extends EventDispatcher
 				
 				_logManager.connectProtocol(forwardDataProtocol);					
 				
-				_mongoPacket = CMongo.queryPacket(_source, CMongo.FIND, _collection, {"_id":_usrID}, {}); 
+				_mongoPacket = CMongo.queryPacket(_source, CONST.FIND, _collection, {"_id":_usrID}, {}); 
 				
 				_logManager.sendPacket(_mongoPacket);					
 				break;				
@@ -1214,29 +1214,29 @@ export class CAuthenticator extends EventDispatcher
 		{
 			switch(dataPacket.command)
 			{
-				case CMongo.ACK_FIND:
+				case CONST.ACK_FIND:
 
 					_userAccount["userData"]["account"] = dataPacket.document;
 					
 					dispatchEvent(new CPortal_Event(CPortal_Event.PORTAL_EVENT, CPortal_Event.CLASSLIST_UPDATED));						
 					break;
 				
-				case CMongo.ACK_INSERT:
+				case CONST.ACK_INSERT:
 					break;
 				
-				case CMongo.ACK_UPDATE:						
+				case CONST.ACK_UPDATE:						
 					break;
 				
-				case CMongo.ACK_UPSERT:
+				case CONST.ACK_UPSERT:
 					break;
 				
-				case CMongo.ACK_RECOVER:
+				case CONST.ACK_RECOVER:
 					break;
 				
-				case CMongo.ACK_RECYCLE:
+				case CONST.ACK_RECYCLE:
 					break;
 				
-				case CMongo.ACK_REMOVE:
+				case CONST.ACK_REMOVE:
 					break;								
 			}							
 		}
@@ -1260,23 +1260,23 @@ export class CAuthenticator extends EventDispatcher
 				case "unknown":
 					break;
 				
-				case CMongo.ACK_FIND:
+				case CONST.ACK_FIND:
 					break;
 				
-				case CMongo.ACK_INSERT:
+				case CONST.ACK_INSERT:
 					break;
 				
-				case CMongo.ACK_UPDATE:
+				case CONST.ACK_UPDATE:
 					break;
 				
-				case CMongo.ACK_UPSERT:
+				case CONST.ACK_UPSERT:
 					break;								
 				
-				case CMongo.ACK_RECYCLE:
+				case CONST.ACK_RECYCLE:
 					
 					break;
 				
-				case CMongo.ACK_REMOVE:
+				case CONST.ACK_REMOVE:
 					// Cancel further deletes
 					
 					//						_deleteItemNdx = -1;

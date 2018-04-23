@@ -23,13 +23,18 @@ import { CEFNavigator } from "./CEFNavigator";
 
 import { ILogManager }  from "../managers/ILogManager";
 
-import { CUtil } 		from "../util/CUtil";
+import { CTutorState }      from "../util/CTutorState";
+import { CONST }            from "../util/CONST";
+import { CUtil } 			from "../util/CUtil";
+
 
 import MovieClip     		  = createjs.MovieClip;
 import DisplayObject 		  = createjs.DisplayObject;
 import DisplayObjectContainer = createjs.Container;
 
-var TutorEngineOne:any;
+
+
+
 
 export class CEFRoot extends MovieClip
 {				
@@ -38,63 +43,10 @@ export class CEFRoot extends MovieClip
 	public wozName:string;
 	private _listenerArr:Array<Function|Object>;				// Array of listeners on this object - 
 		
-	public static STAGEWIDTH:number  = 1024;  
-	public static STAGEHEIGHT:number = 768;  
 
 //*** parent scene linkage
 	public parentScene:CEFScene;
 	
-//*** global scene graph XML declaration
-		
-	public static gSceneConfig:any;								// The factory definition object used to create the scene structure
-	public static gSceneGraphDesc:any;							// The factory definition object used to create the scene Graph		
-	public static gAnimationGraphDesc:any;						// The factory definition object used to create animation graphs for specified scenes
-	
-//*** Demo configuration
-	
-	public static fRemoteMode:boolean	  = false;				// Used to control SWFLoader security domain
-	public static fDemo:boolean  	 	  = true;				// Controls the insertion of the demo selection scene 
-	public static fDebug:boolean 	 	  = true;				// Controls whether the server connection is used			
-	public static fLog:boolean   	   	  = false;				// Controls whether logging is used or not		Note: Affects ILogManager constructor
-	public static fDeferDemoClick:boolean = true;				// defer demo button clicks while scene changes are in progress
-	
-//********
-	
-	public static fTutorPart:string = "Intro & Ramp Pre-test";	// Goes in to the xml header to indicate the portion of the tutor the file represents - deprecated Jun 6 2013 - see CLogManager 
-	public static fFullSignIn:boolean = false;					// Set dynamically based upon Feature Set		
-	
-//****************		
-	
-	public static fSkipAssess:boolean      = false;				// Controls where to go after the ramp test - user trials support 	
-	public static fEnableBack:boolean      = true;				// force all back buttons to enabled
-	public static fForceBackButton:boolean = true;				//@@ Mod May 22 2013 - Prepost module integration - back button behaves different in prepost then anywhere else
-																//                     So in general outside the prepost we force the back button to off
-	public static fSkillometer:boolean 	   = false;				//@@ Mod Mar2 2012 - support for showing skillometer in loader
-
-//********
-	
-	public static sessionAccount:any	   = {};				//@@ Mod Dec 03 2013 - session Account data  
-	
-	public static fSessionID:string;							// Unique session identifier
-	public static fSessionTime:number;
-	public static serverUserID:number = 0;						// Numeric user ID assigned by the logging server DB
-	
-	public static fPlaybackMode:boolean = false;
-	
-	public static WOZREPLAY:string  = "rootreplay";
-	public static WOZCANCEL:string  = "rootcancel";
-	public static WOZPAUSING:string = "rootpause"; 
-	public static WOZPLAYING:string = "rootplay"; 
-
-	public static gTutor:any;									// Root Tutor object - @@Mod Aug 7 2013 - public so scenegraph can access  		
-	
-	private static logR:ILogManager;							// Logging service connection
-	private static SceneData:string = "<data/>";				// Root Tutor data cache				
-	
-	private static _wozInstance:number = 1;		
-	private static _gNavigator:CEFNavigator;
-	
-//********
 	
 	
 	/**
@@ -132,9 +84,7 @@ export class CEFRoot extends MovieClip
 		// By default we set the woz name to the object name.
 		// Sub-classes can modify wozName to have objects behave independently in CWOZTransitions
 		//
-		this.wozName = "CEF" + CEFRoot._wozInstance.toString();
 		
-		CEFRoot._wozInstance++;					
 
 		console.log("Init called on: CEFRoot");
     }
@@ -237,7 +187,7 @@ export class CEFRoot extends MovieClip
 	// @@@@@@@@@@@
 	public getSymbolClone(_cloneOf:string, _named:string) :string
 	{
-		let xClone:string = ""; 	// CEFRoot.gSceneConfig.scenedata[_cloneOf].create.symbol.(@wozname==_named).table[0];
+		let xClone:string = ""; 	// CTutorState.gSceneConfig.scenedata[_cloneOf].create.symbol.(@wozname==_named).table[0];
 		
 		CUtil.trace(xClone);
 		
@@ -299,7 +249,6 @@ export class CEFRoot extends MovieClip
 
 	public get gForceBackButton() : boolean 
 	{		
-		return CEFRoot.fForceBackButton;
 	}
 			
 	public set gForceBackButton(fForce:boolean)
@@ -434,7 +383,6 @@ export class CEFRoot extends MovieClip
 	{
 		if(this.traceMode) CUtil.trace(name + " is stopped at : " + frame + ":" + scene);		
 		
-		if(CEFRoot.gTutor) CEFRoot.gTutor.playRemoveThis(this);
 		
 		super.gotoAndStop(frame + ":" + scene);
 	}
@@ -447,7 +395,6 @@ export class CEFRoot extends MovieClip
 	{
 		if(this.traceMode) CUtil.trace(name + " is stopped");
 		
-		if(CEFRoot.gTutor) CEFRoot.gTutor.playRemoveThis(this);
 
 		super.stop();
 	}
@@ -465,7 +412,6 @@ export class CEFRoot extends MovieClip
 			CUtil.trace("SgenericPrompt Play Found in gotoAndPlay");
 		//@@
 		
-		if(CEFRoot.gTutor) CEFRoot.gTutor.playAddThis(this);
 		super.gotoAndPlay(frame + ":" + scene);
 	}
 	
@@ -482,7 +428,6 @@ export class CEFRoot extends MovieClip
 			CUtil.trace("SgenericPrompt Play Found in Play");
 		//@@
 		
-		if(CEFRoot.gTutor) CEFRoot.gTutor.playAddThis(this);
 		super.play();
 	}
 			
@@ -499,7 +444,6 @@ export class CEFRoot extends MovieClip
 					CUtil.trace("SgenericPrompt Play Found in BindPlay");
 		//@@
 		
-		if(CEFRoot.gTutor) CEFRoot.gTutor.playAddThis(this);
 		super.play();
 	}
 	
@@ -509,10 +453,7 @@ export class CEFRoot extends MovieClip
 		
 		try
 		{
-			if(CEFRoot.gTutor) 
 			{
-				topPosition = CEFRoot.gTutor.numChildren - 1;
-				CEFRoot.gTutor.setChildIndex(this, topPosition);				
 			}
 		}
 		catch(err)
@@ -530,14 +471,12 @@ export class CEFRoot extends MovieClip
 	{
 		// Init the start time of the session
 		
-		CEFRoot.fSessionTime = CUtil.getTimer();
 	}
 
 	public get sessionTime() :string
 	{
 		let curTime:Number;
 		
-		curTime = (CUtil.getTimer() - CEFRoot.fSessionTime) / 1000.0;
 		
 		return curTime.toString();
 	}
@@ -546,28 +485,6 @@ export class CEFRoot extends MovieClip
 
 //************ Session Timing
 
-//****** Overridable Behaviors
-
-public static instantiateObject(objectClass:string) : DisplayObject
-{			
-	let tarObject:any;
-	
-	let ClassRef:any = this.getDefinitionByName(objectClass);
-	
-	tarObject = new ClassRef;
-	
-	return tarObject;			
-}
-
-
-public static getDefinitionByName(className:string) : any {
-
-	let classConstructor:Function;
-
-	classConstructor = TutorEngineOne.efLibrary[className];
-
-	return classConstructor;
-}
 
 //***************** Debug *******************************		
 	

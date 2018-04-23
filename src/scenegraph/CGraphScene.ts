@@ -21,7 +21,9 @@ import { CSceneGraph } 	from "./CSceneGraph";
 import { CEFObject }	from "../core/CEFObject";
 import { CEFRoot } 		from "../core/CEFRoot";
 
-import { CUtil } 			from "../util/CUtil";
+import { CTutorState }  from "../util/CTutorState";
+import { CONST }       	from "../util/CONST";
+import { CUtil } 		from "../util/CUtil";
 
 
 export class CGraphScene extends Object
@@ -83,13 +85,13 @@ export class CGraphScene extends Object
 		// Otherwise add it to the automation object if it is Extant - i.e. Flash instantiated
 		
 		if(this._object != "null")
-			CEFRoot.gTutor.automateScene(this._name, CEFRoot.gTutor[this._object], false);			
+			CTutorState.gTutor.automateScene(this._name, CTutorState.gTutor[this._object], false);			
 	}
 	
 	
 	public instantiateScene() : any
 	{
-		this._scene = CEFRoot.gTutor.instantiateScene(this._name, this._class, this._visible) as CEFObject;
+		this._scene = CTutorState.gTutor.instantiateScene(this._name, this._class, this._visible) as CEFObject;
 		
 		// Transcribe the factory feature to the object itself
 		
@@ -173,7 +175,7 @@ export class CGraphScene extends Object
 
 	public enumDisplayList() : void
 	{
-		CEFRoot.gTutor.enumChildren(CEFRoot.gTutor, 0);
+		CTutorState.gTutor.enumChildren(CTutorState.gTutor, 0);
 	}
 	
 }

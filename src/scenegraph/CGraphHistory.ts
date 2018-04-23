@@ -20,6 +20,10 @@ import { CGraphNode } 			from "./CGraphNode";
 import { CGraphScene } 			from "./CGraphScene";
 import { CGraphHistoryNode } 	from "./CGraphHistoryNode";
 
+import { CTutorState }      	from "../util/CTutorState";
+import { CUtil } 				from "../util/CUtil";
+
+
 
 export class CGraphHistory extends Object
 {
@@ -48,9 +52,9 @@ export class CGraphHistory extends Object
 		
 		if(scene != null)
 		{
-			this._history.push(new CGraphHistoryNode(node, scene));
+			CTutorState._history.push(new CGraphHistoryNode(node, scene));
 			
-			this._ndx = this._history.length;
+			this._ndx = CTutorState._history.length;
 		}
 	}
 	
@@ -58,11 +62,11 @@ export class CGraphHistory extends Object
 	{
 		let next:CGraphHistoryNode = null;
 		
-		if(this._ndx < this._history.length)
+		if(this._ndx < CTutorState._history.length)
 		{
 			this._ndx = this._ndx + 1;
 			
-			next = this._history[this._ndx -1];
+			next = CTutorState._history[this._ndx -1];
 		}
 		
 		return next;
@@ -81,9 +85,9 @@ export class CGraphHistory extends Object
 			// pop what we are currently working on and return the scene before it.
 			
 			if(this._volatile)
-				this._history.pop();
+				CTutorState._history.pop();
 			
-			prev = this._history[this._ndx -1];
+			prev = CTutorState._history[this._ndx -1];
 		}
 		
 		return prev;

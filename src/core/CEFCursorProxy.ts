@@ -22,6 +22,8 @@ import { CEFScene } 		from "./CEFScene";
 import { CEFMouseEvent } 	from "../events/CEFMouseEvent";
 import { CEFTextEvent } 	from "../events/CEFTextEvent";
 
+import { CTutorState }  	from "../util/CTutorState";
+import { CONST }            from "../util/CONST";
 import { CUtil } 			from "../util/CUtil";
 
 import MovieClip     	  = createjs.MovieClip;
@@ -198,7 +200,7 @@ export class CEFCursorProxy extends CEFRoot
 						
 			if(traceAction) CUtil.trace("Target Array: " + objArray[0]);
 						
-			tarObject = this.decodeTarget(CEFRoot.gTutor, objArray);
+			tarObject = this.decodeTarget(CTutorState.gTutor, objArray);
 
 			if(tarObject)
 			{
@@ -222,7 +224,7 @@ export class CEFCursorProxy extends CEFRoot
 							
 				if(traceAction) CUtil.trace("Target Array: " + objArray[0]);
 							
-				tarObject = this.decodeTarget(CEFRoot.gTutor, objArray);
+				tarObject = this.decodeTarget(CTutorState.gTutor, objArray);
 
 				if(tarObject)
 				{
@@ -294,7 +296,7 @@ export class CEFCursorProxy extends CEFRoot
 					
 		if(this.traceMode) CUtil.trace("Target Array: " + objArray[0]);
 					
-		tarObject = this.decodeTarget(CEFRoot.gTutor, objArray);
+		tarObject = this.decodeTarget(CTutorState.gTutor, objArray);
 
 		if(tarObject)
 		{
@@ -526,7 +528,7 @@ export class CEFCursorProxy extends CEFRoot
 				// Add this to the live event logging stream
 				//
 				if(this.fLiveLog)
-					this.gLogR.logLiveEvent(evtMove.captureLogState());				
+					CTutorState.gLogR.logLiveEvent(evtMove.captureLogState());				
 
 				// Log it before taking actions - state may change which would cause playback to freeze
 					
@@ -543,7 +545,7 @@ export class CEFCursorProxy extends CEFRoot
 				evtMove = new CEFMouseEvent("none", CEFMouseEvent.WOZMOVE, evt.bubbles, evt.cancelable, evt.stageX, evt.stageY, evt.nativeEvent, evt.pointerID, evt.primary, evt.rawX, evt.rawY);
 
 				if(this.fLiveLog)					
-					this.gLogR.logLiveEvent(evtMove.captureLogState());				
+					CTutorState.gLogR.logLiveEvent(evtMove.captureLogState());				
 			}
 		}				
 	}
@@ -574,7 +576,7 @@ export class CEFCursorProxy extends CEFRoot
 			// Add this to the live event logging stream
 			//
 			if(this.fLiveLog)				
-				this.gLogR.logLiveEvent(evtDown.captureLogState());
+				CTutorState.gLogR.logLiveEvent(evtDown.captureLogState());
 			
 			// Log it before taking actions - state may change which would cause playback to freeze					
 				
@@ -602,7 +604,7 @@ export class CEFCursorProxy extends CEFRoot
 			// Add this to the live event logging stream
 			//
 			if(this.fLiveLog)				
-				this.gLogR.logLiveEvent(evtUp.captureLogState());				
+				CTutorState.gLogR.logLiveEvent(evtUp.captureLogState());				
 		
 			// Log it before taking actions - state may change which would cause playback to freeze
 			
@@ -616,7 +618,7 @@ export class CEFCursorProxy extends CEFRoot
 				// Add this to the live event logging stream
 				//
 				if(this.fLiveLog)					
-					this.gLogR.logLiveEvent(evtClicked.captureLogState());	
+					CTutorState.gLogR.logLiveEvent(evtClicked.captureLogState());	
 					
 				// Log it before taking actions - state may change which would cause playback to freeze
 				
@@ -647,7 +649,7 @@ export class CEFCursorProxy extends CEFRoot
 			// Add this to the live event logging stream
 			//
 			if(this.fLiveLog)			
-				this.gLogR.logLiveEvent(evtDblClick.captureLogState());
+				CTutorState.gLogR.logLiveEvent(evtDblClick.captureLogState());
 			
 			// Log it before taking actions - state may change which would cause playback to freeze
 				
@@ -771,7 +773,7 @@ export class CEFCursorProxy extends CEFRoot
 				// Add this to the live event logging stream
 				//
 				if(this.fLiveLog)					
-					this.gLogR.logLiveEvent(evtOut.captureLogState());									
+					CTutorState.gLogR.logLiveEvent(evtOut.captureLogState());									
 				
 				// Log it before taking actions - state may change which would cause playback to freeze
 				
@@ -788,7 +790,7 @@ export class CEFCursorProxy extends CEFRoot
 				// Add this to the live event logging stream
 				//
 				if(this.fLiveLog)
-					this.gLogR.logLiveEvent(evtOver.captureLogState());	
+					CTutorState.gLogR.logLiveEvent(evtOver.captureLogState());	
 					
 				// Log it before taking actions - state may change which would cause playback to freeze					
 					

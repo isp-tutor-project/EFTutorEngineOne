@@ -19,6 +19,9 @@
 
 import { CEFRoot } 	   		from "./CEFRoot";
 import { CEFTimerEvent } 	from "../events/CEFTimerEvent";
+
+import { CTutorState }      from "../util/CTutorState";
+import { CONST }            from "../util/CONST";
 import { CUtil } 			from "../util/CUtil";
 
 import EventDispatcher = createjs.EventDispatcher;
@@ -156,11 +159,11 @@ export class CEFTimer extends EventDispatcher
 	{
 		if(this.traceMode) CUtil.trace(" Timer is starting");
 		
-		if(CEFRoot.gTutor)
+		if(CTutorState.gTutor)
 		{
-			CEFRoot.gTutor.addEventListener(CEFRoot.WOZCANCEL,  this.cancelTimers);
-			CEFRoot.gTutor.addEventListener(CEFRoot.WOZPAUSING, this.pauseTimers);
-			CEFRoot.gTutor.addEventListener(CEFRoot.WOZPLAYING, this.playTimers);
+			CTutorState.gTutor.addEventListener(CONST.WOZCANCEL,  this.cancelTimers);
+			CTutorState.gTutor.addEventListener(CONST.WOZPAUSING, this.pauseTimers);
+			CTutorState.gTutor.addEventListener(CONST.WOZPLAYING, this.playTimers);
 			
 			this.timerAddThis();
 			
@@ -182,11 +185,11 @@ export class CEFTimer extends EventDispatcher
 	{
 		if(this.traceMode) CUtil.trace(" Timer is stopping");
 		
-		if (CEFRoot.gTutor)
+		if (CTutorState.gTutor)
 		{
-			CEFRoot.gTutor.removeEventListener(CEFRoot.WOZCANCEL,  this.cancelTimers);
-			CEFRoot.gTutor.removeEventListener(CEFRoot.WOZPAUSING, this.pauseTimers);
-			CEFRoot.gTutor.removeEventListener(CEFRoot.WOZPLAYING, this.playTimers);
+			CTutorState.gTutor.removeEventListener(CONST.WOZCANCEL,  this.cancelTimers);
+			CTutorState.gTutor.removeEventListener(CONST.WOZPAUSING, this.pauseTimers);
+			CTutorState.gTutor.removeEventListener(CONST.WOZPLAYING, this.playTimers);
 			
 			this.timerRemoveThis();
 			

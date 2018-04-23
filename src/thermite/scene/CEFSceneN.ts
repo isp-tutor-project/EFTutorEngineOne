@@ -22,6 +22,9 @@ import { CEFButton } 		from "../../core/CEFButton";
 import { CEFSceneSequence } from "../../core/CEFSceneSequence";
 import { CEFEvent } 		from "../../events/CEFEvent";
 import { CEFMouseEvent } 	from "../../events/CEFMouseEvent";
+
+import { CTutorState }      from "../../util/CTutorState";
+import { CONST }            from "../../util/CONST";
 import { CUtil } 			from "../../util/CUtil";
 
 
@@ -53,7 +56,7 @@ export class CEFSceneN extends CEFSceneSequence
 	{			
 		// relay the entire tutor interaction
 		//
-		CEFRoot.gTutor.replayLiveStream();			
+		CTutorState.gTutor.replayLiveStream();			
 	}										
 	
 	

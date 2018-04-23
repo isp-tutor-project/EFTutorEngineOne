@@ -37,6 +37,8 @@ import { CEFKTNode } 		from "../kt/CEFKTNode";
 import { CLogManagerType } 	from "../managers/CLogManagerType";
 import { CEFKeyboardEvent } from "../events/CEFKeyboardEvent";
 
+import { CTutorState }      from "../util/CTutorState";
+import { CONST }            from "../util/CONST";
 import { CUtil } 			from "../util/CUtil";
 
 
@@ -131,7 +133,7 @@ export class CEFTutorRoot extends CEFRoot
 		
 		//*** Init the Tutor Global Variables
 		
-		CEFRoot.gTutor       = this;						// Connect to the Tutor
+		CTutorState.gTutor       = this;						// Connect to the Tutor
 		this.tutorAutoObj = {};						// Create the Automation Object			
 	}
 	
@@ -335,9 +337,8 @@ export class CEFTutorRoot extends CEFRoot
 		let i1:number;
 		let tarScene:any;
 		let subScene:any;
-		let ClassRef:any = CEFRoot.getDefinitionByName(sceneClass);
-		
-		tarScene = new ClassRef();			
+
+		tarScene = CUtil.instantiateObject(sceneClass);
 		
 		if (this.traceMode) CUtil.trace("Creating Scene : "+ sceneName);
 		
@@ -453,7 +454,7 @@ export class CEFTutorRoot extends CEFRoot
 		
 		// Propogate to children  
 		//
-		sceneObj.initAutomation(sceneObj, this.tutorAutoObj[sceneName], "", this.gLogR, this);								
+		sceneObj.initAutomation(sceneObj, this.tutorAutoObj[sceneName], "", CTutorState.gLogR, this);								
 		
 		// Capture the initial state for replay reset
 		// Fire the restore - it does instance specific initializations
@@ -471,8 +472,8 @@ export class CEFTutorRoot extends CEFRoot
 	{
 		// Parse the Tutor.config for preenter procedures for this scene 
 		
-		if((CEFRoot.gSceneConfig != null) && (CEFRoot.gSceneConfig.ktnets != undefined))			
-				this.loadKTNets(CEFRoot.gSceneConfig.ktnets);				
+		if((CTutorState.gSceneConfig != null) && (CTutorState.gSceneConfig.ktnets != undefined))			
+				this.loadKTNets(CTutorState.gSceneConfig.ktnets);				
 	}
 	
 	/**
@@ -558,7 +559,7 @@ export class CEFTutorRoot extends CEFRoot
 			
 		if(this.traceMode) CUtil.trace("Node Array: " + nodeArray);
 
-		return this.recurseXML(nodeArray, CEFTutorRoot.gSceneConfig.state[0], newVal);
+		return this.recurseXML(nodeArray, CTutorState.gSceneConfig.state[0], newVal);
 	}
 
 	
@@ -573,7 +574,7 @@ export class CEFTutorRoot extends CEFRoot
 			
 		if(this.traceMode) CUtil.trace("Node Array: " + nodeArray);
 
-		return this.recurseXML(nodeArray, CEFTutorRoot.gSceneConfig.scenedata[0], newVal);
+		return this.recurseXML(nodeArray, CTutorState.gSceneConfig.scenedata[0], newVal);
 	}
 
 	
@@ -596,8 +597,8 @@ export class CEFTutorRoot extends CEFRoot
 		
 		// Tell Proxies that Tutor is replaying
 		//
-		dispatchEvent(new Event(CEFRoot.WOZCANCEL));
-		dispatchEvent(new Event(CEFRoot.WOZREPLAY));
+		dispatchEvent(new Event(CONST.WOZCANCEL));
+		dispatchEvent(new Event(CONST.WOZREPLAY));
 	}
 
 	/**
@@ -630,7 +631,7 @@ export class CEFTutorRoot extends CEFRoot
 		
 		// Tell Proxies that Tutor is pausing
 		//
-		this.dispatchEvent(new Event(CEFTutorRoot.WOZPAUSING));
+		this.dispatchEvent(new Event(CONST.WOZPAUSING));
 		
 		for (let i1:number = 0 ; i1 < this.playing.length ; i1++)
 		{
@@ -651,7 +652,7 @@ export class CEFTutorRoot extends CEFRoot
 		
 		// Tell Proxies that Tutor is playing again
 		//
-		this.dispatchEvent(new Event(CEFTutorRoot.WOZPLAYING));			
+		this.dispatchEvent(new Event(CONST.WOZPLAYING));			
 		
 		for (let i1:number = 0 ; i1 < this.playing.length ; i1++)
 		{
@@ -676,7 +677,7 @@ export class CEFTutorRoot extends CEFRoot
 			{
 				// the interface is now in a new state - 
 				
-				CEFDoc.gApp.incStateID();
+				CTutorState.gApp.incStateID();
 			
 				// remove the movie from the running array
 
@@ -751,7 +752,7 @@ export class CEFTutorRoot extends CEFRoot
 			this.cCursor = new CEFCursorProxy;
 			this.cCursor.visible = false;
 			
-			CEFRoot.gTutor.addChild(this.cCursor);			
+			CTutorState.gTutor.addChild(this.cCursor);			
 		}
 		
 		this.cCursor.initWOZCursor(CEFCursorProxy.WOZLIVE);				
@@ -839,19 +840,19 @@ export class CEFTutorRoot extends CEFRoot
 		// Note: during playback no logging takes place
 		
 		this.stateStack.push(this.baseTime);
-		this.stateStack.push(CEFDoc.gApp.stateID);
-		this.stateStack.push(CEFDoc.gApp.frameID);
-		this.stateStack.push(this.gLogR.fLogging);				// Remember the logger flag prior to playback
+		this.stateStack.push(CTutorState.gApp.stateID);
+		this.stateStack.push(CTutorState.gApp.frameID);
+		this.stateStack.push(CTutorState.gLogR.fLogging);				// Remember the logger flag prior to playback
 		
-		this.gLogR.fLogging = CLogManagerType.RECLOGNONE;		// stop logging/recording
+		CTutorState.gLogR.fLogging = CONST.RECLOGNONE;		// stop logging/recording
 		
 		// Prep the Playback source.
 		//			
-		this.gLogR.setPlayBackSource(pbSource);
+		CTutorState.gLogR.setPlayBackSource(pbSource);
 		
 		if(pbSource[0].version == "1") 
 		{
-			this.gLogR.normalizePlayBackTime();
+			CTutorState.gLogR.normalizePlayBackTime();
 			
 			// Set the normalization constant for the realtime calculations
 
@@ -861,7 +862,7 @@ export class CEFTutorRoot extends CEFRoot
 			
 			// In demo mode any key will abort playback and return to demo menu
 			
-			if(CEFTutorRoot.fDemo)
+			if(CTutorState.fDemo)
 			{
 				this.stage.addEventListener(CEFKeyboardEvent.KEY_UP, this.abortPlayBack);
 				this.stage.addEventListener(CEFMouseEvent.CLICK, this.abortPlayBack2);
@@ -869,11 +870,11 @@ export class CEFTutorRoot extends CEFRoot
 		}
 		else if(pbSource[0].version == "2")
 		{
-			this.gLogR.normalizePlayBack();
+			CTutorState.gLogR.normalizePlayBack();
 			
 			// Disconnect the tutor frame counter - handed off to the playback unit
 
-			CEFDoc.gApp.connectFrameCounter(false);
+			CTutorState.gApp.connectFrameCounter(false);
 			
 			addEventListener(CEFEvent.ENTER_FRAME, this.playBackByFrame);
 		}
@@ -896,20 +897,20 @@ export class CEFTutorRoot extends CEFRoot
 		// Note: during playback no logging takes place
 		
 		this.stateStack.push(this.baseTime);
-		this.stateStack.push(CEFDoc.gApp.stateID);
-		this.stateStack.push(CEFDoc.gApp.frameID);
-		this.stateStack.push(this.gLogR.fLogging);				// Remember the logger flag prior to playback
+		this.stateStack.push(CTutorState.gApp.stateID);
+		this.stateStack.push(CTutorState.gApp.frameID);
+		this.stateStack.push(CTutorState.gLogR.fLogging);				// Remember the logger flag prior to playback
 		
-		this.gLogR.fLogging= CLogManagerType.RECLOGNONE;	// stop logging/recording
+		CTutorState.gLogR.fLogging= CONST.RECLOGNONE;	// stop logging/recording
 		
 		// Prep the Playback source.
 
-		this.gLogR.setPlayBackSource(null);
-		this.gLogR.normalizePlayBack();
+		CTutorState.gLogR.setPlayBackSource(null);
+		CTutorState.gLogR.normalizePlayBack();
 
 		// Disconnect the tutor frame counter - handed off to the playback unit
 
-		CEFDoc.gApp.connectFrameCounter(false);
+		CTutorState.gApp.connectFrameCounter(false);
 			
 		// Seek to the start scene
 
@@ -941,20 +942,20 @@ export class CEFTutorRoot extends CEFRoot
 		// Note: during playback no logging takes place
 		
 		this.stateStack.push(this.baseTime);
-		this.stateStack.push(CEFDoc.gApp.stateID);
-		this.stateStack.push(CEFDoc.gApp.frameID);
-		this.stateStack.push(this.gLogR.fLogging);				// Remember the logger flag prior to playback
+		this.stateStack.push(CTutorState.gApp.stateID);
+		this.stateStack.push(CTutorState.gApp.frameID);
+		this.stateStack.push(CTutorState.gLogR.fLogging);				// Remember the logger flag prior to playback
 		
-		this.gLogR.fLogging= CLogManagerType.RECLOGNONE;	// stop logging/recording
+		CTutorState.gLogR.fLogging= CONST.RECLOGNONE;	// stop logging/recording
 		
 		// Prep the Playback source.
 		//			
-		this.gLogR.setPlayBackSource(null);
-		this.gLogR.normalizePlayBack();
+		CTutorState.gLogR.setPlayBackSource(null);
+		CTutorState.gLogR.normalizePlayBack();
 		
 		// Disconnect the tutor frame counter - handed off to the playback unit
 
-		CEFDoc.gApp.connectFrameCounter(false);
+		CTutorState.gApp.connectFrameCounter(false);
 		
 		// Seek to the start scene
 		//
@@ -970,7 +971,7 @@ export class CEFTutorRoot extends CEFRoot
 	 */
 	private abortPlayBack(evt:KeyboardEvent) : void
 	{
-		this.gLogR.setPlayBackDone(true);	
+		CTutorState.gLogR.setPlayBackDone(true);	
 		dispatchEvent(new Event("interruptPlayBack"));
 	}
 
@@ -979,7 +980,7 @@ export class CEFTutorRoot extends CEFRoot
 	 */
 	private abortPlayBack2(evt:MouseEvent) : void
 	{
-		this.gLogR.setPlayBackDone(true);
+		CTutorState.gLogR.setPlayBackDone(true);
 		dispatchEvent(new Event("interruptPlayBack"));
 	}
 	
@@ -994,7 +995,7 @@ export class CEFTutorRoot extends CEFRoot
 
 		//**** If playback is finished remove onFrame action and restore mouse cursor
 
-		if(this.gLogR.playBackDone())
+		if(CTutorState.gLogR.playBackDone())
 		{
 			if(this.traceMode) CUtil.trace("-- Playback Completed -- ");
 			
@@ -1009,14 +1010,14 @@ export class CEFTutorRoot extends CEFRoot
 			// restore the tutor state
 			// Note: during playback no logging takes place
 			
-			this.gLogR.fLogging = this.stateStack.pop();	
-			CEFDoc.gApp.frameID = this.stateStack.pop();
-			CEFDoc.gApp.stateID = this.stateStack.pop();
+			CTutorState.gLogR.fLogging = this.stateStack.pop();	
+			CTutorState.gApp.frameID = this.stateStack.pop();
+			CTutorState.gApp.stateID = this.stateStack.pop();
 			this.baseTime       = this.stateStack.pop();			
 			
 			// Reconnect the tutor frame counter - handed off to the playback unit
 
-			CEFDoc.gApp.connectFrameCounter(true);		
+			CTutorState.gApp.connectFrameCounter(true);		
 		}		
 
 		//**** Otherwise playback the next event(s) in sequence
@@ -1025,7 +1026,7 @@ export class CEFTutorRoot extends CEFRoot
 		{
 			// wait until we have reached the state for the next event
 			//
-			// CEFDoc.gApp.stateID is the current state of the interface
+			// CTutorState.gApp.stateID is the current state of the interface
 			// nextEventState is the state when the next event will happen - at some frame within this state
 			//
 			// Note1: We reset the frameID on each state change so events happen relative to a state change
@@ -1033,23 +1034,23 @@ export class CEFTutorRoot extends CEFRoot
 			// Note2: non-event driven state changes (video / animation events) may need to complete 
 			//       before we continue.
 			
-			nextEventState = this.gLogR.getNextEventState();
+			nextEventState = CTutorState.gLogR.getNextEventState();
 			
 			// once we reach the state start checking frames for events 
 			
-			if (this.traceMode) CUtil.trace("CEFDoc.gApp.stateID: " + CEFDoc.gApp.stateID + "  - nextEventState:" + nextEventState);
+			if (this.traceMode) CUtil.trace("CTutorState.gApp.stateID: " + CTutorState.gApp.stateID + "  - nextEventState:" + nextEventState);
 			
-			//if(CEFDoc.gApp.stateID >= nextEventState)
+			//if(CTutorState.gApp.stateID >= nextEventState)
 			{				
 				// Now we fire all the events that occured in this frame (in sequence)
 				
 				do
 				{
-					wozEvt = this.gLogR.getNextEvent(CEFDoc.gApp.stateID, CEFDoc.gApp.frameID);
+					wozEvt = CTutorState.gLogR.getNextEvent(CTutorState.gApp.stateID, CTutorState.gApp.frameID);
 				
 					if(wozEvt != null)
 					{
-						if (this.traceMode) CUtil.trace("-- Executing Frame:" + CEFDoc.gApp.frameID + " -- EVT -- " + wozEvt);
+						if (this.traceMode) CUtil.trace("-- Executing Frame:" + CTutorState.gApp.frameID + " -- EVT -- " + wozEvt);
 
 						// fire the event - this handles mouse and text event types
 						
@@ -1062,7 +1063,7 @@ export class CEFTutorRoot extends CEFRoot
 				// this maintains synchronization with movieclips that may be running fast or slow relative
 				// to the frame they occured in the live session.
 				
-				CEFDoc.gApp.incFrameID();				
+				CTutorState.gApp.incFrameID();				
 			}
 		}
 	}
@@ -1077,7 +1078,7 @@ export class CEFTutorRoot extends CEFRoot
 		//
 		do
 		{
-			wozEvt = this.gLogR.getActionEvent(frameTime);
+			wozEvt = CTutorState.gLogR.getActionEvent(frameTime);
 			
 			// If we find an action item - fire it
 			//
@@ -1093,14 +1094,14 @@ export class CEFTutorRoot extends CEFRoot
 		// position from this.  note that getMoveEvent can return lastMove multiple times if
 		// there are multiple frameTime events before the playhead reaches it.
 		//
-		wozEvt = this.gLogR.getMoveEvent(frameTime);
+		wozEvt = CTutorState.gLogR.getMoveEvent(frameTime);
 		
 		if(wozEvt != null)
 		this.cCursor.playBackMove(wozEvt, frameTime );	
 
 		// If playback is finished remove onFrame action and restore mouse cursor
 		//
-		if(this.gLogR.playBackDone())
+		if(CTutorState.gLogR.playBackDone())
 		{
 			if(this.traceMode) CUtil.trace("-- Playback Completed -- ");
 			
@@ -1115,18 +1116,18 @@ export class CEFTutorRoot extends CEFRoot
 			// restore the tutor state
 			// Note: during playback no logging takes place
 			
-			this.gLogR.fLogging = this.stateStack.pop();	
-			CEFDoc.gApp.frameID = this.stateStack.pop();
-			CEFDoc.gApp.stateID = this.stateStack.pop();
+			CTutorState.gLogR.fLogging = this.stateStack.pop();	
+			CTutorState.gApp.frameID = this.stateStack.pop();
+			CTutorState.gApp.stateID = this.stateStack.pop();
 			this.baseTime       = this.stateStack.pop();
 			
 			// Reconnect the tutor frame counter - handed off to the playback unit
 
-			CEFDoc.gApp.connectFrameCounter(true);				
+			CTutorState.gApp.connectFrameCounter(true);				
 							
 			// In demo mode any key will abort playback 
 			
-			if(CEFTutorRoot.fDemo)
+			if(CTutorState.fDemo)
 			{
 				this.stage.removeEventListener(CEFKeyboardEvent.KEY_UP, this.abortPlayBack);
 				this.stage.removeEventListener(CEFMouseEvent.CLICK, this.abortPlayBack2);
