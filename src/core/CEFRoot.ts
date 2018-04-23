@@ -84,7 +84,9 @@ export class CEFRoot extends MovieClip
 		// By default we set the woz name to the object name.
 		// Sub-classes can modify wozName to have objects behave independently in CWOZTransitions
 		//
+		this.wozName = "CEF" + CTutorState._wozInstance.toString();
 		
+		CTutorState._wozInstance++;					
 
 		console.log("Init called on: CEFRoot");
     }
@@ -197,77 +199,7 @@ export class CEFRoot extends MovieClip
 //************** SceneConfig Initialization 
 
 //***************** Automation *******************************				
-	
-//***************** Globals ****************************
 
-
-	public get gData():string
-	{
-		return CEFRoot.SceneData;
-	}
-
-	public set gData(dataXML:string) 
-	{			
-		CEFRoot.SceneData = dataXML;
-	}
-
-	//@@ Mod May 16 2013 - support for prepost upgrade
-	
-	public get gPhase():string
-	{
-		return CEFRoot.fTutorPart;
-	}
-	
-	public set gPhase(phase:string) 
-	{
-		CEFRoot.fTutorPart = phase;
-	}
-	
-	//@@ Mod May 07 2012 - support for relative module pathing
-	
-	public get gLogR(): ILogManager
-	{
-		return CEFRoot.logR;
-	}
-
-	public set gLogR(logr:ILogManager) 
-	{
-		if(this.traceMode) CUtil.trace("Connecting Logger: ");
-		
-		CEFRoot.logR = logr;
-	}
-
-	
-	/*
-	*	restore scenedata XML to allow reuse of scene 
-	*/
-	public resetSceneDataXML() : void
-	{			
-		//CEFRoot.sceneConfig.replace("scenedata", sceneDataArchive);
-	}			
-	
-
-	public get gForceBackButton() : boolean 
-	{		
-	}
-			
-	public set gForceBackButton(fForce:boolean)
-	{		
-		CEFRoot.fForceBackButton = fForce;
-	}
-	
-	public get gNavigator() : CEFNavigator 
-	{		
-		return CEFRoot._gNavigator;
-	}
-	
-	public set gNavigator(navObject:CEFNavigator)
-	{		
-		CEFRoot._gNavigator = navObject;
-	}
-	
-	
-//***************** Globals ****************************
 
 //****** Overridable Behaviors
 
@@ -383,6 +315,7 @@ export class CEFRoot extends MovieClip
 	{
 		if(this.traceMode) CUtil.trace(name + " is stopped at : " + frame + ":" + scene);		
 		
+		if(CTutorState.gTutor) CTutorState.gTutor.playRemoveThis(this);
 		
 		super.gotoAndStop(frame + ":" + scene);
 	}
@@ -395,6 +328,7 @@ export class CEFRoot extends MovieClip
 	{
 		if(this.traceMode) CUtil.trace(name + " is stopped");
 		
+		if(CTutorState.gTutor) CTutorState.gTutor.playRemoveThis(this);
 
 		super.stop();
 	}
@@ -412,6 +346,7 @@ export class CEFRoot extends MovieClip
 			CUtil.trace("SgenericPrompt Play Found in gotoAndPlay");
 		//@@
 		
+		if(CTutorState.gTutor) CTutorState.gTutor.playAddThis(this);
 		super.gotoAndPlay(frame + ":" + scene);
 	}
 	
@@ -428,6 +363,7 @@ export class CEFRoot extends MovieClip
 			CUtil.trace("SgenericPrompt Play Found in Play");
 		//@@
 		
+		if(CTutorState.gTutor) CTutorState.gTutor.playAddThis(this);
 		super.play();
 	}
 			
@@ -444,6 +380,7 @@ export class CEFRoot extends MovieClip
 					CUtil.trace("SgenericPrompt Play Found in BindPlay");
 		//@@
 		
+		if(CTutorState.gTutor) CTutorState.gTutor.playAddThis(this);
 		super.play();
 	}
 	
@@ -453,7 +390,10 @@ export class CEFRoot extends MovieClip
 		
 		try
 		{
+			if(CTutorState.gTutor) 
 			{
+				topPosition = CTutorState.gTutor.numChildren - 1;
+				CTutorState.gTutor.setChildIndex(this, topPosition);				
 			}
 		}
 		catch(err)
@@ -471,12 +411,14 @@ export class CEFRoot extends MovieClip
 	{
 		// Init the start time of the session
 		
+		CTutorState.fSessionTime = CUtil.getTimer();
 	}
 
 	public get sessionTime() :string
 	{
 		let curTime:Number;
 		
+		curTime = (CUtil.getTimer() - CTutorState.fSessionTime) / 1000.0;
 		
 		return curTime.toString();
 	}

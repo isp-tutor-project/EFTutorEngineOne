@@ -32,6 +32,8 @@ import { CEFScriptEvent } 		from "../events/CEFScriptEvent";
 import { CEFActionEvent } 		from "../events/CEFActionEvent";
 import { CEFEvent } 			from "../events/CEFEvent";
 
+import { CTutorState }     		from "../util/CTutorState";
+import { CONST }        	    from "../util/CONST";
 import { CUtil } 				from "../util/CUtil";
 
 
@@ -96,7 +98,7 @@ export class CEFSceneSequence extends CEFScene
 	public Destructor() : void
 	{
 		// this.audioStartTimer.removeEventListener("timer", this.playHandler);		//** TODO */
-		CEFRoot.gTutor.removeEventListener(CEFSceneSequence.WOZREPLAY, this.sceneReplay);					
+		CTutorState.gTutor.removeEventListener(CONST.WOZREPLAY, this.sceneReplay);					
 		
 		this.disConnectAudio(this.Saudio1);
 		
@@ -106,17 +108,6 @@ export class CEFSceneSequence extends CEFScene
 	
 //****** Overridable Behaviors
 
-	/**
-	 * 
-	 */
-	public setButtonBehavior(behavior:string) : void
-	{
-		if(behavior == "incrScene")
-			CSceneGraphNavigator.buttonBehavior = CSceneGraphNavigator.GOTONEXTSCENE;
-		else				
-			CSceneGraphNavigator.buttonBehavior = CSceneGraphNavigator.GOTONEXTANIMATION;
-	}
-	
 //*** REWIND PLAY Management		
 
 	/**
@@ -126,13 +117,13 @@ export class CEFSceneSequence extends CEFScene
 	{
 		// Parse the Tutor.config for create procedures for this scene 
 		
-		if((CEFRoot.gSceneConfig != null) && (CEFRoot.gSceneConfig.scenedata[name].rewind != undefined))
-			this.parseOBJ(this, CEFRoot.gSceneConfig.scenedata[name].rewind.children(), "rewind");
+		if((CTutorState.gSceneConfig != null) && (CTutorState.gSceneConfig.scenedata[name].rewind != undefined))
+			this.parseOBJ(this, CTutorState.gSceneConfig.scenedata[name].rewind.children(), "rewind");
 		
 		//## Mod Feb 07 2013 - support for scene rewind -initialization
 		
-		if((CEFRoot.gSceneConfig != null) && (CEFRoot.gSceneConfig.scenedata[name].demoinit != undefined))
-			this.parseOBJ(this, CEFRoot.gSceneConfig.scenedata[name].demoinit.children(), "demoinit");			
+		if((CTutorState.gSceneConfig != null) && (CTutorState.gSceneConfig.scenedata[name].demoinit != undefined))
+			this.parseOBJ(this, CTutorState.gSceneConfig.scenedata[name].demoinit.children(), "demoinit");			
 	}
 	
 	
@@ -151,7 +142,7 @@ export class CEFSceneSequence extends CEFScene
 		//## Mod Feb 07 2013 - added to support actionsequence replay functionality 
 		// restart the ActionTrack sequence
 		
-		this.parseOBJ(null, CEFRoot.gSceneConfig.scenedata[name].preenter.children(), "preenter");
+		this.parseOBJ(null, CTutorState.gSceneConfig.scenedata[name].preenter.children(), "preenter");
 		
 		// Use the timer to do an asynchronous start of the actionTrack
 		
@@ -190,7 +181,7 @@ export class CEFSceneSequence extends CEFScene
 		if(this.Saudio1 != null)
 		{
 			this.Saudio1.gotoAndStop(1);
-			this.Saudio1.bindPlay(CEFRoot.gTutor);
+			this.Saudio1.bindPlay(CTutorState.gTutor);
 		}
 	}		
 			
@@ -255,12 +246,10 @@ export class CEFSceneSequence extends CEFScene
 	/**
 	 * polymorphic audio track initialization
 	*/
-	public bindAudio(audioClass:any ) : CEFRoot 
+	public bindAudio(audio:any ) : CEFRoot 
 	{
 		if(this.traceMode) CUtil.trace("bindAudio Behavior");		
-		
-		let audio:CEFRoot =  new audioClass;
-	
+			
 		if (audio)
 			this.connectAudio(audio);
 			
@@ -374,7 +363,7 @@ export class CEFSceneSequence extends CEFScene
 						// This permits the tutor to have multiple independently managed features.
 						// All identifiers of all the feature sets must be globally unique.
 						
-						if(!CEFRoot.gTutor.testFeatureSet(String(element['features'])))
+						if(!CTutorState.gTutor.testFeatureSet(String(element['features'])))
 							break;
 					}
 					
@@ -384,7 +373,7 @@ export class CEFSceneSequence extends CEFScene
 						
 						if(this.animationGraph != null)
 						{
-							this.Saudio1 = this.bindAudio(CEFRoot.getDefinitionByName(this.animationGraph.nextAnimation()));
+							this.Saudio1 = this.bindAudio(CUtil.instantiateObject(this.animationGraph.nextAnimation()));
 							this.Saudio1.stop();
 						}
 					}
@@ -402,7 +391,7 @@ export class CEFSceneSequence extends CEFScene
 						// This permits the tutor to have multiple independently managed features.
 						// All identifiers of all the feature sets must be globally unique.
 						
-						if(!CEFRoot.gTutor.testFeatureSet(String(element['features'])))
+						if(!CTutorState.gTutor.testFeatureSet(String(element['features'])))
 							break;
 					}
 					
@@ -420,13 +409,13 @@ export class CEFSceneSequence extends CEFScene
 						// This permits the tutor to have multiple independently managed features.
 						// All identifiers of all the feature sets must be globally unique.
 						
-						if(!CEFRoot.gTutor.testFeatureSet(String(element['features'])))
+						if(!CTutorState.gTutor.testFeatureSet(String(element['features'])))
 																			break;
 					}
 					
 					try
 					{
-						this.Saudio1 = this.bindAudio(CEFRoot.getDefinitionByName(element.type));
+						this.Saudio1 = this.bindAudio(CUtil.getDefinitionByName(element.type));
 						this.Saudio1.stop();
 					}
 					catch(err)							
@@ -470,7 +459,7 @@ export class CEFSceneSequence extends CEFScene
 			
 			if(nextSeq != null)
 			{
-				this.Saudio1 = this.bindAudio(CEFRoot.getDefinitionByName(nextSeq) as any);
+				this.Saudio1 = this.bindAudio(CUtil.getDefinitionByName(nextSeq) as any);
 				
 				this.scenePlay();								
 			}
@@ -608,7 +597,7 @@ export class CEFSceneSequence extends CEFScene
 			
 			// Create a unique timestamp for this scene
 			
-			CEFRoot.gTutor.timeStamp.createLogAttr("dur_"+name, true);
+			CTutorState.gTutor.timeStamp.createLogAttr("dur_"+name, true);
 		}			
 	}
 	
@@ -626,7 +615,7 @@ export class CEFSceneSequence extends CEFScene
 		
 		// only listen for replay events while the scene instance in playing
 		
-		CEFRoot.gTutor.addEventListener(CEFSceneSequence.WOZREPLAY, this.sceneReplay);					
+		CTutorState.gTutor.addEventListener(CONST.WOZREPLAY, this.sceneReplay);					
 		
 		super.onEnterScene(Direction);
 	}
@@ -644,37 +633,37 @@ export class CEFSceneSequence extends CEFScene
 		
 		// only listen for replay events while the scene instance in playing
 		
-		CEFRoot.gTutor.removeEventListener(CEFSceneSequence.WOZREPLAY, this.sceneReplay);					
+		CTutorState.gTutor.removeEventListener(CONST.WOZREPLAY, this.sceneReplay);					
 		
 		
 		//@@ Emit State Log Packet for this scene			
 		// Parse the scenedescr.xml for logging procedures for this scene
 		
-		this._sceneData = {};			
+		CTutorState._sceneData = {};			
 		
-		if((CEFRoot.gSceneConfig != null) && (CEFRoot.gSceneConfig.scenedata[name].logging != undefined))
+		if((CTutorState.gSceneConfig != null) && (CTutorState.gSceneConfig.scenedata[name].logging != undefined))
 		{
-			this.parseOBJ(this, CEFRoot.gSceneConfig.scenedata[name].logging.children(), "logging");
+			this.parseOBJ(this, CTutorState.gSceneConfig.scenedata[name].logging.children(), "logging");
 		}
 		
 		// Always log the scene duration data
 		
-		this._sceneData['scene']     = name;
-		this._sceneData['iteration'] = CEFRoot.gTutor.gNavigator.iteration.toString();
-		this._sceneData['duration']  = CEFRoot.gTutor.timeStamp.createLogAttr("dur_"+name);
+		CTutorState._sceneData['scene']     = name;
+		CTutorState._sceneData['iteration'] = CTutorState.gTutor.gNavigator.iteration.toString();
+		CTutorState._sceneData['duration']  = CTutorState.gTutor.timeStamp.createLogAttr("dur_"+name);
 		
-		this.gLogR.logStateEvent(this._sceneData);
+		CTutorState.gLogR.logStateEvent(CTutorState._sceneData);
 		
 		
 		// Parse the Tutor.config for Terminate event
 		
-		if((CEFRoot.gSceneConfig != null) && (CEFRoot.gSceneConfig.scenedata[name].logterm != undefined))
+		if((CTutorState.gSceneConfig != null) && (CTutorState.gSceneConfig.scenedata[name].logterm != undefined))
 		{
 			//@@Mod Sep 04 2013 - feature enable the logterm command
 			
-			if(CEFRoot.gSceneConfig.scenedata[name].logterm.features != undefined)
+			if(CTutorState.gSceneConfig.scenedata[name].logterm.features != undefined)
 			{					
-				if(CEFRoot.gTutor.testFeatureSet(String(CEFRoot.gSceneConfig.scenedata[name].logterm.features)))
+				if(CTutorState.gTutor.testFeatureSet(String(CTutorState.gSceneConfig.scenedata[name].logterm.features)))
 																						this.enQueueTerminateEvent();
 			}
 			else 
@@ -704,7 +693,7 @@ export class CEFSceneSequence extends CEFScene
 	{			
 		removeEventListener(CEFEvent.ENTER_FRAME, this._deferredTerminate);
 		
-		this.gLogR.logTerminateEvent();
+		CTutorState.gLogR.logTerminateEvent();
 	}
 
 	
