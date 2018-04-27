@@ -105,7 +105,7 @@ export class CUtil extends Object
 
 
 
-	public static getDefinitionByName(name:string):any {
+	public static getDefinitionByName2(name:string):any {
 
         if (!name)
 			return null;
@@ -179,23 +179,30 @@ export class CUtil extends Object
 
 //****** Overridable Behaviors
 
-public static instantiateObject(objectClass:string) : DisplayObject
+public static instantiateObject(moduleName:string, className:string) : DisplayObject
 {			
 	let tarObject:any;
 	
-	let ClassRef:any = this.getDefinitionByName(objectClass);
+	let ClassRef:any = this.getDefinitionByName(moduleName, className);
 	
-	tarObject = new ClassRef;
+	tarObject = new ClassRef();
 	
 	return tarObject;			
 }
 
 
-public static getDefinitionByName2(className:string) : any {
+public static getDefinitionByName(moduleName:string, className:string) : any {
 
 	let classConstructor:Function;
 
-	classConstructor = TutorEngineOne.efLibrary[className];
+	try {
+
+		classConstructor = EFLoadManager.classLib[className];
+	}
+	catch(error) {
+
+		console.log("getDefinitionByName Failed: " + error);
+	}
 
 	return classConstructor;
 }

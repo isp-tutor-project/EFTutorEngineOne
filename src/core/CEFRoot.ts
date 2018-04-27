@@ -56,11 +56,11 @@ export class CEFRoot extends MovieClip
 	constructor()
 	{
 		super();
-
         this.init0();
 	}
 
-	/*  ###########   CREATEJS SUBCLASS PROBLEM ###########   */
+	/*  ###########  START CREATEJS SUBCLASS SUPPORT ##########  */
+	/* ######################################################### */
 
 	public CEFRootInitialize() {
         MovieClip.call(this);
@@ -87,11 +87,10 @@ export class CEFRoot extends MovieClip
 		this.wozName = "CEF" + CTutorState._wozInstance.toString();
 		
 		CTutorState._wozInstance++;					
-
-		console.log("Init called on: CEFRoot");
     }
-	
-	/*  ###########   CREATEJS SUBCLASS PROBLEM ###########   */
+
+	/* ######################################################### */
+	/*  ###########  END CREATEJS SUBCLASS SUPPORT ###########   */
 
 
 	

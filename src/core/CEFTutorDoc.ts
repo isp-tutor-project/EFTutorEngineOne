@@ -21,6 +21,7 @@ import { CEFDoc }			from "./CEFDoc";
 import { CEFObject } 	    from "./CEFObject";	
 import { CEFTutorRoot }     from "./CEFTutorRoot";
 import { CEFCursorProxy } 	from "./CEFCursorProxy";	
+import { CEFTutor }         from "./CEFTutor";
 
 import { ILogManager }      from "../managers/ILogManager";
 
@@ -31,88 +32,108 @@ import { CONST }            from "../util/CONST";
 import { CUtil }            from "../util/CUtil";
 
 
+import EventDispatcher 		  = createjs.EventDispatcher;
+import { TutorContainer } from "../thermite/TutorContainer";
 
-export class CEFTutorDoc extends CEFDoc
+
+
+export class CEFTutorDoc extends EventDispatcher
 {
+	public traceMode:boolean;
+
+	//************ Stage Symbols
+	
+	public Stutor:TutorContainer;			// every WOZObject must be associated with a specific tutor
+	
+	//************ Stage Symbols
+	
+	// These are used for log playback
+	//
+	// The frameID is the actual frame in which a log entry occured
+	// The stateID is the Tutor state when a log entry occured
+	//
+	// During capture:
+	//	the frameID runs at the selected frame rate for the tutor
+	// 	the stateID records changes in the tutor state as it progresses.
+	//
+	// During playback:
+	//  the tutor runs frame by frame playing back events as they originally occured from the event stream
+	//  Note: It is possible for the stateID and frameID to lose sync with the recorded stream should events 
+	//        process faster or slower than on the original machine.
+	//	Therefore at each frame:
+	//		Check the next event in the log
+	// 				if the Tutor stateID matches the playback stateID then
+	//					if the Tutor frameID matches the playback frameID fire the event 
+	//					if the Tutor frameID < playback frameID - wait for the playback tutor to reach the event
+	//					if the Tutor frameID > playback frameID - sequentially fire events (playback is running slow)
+	//
+	// 				if the Tutor stateID > playback stateID then
+	//					flush all queued events until sync achieved
+	//
+	// 				if the Tutor stateID < playback stateID then (may freeze if state transitions do not occur)
+	//					wait for the tutor to fire non-event state transitions				
+	//					
+	
+	public logFrameID = 0;
+	public logStateID = 0;
+
     
     // Flex integration - Used to indicate if Pretest is running embedded
     private _extLoader:boolean = false;
     private _extConnection:boolean = false;
     
-    private _tutorFeatures:string = "FTR_PRETEST:FTR_TYPEA";	// used in Flash mode to set instance features   
+    private _tutorFeatures:string = "";                     	// used in Flash mode to set instance features   
     public  _modulePath:string;									//@@ Mod May 07 2012 - support for relative module paths						
     private _forcedPause:boolean = false;						//@@ Mod Mar 15 2013 - FLEX support - manage pause when transitioning in and out of full screen mode 
     
     
-    constructor()
+    constructor(_sceneDescr:any, _sceneGraph:any, _tutorGraph:any )
     {
         super();
 
+        CTutorState.gSceneConfig        = _sceneDescr;			
+        CTutorState.gAnimationGraphDesc = _sceneGraph;			
+        CTutorState.gSceneGraphDesc     = _tutorGraph;						
+
         CUtil.trace("CWOZTutorDoc:Constructor");
         
-        // If this is being downloaded as an on demand component then 
-        // We need to wait to initialize until the object is instantiated 
-        // on the stage when the "stage" property is then valid
-        //
-        this.on(CEFEvent.ADDED_TO_STAGE, this.initOnStage);
+		// First get the Root Tutor movie object - this encapsulates all the scenes and navigation features
+		//
+		CTutorState.gApp = this;			
         
         //@@ Mod Sept 22 2014 - reset global object - only required for demo sequences - more than one demo may be loaded in a single session
         
         this.initGlobals();									 			
-    }
-    
-    /**
-     * 
-     * @param event
-     * 
-     */
-    public initOnStage(evt:Event):void
-    {	
-        CUtil.trace("CWOZTutorDoc:Object OnStage");
-        
-        this.off(CEFEvent.ADDED_TO_STAGE, this.initOnStage);									
-        this.on(CEFEvent.REMOVED_FROM_STAGE, this.doOffStage);						
-        
-        // do default processing
-        
-        super.initOnStage(evt);
-        
-        // Flex integration - create the tutor object manually 
+
+        // Frame counter - for logging
+		// NOTE: this must be the first ENTER_FRAME event listener 
+		
+		this.connectFrameCounter(true);		
+
+        // Create the tutor container - 
+        // TODO: extract the dimensions from the tutor loader
         //
-        if(this.Stutor == null)
-        {
-            this.Stutor = CUtil.instantiateObject("CEFTutor") as CEFTutorRoot;
-            this.Stutor.name = "Stutor";
-            
-            //@@ Mod May 09 2012 - Demo Support - manage the features so that the demo can augment the default set.
-            
-            this.Stutor.setTutorDefaults(this._tutorFeatures);
-            this.Stutor.setTutorFeatures("");
-            
-            this.addChild(this.Stutor);
-        }			
+        this.Stutor = new TutorContainer();
+        this.Stutor.name = "Stutor";
+        
+        EFLoadManager.efStage.addChild(this.Stutor);
+        
+        //@@ Mod May 09 2012 - Demo Support - manage the features so that the demo can augment the default set.
+        
+        this.Stutor.setTutorDefaults(this._tutorFeatures);
+        this.Stutor.setTutorFeatures("");
+
         
         // Init the automation Object
         
         CTutorState.tutorAutoObj = this.Stutor.tutorAutoObj;
         
         
-        // ****** Use to capture Tutor Layout in XML format
+        // //****** Initialize the scene configurations - Add Audio etc.
         
-        //let structureXML:XML = <struct/>;
-        //
-        //Stutor.captureXMLStructure(structureXML,0);
-        //
-        //System.setClipboard(structureXML.toXMLString());
-        //dumpTutors();											//@@ TESTCODE			
+        this.Stutor.initializeTutor();
         
-        // ****** Use to capture Tutor Layout in XML format
-        
-        
-        //****** Initialize the scene configurations - Add Audio etc.
-        
-        this.Stutor.initializeScenes();
-        
+
         //## Mod Aug 10 2012 - must wait for initializeScenes to ensure basic scenes are in place now that 
         //					   we allow dynamic creation of the navPanel etc.
         // Parse the active Tutor
@@ -121,67 +142,12 @@ export class CEFTutorDoc extends CEFDoc
         
         // NOTE: Logger Connections must be made before cursor replacement
         //
-        this.Stutor.replaceCursor();
+        // this.Stutor.replaceCursor();
         
-        this.launchTutors();			
+        this.launchTutor();			
     }
     
-    
-    /**
-     *  FLEX SUPPORT
-     *  When the tutor goes off stage we need to dettach the cursor proxy as it 
-     *  is dependent on the "stage" property
-     * 
-     * @param event
-     * 
-     */
-    public doOffStage(evt:Event):void
-    {
-        CUtil.trace("going off stage");
-        
-        this.off(CEFEvent.REMOVED_FROM_STAGE, this.doOffStage);
-        this.on(CEFEvent.ADDED_TO_STAGE, this.doOnStage);						
-    
-        // Pause the tutor while it is off screen
-        if(!CTutorState.gTutor.isPaused)
-        {
-            this._forcedPause = true;
-            CTutorState.gTutor.wozPause();			
-        }
-        
-        // dettach the cursor proxy while the stage property is invalid
-        
-        this.Stutor.setCursor(CEFCursorProxy.WOZREPLAY);
-    }
-    
-    
-    /**
-     *  FLEX SUPPORT
-     *	When the tutor regains focus we reattch the cursorproxy to process all mouse actions
-        *  
-        * @param event
-        * 
-        */
-    public doOnStage(evt:Event):void
-    {	
-        CUtil.trace("coming on stage");
-        
-        this.off(CEFEvent.ADDED_TO_STAGE, this.doOnStage);						
-        this.on(CEFEvent.REMOVED_FROM_STAGE, this.doOffStage);
-        
-        // Start the tutor once back on screen
-        if(this._forcedPause)
-        {
-            this._forcedPause = false;
-            CTutorState.gTutor.wozPlay();
-        }
-        
-        // rettach the cursor proxy when the stage property is valid
-        
-        this.Stutor.setCursor(CEFCursorProxy.WOZLIVE);
-    }
-            
-    
+
     //*************** FLEX integration 
     
     public set extAccount(Obj:any)
@@ -257,29 +223,6 @@ export class CEFTutorDoc extends CEFDoc
     }
 
     
-    //@@ Mod Jul 17 2013 - Separated scenegraph from scene description
-    
-    public set extSceneDescr(val:string) 
-    {
-        CTutorState.gSceneConfig = JSON.parse(val);			
-    }
-    
-    
-    //@@ Mod Jul 17 2013 - Separated scenegraph from scene description
-    
-    public set extSceneGraph(val:string) 
-    {
-        CTutorState.gSceneGraphDesc = JSON.parse(val);						
-    }
-    
-    
-    //@@ Mod Feb 16 2013 - support for Adobe Spelling Library
-    
-    public set extAnimationGraph(val:string) 
-    {
-        CTutorState.gAnimationGraphDesc = JSON.parse(val);			
-    }
-
     
     public set extForceBackButton(fForce:any) 
     {		
@@ -358,4 +301,112 @@ export class CEFTutorDoc extends CEFDoc
         return CTutorState._globals;						
     }
 
+
+
+	public launchTutor(): void
+	{			
+		// reset the frame and state IDs
+		
+		this.resetStateFrameID();	
+	}
+	
+			
+//***************** Automation *******************************		
+
+	/**
+	 * reset the log counters
+	 */
+	public resetStateFrameID() : void 
+	{
+		this.frameID = 0;
+		this.stateID = 0;
+	}	
+
+	public get frameID() : number 
+	{
+		return this.logFrameID;
+	}
+	
+	public set frameID(newVal:number) 
+	{
+		this.logFrameID = newVal;
+	}
+	
+	public incFrameID() : void 
+	{
+		this.logFrameID++;
+	}
+	
+	public get stateID() : number 
+	{
+		return this.logStateID;
+	}
+	
+	public set stateID(newVal:number) 
+	{
+		this.logStateID = newVal;
+	}
+	
+	/**
+	 * Increment the interface stateID and reset the frameID - frameID's are relative to state changes
+	 * this is to make any events occur proportionally in time relative to associated state changes.
+	 */
+	public incStateID() : void 
+	{
+		if(this.traceMode) CUtil.trace("@@@@@@@@@ logStateID Update : " + this.logStateID);
+		
+		this.logStateID++;
+		this.frameID = 0;
+	}
+	
+	/**
+	 * connect or disconnect the log frame counter.
+	 * @param	fCon
+	 */
+	public connectFrameCounter(fCon:boolean)
+	{
+		if (fCon)
+			this.on(CEFEvent.ENTER_FRAME, this.doEnterFrame);											
+		else
+			this.off(CEFEvent.ENTER_FRAME, this.doEnterFrame);								
+	}
+
+
+	/**
+	 * maintain the tutor frame counter used for logging
+	 * 
+	 * @param	evt
+	 */
+	private doEnterFrame(evt:Event)
+	{
+		this.incFrameID();
+	}
+	
+	
+//***************** Automation *******************************		
+	
+	
+//***************** Debug *******************************		
+		
+	protected dumpTutors() : void
+	{
+		if(this.traceMode) CUtil.trace("\n*** Start root dump ALL tutors ***");
+		
+		for(let tutor of CTutorState.tutorAutoObj)
+		{
+			if(this.traceMode) CUtil.trace("TUTOR : " + tutor);
+		
+			if(CTutorState.tutorAutoObj[tutor].instance instanceof CEFTutorRoot) 
+			{
+				if(this.traceMode) CUtil.trace("CEF***");
+				
+				CTutorState.tutorAutoObj[tutor].instance.dumpScenes(CTutorState.tutorAutoObj[tutor]);
+			}				
+		}			
+		
+		if(this.traceMode) CUtil.trace("*** End root dump tutor structure ***");			
+	}
+
+//***************** Debug *******************************		
+    
 }

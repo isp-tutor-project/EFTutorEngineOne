@@ -21,12 +21,13 @@ import { CEFRadioButton } 	from "../core/CEFRadioButton";
 
 import { CEFMouseEvent } 	from "../events/CEFMouseEvent";
 import { CEFEvent } 		from "../events/CEFEvent";
+
 import { CUtil } 			from "../util/CUtil";
 
 import MovieClip     		  = createjs.MovieClip;
 
 
-export class CEFCheckBox extends CEFRadioButton
+export class CheckBox extends CEFRadioButton
 {
 	//************ Stage Symbols
 	
@@ -40,7 +41,9 @@ export class CEFCheckBox extends CEFRadioButton
 	constructor()
 	{
 		super();
-		//trace("CEFCheckBox:Constructor");
+
+		this.traceMode = false;
+		if(this.traceMode) CUtil.trace("CheckBox:Constructor");
 	}
 	
 	/**

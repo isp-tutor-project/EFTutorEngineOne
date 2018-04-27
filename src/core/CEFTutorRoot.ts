@@ -126,17 +126,11 @@ export class CEFTutorRoot extends CEFRoot
 	constructor()
 	{
 		super();
-
-		this.traceMode = false;
-		
-		if (this.traceMode) CUtil.trace("CEFTutorRoot:Constructor");						
-		
-		//*** Init the Tutor Global Variables
-		
-		CTutorState.gTutor       = this;						// Connect to the Tutor
-		this.tutorAutoObj = {};						// Create the Automation Object			
+        this.init1();
 	}
 	
+	/*  ###########  START CREATEJS SUBCLASS SUPPORT ##########  */
+	/* ######################################################### */
 
     public CEFTutorRootInitialize() {
         this.CEFRootInitialize();
@@ -152,8 +146,18 @@ export class CEFTutorRoot extends CEFRoot
 
     private init1() {
 
-		console.log("Init called on: CEFTutorRoot");
+		this.traceMode = false;		
+		
+		if (this.traceMode) CUtil.trace("CEFTutorRoot:Constructor");						
+		
+		//*** Init the Tutor Global Variables
+		
+		CTutorState.gTutor = this;						// Connect to the Tutor
+		this.tutorAutoObj  = {};						// Create the Automation Object			
     }
+            
+	/* ######################################################### */
+	/*  ###########  END CREATEJS SUBCLASS SUPPORT ###########   */
 	
 
 
@@ -338,7 +342,7 @@ export class CEFTutorRoot extends CEFRoot
 		let tarScene:any;
 		let subScene:any;
 
-		tarScene = CUtil.instantiateObject(sceneClass);
+		tarScene = CUtil.instantiateObject("moduleName", sceneClass);
 		
 		if (this.traceMode) CUtil.trace("Creating Scene : "+ sceneName);
 		
@@ -770,15 +774,17 @@ export class CEFTutorRoot extends CEFRoot
 		// Point the transitions / NavPanel
 		//  	to this tutor in the automation array
 		//
-		this.xitions.connectToTutor(this, this.tutorAutoObj);									
-		this.SnavPanel.connectToTutor(this, this.tutorAutoObj);			
+		if(this.xitions)
+			this.xitions.connectToTutor(this, this.tutorAutoObj);									
+		if(this.SnavPanel)
+			this.SnavPanel.connectToTutor(this, this.tutorAutoObj);			
 		
 	}
 
 	
 	//****** Initialize the scene configurations - Add Audio etc.
 	
-	public initializeScenes() : void
+	public initializeTutor() : void
 	{
 		// override in Tutor to initialize tutor specific scene variables
 	}

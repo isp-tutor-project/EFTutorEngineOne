@@ -2,11 +2,26 @@
 
 export class CONST {
 
-    public static readonly BOOT_OPTIONS:string   = "./data/bootOptions.json";
+    public static readonly BOOT_LOADER:string   = "./data/bootLoader.json";
     public static readonly LOCAL:string          = "LOCAL";
     public static readonly WAIT:number           = 250;
 
-			    
+	public static readonly DONT_LAUNCH:boolean  = false;
+	public static readonly LAUNCH:boolean  		= true;
+
+
+	public static readonly TUTOR_JSON_IMAGE:string[] = [
+		"scenedescr.json",
+		"scenegraph.json",
+		"tutorgraph.json"
+	];
+	
+	public static readonly TUTOR_FACTORIES:string[] = [
+		"_sceneDescr",
+		"_sceneGraph",
+		"_tutorGraph"
+	];
+	
     //*************** Navigator static constants
     
 	public static readonly CANCELNAV:string  = "CancelNav";

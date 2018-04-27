@@ -274,7 +274,7 @@ export class CEFObject extends CEFAnimator
 		let newObject:CEFObject;
 		let maskDim:Point;
 		
-		newObject = CUtil.instantiateObject(objectClass) as CEFObject;
+		newObject = CUtil.instantiateObject("moduleName", objectClass) as CEFObject;
 		newObject.name = objectName;
 		
 		newObject.onCreate();		// perform object initialization
@@ -1297,7 +1297,7 @@ export class CEFObject extends CEFAnimator
 					}
 					else
 					{
-						var tClass:any = CUtil.getDefinitionByName(parmDef[1]) as any;
+						var tClass:any = CUtil.getDefinitionByName("moduleName", parmDef[1]) as any;
 						
 						var value:string = parmDef[0];
 						
@@ -1346,7 +1346,7 @@ export class CEFObject extends CEFAnimator
 					
 				else if(parmDef[1] != "null")
 				{
-					tClass = CUtil.getDefinitionByName(parmDef[1]) as any;
+					tClass = CUtil.getDefinitionByName("moduleName", parmDef[1]) as any;
 					
 					value = parmDef[0];
 					

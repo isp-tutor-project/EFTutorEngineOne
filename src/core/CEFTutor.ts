@@ -29,6 +29,8 @@ import { CONST }                from "../util/CONST";
 import { CUtil } 			    from "../util/CUtil";
 
 
+/** Deprecated and deleted Apr 26 2018 */
+
 /**
  * This is the code-behind for the stage DisplayObjectContainer that represents the
  * tutor - see TED_FLA.xfl in the TED Module.
@@ -69,43 +71,11 @@ export class CEFTutor extends CEFTutorRoot
     constructor()
     {
         super();
-
-        this.traceMode = false;
-        
-        CUtil.trace("CEFTutor:Constructor");						
-        
-        //*** Construct the default feature-vector (filter) for the tutor.
-        // This dictates which features of the sceneConfig (and any other uses of parseOBJ e.g. ActionTracks) are executed.
-        // This also affects which scenes are enumerated in the sceneSeq when navigating
-        // This is generally overridden in either COWZNavDemo or from the server 
-        
-        // setTutorDefaults("FTR_EI:FTR_CVSINTRO:FTR_RAMPSINTRO:FTR_EIA:FTR_EIB:FTR_EIC:FTR_RAMPSPOSTTEST:FTR_SOLNCATCCR");
-                    
-        //** Populate the sceneConfig object which is defined in CEFTutorRoot
-        
-        //include "scenes/TED2_SceneConfig.as";		
-        //include "scenes/TED2_SceneConfig_CA.as";
-        
-        // Incomplete ramp setup prompt - hide it and add to stage - 
-        // note: The dialog is not part of the scene sequence but must be added to the automation tree for playback purposes
-        
-        // this.SdlgPrompt       = new CDialogDesignPrompt1();
-        // this.SdlgPrompt.sMask = new CEFMouseMask();
-        
-        // this.SdlgPrompt.name 	  = "SdlgPrompt";
-        // this.SdlgPrompt.sMask.name = "SdlgMask";
-        
-        // this.addChild(this.SdlgPrompt);
-        // this.addChild(this.SdlgPrompt.sMask);
-        
-        // this.SdlgPrompt.visible       = false;
-        // this.SdlgPrompt.sMask.visible = false;
-        
-        // Initialize the Knowledge tracing 
-        
-        this.instantiateKT();
-        
+        this.init2();
     }
+
+	/*  ###########  START CREATEJS SUBCLASS SUPPORT ##########  */
+	/* ######################################################### */
 
     public CEFTutorInitialize() {
         this.CEFTutorRootInitialize();
@@ -121,41 +91,35 @@ export class CEFTutor extends CEFTutorRoot
 
     private init2() {
 
-		console.log("Init called on: CEFTutor");
+        this.traceMode = false;
+        
+        CUtil.trace("CEFTutor:Constructor");						
+               
+        // Initialize the Knowledge tracing 
+        
+        this.instantiateKT();        
     }
-	    
+            
+	/* ######################################################### */
+	/*  ###########  END CREATEJS SUBCLASS SUPPORT ###########   */
+    
 // ******************* Overrides 		
     
     
     //****** Initialize the scene configurations - Add Audio etc.
     
-    public initializeScenes() : void
+    public initializeTutor() : void
     {
        
         //*** Init the Tutor Global Variables
         // ******************************************************************************************
         
         // This manufactures the sceneGraph from the JSON object spec file 			
+        //
         if(CTutorState.gSceneGraphDesc != null)
              CSceneGraphNavigator.rootGraphFactory(CTutorState.gSceneGraphDesc);
-        
-        // Setup the demo Button on the title bar
-        if(this.StitleBar != null)
-            this.StitleBar.configDemoButton(this);
     }
     
-    
-    public resetZorder()
-    {
-        if(this.StitleBar != null)
-            this.StitleBar.setTopMost();
-        
-        if(this.Sscene0 != null)
-            this.Sscene0.setTopMost();
-        
-        if(this.SdemoScene != null) 
-            this.SdemoScene.setTopMost();			
-    }		
     
 // ******************* Overrides 		
 

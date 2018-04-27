@@ -373,7 +373,7 @@ export class CEFSceneSequence extends CEFScene
 						
 						if(this.animationGraph != null)
 						{
-							this.Saudio1 = this.bindAudio(CUtil.instantiateObject(this.animationGraph.nextAnimation()));
+							this.Saudio1 = this.bindAudio(CUtil.instantiateObject("moduleName", this.animationGraph.nextAnimation()));
 							this.Saudio1.stop();
 						}
 					}
@@ -415,7 +415,7 @@ export class CEFSceneSequence extends CEFScene
 					
 					try
 					{
-						this.Saudio1 = this.bindAudio(CUtil.getDefinitionByName(element.type));
+						this.Saudio1 = this.bindAudio(CUtil.instantiateObject("moduleName", element.type));
 						this.Saudio1.stop();
 					}
 					catch(err)							
@@ -459,7 +459,7 @@ export class CEFSceneSequence extends CEFScene
 			
 			if(nextSeq != null)
 			{
-				this.Saudio1 = this.bindAudio(CUtil.getDefinitionByName(nextSeq) as any);
+				this.Saudio1 = this.bindAudio(CUtil.instantiateObject("moduleName", nextSeq) as any);
 				
 				this.scenePlay();								
 			}

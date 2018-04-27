@@ -27,6 +27,9 @@ import { CONST }            from "../util/CONST";
 import { CUtil } 			from "../util/CUtil";
 
 
+/** Deprecated and deleted Apr 26 2018 */
+
+
 export class CEFDoc extends CEFRoot
 {				
 	//************ Stage Symbols
@@ -79,10 +82,8 @@ export class CEFDoc extends CEFRoot
 	}
 
 	
-	public initOnStage(evt:Event):void
+	public initOnStage():void
 	{
-		CUtil.trace("CEFDoc:Object OnStage");
-		
 		// Frame counter - for logging
 		// NOTE: this must be the first ENTER_FRAME event listener 
 		

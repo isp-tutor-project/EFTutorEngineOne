@@ -30,8 +30,8 @@ import { ILogManager }      from "../managers/ILogManager";
 import { CLogManagerType }  from "../managers/CLogManagerType";
 
 import { CUtil }            from "../util/CUtil";
-import { CIOErrorEvent } from "../events/CIOErrorEvent";
-import { CURLRequest } from "../network/CURLRequest";
+import { CIOErrorEvent }    from "../events/CIOErrorEvent";
+import { CURLRequest }      from "../network/CURLRequest";
 
 
 
@@ -2012,7 +2012,7 @@ export class CSessionManager
         
         // load the target application and let it run
         
-        this._tutorObject = CUtil.instantiateObject(this._loader.appclass);
+        this._tutorObject = CUtil.instantiateObject("moduleName", this._loader.appclass);
         this._tutorObject.name = "Document";
                     
         if(this._tutorObject.hasOwnProperty("extAccount"))		
@@ -2130,8 +2130,8 @@ export class CSessionManager
     
     
     // If the tutor loses the connection the SceneGraphNavigator will emit CONNECTION_LOST to allow the sessionManager to 
-    // force the user to fix the conneciton before proceeding.
-    // When the user hits the next button when there is a connection problem CONNECITON_LOST is emitted.
+    // force the user to fix the connection before proceeding.
+    // When the user hits the next button when there is a connection problem CONNECTION_LOST is emitted.
     //  
     private doWaitForConnFix(e:Event) : void
     {

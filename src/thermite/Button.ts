@@ -30,7 +30,7 @@ import DisplayObjectContainer = createjs.Container;
 
 
 
-export class CEFButton extends CEFObject
+export class Button extends CEFObject
 {
 	//************ Stage Symbols
 	
@@ -54,7 +54,7 @@ export class CEFButton extends CEFObject
 		super();
 
 		this.traceMode = false;
-		if(this.traceMode) CUtil.trace("CEFButton:Constructor");
+		if(this.traceMode) CUtil.trace("Button:Constructor");
 		
 		this.gotoState("Sup");
 		this.enableButton(true);
@@ -133,7 +133,7 @@ export class CEFButton extends CEFObject
 
 	public gotoState(sState:string) : void 
 	{
-		if(this.traceMode) CUtil.trace("CEFButton.gotoState: ", name + " " + sState);
+		if(this.traceMode) CUtil.trace("Button.gotoState: ", name + " " + sState);
 		
 		this.resetState();
 
