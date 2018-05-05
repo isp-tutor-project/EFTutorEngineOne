@@ -2,26 +2,42 @@
 
 export class CONST {
 
-    public static readonly BOOT_LOADER:string   = "./data/bootLoader.json";
+    public static readonly BOOT_LOADER:string   = "./data/bootLoader.json5";
     public static readonly LOCAL:string          = "LOCAL";
     public static readonly WAIT:number           = 250;
 
 	public static readonly DONT_LAUNCH:boolean  = false;
 	public static readonly LAUNCH:boolean  		= true;
 
+	public static readonly THERMITE_PREFIX:string   = "TC_";
+	public static readonly SCENE_EXT 				= "sceneExt";
 
 	public static readonly TUTOR_JSON_IMAGE:string[] = [
-		"scenedescr.json",
-		"scenegraph.json",
-		"tutorgraph.json"
+		"scenegraph.json5",
+		"tutorgraph.json5"
 	];
 	
 	public static readonly TUTOR_FACTORIES:string[] = [
-		"_sceneDescr",
 		"_sceneGraph",
 		"_tutorGraph"
 	];
 	
+	public static readonly TUTOR_SUPPL_CODE:string[] = [
+		"EFTut_Suppl.js"
+	];
+	
+	//**  Button States - must match AnimateCC code conventions : see Adobe generated JS code */
+
+	public static readonly STATE_UP   		= "shape";
+	public static readonly STATE_OVER 		= "shape_1";
+	public static readonly STATE_DOWN		= "shape_2";
+	public static readonly STATE_DISABLED	= "shape_3";	// Note that we have a dual interpretation of the AnimateCC HIT state
+	public static readonly STATE_HIT 		= "shape_3";
+
+	public static readonly STATE_OUT   		= "state_out";	// this represents a transition not a display object
+
+
+
     //*************** Navigator static constants
     
 	public static readonly CANCELNAV:string  = "CancelNav";
@@ -143,8 +159,8 @@ export class CONST {
 	public static readonly _INPROGRESS:string = "IN PROGRESS";
 	public static readonly _COMPLETE:string   = "COMPLETE";
 
-	public static readonly GOTONEXTSCENE:string     = "incSceneGraph";
-	public static readonly GOTONEXTANIMATION:string = "incAnimationGraph";
+	public static readonly GOTONEXTSCENE:string     = "incTutorGraph";
+	public static readonly GOTONEXTANIMATION:string = "incSceneGraph";
 
 }
 

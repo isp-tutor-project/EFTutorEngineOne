@@ -1095,14 +1095,14 @@ export class CSessionManager
                                             this.currentState  = "tutor";
                                             // Note: StutorContainer will not exist until this.currentState == tutor
                                             
-                                            StutorContainer.SsceneContainer.addChild(this._tutorObject);		//CWOZTutorDoc
+                                            StutorContainer.SsceneContainer.addChild(this._tutorObject);		//CEFTutorDoc
                                             break;
                                             
                                         case "WIDE":
                                             this.currentState  = "wstutor";
                                             // Note: SwsTutorContainer will not exist until this.currentState == wstutor
                                             
-                                            SwsTutorContainer.SsceneContainer.addChild(this._tutorObject);		//CWOZTutorDoc
+                                            SwsTutorContainer.SsceneContainer.addChild(this._tutorObject);		//CEFTutorDoc
                                             break;
                                     }
                                 }
@@ -1111,7 +1111,7 @@ export class CSessionManager
                                     this.currentState  = "tutor";
                                     // Note: StutorContainer will not exist until this.currentState == tutor
                                     
-                                    StutorContainer.SsceneContainer.addChild(this._tutorObject);		//CWOZTutorDoc
+                                    StutorContainer.SsceneContainer.addChild(this._tutorObject);		//CEFTutorDoc
                                 }
                                 
                                 this._sessionState = CSessionManager.SESSION_INPROGRESS;										
@@ -1286,7 +1286,7 @@ export class CSessionManager
         //## Mod Sep 2014 - this._tutorObject has stage event handlers that cause doOnStage calls
         //                  so we need to ensure that when a tutorObject is invalidated it is removed
         //                  from the display list.
-        //					Ensures that multiple CWOZTutorDoc.doOnStage calls are not emitted when 
+        //					Ensures that multiple CEFTutorDoc.doOnStage calls are not emitted when 
         //                  switching between demos 
         //
         
@@ -1309,15 +1309,15 @@ export class CSessionManager
                     if(this._tutorObject.hasOwnProperty("extAspectRatio"))
                     {
                         if(this._tutorObject["extAspectRatio"]=='STD' && StutorContainer)
-                            StutorContainer.SsceneContainer.removeChild(this._tutorObject);			//CWOZTutorDoc
+                            StutorContainer.SsceneContainer.removeChild(this._tutorObject);			//CEFTutorDoc
                             
                         else if (this._tutorObject["extAspectRatio"]=='WIDE' && SwsTutorContainer)
-                            SwsTutorContainer.SsceneContainer.removeChild(this._tutorObject);		//CWOZTutorDoc
+                            SwsTutorContainer.SsceneContainer.removeChild(this._tutorObject);		//CEFTutorDoc
                     }
                     else
                     {
                         if(StutorContainer)
-                            StutorContainer.SsceneContainer.removeChild(this._tutorObject);			//CWOZTutorDoc
+                            StutorContainer.SsceneContainer.removeChild(this._tutorObject);			//CEFTutorDoc
                     }
                 }					
                 break;
@@ -1986,7 +1986,7 @@ export class CSessionManager
         _tracker.trackEvent("Loader", this._loader._id, "Selected" );
         
         // initialize the logging mode
-        // set the logging state - based on the CWOZRoot global
+        // set the logging state - based on the TRoot global
         
         //@@MOD Sep 23 2013 - Support for local logging - i.e. save to local path
         
@@ -2019,7 +2019,7 @@ export class CSessionManager
             this._tutorObject["extAccount"] = this._account;							//@@ Mod Dec 03 2013 - Pass the DB account data to Flash
         
         this._tutorObject["extLoader"] 	      = true;							//@@ deprecated - Jun 27 2012 - All tutor instances that 
-                                                                            //   use the ConcreteAbstract CWOZTutorDoc codebase no longer 
+                                                                            //   use the ConcreteAbstract CEFTutorDoc codebase no longer 
                                                                             //   support internal loading		
         this._tutorObject["extFDeferDemoClick"] = true;
 
@@ -2114,15 +2114,15 @@ export class CSessionManager
         if(this._tutorObject.hasOwnProperty("extAspectRatio"))
         {
             if(this._tutorObject["extAspectRatio"]=='STD' && StutorContainer)
-                StutorContainer.SsceneContainer.addChild(this._tutorObject);			//CWOZTutorDoc
+                StutorContainer.SsceneContainer.addChild(this._tutorObject);			//CEFTutorDoc
             
             else if (this._tutorObject["extAspectRatio"]=='WIDE' && SwsTutorContainer)
-                SwsTutorContainer.SsceneContainer.addChild(this._tutorObject);		//CWOZTutorDoc
+                SwsTutorContainer.SsceneContainer.addChild(this._tutorObject);		//CEFTutorDoc
         }
         else
         {
             if(StutorContainer)
-                StutorContainer.SsceneContainer.addChild(this._tutorObject);			//CWOZTutorDoc
+                StutorContainer.SsceneContainer.addChild(this._tutorObject);			//CEFTutorDoc
         }
         
         return;			

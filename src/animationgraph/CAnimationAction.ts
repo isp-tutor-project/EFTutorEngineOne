@@ -17,13 +17,15 @@
 
 //** imports
 
-import { CAnimationNode } from "./CAnimationNode";
-import { CAnimationGraph } from "./CAnimationGraph";
-import { CEFRoot } from "../core/CEFRoot";
+import { IEFTutorDoc } 		from "../core/IEFTutorDoc";
+
+import { CAnimationNode } 	from "./CAnimationNode";
+import { CAnimationGraph } 	from "./CAnimationGraph";
+import { TRoot } 			from "../thermite/TRoot";
 
 import EventDispatcher 	  = createjs.EventDispatcher;
 
-import { CTutorState }  	from "../util/CTutorState";
+
 import { CONST }            from "../util/CONST";
 import { CUtil } 			from "../util/CUtil";
 
@@ -34,9 +36,9 @@ export class CAnimationAction extends CAnimationNode
 	private _code:string;
 	
 	
-	constructor(target:EventDispatcher=null)
+	constructor(_tutorDoc:IEFTutorDoc, target:EventDispatcher=null)
 	{
-		super(target);
+		super(_tutorDoc, target);
 	}
 			
 	/** 
@@ -46,9 +48,9 @@ export class CAnimationAction extends CAnimationNode
 		*   	When moduleFactory is a "type":"action" the generated object is a global referenced elsewhere 
 		*      
 		**/		
-	public static factory(parent:CAnimationGraph, nodeName:string, moduleFactory:any) : CAnimationAction
+	public static factory(_tutorDoc:IEFTutorDoc, parent:CAnimationGraph, nodeName:string, moduleFactory:any) : CAnimationAction
 	{			
-		let node:CAnimationAction = new CAnimationAction;
+		let node:CAnimationAction = new CAnimationAction(_tutorDoc);
 		
 		// If this is a CNode spec then extract the CNode info - e.g. edges etc. 
 		
@@ -84,7 +86,7 @@ export class CAnimationAction extends CAnimationNode
 		{
 			case "test":
 				
-				result = CTutorState.gTutor.testFeatureSet(this._code);
+				result = this.tutorDoc.testFeatureSet(this._code);
 				break
 			
 			case "exec":

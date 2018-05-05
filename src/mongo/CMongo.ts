@@ -1,4 +1,4 @@
-import { CEFObject } from "../core/CEFObject";
+import { TObject } from "../thermite/TObject";
 import { CUtil } from "../util/CUtil";
 import { MObject } from "./MObject";
 import { CObject } from "./CObject";

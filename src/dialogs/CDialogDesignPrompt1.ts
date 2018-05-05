@@ -20,7 +20,7 @@ import { CEFDialogBox } 	from "./CEFDialogBox";
 
 import { CEFLabelButton } 	from "../controls/CEFLabelButton";
 
-import { CEFMouseEvent } 	from "../events/CEFMouseEvent";
+import { TMouseEvent } 	from "../events/CEFMouseEvent";
 
 import { CONST }            from "../util/CONST";
 import { CUtil } 			from "../util/CUtil";
@@ -56,7 +56,7 @@ export class CDialogDesignPrompt1 extends CEFDialogBox
 	
 	public Destructor() : void
 	{
-		this.Scancel.removeEventListener(CEFMouseEvent.WOZCLICK, this.doCancel);
+		this.Scancel.removeEventListener(TMouseEvent.WOZCLICK, this.doCancel);
 		
 		super.Destructor();
 	}
@@ -65,7 +65,7 @@ export class CDialogDesignPrompt1 extends CEFDialogBox
 	 * 
 	 * @param	evt
 	 */
-	public doCancel(evt:CEFMouseEvent) 
+	public doCancel(evt:TMouseEvent) 
 	{
 		this.endModal(CONST.DLGSTAY);
 	}
@@ -79,7 +79,7 @@ export class CDialogDesignPrompt1 extends CEFDialogBox
 	{		
 		super.doModal(accounts, Alpha, fAdd);
 		
-		this.Scancel.addEventListener(CEFMouseEvent.WOZCLICK, this.doCancel);
+		this.Scancel.addEventListener(TMouseEvent.WOZCLICK, this.doCancel);
 	}					
 	
 	/**
@@ -90,7 +90,7 @@ export class CDialogDesignPrompt1 extends CEFDialogBox
 	{			
 		super.endModal(Result);		
 		
-		this.Scancel.removeEventListener(CEFMouseEvent.WOZCLICK, this.doCancel);
+		this.Scancel.removeEventListener(TMouseEvent.WOZCLICK, this.doCancel);
 	}		
 	
 //****** Overridable Behaviors		

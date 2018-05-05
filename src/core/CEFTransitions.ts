@@ -14,15 +14,15 @@
 //
 //*********************************************************************************
 
-import { CEFRoot } 			from "./CEFRoot";
-import { CEFAnimator } 		from "./CEFAnimator";
-import { CEFObject } 		from "./CEFObject";
-import { CEFTutorRoot } 	from "./CEFTutorRoot";
-import { CEFObjectMask } 	from "./CEFObjectMask";
+import { TRoot } 			from "../thermite/TRoot";
+import { TObject } 			from "../thermite/TObject";
+import { TObjectMask } 		from "../thermite/TObjectMask";
+import { TTutorContainer } 	from "../thermite/TTutorContainer";
+import { TAnimator } 		from "../thermite/TAnimator";
 
 import { CEFEvent } 		from "../events/CEFEvent";
 
-import { CTutorState }      from "../util/CTutorState";
+
 import { CONST }            from "../util/CONST";
 import { CUtil } 			from "../util/CUtil";
 
@@ -33,7 +33,7 @@ import Ease			  	    = createjs.Ease;
 
 
 
-export class CEFTransitions extends CEFAnimator 
+export class CEFTransitions extends TAnimator 
 {	
 	// There are N scenes in any given app
 	// Each scene represents a different step in the tutoring process
@@ -47,7 +47,7 @@ export class CEFTransitions extends CEFAnimator
 
 	public fSingleStep:boolean = true;			// single stepping operations - debug
 
-	public prntTutor:Object;					// The parent CEFTutorRoot of these transitions
+	public prntTutor:Object;					// The parent CEFTutorContainer of these transitions
 	public tutorAutoObj:any;					// The location of this tutor to automation array
 	
 	private activeObjs:any  = {};		// Pointers to the objects in the most recent scene + persistent ojects
@@ -59,13 +59,37 @@ export class CEFTransitions extends CEFAnimator
 	constructor()
 	{
 		super();
-
-		this.traceMode = false;
-		if(this.traceMode) CUtil.trace("CEFTransitions:Constructor");						
+		this.init2();
 	}	
 
-	
-	public connectToTutor(parentTutor:CEFTutorRoot, autoTutor:Object) : void
+
+	/*  ###########  START CREATEJS SUBCLASS SUPPORT ##########  */
+	/* ######################################################### */
+
+	public CEFTransitionsInitialize() {
+        this.TAnimatorInitialize.call(this);
+
+        this.init2();
+    }
+
+    public initialize() {
+        this.TAnimatorInitialize.call(this);
+		
+        this.init2();
+    }
+
+    private init2() {
+
+		this.traceMode = true;
+		if(this.traceMode) CUtil.trace("CEFTransitions:Constructor");						
+    }
+
+	/* ######################################################### */
+	/*  ###########  END CREATEJS SUBCLASS SUPPORT ###########   */
+
+
+
+	public connectToTutor(parentTutor:TTutorContainer, autoTutor:Object) : void
 	{
 		this.prntTutor = parentTutor;
 		this.tutorAutoObj = autoTutor;
@@ -193,7 +217,7 @@ export class CEFTransitions extends CEFAnimator
 				//
 				if (this.tutorAutoObj[this.newScene][sceneObj] != undefined)
 				{
-					if (this.tutorAutoObj[this.currScene][sceneObj].instance instanceof CEFObject)
+					if (this.tutorAutoObj[this.currScene][sceneObj].instance instanceof TObject)
 					{
 						if(this.traceMode) CUtil.trace("newObject: " + this.tutorAutoObj[this.newScene][sceneObj].instance.wozName);
 						if(this.traceMode) CUtil.trace("oldObject: " + this.tutorAutoObj[this.currScene][sceneObj].instance.wozName);
@@ -267,7 +291,7 @@ export class CEFTransitions extends CEFAnimator
 				// Skip WOZ objects that aren't to be tweened
 				// Use the namedObj to disinguish unique instances
 				//
-				if(targObj.instance instanceof CEFObject)
+				if(targObj.instance instanceof TObject)
 				{
 					if(!targObj.instance.isTweenable())
 												continue;
@@ -299,14 +323,15 @@ export class CEFTransitions extends CEFAnimator
 						let dO2:DisplayObject = this.tutorAutoObj[this.newScene][namedObj].instance;
 						
 						// Get their locations in the display list
+						// TODO: fix gTutor reference
 						
-						let dI1:number = CTutorState.gTutor[this.currScene].getChildIndex(dO1);
-						let dI2:number = CTutorState.gTutor[this.newScene].getChildIndex(dO2);
+						// let dI1:number = this.tutorDoc.tutorContainer[this.currScene].getChildIndex(dO1);
+						// let dI2:number = this.tutorDoc.tutorContainer[this.newScene].getChildIndex(dO2);
 						
 						// Swap them in the scenes display lists
 						
-						CTutorState.gTutor[this.currScene].addChildAt(dO2, dI1 );
-						CTutorState.gTutor[this.newScene].addChildAt(dO1, dI2);
+						// this.tutorDoc.tutorContainer[this.currScene].addChildAt(dO2, dI1 );
+						// this.tutorDoc.tutorContainer[this.newScene].addChildAt(dO1, dI2);
 						
 						// Swap the instances in the TutorObj
 						
@@ -322,7 +347,7 @@ export class CEFTransitions extends CEFAnimator
 						// If it is a WOZ object do a deep copy of its internal state
 						// We assume all named WOZ Objects are WOZ in all instances
 						//
-						if((liveObj instanceof CEFObject) && (targObj.instance.tweenID == liveObj.tweenID))
+						if((liveObj instanceof TObject) && (targObj.instance.tweenID == liveObj.tweenID))
 						{				
 //								if(wozName == "CCRSOLCAT1TBL2")						//@@ debug
 //													CUtil.trace("table2 hit");			//@@ debug			
@@ -393,7 +418,7 @@ export class CEFTransitions extends CEFAnimator
 				{
 					// Run the alpha tween from ZERO to bring the object on stage
 					//
-					if(!(targObj.instance instanceof CEFObjectMask))
+					if(!(targObj.instance instanceof TObjectMask))
 											targObj.instance.alpha = 0;
 					
 					// Generate the tween
@@ -409,7 +434,7 @@ export class CEFTransitions extends CEFAnimator
 									
 				// Check for persistent objects and subtweening			
 
-				if(targObj.instance instanceof CEFObject)
+				if(targObj.instance instanceof TObject)
 				{
 					// Make object visible
 					//

@@ -20,7 +20,7 @@ import { CUtil } 	from "../util/CUtil";
 
 import MouseEvent = createjs.MouseEvent;
 
-export class CEFMouseEvent extends MouseEvent
+export class TMouseEvent extends MouseEvent
 {		
 	public tarObjID:string;		// CEFObject ID - Used for automation logging
 
@@ -59,11 +59,11 @@ export class CEFMouseEvent extends MouseEvent
 	* Creates and returns a copy of the current instance.	
 	* @return A copy of the current instance.		
 	*/		
-	public clone():CEFMouseEvent		
+	public clone():TMouseEvent		
 	{
 		CUtil.trace("cloning WOZEvent:");
 		
-		return new CEFMouseEvent(this.tarObjID, this.type, this.bubbles, this.cancelable, this.stageX, this.stageY, this.nativeEvent, this.pointerID, this.primary, this.rawX, this.rawY);		
+		return new TMouseEvent(this.tarObjID, this.type, this.bubbles, this.cancelable, this.stageX, this.stageY, this.nativeEvent, this.pointerID, this.primary, this.rawX, this.rawY);		
 	}
 		
 	//*************** Logging state management

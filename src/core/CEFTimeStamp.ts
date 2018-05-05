@@ -14,12 +14,12 @@
 //
 //*********************************************************************************
 
-import { CEFObject } 	from "./CEFObject";
+import { TObject } 		from "../thermite/TObject";
 import { CUtil } 		from "../util/CUtil";
 
 //## TODO  Should implement this as a true singleton
 
-export class CEFTimeStamp extends CEFObject
+export class CEFTimeStamp extends TObject
 {
 	public static _baseTime:number = 0;
 	

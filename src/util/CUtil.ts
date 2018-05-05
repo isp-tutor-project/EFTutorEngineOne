@@ -57,12 +57,12 @@ export class CUtil extends Object
 		}
 		else if(arguments.length > 1) {
 
-			for(let item in arguments) {
+			for(let item of arguments) {
 				
-				fullMessage += fullMessage.concat(item," ");
+				fullMessage = fullMessage.concat(item," ");
 			}
 
-			console.log(fullMessage); 
+			console.log(fullMessage + "\n"); 
 		}
 		else {
 
@@ -177,35 +177,35 @@ export class CUtil extends Object
 	}		
 
 
-//****** Overridable Behaviors
+	//****** Overridable Behaviors
 
-public static instantiateObject(moduleName:string, className:string) : DisplayObject
-{			
-	let tarObject:any;
-	
-	let ClassRef:any = this.getDefinitionByName(moduleName, className);
-	
-	tarObject = new ClassRef();
-	
-	return tarObject;			
-}
-
-
-public static getDefinitionByName(moduleName:string, className:string) : any {
-
-	let classConstructor:Function;
-
-	try {
-
-		classConstructor = EFLoadManager.classLib[className];
-	}
-	catch(error) {
-
-		console.log("getDefinitionByName Failed: " + error);
+	public static instantiateThermiteObject(moduleName:string, className:string) : DisplayObject
+	{			
+		let tarObject:any;
+		
+		let ClassRef:any = this.getConstructorByName(moduleName, className);
+		
+		tarObject = new ClassRef();
+		
+		return tarObject;			
 	}
 
-	return classConstructor;
-}
+
+	public static getConstructorByName(moduleName:string, className:string) : any {
+
+		let classConstructor:Function;
+
+		try {
+
+			classConstructor = EFLoadManager.classLib[className.toUpperCase()];
+		}
+		catch(error) {
+
+			console.log("getDefinitionByName Failed: " + error);
+		}
+
+		return classConstructor;
+	}
 
 
 

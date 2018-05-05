@@ -16,13 +16,19 @@
 
 //** Imports
 
-import { CEFButton } from "../core/CEFButton";
+import { TButton } 	from "../thermite/TButton";
+import { CONST } 	from "../util/CONST";
+
+import MovieClip     		  = createjs.MovieClip;
 
 
-
-export class CEFLabelButton extends CEFButton
+export class CEFLabelButton extends TButton
 {
-		
+	//************ Stage Symbols
+	
+	public SLabel:MovieClip;
+	
+	//************ Stage Symbols
 	
 	
 	
@@ -34,10 +40,7 @@ export class CEFLabelButton extends CEFButton
 	
 	public setLabel(newLabel:string) : void
 	{
-		(this.Sup as any).Slabel.text       = newLabel;			
-		(this.Sover as any).Slabel.text     = newLabel;			
-		(this.Sdown as any).Slabel.text 	= newLabel;			
-		(this.Sdisabled as any).Slabel.text = newLabel;			
+		// this.SLabel     = newLabel;			
 	}		
 			
 }

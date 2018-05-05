@@ -1,0 +1,19 @@
+TRoot
+
+		TAnimate
+					CEFTransitions
+					TObject
+							CEFLabelControl
+							CEFSkillBar
+							CEFSkilloMeter
+							CEFTimeStamp
+							CEFDialogBox
+							TButton
+							TButtonGroup
+							TMouoseMask
+							TObjectMask
+							TSceneBase
+										TScene
+		TCursorProxy
+		TObjectDyno
+		TTutorContainer

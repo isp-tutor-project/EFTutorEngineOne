@@ -16,6 +16,8 @@
 
 //** Imports
 
+import { IEFTutorDoc } 		from "../core/IEFTutorDoc";
+
 import { CAnimationGraph } 	from "./CAnimationGraph";
 import { CAnimationEdge } 	from "./CAnimationEdge";
 
@@ -24,6 +26,7 @@ import EventDispatcher 	  = createjs.EventDispatcher;
 
 export class CAnimationNode extends EventDispatcher
 {
+	protected tutorDoc:IEFTutorDoc;		
 	protected _parent:CAnimationGraph;
 	
 	protected _id:string;
@@ -36,9 +39,11 @@ export class CAnimationNode extends EventDispatcher
 	protected _preExit:string;
 	
 	
-	constructor(target:EventDispatcher=null)
+	constructor(_tutorDoc:IEFTutorDoc, target:EventDispatcher=null)
 	{
 		super();
+	
+		this.tutorDoc = _tutorDoc;
 	}
 	
 	protected nodeFactory(parent:CAnimationGraph, id:string, nodefactory:any) : void
@@ -58,7 +63,7 @@ export class CAnimationNode extends EventDispatcher
 		
 		for (let edge of nodefactory.edges)
 		{
-			this._edges.push(CAnimationEdge.factory(parent, edge));	
+			this._edges.push(CAnimationEdge.factory(this.tutorDoc, parent, edge));	
 		}
 	}
 	

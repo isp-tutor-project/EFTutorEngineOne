@@ -14,12 +14,11 @@
 //
 //*********************************************************************************
 
-
 //** Imports
 
-import { CEFRoot }              from "./core/CEFRoot";
-import { CEFTutor }             from "./core/CEFTutor";
-import { CEFAnimator }          from "./core/CEFAnimator";
+import { TRoot }                from "./thermite/TRoot";
+import { TAnimator }            from "./thermite/TAnimator";
+
 import { CEFTutorDoc }          from "./core/CEFTutorDoc";
 
 import { LoaderPackage }        from "./util/IBootLoader";
@@ -33,15 +32,11 @@ import { CProgressEvent }       from "./events/CProgressEvent";
 import { CSecurityErrorEvent }  from "./events/CSecurityErrorEvent";
 import { CIOErrorEvent }        from "./events/CIOErrorEvent";
 
-import { CEFButton }            from "./core/CEFButton";
-
 import { CONST }                from "./util/CONST";
 import { CUtil }                from "./util/CUtil";
 
 import MovieClip     		  = createjs.MovieClip;
 import DisplayObject          = createjs.DisplayObject;
-import { CTutorState } from "./util/CTutorState";
-import { CSceneGraphNavigator } from "./scenegraph/CSceneGraphNavigator";
 
 
 
@@ -50,8 +45,8 @@ export class CEngine {
     public loader:CURLLoader;
     public bootLoader:string;
 
-    public bootSpec:LoaderPackage.IPackage;
-    public tutorObject:any;
+    public tutorDescr:LoaderPackage.IPackage;
+    public tutorDoc:any;
 
     public timerID:number;
 
@@ -61,6 +56,10 @@ export class CEngine {
     public loadModules:Array<string>;
     public anModules:any;
 
+    public supplSet:string;
+    public loadSuppls:Array<string>;
+    public supplScripts:any;
+    
     public _sceneDescr:any;
     public _sceneGraph:any;
     public _tutorGraph:any;
@@ -74,6 +73,9 @@ export class CEngine {
         this.bootLoader = _bootLoader.toUpperCase();
 
         console.log("In TutorEngineOne startup: " + _bootLoader);
+
+        var frequency = 30;
+        EFLoadManager.efStage.enableMouseOver(frequency);
 
         if(_bootLoader) {
 
@@ -95,20 +97,24 @@ export class CEngine {
         this.loader.load(new CURLRequest(CONST.BOOT_LOADER))
             .then((_data) => {
 
-                this.bootSpec = JSON.parse(_data);
+                this.tutorDescr = JSON5.parse(_data);
 
-                if(this.bootSpec.bootLoader.accountMode === CONST.LOCAL) {
+                if(this.tutorDescr.bootLoader.accountMode === CONST.LOCAL) {
         
                     console.log("Boot-Loader");
                     
-                    this.moduleSet   = this.bootSpec.moduleSets[this.bootSpec.loaders[this.bootLoader.toUpperCase()]._moduleSet]._anModules;
+                    this.moduleSet   = this.tutorDescr.moduleSets[this.tutorDescr.loaders[this.bootLoader.toUpperCase()]._moduleSet]._anModules;
                     this.loadModules = this.moduleSet.split(",").map((modName:string) => modName.trim().toUpperCase());
-                    this.anModules   = this.bootSpec.anModules;
+                    this.anModules   = this.tutorDescr.anModules;
+
+                    this.supplSet    = this.tutorDescr.supplSets[this.tutorDescr.loaders[this.bootLoader.toUpperCase()]._supplSet]._supplScripts;
+                    this.loadSuppls  = this.supplSet.split(",").map((supplName:string) => supplName.trim().toUpperCase());
+                    this.supplScripts= this.tutorDescr.supplScripts;
 
                     this.loadBootImage();
                 }
                 else {
-                    console.log("Account Mode unsupported: " + this.bootSpec.bootLoader.accountMode);
+                    console.log("Account Mode unsupported: " + this.tutorDescr.bootLoader.accountMode);
                 }
             }).catch((_error) => {
 
@@ -122,7 +128,7 @@ export class CEngine {
         try {
             for(let tutorel of CONST.TUTOR_JSON_IMAGE) {
 
-                this.tutorImagePath.push("tutors/" + this.bootSpec.tutors[this.bootLoader].path + "/" + tutorel);
+                this.tutorImagePath.push("tutors/" + this.tutorDescr.tutors[this.bootLoader].path + "/" + tutorel);
             }
 
             let modulePromises = this.tutorImagePath.map((module, index) => {
@@ -133,7 +139,7 @@ export class CEngine {
                 return loader.load(new CURLRequest(module))
                     .then((tutorSpec:string) => {
         
-                        engine[CONST.TUTOR_FACTORIES[index]] = JSON.parse(tutorSpec);                        
+                        engine[CONST.TUTOR_FACTORIES[index]] = JSON5.parse(tutorSpec);                        
 
                     })                        
             })
@@ -143,7 +149,7 @@ export class CEngine {
 
                     console.log("Boot-Image Loaded");
 
-                    this.loadAnModules();
+                    this.loadScriptSuppliment();
 
                 })
         }        
@@ -151,6 +157,59 @@ export class CEngine {
 
             console.log("Boot-Image load failed: " + error);
         }
+    }
+
+
+    public loadScriptSuppliment() {
+        
+        let engine = this;
+        let scriptPromises = this.loadSuppls.map(script => this.injectScript(this.supplScripts[script]))
+
+        Promise.all(scriptPromises)        
+            .then(() => {
+
+                console.log("Script-Suppl load complete");
+
+                // Construct the Tutor Document object and the Tutor Container.
+                // These are required for the Thermite mapping.  We inject these into the prototypes of 
+                // the Thermite classes.
+                //
+                this.tutorDoc      = new CEFTutorDoc(this._sceneGraph, this._tutorGraph );            
+                this.tutorDoc.name = this.bootLoader;
+                    
+                this.loadAnModules();
+
+            }).catch(() => {
+
+                console.log("Script-Suppl load failed");
+            });
+    }
+
+
+    public injectScript(scriptDescr:IModuleDesc) : Promise<any> {
+
+        console.log("Loading Script: " + scriptDescr);
+
+        let engine = this;
+        let loader = new CURLLoader();
+
+        return loader.load(new CURLRequest(scriptDescr.URL))
+            .then((scriptText:string) => {
+
+                let tag = document.createElement("script");
+
+                //## TODO: Check if there is a problem using "head" - i.e. is it universal
+
+                // Inject the script with a suffix to expose the source in the debugger listing.
+				tag.text = scriptText + "\n//# sourceURL= http://127.0.0.1/"+ scriptDescr.tutor + "/" + scriptDescr.URL;
+                document.head.appendChild(tag);
+                
+                scriptDescr.instance = EFLoadManager.global[scriptDescr.extNameSpace];
+                
+            }).catch((_error) => {
+
+                console.log("Script load failed: " + _error );
+            });
     }
 
 
@@ -173,14 +232,14 @@ export class CEngine {
     }
 
 
-    public injectAnScript(module:IModuleDesc) : Promise<any> {
+    public injectAnScript(moduleDescr:IModuleDesc) : Promise<any> {
 
-        console.log("Loading Module: " + module.name);
+        console.log("Loading Module: " + moduleDescr.name);
 
         let engine = this;
         let loader = new CURLLoader();
 
-        return loader.load(new CURLRequest(module.URL))
+        return loader.load(new CURLRequest(moduleDescr.URL))
             .then((scriptText:string) => {
 
                 let tag = document.createElement("script");
@@ -188,10 +247,10 @@ export class CEngine {
                 //## TODO: Check if there is a problem using "head" - i.e. is it universal
 
                 // Inject the script with a suffix to expose the source in the debugger listing.
-				tag.text = scriptText + "//# sourceURL= http://127.0.0.1/"+ module.tutor + "/" + module.name + ".js";
+				tag.text = scriptText + "\n//# sourceURL= http://127.0.0.1/"+ moduleDescr.tutor + "/" + moduleDescr.URL;
 				document.head.appendChild(tag);
 
-				let comp=AdobeAn.getComposition(module.compID);
+				let comp=AdobeAn.getComposition(moduleDescr.compID);
 			
 				let lib=comp.getLibrary();
 
@@ -202,7 +261,7 @@ export class CEngine {
                 
             }).catch((_error) => {
 
-                console.log("module load failed");
+                console.log("module load failed: " + _error);
             });
     }
 
@@ -249,7 +308,7 @@ export class CEngine {
         
         for (const modName in AnLib) {
 
-            if(modName.startsWith("TC_")) {
+            if(modName.startsWith(CONST.THERMITE_PREFIX)) {
                 
                 let varPath: Array<string> = modName.split("__");
                 let classPath:string[]     = varPath[0].split("_"); 
@@ -257,7 +316,7 @@ export class CEngine {
 
                 comPath = comPath.replace("TC/","thermite/");
 
-                importPromises.push(this.importAndMap(AnLib[modName], comPath, classPath[classPath.length-1]));
+                importPromises.push(this.importAndMap(AnLib[modName], comPath, classPath[classPath.length-1], varPath[1]));
             }
         }
 
@@ -276,7 +335,9 @@ export class CEngine {
     }
 
 
-    public importAndMap(AnObject:any, moduleName:string, className:string) {
+    public importAndMap(AnObject:any, moduleName:string, className:string, variant:string ) {
+
+        console.log("className: " + className);
 
         return SystemJS.import(moduleName).then((ClassObj:any) => {
 
@@ -292,6 +353,14 @@ export class CEngine {
             AnObject.prototype.clone           = temp1.clone;
             AnObject.prototype.nominalBounds   = temp1.nominalBounds;
             AnObject.prototype.frameBounds     = temp1.frameBounds;
+
+            // Make the tutor document and container available to all thermite objects
+            // when they are created.
+            //
+            AnObject.prototype.tutorDoc       = this.tutorDoc;
+            AnObject.prototype.tutorContainer = this.tutorDoc.tutorContainer;
+
+            EFLoadManager.classLib[variant.toUpperCase()] = AnObject;
         })
     }
 
@@ -302,14 +371,13 @@ export class CEngine {
 
         try {
 
-            this.tutorObject      = new CEFTutorDoc(this._sceneDescr, this._sceneGraph, this._tutorGraph );
-            this.tutorObject.name = "Document";
+            this.tutorDoc.initializeTutor(this.tutorDescr );
                                     
             console.log("Tutor Construction Complete");
         }
         catch(error) {
 
-                console.log("Tutor Construction Failed:  " + error.toString());
+            console.log("Tutor Construction Failed:  " + error.toString());
         }
 
         CUtil.preLoader(false);

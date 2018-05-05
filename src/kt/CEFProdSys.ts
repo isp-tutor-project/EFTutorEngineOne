@@ -9,9 +9,9 @@
 //  
 //   Copyright(c) 2010 Carnegie Mellon University. All Rights Reserved.   
 //                                                                        
-//  File:      CWOZProdSys.as
+//  File:      CEFProdSys.as
 //                                                                        
-//  Purpose:   CWOZProdSys object implementation
+//  Purpose:   CEFProdSys object implementation
 //                                                                        
 //  Author(s): Kevin Willows                                                           
 //  
@@ -26,6 +26,7 @@
 //  THE SOFTWARE.
 //
 //********************************************************************************* 
+/** Deprecated */
 
 /*
  // GOAL QUESTION
@@ -88,7 +89,7 @@
  * ...
  * @author K Willows
  */
-export class CWOZProdSys
+export class CEFProdSys
 {
 	public wm:any;		// Working Memory
 	

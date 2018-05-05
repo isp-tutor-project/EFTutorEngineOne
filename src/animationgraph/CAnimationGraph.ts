@@ -17,16 +17,18 @@
 
 //## imports
 
+import { IEFTutorDoc } 		from "../core/IEFTutorDoc";
+
 import { CAnimationNode } 			from "./CAnimationNode";
 import { CAnimationAction } 		from "./CAnimationAction";
 import { CAnimationModule } 		from "./CAnimationModule";
 import { CAnimationChoiceSet } 		from "./CAnimationChoiceSet";
 import { CAnimationConstraint } 	from "./CAnimationConstraint";
 
-import { CEFRoot }					from "../core/CEFRoot";
-import { CEFSceneSequence }			from "../core/CEFSceneSequence";
+import { TRoot }					from "../thermite/TRoot";
+import { TScene }					from "../thermite/TScene";
 
-import { CTutorState }  			from "../util/CTutorState";
+
 import { CONST }            		from "../util/CONST";
 
 
@@ -44,21 +46,23 @@ export class CAnimationGraph extends CAnimationNode
 	private _currAnimation:string;
 	private _prevAnimation:string;
 	
-	private _parentScene:CEFSceneSequence;
+	private _parentScene:TScene;
 	
 	public  _graphFactory:any;
 
 	
 	
-	public CAnimationGraph()
+	constructor(_tutorDoc:IEFTutorDoc)
 	{
-	}
+		super(_tutorDoc);
+	}				
+
 	
-	public static factory(parent:CEFSceneSequence, id:string, factoryName:string) : CAnimationGraph
+	public static factory(_tutorDoc:IEFTutorDoc, parent:TScene, id:string, factoryName:string) : CAnimationGraph
 	{			
-		let animationgraph:CAnimationGraph = new CAnimationGraph;			
+		let animationgraph:CAnimationGraph = new CAnimationGraph(_tutorDoc);			
 	
-		animationgraph._graphFactory = CTutorState.gAnimationGraphDesc[factoryName];
+		animationgraph._graphFactory = _tutorDoc.sceneGraph[factoryName];
 		
 		animationgraph.sceneInstance = parent;
 
@@ -90,14 +94,14 @@ export class CAnimationGraph extends CAnimationNode
 	}
 	
 	
-	public get sceneInstance() : CEFSceneSequence
+	public get sceneInstance() : TScene
 	{
 		// Do scene Specific Enter Scripts
 		//
 		return this._parentScene;		
 	}		
 	
-	public set sceneInstance(scene : CEFSceneSequence)
+	public set sceneInstance(scene : TScene)
 	{
 		this._parentScene  = scene;		
 	}		
@@ -113,21 +117,21 @@ export class CAnimationGraph extends CAnimationNode
 		// On subsequent accesses we increment the iteration count 
 		// If it has surpassed the size of the pFeature array we cycle on the last 'cycle' entries
 
-		if(CTutorState._pFeatures[pid] != undefined)
+		if(this.tutorDoc._pFeatures[pid] != undefined)
 		{
-			iter = CTutorState._pFeatures[pid] + 1;
+			iter = this.tutorDoc._pFeatures[pid] + 1;
 			
 			if(iter >= size)
 			{
 				iter = size - cycle;					
 			}
 			
-			CTutorState._pFeatures[pid] = iter;
+			this.tutorDoc._pFeatures[pid] = iter;
 		}
 		
 		// On first touch we have to create the property
 		
-		else CTutorState._pFeatures[pid] = 0;
+		else this.tutorDoc._pFeatures[pid] = 0;
 		
 		return iter;
 	}
@@ -188,15 +192,15 @@ export class CAnimationGraph extends CAnimationNode
 				switch(nodeList[name].subtype)
 				{
 					case "action":					
-						this._nodes[name] = CAnimationAction.factory(this, name, nodeList[name]);
+						this._nodes[name] = CAnimationAction.factory(this.tutorDoc, this, name, nodeList[name]);
 						break;
 					
 					case "module":					
-						this._nodes[name] = CAnimationModule.factory(this, name, nodeList[name]);
+						this._nodes[name] = CAnimationModule.factory(this.tutorDoc, this, name, nodeList[name]);
 						break;
 					
 					case "choiceset":					
-						this._nodes[name] = CAnimationChoiceSet.factory(this, name, nodeList[name]);
+						this._nodes[name] = CAnimationChoiceSet.factory(this.tutorDoc, this, name, nodeList[name]);
 						break;						
 				}
 			}
@@ -213,7 +217,7 @@ export class CAnimationGraph extends CAnimationNode
 		for(let name in moduleFactory) 
 		{
 			if(name != "COMMENT")
-				this._modules[name] = CAnimationModule.factory(this, name, moduleFactory[name]);	
+				this._modules[name] = CAnimationModule.factory(this.tutorDoc, this, name, moduleFactory[name]);	
 		}			
 		
 		return true;
@@ -227,7 +231,7 @@ export class CAnimationGraph extends CAnimationNode
 		for(let name in actionFactory) 
 		{
 			if(name != "COMMENT")
-				this._actions[name] = CAnimationAction.factory(this, name, actionFactory[name]);	
+				this._actions[name] = CAnimationAction.factory(this.tutorDoc, this, name, actionFactory[name]);	
 		}			
 		
 		return true;
@@ -241,7 +245,7 @@ export class CAnimationGraph extends CAnimationNode
 		for(let name in choicesetFactory) 
 		{
 			if(name != "COMMENT")
-				this._choicesets[name] = CAnimationChoiceSet.factory(this, name, choicesetFactory[name]);	
+				this._choicesets[name] = CAnimationChoiceSet.factory(this.tutorDoc, this, name, choicesetFactory[name]);	
 		}			
 		
 		return true;
@@ -255,7 +259,7 @@ export class CAnimationGraph extends CAnimationNode
 		for(let name in constraintFactory) 
 		{
 			if(name != "COMMENT")
-				this._constraints[name] = CAnimationConstraint.factory(this, constraintFactory[name]);	
+				this._constraints[name] = CAnimationConstraint.factory(this.tutorDoc, this, constraintFactory[name]);	
 		}			
 		
 		return true;

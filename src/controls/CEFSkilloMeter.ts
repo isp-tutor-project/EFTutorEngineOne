@@ -25,9 +25,9 @@
 
 // imports
 
-import { CEFObject }	 from "../core/CEFObject";
+import { TObject }	 from "../thermite/TObject";
 import { CEFSkillBar }	 from "./CEFSkillBar";
-import { CEFMouseEvent } from "../events/CEFMouseEvent";
+import { TMouseEvent } from "../events/CEFMouseEvent";
 
 import MovieClip = createjs.MovieClip;
 import TextField = createjs.Text;
@@ -38,7 +38,7 @@ import TextField = createjs.Text;
 /**
  * ...
  */
-export class CEFSkilloMeter extends CEFObject
+export class CEFSkilloMeter extends TObject
 {
 	//************ Stage Symbols
 
@@ -68,7 +68,7 @@ export class CEFSkilloMeter extends CEFObject
 		for(i1 = 0 ; i1 < 6 ; i1++)
 						this.updateSkill(i1 + 1, 0, "");
 						
-		this.addEventListener(CEFMouseEvent.CLICK, this.skillClick);
+		this.addEventListener(TMouseEvent.CLICK, this.skillClick);
 	}
 	
 	public Destructor() : void

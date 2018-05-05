@@ -29,7 +29,7 @@
 
 // imports
 
-import { CEFObject } from "../core/CEFObject";
+import { TObject } from "../thermite/TObject";
 
 import MovieClip = createjs.MovieClip;
 import TextField = createjs.Text;
@@ -38,7 +38,7 @@ import TextField = createjs.Text;
 /**
  * ...
  */
-export class CEFSkillBar extends CEFObject
+export class CEFSkillBar extends TObject
 {
 	//************ Stage Symbols
 	

@@ -16,34 +16,40 @@
 
 //** Imports
 
-import { CEFRoot } 	    	from "./CEFRoot";	
-import { CEFDoc }			from "./CEFDoc";
-import { CEFObject } 	    from "./CEFObject";	
-import { CEFTutorRoot }     from "./CEFTutorRoot";
-import { CEFCursorProxy } 	from "./CEFCursorProxy";	
-import { CEFTutor }         from "./CEFTutor";
+import { IEFTutorDoc } 			from "../core/IEFTutorDoc";
 
-import { ILogManager }      from "../managers/ILogManager";
+import { CLogManager }			from "../managers/CLogManager";
 
-import { CEFEvent } 		from "../events/CEFEvent";
+import { TTutorContainer }      from "../thermite/TTutorContainer";
 
-import { CTutorState }      from "../util/CTutorState";
-import { CONST }            from "../util/CONST";
-import { CUtil }            from "../util/CUtil";
+import { CEFEvent } 		    from "../events/CEFEvent";
+
+import { CTutorGraphNavigator } from "../tutorgraph/CTutorGraphNavigator";
+
+import { LoaderPackage } 		from "../util/IBootLoader";
+import { IModuleDesc } 			from "../util/IModuleDesc";
+import { CONST }                from "../util/CONST";
+import { CUtil }                from "../util/CUtil";
 
 
 import EventDispatcher 		  = createjs.EventDispatcher;
-import { TutorContainer } from "../thermite/TutorContainer";
 
 
 
-export class CEFTutorDoc extends EventDispatcher
+export class CEFTutorDoc extends EventDispatcher implements IEFTutorDoc
 {
 	public traceMode:boolean;
 
 	//************ Stage Symbols
 	
-	public Stutor:TutorContainer;			// every WOZObject must be associated with a specific tutor
+    public tutorContainer:TTutorContainer;			// every WOZObject must be associated with a specific tutor
+
+	//************ Stage Symbols
+
+    public tutorNavigator:CTutorGraphNavigator;
+	
+	public tutorDescr:LoaderPackage.IPackage;
+
 	
 	//************ Stage Symbols
 	
@@ -77,30 +83,112 @@ export class CEFTutorDoc extends EventDispatcher
 	public logFrameID = 0;
 	public logStateID = 0;
 
+    public state:Array<string>;
+    public scenedata:Array<string>;
+    public sceneExt:any;
+
+    // knowledge tracing 
+    public   ktSkills:any;							    //@@ Mod Aug 28 2013 - support for new kt structure in sceneGraph
     
     // Flex integration - Used to indicate if Pretest is running embedded
     private _extLoader:boolean = false;
     private _extConnection:boolean = false;
     
-    private _tutorFeatures:string = "";                     	// used in Flash mode to set instance features   
-    public  _modulePath:string;									//@@ Mod May 07 2012 - support for relative module paths						
-    private _forcedPause:boolean = false;						//@@ Mod Mar 15 2013 - FLEX support - manage pause when transitioning in and out of full screen mode 
+    //*** Tutor graph descriptions
+		
+	public sceneGraph:any;						    // The factory definition object used to create scene graphs for specified scenes
+	public tutorGraph:any;							// The factory definition object used to create the tutor Graph		
+    
+    public _tutorFeatures:string = "";                  // used in Flash mode to set instance features   
+    public _modulePath:string;							//@@ Mod May 07 2012 - support for relative module paths						
+    public _forcedPause:boolean = false;				//@@ Mod Mar 15 2013 - FLEX support - manage pause when transitioning in and out of full screen mode 
     
     
-    constructor(_sceneDescr:any, _sceneGraph:any, _tutorGraph:any )
+    public _pFeatures:any = {}; 
+	
+	public designWidth:number = 1024;
+    public designHeight:number = 768;
+    
+    public STAGEWIDTH:number  = 1024;  
+	public STAGEHEIGHT:number = 768;  
+	
+	// Global logging support - each scene instance and subscene animation instance represent 
+	//                          object instances in the log.
+	//                          The frameid is a '.' delimited string representing the:
+	//
+	//     framendx:graphnode.nodemodule.moduleelement... :animationnode.animationelement...iterationNdx
+	//
+	//			Semantics - each ':' represents the root of a new different (sub)graph	
+	//  e.g.
+	//
+	//	  000001:root.start.SstartSplash...:root.Q0A.CSSbSRule1Part1AS...
+	
+	public _framendx:number   = 0;
+
+
+    //*** Demo configuration
+	
+	public fRemoteMode:boolean	  = false;				// Used to control SWFLoader security domain
+	public fDemo:boolean  	 	  = true;				// Controls the insertion of the demo selection scene 
+	public fDebug:boolean 	 	  = true;				// Controls whether the server connection is used			
+	public fLog:boolean   	   	  = false;				// Controls whether logging is used or not		Note: Affects ILogManager this.tutorDocructor
+	public fDeferDemoClick:boolean = true;				// defer demo button clicks while scene changes are in progress
+	
+//********
+	
+	public fTutorPart:string = "Intro & Ramp Pre-test";	// Goes in to the xml header to indicate the portion of the tutor the file represents - deprecated Jun 6 2013 - see CLogManager 
+	public fFullSignIn:boolean = false;					// Set dynamically based upon Feature Set		
+	
+//****************		
+	
+	public fSkipAssess:boolean      = false;				// Controls where to go after the ramp test - user trials support 	
+	public fEnableBack:boolean      = true;				// force all back buttons to enabled
+	public fForceBackButton:boolean = true;				//@@ Mod May 22 2013 - Prepost module integration - back button behaves different in prepost then anywhere else
+																//                     So in general outside the prepost we force the back button to off
+	public fSkillometer:boolean 	   = false;				//@@ Mod Mar2 2012 - support for showing skillometer in loader
+
+//********
+
+	public sessionAccount:any	   = {};				//@@ Mod Dec 03 2013 - session Account data  
+	
+	public fSessionID:string;							// Unique session identifier
+	public fSessionTime:number;
+	public serverUserID:number = 0;						// Numeric user ID assigned by the logging server DB
+	
+	public fPlaybackMode:boolean = false;
+		
+	public _log:any;							  		// ILogManager - Logging service connection
+    public SceneData:string = "";	            		// Root Tutor data cache				
+	
+    
+	//*************** Automation Shadow Display List
+	// 
+	public TutAutomator:any;				        // The location of this tutor automation object			
+
+    // CSceneGraphNavigator
+    //
+    public _globals:any	 = {};			        
+	public _sceneData:any = {};						//## Added Dec 11 2013 - DB based state logging
+	public _phaseData:any = {};						//## Added Dec 12 2013 - DB based state logging
+	
+
+	//**************** Current feature vector
+	
+	private fFeatures:Array<string> = new Array<string>();			
+	private fDefaults:Array<string> = new Array<string>();			
+    
+    
+
+
+    constructor(_sceneGraph:any, _tutorGraph:any )
     {
         super();
 
-        CTutorState.gSceneConfig        = _sceneDescr;			
-        CTutorState.gAnimationGraphDesc = _sceneGraph;			
-        CTutorState.gSceneGraphDesc     = _tutorGraph;						
+        this.sceneGraph = _sceneGraph;			
+        this.tutorGraph = _tutorGraph;						
 
-        CUtil.trace("CWOZTutorDoc:Constructor");
-        
-		// First get the Root Tutor movie object - this encapsulates all the scenes and navigation features
-		//
-		CTutorState.gApp = this;			
-        
+        CUtil.trace("CEFTutorDoc:Constructor");
+		
         //@@ Mod Sept 22 2014 - reset global object - only required for demo sequences - more than one demo may be loaded in a single session
         
         this.initGlobals();									 			
@@ -113,32 +201,52 @@ export class CEFTutorDoc extends EventDispatcher
         // Create the tutor container - 
         // TODO: extract the dimensions from the tutor loader
         //
-        this.Stutor = new TutorContainer();
-        this.Stutor.name = "Stutor";
+        this.tutorContainer          = new TTutorContainer();
+        this.tutorContainer.tutorDoc = this;
+        this.tutorContainer.name     = "Stutor";
         
-        EFLoadManager.efStage.addChild(this.Stutor);
+        EFLoadManager.efStage.addChild(this.tutorContainer);
         
+
         //@@ Mod May 09 2012 - Demo Support - manage the features so that the demo can augment the default set.
         
-        this.Stutor.setTutorDefaults(this._tutorFeatures);
-        this.Stutor.setTutorFeatures("");
+        this.setTutorDefaults(this._tutorFeatures);
+		this.setTutorFeatures("");
+		
+		this.log = CLogManager.getInstance();
+	}
+	
+	
+	public initializeTutor(_tutorDescr:LoaderPackage.IPackage ) {
 
-        
-        // Init the automation Object
-        
-        CTutorState.tutorAutoObj = this.Stutor.tutorAutoObj;
-        
-        
-        // //****** Initialize the scene configurations - Add Audio etc.
-        
-        this.Stutor.initializeTutor();
-        
+		this.tutorDescr = _tutorDescr;
+		
+		for(let suppl in this.tutorDescr.supplScripts) {
+
+			if(this.tutorDescr.supplScripts[suppl].intNameSpace == CONST.SCENE_EXT) {
+				this.sceneExt = this.tutorDescr.supplScripts[suppl].instance;
+				break;
+			}
+		}
+
+		let test:any;
+		try {
+			test = new this.sceneExt["SSignIn"];
+		}
+		catch(error) {
+			console.log(error);
+		}
+
+		
+        // This manufactures the tutorGraph from the JSON spec file 			
+        //
+        this.tutorNavigator = CTutorGraphNavigator.rootFactory(this, this.tutorGraph);
 
         //## Mod Aug 10 2012 - must wait for initializeScenes to ensure basic scenes are in place now that 
         //					   we allow dynamic creation of the navPanel etc.
         // Parse the active Tutor
         //
-        this.Stutor.initAutomation(CTutorState.tutorAutoObj);										
+        this.tutorContainer.initAutomation();										
         
         // NOTE: Logger Connections must be made before cursor replacement
         //
@@ -152,7 +260,7 @@ export class CEFTutorDoc extends EventDispatcher
     
     public set extAccount(Obj:any)
     {
-        CTutorState.sessionAccount = Obj;
+        this.sessionAccount = Obj;
     }		
     
     public set extFTutorPart(str:string)
@@ -162,36 +270,36 @@ export class CEFTutorDoc extends EventDispatcher
     }
     public set extFFullSignIn(val:string)
     {
-        CTutorState.fFullSignIn = (val == "true")? true:false;
+        this.fFullSignIn = (val == "true")? true:false;
     }
     public set extFDemo(val:boolean)
     {
-        CTutorState.fDemo = val;
+        this.fDemo = val;
     }
     public set extFDebug(val:boolean)
     {
-        CTutorState.fDebug = val;
+        this.fDebug = val;
     }
     public set extFRemoteMode(val:boolean)
     {
-        CTutorState.fRemoteMode = val;			
+        this.fRemoteMode = val;			
     }
     public set extFDeferDemoClick(val:string)
     {
-        CTutorState.fDeferDemoClick = (val == "true")? true:false;
+        this.fDeferDemoClick = (val == "true")? true:false;
     }
     
     //@@ Mod Mar2 2012 - support for showing skillometer in loader
     
     public set extFSkillometer(val:string)
     {
-        CTutorState.fSkillometer = (val == "true")? true:false;
+        this.fSkillometer = (val == "true")? true:false;
     }
     
     
     
     // note that the feature set is not ready for use until the call to 
-    // TutorRoot.setTutorFeatures which occures in the CWOZTutorDoc.doOnStage Handler
+    // TutorRoot.setTutorFeatures which occures in the CEFTutorDoc.doOnStage Handler
     
     public set extTutorFeatures(ftrStr:string)
     {
@@ -217,9 +325,9 @@ export class CEFTutorDoc extends EventDispatcher
     
     //@@ Mod May 07 2012 - support for relative module pathing
     
-    public set extLogManager(val:ILogManager) 
+    public set extLogManager(val:CLogManager) 
     {
-        CTutorState.gLogR = val;			
+        this.log = val;			
     }
 
     
@@ -227,9 +335,9 @@ export class CEFTutorDoc extends EventDispatcher
     public set extForceBackButton(fForce:any) 
     {		
         if(typeof fForce === 'string')
-            CTutorState.gForceBackButton = (fForce == "true")? true:false;
+            this.gForceBackButton = (fForce == "true")? true:false;
         else if(typeof fForce === 'boolean')
-            CTutorState.gForceBackButton = fForce;
+            this.gForceBackButton = fForce;
     }
     
     public get extAspectRatio() : string 
@@ -238,12 +346,17 @@ export class CEFTutorDoc extends EventDispatcher
     }
     
     
-    
+    public incFrameNdx() : void
+	{
+		this._framendx++;
+	}
+
+
     //****************** START Globals		
         
     public initGlobals() : void
     {
-        CTutorState._globals = {};
+        this._globals = {};
     }
 
 
@@ -251,40 +364,40 @@ export class CEFTutorDoc extends EventDispatcher
     {	
         let result:any;
         
-        if(CTutorState._globals.hasOwnProperty(_id))
+        if(this._globals.hasOwnProperty(_id))
         {		
-            CTutorState._globals[_id]++;
+            this._globals[_id]++;
             
-            result = CTutorState._globals[_id];
+            result = this._globals[_id];
             
             // Roll over at max value > -1 will never roll
             
-            if(CTutorState._globals[_id] == _max)
-                    CTutorState._globals[_id] = _cycle;
+            if(this._globals[_id] == _max)
+                    this._globals[_id] = _cycle;
         }
         else
-            result = CTutorState._globals[_id] = 1;
+            result = this._globals[_id] = 1;
         
         return result; 
     }
 
     public assertGlobal(_id:string, _value:any) : void				//## Added Sep 23 2013 - to support global variables
     {	
-        CTutorState._globals[_id] = _value;
+        this._globals[_id] = _value;
     }
 
     public retractGlobal(_id:string) : void						//## Added Sep 23 2013 - to support global variables
     {	
-        CTutorState._globals[_id] = "";
+        this._globals[_id] = "";
     }
 
     public queryGlobal(_id:string) : any							//## Added Sep 23 2013 - to support global variables
     {	
         let result:any;
         
-        if(CTutorState._globals.hasOwnProperty(_id))
+        if(this._globals.hasOwnProperty(_id))
         {		
-            result = CTutorState._globals[_id];
+            result = this._globals[_id];
         }
         else result = "null";
         
@@ -293,12 +406,12 @@ export class CEFTutorDoc extends EventDispatcher
 
     public set globals(gval:Object) 
     {
-        CTutorState._globals = gval;			
+        this._globals = gval;			
     }
 
     public get globals() : Object
     {			
-        return CTutorState._globals;						
+        return this._globals;						
     }
 
 
@@ -377,36 +490,233 @@ export class CEFTutorDoc extends EventDispatcher
 	 * 
 	 * @param	evt
 	 */
-	private doEnterFrame(evt:Event)
+	public doEnterFrame(evt:Event)
 	{
 		this.incFrameID();
 	}
 	
 	
 //***************** Automation *******************************		
-	
-	
-//***************** Debug *******************************		
-		
-	protected dumpTutors() : void
+ 
+
+
+//***************** Globals ****************************
+
+
+    public get gData():string
+    {
+        return this.SceneData;
+    }
+
+    public set gData(dataXML:string) 
+    {			
+        this.SceneData = dataXML;
+    }
+
+    public get gPhase():string
+    {
+        return this.fTutorPart;
+    }
+
+    public set gPhase(phase:string) 
+    {
+        this.fTutorPart = phase;
+    }
+
+    public get log(): any
+    {
+        return this._log;
+    }
+
+    public set log(logr:any) 
+    {        
+        this._log = logr;
+    }
+
+
+    /*
+    *	restore scenedata XML to allow reuse of scene 
+    */
+    public resetSceneDataXML() : void
+    {			
+        //this.sceneConfig.replace("scenedata", sceneDataArchive);
+    }			
+
+
+    public get gForceBackButton() : boolean 
+    {		
+        return this.fForceBackButton;
+    }
+            
+    public set gForceBackButton(fForce:boolean)
+    {		
+        this.fForceBackButton = fForce;
+    }
+
+    public get gNavigator() : any 
+    {		
+        return this.tutorNavigator;
+    }
+
+
+    /**
+     * 
+     */
+    public setButtonBehavior(behavior:string) : void
+    {
+        if(behavior == "incrScene")
+            this.tutorNavigator.buttonBehavior = CONST.GOTONEXTSCENE;
+        else				
+            this.tutorNavigator.buttonBehavior = CONST.GOTONEXTANIMATION;
+    }
+
+
+//***************** Globals ****************************
+
+
+
+//***************** FEATURES ****************************
+
+	// generate the working feature set for this instance
+	//
+	public setTutorDefaults(featSet:string) : void
 	{
-		if(this.traceMode) CUtil.trace("\n*** Start root dump ALL tutors ***");
+		let feature:string;
+		let featArray:Array<string> = featSet.split(":");
 		
-		for(let tutor of CTutorState.tutorAutoObj)
+		this.fDefaults = new Array<string>();
+		
+		for(let feature of featArray)
 		{
-			if(this.traceMode) CUtil.trace("TUTOR : " + tutor);
+			this.fDefaults.push(feature);
+		}
+	}
+			
+	// generate the working feature set for this instance
+	//
+	public setTutorFeatures(featSet:string) : void
+	{
+		let feature:string;
+		let featArray:Array<string> = new Array;
 		
-			if(CTutorState.tutorAutoObj[tutor].instance instanceof CEFTutorRoot) 
-			{
-				if(this.traceMode) CUtil.trace("CEF***");
-				
-				CTutorState.tutorAutoObj[tutor].instance.dumpScenes(CTutorState.tutorAutoObj[tutor]);
-			}				
-		}			
+		if(featSet.length > 0)
+			featArray = featSet.split(":");
 		
-		if(this.traceMode) CUtil.trace("*** End root dump tutor structure ***");			
+		this.fFeatures = new Array<string>();
+
+		// Add default features 
+		
+		for (let feature of this.fDefaults)
+		{
+			this.fFeatures.push(feature);
+		}
+
+		// Add instance features 
+		
+		for (let feature of featArray)
+		{
+			this.fFeatures.push(feature);
+		}
 	}
 
-//***************** Debug *******************************		
-    
+	// get : delimited string of features
+	//## Mod Oct 16 2012 - logging support
+	//
+	public get features() : string
+	{			
+		// Add new features - no duplicates
+		
+		return this.fFeatures.join(":");
+	}
+	
+	// set : delimited string of features
+	//## Mod Dec 03 2013 - DB state support
+	//
+	public set features(ftrSet:string) 
+	{			
+		// Add new features - no duplicates
+		
+		this.fFeatures = ftrSet.split(":");
+	}
+
+	
+	// udpate the working feature set for this instance
+	//
+	public set addFeature(feature:string) 
+	{			
+		// Add new features - no duplicates
+		
+		if(this.fFeatures.indexOf(feature) == -1)
+		{
+			this.fFeatures.push(feature);
+		}
+	}
+	
+	// udpate the working feature set for this instance
+	//
+	public set delFeature(feature:string)
+	{
+		let fIndex:number;
+		
+		// remove features - no duplicates
+		
+		if((fIndex = this.fFeatures.indexOf(feature)) != -1)
+		{
+			this.fFeatures.splice(fIndex,1);
+		}
+	}
+	
+	//## Mod Jul 01 2012 - Support for NOT operation on features.
+	//
+	//	
+	private testFeature(element:any, index:number, arr:Array<string>) : boolean
+	{
+		if(element.charAt(0) == "!")
+		{
+			return (this.fFeatures.indexOf(element.substring(1)) != -1)? false:true;
+		}
+		else
+			return (this.fFeatures.indexOf(element) != -1)? true:false;
+	}
+	
+	
+	// test possibly compound features
+	//
+	public testFeatureSet(featSet:string) : boolean
+	{
+		let feature:string;
+		let disjFeat:Array<string> = featSet.split(":");	// Disjunctive features
+		let conjFeat:Array<string>;							// Conjunctive features
+		
+		// match a null set - i.e. empty string means the object is not feature constrained
+		
+		if(featSet == "")
+				return true;
+		
+		// Check all disjunctive featuresets - one in each element of disjFeat
+		// As long as one is true we pass
+		
+		for (let feature of disjFeat)
+		{
+			conjFeat = feature.split(",");
+			
+			// Check that all conjunctive features are set in fFeatures 
+			
+			if(conjFeat.every(this.testFeature))
+									return true;
+		}			
+		return false;
+	}				
+
+	
+	// udpate the working feature set for this instance
+	//
+	public traceFeatures() : void
+	{			
+		CUtil.trace(this.fFeatures);
+	}		
+	
+//***************** FEATURES ****************************
+
+
 }

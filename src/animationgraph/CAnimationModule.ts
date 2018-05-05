@@ -17,13 +17,15 @@
 
 //## imports
 
+import { IEFTutorDoc } 		from "../core/IEFTutorDoc";
+
 import { CAnimationNode } 	from "./CAnimationNode";
 import { CAnimationGraph } 	from "./CAnimationGraph";
 import { CAnimationTrack } 	from "./CAnimationTrack";
 
-import { CEFRoot } 			from "../core/CEFRoot";
+import { TRoot } 			from "../thermite/TRoot";
 
-import { CTutorState }  	from "../util/CTutorState";
+
 import { CONST }            from "../util/CONST";
 import { CUtil } 			from "../util/CUtil";
 
@@ -38,9 +40,9 @@ export class CAnimationModule extends CAnimationNode
 	private _reuse:boolean;
 	
 	
-	constructor(target:EventDispatcher=null)
+	constructor(_tutorDoc:IEFTutorDoc, target:EventDispatcher=null)
 	{
-		super(target);
+		super(_tutorDoc, target);
 	}
 	
 	
@@ -51,9 +53,9 @@ export class CAnimationModule extends CAnimationNode
 		*   	When moduleFactory is a "type":"module" the generated object is a global referenced elsewhere 
 		*      
 	**/		
-	public static factory(parent:CAnimationGraph, nodeName:string, moduleFactory:any) : CAnimationModule
+	public static factory(_tutorDoc:IEFTutorDoc, parent:CAnimationGraph, nodeName:string, moduleFactory:any) : CAnimationModule
 	{
-		let node:CAnimationModule = new CAnimationModule;			
+		let node:CAnimationModule = new CAnimationModule(_tutorDoc);			
 		
 		// If this is a CNode spec then extract the CNode info - e.g. edges etc. 
 		
@@ -76,7 +78,7 @@ export class CAnimationModule extends CAnimationNode
 		
 		for (let track in actiontracks)
 		{
-			node._animations.push(new CAnimationTrack(track, parent));	
+			node._animations.push(new CAnimationTrack(_tutorDoc, track, parent));	
 		}
 		
 		return node;
@@ -108,7 +110,7 @@ export class CAnimationModule extends CAnimationNode
 				
 				if(features != "")
 				{
-					featurePass = CTutorState.gTutor.testFeatureSet(features);
+					featurePass = this.tutorDoc.testFeatureSet(features);
 
 					if(featurePass)
 					{

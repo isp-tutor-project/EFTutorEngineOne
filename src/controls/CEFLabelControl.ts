@@ -18,7 +18,7 @@
 
 import { CUtil } 			from "../util/CUtil";
 
-import { CEFObject } from "../core/CEFObject";
+import { TObject } from "../thermite/TObject";
 
 import MovieClip     	  = createjs.MovieClip;
 import TextField     	  = createjs.Text;
@@ -26,7 +26,7 @@ import TextField     	  = createjs.Text;
 /**
 * ...
 */
-export class CEFLabelControl extends CEFObject
+export class CEFLabelControl extends TObject
 {
 	//************ Stage Symbols
 	

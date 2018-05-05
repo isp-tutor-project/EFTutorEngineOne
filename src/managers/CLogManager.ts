@@ -82,7 +82,7 @@ export class CLogManager extends EventDispatcher implements ILogManager
 	private _sessionID:string		= "";			// server session id - used for reconnect to log files
 	private _sessionTime:number;
 
-	private _sessionStatus:string 	= CLogManager.SESSION_START;
+	private _sessionStatus:string 	= CONST.SESSION_START;
 	private _sessionAccount:any;
 			
 	private logEventTimer:CEFTimer = new CEFTimer(60);			// queue packets on every tick
@@ -132,16 +132,18 @@ export class CLogManager extends EventDispatcher implements ILogManager
 	{
 		super();
 		
-		if(enforcer == null || enforcer !instanceof SingletonObj) 
-			throw(new Error("Invalid CLogManager Invokation"));
+		if(enforcer && enforcer instanceof SingletonObj) {
 		
-		// generate the queue associated with this manager
+			// generate the queue associated with this manager
 		
-		CLogManager._logQueue = new CLogQueue();			
+			CLogManager._logQueue = new CLogQueue();			
 		
-		// Listen to the Queue and pass on events
-		
-		CLogManager._logQueue.addEventListener(CLogEvent.PROG_MSG, this.progressListener);
+			// Listen to the Queue and pass on events
+			CLogManager._logQueue.addEventListener(CLogEvent.PROG_MSG, this.progressListener);
+		}
+		else {
+			throw(new Error("Invalid CLogManager Creation Request"));
+		}
 	}
 
 	
@@ -188,7 +190,7 @@ export class CLogManager extends EventDispatcher implements ILogManager
 		
 		//Alert.show("_flogging = " + this._fLogging.tostring(), "Notice");
 		
-		if(this._fLogging & CLogQueue.RECORDEVENTS) CLogManager._logQueue.openQueue();
+		if(this._fLogging & CONST.RECORDEVENTS) CLogManager._logQueue.openQueue();
 											else CLogManager._logQueue.closeQueue();
 	}
 			
@@ -214,7 +216,7 @@ export class CLogManager extends EventDispatcher implements ILogManager
 	{						
 		// Send queued data to remote log 
 		
-		if(startQueue && (this._fLogging & CLogQueue.LOGEVENTS))
+		if(startQueue && (this._fLogging & CONST.LOGEVENTS))
 		{
 			this.startQueuedStream();
 			
@@ -396,7 +398,7 @@ export class CLogManager extends EventDispatcher implements ILogManager
 			if(this.fdebugMode)
 			{
 				this._logHostAddress = "127.0.0.1";
-				this._logHostPort    = CLogManager.PORT_LOGGER;
+				this._logHostPort    = CONST.PORT_LOGGER;
 			}
 							
 			this.logSocket.openSocket(this._logHostAddress, this._logHostPort);
@@ -518,7 +520,7 @@ export class CLogManager extends EventDispatcher implements ILogManager
 	 *  
 	 * #### DEBUG Support - Used in the CConnectionPanel to manually disconnect the this.logSocket
 	 */
-	public abandonSession(abandonData:boolean = false, newStatus:string = CLogManager.SESSION_START ) : void
+	public abandonSession(abandonData:boolean = false, newStatus:string = CONST.SESSION_START ) : void
 	{
 		this._sessionActive = false;
 		this._sessionStatus = newStatus;
@@ -526,7 +528,7 @@ export class CLogManager extends EventDispatcher implements ILogManager
 		this._sessionID   = "";
 		this._sessionTime = 0;		
 		
-		this.fLogging = CLogQueue.RECLOGNONE; 
+		this.fLogging = CONST.RECLOGNONE; 
 		
 		// reset any connections and abandon queued data
 		
@@ -660,22 +662,26 @@ export class CLogManager extends EventDispatcher implements ILogManager
 	
 	private generateEvent(logData:any, type:string) : Object
 	{
-		logData['type']    = type;
-		logData['version'] = '1.0'; 
-		logData['time']    = this.sessionTime; 
-		logData['seqid']   = CLogManager._logQueue.nextNdx;
-		logData['userid']  = this._sessionAccount.userData._id;
+		try {
+			logData['type']    = type;
+			logData['version'] = '1.0'; 
+			logData['time']    = this.sessionTime; 
+			logData['seqid']   = CLogManager._logQueue.nextNdx;
+			logData['userid']  = this._sessionAccount.userData._id;
 
-		// Generate an mongo insert packet for the log event
-		
-		logData = CMongo.insertPacket('logmanager', 
-										CONST.LOG_PACKET, 
-										'unused',
-										logData);
-					
-		// The seqid is used for receive acknowlegement 
-		logData = logData.replace("{", '{"seqid":'+CLogManager._logQueue.nextNdx +',');
-		
+			// Generate an mongo insert packet for the log event
+			
+			logData = CMongo.insertPacket('logmanager', 
+											CONST.LOG_PACKET, 
+											'unused',
+											logData);
+						
+			// The seqid is used for receive acknowlegement 
+			logData = logData.replace("{", '{"seqid":'+CLogManager._logQueue.nextNdx +',');
+		}
+		catch(error) {
+			console.log("Log Event Generation Failed: " + error);
+		}
 		return logData;
 	}
 	
@@ -684,7 +690,7 @@ export class CLogManager extends EventDispatcher implements ILogManager
 	//
 	public logSessionIDEvent() : void
 	{
-		//if (logTrace) CUtil.trace("seqid=" + (logEvtIndex + 1) + "   frameID=" + CWOZDoc.gApp.frameID + "   stateID=" + CWOZDoc.gApp.stateID);
+		//if (logTrace) CUtil.trace("seqid=" + (logEvtIndex + 1) + "   frameID=" + CEFDoc.frameID + "   stateID=" + CEFDoc.stateID);
 		
 		// Set the base time for the session - records are logged relative to this.
 		
@@ -702,7 +708,7 @@ export class CLogManager extends EventDispatcher implements ILogManager
 	//
 	public logLiveEvent(logData:object) : void
 	{			
-		//if(logTrace) CUtil.trace("seqid=" + (CLogManager._logQueue.nextNdx) + "   frameID=" + CWOZDoc.gApp.frameID + "   stateID=" + CWOZDoc.gApp.stateID);
+		//if(logTrace) CUtil.trace("seqid=" + (CLogManager._logQueue.nextNdx) + "   frameID=" + CEFDoc.frameID + "   stateID=" + CEFDoc.stateID);
 		
 		// Generate the log record
 		//
@@ -716,7 +722,7 @@ export class CLogManager extends EventDispatcher implements ILogManager
 	//
 	public logActionEvent(logData:object) : void
 	{
-		//if(logTrace) CUtil.trace("seqid=" + (CLogManager._logQueue.nextNdx) + "   frameID=" + CWOZDoc.gApp.frameID + "   stateID=" + CWOZDoc.gApp.stateID);
+		//if(logTrace) CUtil.trace("seqid=" + (CLogManager._logQueue.nextNdx) + "   frameID=" + CEFDoc.frameID + "   stateID=" + CEFDoc.stateID);
 		
 		// Generate the log record
 		//
@@ -730,7 +736,7 @@ export class CLogManager extends EventDispatcher implements ILogManager
 	//
 	public logStateEvent(logData:object) : void
 	{
-		//if(logTrace) CUtil.trace("seqid=" + (CLogManager._logQueue.nextNdx) + "   frameID=" + CWOZDoc.gApp.frameID + "   stateID=" + CWOZDoc.gApp.stateID);
+		//if(logTrace) CUtil.trace("seqid=" + (CLogManager._logQueue.nextNdx) + "   frameID=" + CEFDoc.frameID + "   stateID=" + CEFDoc.stateID);
 		
 		// Generate the log record
 		//
@@ -744,7 +750,7 @@ export class CLogManager extends EventDispatcher implements ILogManager
 	//
 	public logNavEvent(logData:object) : void
 	{
-		//if(logTrace) CUtil.trace("seqid=" + (CLogManager._logQueue.nextNdx) + "   frameID=" + CWOZDoc.gApp.frameID + "   stateID=" + CWOZDoc.gApp.stateID);
+		//if(logTrace) CUtil.trace("seqid=" + (CLogManager._logQueue.nextNdx) + "   frameID=" + CEFDoc.frameID + "   stateID=" + CEFDoc.stateID);
 		
 		// Generate the log record
 		//
@@ -826,7 +832,7 @@ export class CLogManager extends EventDispatcher implements ILogManager
 		 * This event is handled by the session manager FSM to update the user UI 
 		 * 
 		 */
-		if(this._fLogging & CLogQueue.LOGEVENTS)			
+		if(this._fLogging & CONST.LOGEVENTS)			
 		{
 			// Let anyone interested know we are flushing the queue
 			
@@ -1377,8 +1383,8 @@ export class CLogManager extends EventDispatcher implements ILogManager
 			// Move to the interrupted state if the session was currently running
 			// We stay in the interrupted state until we successfully reconnect 
 			
-			if(this._sessionStatus == CLogManager.SESSION_RUNNING)
-					this._sessionStatus = CLogManager.SESSION_INTERRUPTED;
+			if(this._sessionStatus == CONST.SESSION_RUNNING)
+					this._sessionStatus = CONST.SESSION_INTERRUPTED;
 			
 			// When the socket reports it is closed we make the socket GC'able
 
@@ -1559,7 +1565,7 @@ export class CLogManager extends EventDispatcher implements ILogManager
 			if(this.fdebugMode)
 			{
 				this._logHostAddress = "127.0.0.1";
-				this._logHostPort    = CLogManager.PORT_LOGGER;
+				this._logHostPort    = CONST.PORT_LOGGER;
 			}
 			
 			this.logSocket.openSocket(this._logHostAddress, this._logHostPort);
@@ -1724,7 +1730,7 @@ export class CLogManager extends EventDispatcher implements ILogManager
 						// This resets the queue and closes the socket 
 						// also resets all session flags
 						
-						this.abandonSession(false, CLogManager.SESSION_COMPLETE);
+						this.abandonSession(false, CONST.SESSION_COMPLETE);
 						
 						// Let everyone know what has happened.
 						
@@ -1764,7 +1770,9 @@ export class CLogManager extends EventDispatcher implements ILogManager
 			
 			if(servermessage.name() == CSocket.xmlSERVER_MESSAGE)							
 			{
-				for (let msgClass in servermessage.children())
+				let msgClass:any;	// TODO: generate type data
+
+				for (msgClass in servermessage.children())
 				{
 					// note: must convert to string - object can't be used in switch			
 					//
@@ -1785,7 +1793,7 @@ export class CLogManager extends EventDispatcher implements ILogManager
 							// Set the Session ID - used for reconnection if required							
 							
 							this._sessionActive = true;
-							this._sessionStatus = CLogManager.SESSION_RUNNING;
+							this._sessionStatus = CONST.SESSION_RUNNING;
 							this._sessionID     = msgClass.type;
 							
 							if(this.hasEventListener(CLogEvent.SESSION_STATUS))										
@@ -1834,7 +1842,7 @@ export class CLogManager extends EventDispatcher implements ILogManager
 							// transition back to the running state
 							
 							this._sessionID     = msgClass.type;
-							this._sessionStatus = CLogManager.SESSION_RUNNING;
+							this._sessionStatus = CONST.SESSION_RUNNING;
 							
 							// A leading # indicates there has been a file error at the server.
 							// i.e. the user files are no longer extant
@@ -2014,7 +2022,7 @@ export class CLogManager extends EventDispatcher implements ILogManager
 		// Set the Session ID - used for reconnection if required							
 		
 		this._sessionActive = true;
-		this._sessionStatus = CLogManager.SESSION_RUNNING;
+		this._sessionStatus = CONST.SESSION_RUNNING;
 		
 		if(sessionID != null)
 			this._sessionID = sessionID;
@@ -2067,8 +2075,8 @@ export class CLogManager extends EventDispatcher implements ILogManager
 		//
 		this.fPlayBackDone		 = false;
 		this.playBackNdx          = 0;
-//			CWOZDoc.gApp.frameID = 0;
-//			CWOZDoc.gApp.stateID = 0;
+//			CEFDoc.frameID = 0;
+//			CEFDoc.stateID = 0;
 		
 		//@@ init legacy playback counters
 		
@@ -2199,7 +2207,7 @@ export class CLogManager extends EventDispatcher implements ILogManager
 			{
 				// parse mouse events
 				
-				if(xmlEvent.CWOZMouseEvent != undefined)
+				if(xmlEvent.CEFMouseEvent != undefined)
 				{
 					xResult = xmlEvent;
 					this.playBackNdx++;
@@ -2208,7 +2216,7 @@ export class CLogManager extends EventDispatcher implements ILogManager
 					
 					// parse keyboard events
 					
-				else if(xmlEvent.CWOZTextEvent != undefined)
+				else if(xmlEvent.CEFTextEvent != undefined)
 				{
 					xResult = xmlEvent;
 					this.playBackNdx++;
@@ -2261,11 +2269,11 @@ export class CLogManager extends EventDispatcher implements ILogManager
 			if(this.JSONEvents[nAction].type != "WOZevent")
 				continue;
 				
-			else if(this.JSONEvents[nAction].CWOZMouseEvent != undefined)
+			else if(this.JSONEvents[nAction].CEFMouseEvent != undefined)
 			{
 				if(this.JSONEvents[nAction].time <= frameTime)
 				{
-					if(this.JSONEvents[nAction].CWOZMouseEvent.CWOZEvent.type != "WOZMOUSE_MOVE")
+					if(this.JSONEvents[nAction].CEFMouseEvent.CEFEvent.type != "WOZMOUSE_MOVE")
 					{								
 						xResult = this.JSONEvents[nAction];
 						break;
@@ -2273,7 +2281,7 @@ export class CLogManager extends EventDispatcher implements ILogManager
 				}
 				else break;
 			}
-			else if(this.JSONEvents[nAction].CWOZTextEvent != undefined)
+			else if(this.JSONEvents[nAction].CEFTextEvent != undefined)
 			{
 				if(this.JSONEvents[nAction].time <= frameTime)
 				{
@@ -2324,7 +2332,7 @@ export class CLogManager extends EventDispatcher implements ILogManager
 			
 			if(this.JSONEvents[nMove].time >= frameTime)
 			{
-				if(this.JSONEvents[nMove].CWOZMouseEvent.CWOZEvent.type == "WOZMOUSE_MOVE")
+				if(this.JSONEvents[nMove].CEFMouseEvent.CEFEvent.type == "WOZMOUSE_MOVE")
 				{								
 					xResult = this.JSONEvents[nMove];
 					break;

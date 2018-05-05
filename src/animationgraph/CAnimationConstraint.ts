@@ -17,31 +17,35 @@
 
 //** imports
 	
+import { IEFTutorDoc } 		from "../core/IEFTutorDoc";
+
 import { CAnimationGraph } 	from "./CAnimationGraph";
 
-import { CEFRoot } 			from "../core/CEFRoot";
+import { TRoot } 			from "../thermite/TRoot";
 
-import { CTutorState }  	from "../util/CTutorState";
+
 import { CONST }            from "../util/CONST";
 import { CUtil } 			from "../util/CUtil";
 
 
 
-export class CAnimationConstraint extends Object
+export class CAnimationConstraint 
 {
+	protected tutorDoc:IEFTutorDoc;		
 	protected _parent:CAnimationGraph;
 	
 	private _cmd:string;
 	private _code:string;
 	
-	constructor()
+	constructor(_tutorDoc:IEFTutorDoc)
 	{
-		super();
-	}
-			
-	public static factory(parent:CAnimationGraph, factory:any) : CAnimationConstraint
+		this.tutorDoc = _tutorDoc;
+	}			
+	
+
+	public static factory(_tutorDoc:IEFTutorDoc, parent:CAnimationGraph, factory:any) : CAnimationConstraint
 	{
-		let node:CAnimationConstraint = new CAnimationConstraint;			
+		let node:CAnimationConstraint = new CAnimationConstraint(_tutorDoc);			
 		
 		node._parent = parent;
 		
@@ -60,7 +64,7 @@ export class CAnimationConstraint extends Object
 		{
 			case "test":
 				
-				result = CTutorState.gTutor.testFeatureSet(this._code);
+				result = this.tutorDoc.testFeatureSet(this._code);
 									
 				sresult = result? " :passed.":" :failed.";
 				CUtil.trace("Animation Constraint: " + this._code + sresult);
@@ -70,7 +74,7 @@ export class CAnimationConstraint extends Object
 				
 				// result = D.eval(this._code, this._parent.sceneInstance);
 				
-				CUtil.trace("R0 Belief: " + CTutorState.gTutor.ktSkills['rule0'].queryBelief());
+				CUtil.trace("R0 Belief: " + this.tutorDoc.ktSkills['rule0'].queryBelief());
 				break;
 		}
 		

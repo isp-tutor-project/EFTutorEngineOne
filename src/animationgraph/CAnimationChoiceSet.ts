@@ -17,6 +17,8 @@
 
 //** imports
 
+import { IEFTutorDoc } 		from "../core/IEFTutorDoc";
+
 import { CAnimationNode } 		from "./CAnimationNode";
 import { CAnimationGraph } 		from "./CAnimationGraph";
 import { CAnimationChoice } 	from "./CAnimationChoice";
@@ -40,9 +42,9 @@ export class CAnimationChoiceSet extends CAnimationNode
 	 *  a specific item on a given iteration - 
 	 * e.g. we want the 'red one' selected on the first round but a given distribution of the others from then on.
 	 */		
-	constructor(target:EventDispatcher=null)
+	constructor(_tutorDoc:IEFTutorDoc, target:EventDispatcher=null)
 	{
-		super(target);
+		super(_tutorDoc, target);
 	}		
 	
 	
@@ -53,9 +55,9 @@ export class CAnimationChoiceSet extends CAnimationNode
 		*   	When moduleFactory is a "type":"choiceset" the generated object is a global referenced elsewhere 
 		*      
 		**/		
-	public static factory(parent:CAnimationGraph, nodeName:string, moduleFactory:any) : CAnimationChoiceSet
+	public static factory(_tutorDoc:IEFTutorDoc, parent:CAnimationGraph, nodeName:string, moduleFactory:any) : CAnimationChoiceSet
 	{			
-		let node:CAnimationChoiceSet = new CAnimationChoiceSet;
+		let node:CAnimationChoiceSet = new CAnimationChoiceSet(_tutorDoc);
 		
 		// If this is a CNode spec then extract the CNode info - e.g. edges etc. 
 		

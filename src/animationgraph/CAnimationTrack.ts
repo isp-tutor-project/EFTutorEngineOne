@@ -16,16 +16,16 @@
 
 //** Imports
 
-import { CAnimationGraph } from "./CAnimationGraph";
-import { CAnimationChoiceSet } from "./CAnimationChoiceSet";
+import { IEFTutorDoc } 			from "../core/IEFTutorDoc";
 
-
-
+import { CAnimationGraph } 		from "./CAnimationGraph";
+import { CAnimationChoiceSet } 	from "./CAnimationChoiceSet";
 
 
 
 export class CAnimationTrack
 {
+	protected tutorDoc:IEFTutorDoc;		
 	private _parent:CAnimationGraph;
 	
 	private _type:string;
@@ -40,14 +40,15 @@ export class CAnimationTrack
 	private _prob:Array<any>;		// Array of probabliities for given PID 
 	
 	
-	constructor(factory:any, parent:CAnimationGraph)
+	constructor(_tutorDoc:IEFTutorDoc, factory:any, parent:CAnimationGraph)
 	{			
-		this._parent = parent;
+		this.tutorDoc = _tutorDoc;
+		this._parent  = parent;
 		
 		if(factory.choiceset != undefined)
 		{
 			this._type       = 'choiceset';	
-			this._choiceset	= CAnimationChoiceSet.factory(this._parent, factory.choiceset, this._parent._graphFactory.CChoiceSets[factory.choiceset]);
+			this._choiceset	= CAnimationChoiceSet.factory(_tutorDoc, this._parent, factory.choiceset, this._parent._graphFactory.CChoiceSets[factory.choiceset]);
 		}
 		
 		else if(factory.classname != undefined)

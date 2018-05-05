@@ -16,6 +16,8 @@
 
 //** Imports
 
+import { IEFTutorDoc } 		from "../core/IEFTutorDoc";
+
 import { CAnimationGraph } 			from "./CAnimationGraph";
 import { CAnimationConstraint } 	from "./CAnimationConstraint";
 import { CAnimationNode } 			from "./CAnimationNode";
@@ -24,18 +26,20 @@ import { CAnimationNode } 			from "./CAnimationNode";
 
 export class CAnimationEdge
 {
+	protected tutorDoc:IEFTutorDoc;		
 	protected _parent:CAnimationGraph;
 	
 	private _edgeConst:string;
 	private _edgeNode:string;
 	
-	constructor()
+	constructor(_tutorDoc:IEFTutorDoc)
 	{
-	}
+		this.tutorDoc = _tutorDoc;
+	}			
 	
-	public static factory(parent:CAnimationGraph, factory:any) : CAnimationEdge
+	public static factory(_tutorDoc:IEFTutorDoc, parent:CAnimationGraph, factory:any) : CAnimationEdge
 	{
-		let edge:CAnimationEdge = new CAnimationEdge;			
+		let edge:CAnimationEdge = new CAnimationEdge(_tutorDoc);			
 		
 		edge._parent = parent;
 		

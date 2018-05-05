@@ -17,10 +17,10 @@
 
 //** Imports
 
-import { CEFRoot } 	   		from "./CEFRoot";
+import { TRoot } 	   		from "../thermite/TRoot";
 import { CEFTimerEvent } 	from "../events/CEFTimerEvent";
 
-import { CTutorState }      from "../util/CTutorState";
+
 import { CONST }            from "../util/CONST";
 import { CUtil } 			from "../util/CUtil";
 
@@ -44,7 +44,7 @@ export class CEFTimer extends EventDispatcher
 
 	
 	/**
-	* Creates a new CWOZTimerProxy instance. 
+	* Creates a new CEFTimerProxy instance. 
 	*/
 	constructor(delay:number, repeatCount:number = 0)
 	{
@@ -159,16 +159,16 @@ export class CEFTimer extends EventDispatcher
 	{
 		if(this.traceMode) CUtil.trace(" Timer is starting");
 		
-		if(CTutorState.gTutor)
-		{
-			CTutorState.gTutor.addEventListener(CONST.WOZCANCEL,  this.cancelTimers);
-			CTutorState.gTutor.addEventListener(CONST.WOZPAUSING, this.pauseTimers);
-			CTutorState.gTutor.addEventListener(CONST.WOZPLAYING, this.playTimers);
+		// if(this.tutorDoc.STutor)
+		// {
+		// 	this.tutorDoc.tutorContainer.addEventListener(CONST.WOZCANCEL,  this.cancelTimers);
+		// 	this.tutorDoc.tutorContainer.addEventListener(CONST.WOZPAUSING, this.pauseTimers);
+		// 	this.tutorDoc.tutorContainer.addEventListener(CONST.WOZPLAYING, this.playTimers);
 			
-			this.timerAddThis();
+		// 	this.timerAddThis();
 			
-			this.addEventListener(CEFTimerEvent.TIMER_COMPLETE, this.timerFinished);
-		}
+		// 	this.addEventListener(CEFTimerEvent.TIMER_COMPLETE, this.timerFinished);
+		// }
 	}
 	
 	/**
@@ -185,16 +185,16 @@ export class CEFTimer extends EventDispatcher
 	{
 		if(this.traceMode) CUtil.trace(" Timer is stopping");
 		
-		if (CTutorState.gTutor)
-		{
-			CTutorState.gTutor.removeEventListener(CONST.WOZCANCEL,  this.cancelTimers);
-			CTutorState.gTutor.removeEventListener(CONST.WOZPAUSING, this.pauseTimers);
-			CTutorState.gTutor.removeEventListener(CONST.WOZPLAYING, this.playTimers);
+		// if (this.tutorDoc.tutorContainer)
+		// {
+		// 	this.tutorDoc.tutorContainer.removeEventListener(CONST.WOZCANCEL,  this.cancelTimers);
+		// 	this.tutorDoc.tutorContainer.removeEventListener(CONST.WOZPAUSING, this.pauseTimers);
+		// 	this.tutorDoc.tutorContainer.removeEventListener(CONST.WOZPLAYING, this.playTimers);
 			
-			this.timerRemoveThis();
+		// 	this.timerRemoveThis();
 			
-			this.removeEventListener(CEFTimerEvent.TIMER_COMPLETE, this.timerFinished);
-		}
+		// 	this.removeEventListener(CEFTimerEvent.TIMER_COMPLETE, this.timerFinished);
+		// }
 	}
 	
 	

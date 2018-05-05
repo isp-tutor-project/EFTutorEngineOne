@@ -74,7 +74,7 @@ export class CLogQueue extends EventDispatcher
 	
 	public CLogQueue():void
 	{
-		this.traceMode = false;
+		this.traceMode = true;
 		
 		if(this.traceMode) CUtil.trace("CLogQueue:Constructor");
 		
@@ -368,8 +368,8 @@ export class CLogQueue extends EventDispatcher
 		//
 		this.fPlayBackDone		 = false;
 		this.playBackNdx          = 0;
-//			CWOZDoc.gApp.frameID = 0;
-//			CWOZDoc.gApp.stateID = 0;
+//			CEFDoc.frameID = 0;
+//			CEFDoc.stateID = 0;
 
 		//@@ init legacy playback counters
 		
@@ -500,7 +500,7 @@ export class CLogQueue extends EventDispatcher
 			{
 				// parse mouse events
 				
-				if(xmlEvent.CWOZMouseEvent != undefined)
+				if(xmlEvent.CEFMouseEvent != undefined)
 				{
 					xResult = xmlEvent;
 					this.playBackNdx++;
@@ -509,7 +509,7 @@ export class CLogQueue extends EventDispatcher
 				
 				// parse keyboard events
 				
-				else if(xmlEvent.CWOZTextEvent != undefined)
+				else if(xmlEvent.CEFTextEvent != undefined)
 				{
 					xResult = xmlEvent;
 					this.playBackNdx++;
@@ -561,11 +561,11 @@ export class CLogQueue extends EventDispatcher
 			if(this.xmlEvents[nAction].type != "WOZevent")
 												continue;
 		
-			else if(this.xmlEvents[nAction].CWOZMouseEvent != undefined)
+			else if(this.xmlEvents[nAction].CEFMouseEvent != undefined)
 			{
 				if(this.xmlEvents[nAction].time <= frameTime)
 				{
-					if(this.xmlEvents[nAction].CWOZMouseEvent.CWOZEvent.type != "WOZMOUSE_MOVE")
+					if(this.xmlEvents[nAction].CEFMouseEvent.CEFEvent.type != "WOZMOUSE_MOVE")
 					{								
 						xResult = this.xmlEvents[nAction];
 						break;
@@ -573,7 +573,7 @@ export class CLogQueue extends EventDispatcher
 					}
 					else break;
 			}
-			else if(this.xmlEvents[nAction].CWOZTextEvent != undefined)
+			else if(this.xmlEvents[nAction].CEFTextEvent != undefined)
 			{
 				if(this.xmlEvents[nAction].time <= frameTime)
 				{
@@ -624,7 +624,7 @@ export class CLogQueue extends EventDispatcher
 		
 			if(this.xmlEvents[nMove].time >= frameTime)
 			{
-				if(this.xmlEvents[nMove].CWOZMouseEvent.CWOZEvent.type == "WOZMOUSE_MOVE")
+				if(this.xmlEvents[nMove].CEFMouseEvent.CEFEvent.type == "WOZMOUSE_MOVE")
 				{								
 					xResult = this.xmlEvents[nMove];
 					break;

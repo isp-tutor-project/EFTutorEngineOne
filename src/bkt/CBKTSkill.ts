@@ -23,8 +23,16 @@
 //
 //********************************************************************************* 
 
+
+//** Imports
+
+import { IEFTutorDoc } 		from "../core/IEFTutorDoc";
+
+
 export class CBKTSkill 
 {
+	protected tutorDoc:IEFTutorDoc;		
+
 	// All these need to be public so JSON.Stringify finds them all when exporting the ktSkill object for Logging
 	
 	public Bel:number;
@@ -34,14 +42,14 @@ export class CBKTSkill
 	public pG:number;		// Probability of Guess
 	public pS:number;		// Probability of Slip
 	
-	constructor()
+	constructor(_tutorDoc:IEFTutorDoc)
 	{
-	}
+		this.tutorDoc = _tutorDoc;
+	}					
 	
-	
-	public static factory(factory:any) : CBKTSkill
+	public static factory(_tutorDoc:IEFTutorDoc, factory:any) : CBKTSkill
 	{
-		var node:CBKTSkill = new CBKTSkill;			
+		var node:CBKTSkill = new CBKTSkill(_tutorDoc);			
 					
 		// Before we see any evidence our belief in the learned state of this skill
 		// is the same as the prior belief that it is learned without any evidence.

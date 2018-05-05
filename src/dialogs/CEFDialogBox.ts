@@ -16,13 +16,12 @@
 
 //** Imports
 
-import { CEFObject } 		from "../core/CEFObject";
-import { CEFDoc } 			from "../core/CEFDoc";
-import { CEFMouseMask } 	from "../core/CEFMouseMask";
+import { TObject } 			from "../thermite/TObject";
+import { TMouseMask } 		from "../thermite/TMouseMask";
 
 import { CEFDialogEvent } 	from "../events/CEFDialogEvent";
 
-import { CTutorState }      from "../util/CTutorState";
+
 import { CONST }            from "../util/CONST";
 import { CUtil } 			from "../util/CUtil";
 
@@ -34,7 +33,7 @@ import TextField = createjs.Text;
 /**
  * 
  */
-export class CEFDialogBox extends CEFObject
+export class CEFDialogBox extends TObject
 {						
 	//************ Stage Symbols
 	
@@ -43,7 +42,7 @@ export class CEFDialogBox extends CEFObject
 	
 	//************ Stage Symbols
 		
-	public sMask:CEFMouseMask;
+	public sMask:TMouseMask;
 	public fAddDlg:boolean;
 	
 	
@@ -100,7 +99,7 @@ export class CEFDialogBox extends CEFObject
 		
 		if(fAdd)
 		{
-			this.sMask = new CEFMouseMask();
+			this.sMask = new TMouseMask();
 			this.sMask.x = 0;
 			this.sMask.y = 0;
 			
@@ -109,11 +108,8 @@ export class CEFDialogBox extends CEFObject
 			this.sMask.visible = true;
 			this.visible  = true;
 		
-			if(CTutorState.gApp && CTutorState.gApp.Stutor)
-			{
-				CTutorState.gApp.Stutor.addChild(this.sMask);
-				CTutorState.gApp.Stutor.addChild(this);
-			}
+			this.tutorDoc.tutorContainer.addChild(this.sMask);
+			this.tutorDoc.tutorContainer.addChild(this);
 		}
 		else
 		{
@@ -129,8 +125,8 @@ export class CEFDialogBox extends CEFObject
 			this.setTopMost();
 		}
 		
-		if(CTutorState.gApp && CTutorState.gApp.Stutor && CTutorState.gApp.Stutor.cCursor)
-										CTutorState.gApp.Stutor.cCursor.setTopMost();
+		if(this.tutorDoc.tutorContainer.cCursor)
+						this.tutorDoc.tutorContainer.cCursor.setTopMost();
 	}					
 
 	
@@ -145,11 +141,9 @@ export class CEFDialogBox extends CEFObject
 		{	
 			this.visible = false;
 				
-			if(CTutorState.gApp && CTutorState.gApp.Stutor)
-			{
-				CTutorState.gApp.Stutor.removeChild(this.sMask);
-				CTutorState.gApp.Stutor.removeChild(this);				
-			}
+			this.tutorDoc.tutorContainer.removeChild(this.sMask);
+			this.tutorDoc.tutorContainer.removeChild(this);				
+
 			this.sMask = null;
 		}
 		else
@@ -171,7 +165,7 @@ export class CEFDialogBox extends CEFObject
 
 		for(let dialogObj in dlgPanel)
 		{			
-			if(dialogObj != "instance" && dlgPanel[dialogObj].instance instanceof CEFObject)
+			if(dialogObj != "instance" && dlgPanel[dialogObj].instance instanceof TObject)
 			{
 				dlgPanel[dialogObj].instance.setAutomationMode(dlgPanel[dialogObj], sMode );										
 			}					
@@ -190,7 +184,7 @@ export class CEFDialogBox extends CEFObject
 		{
 			if(this.traceMode) CUtil.trace("\tNavPanelObj : " + dialogObj);
 			
-			if(dialogObj != "instance" && dlgPanel[dialogObj].instance instanceof CEFObject)
+			if(dialogObj != "instance" && dlgPanel[dialogObj].instance instanceof TObject)
 			{
 				if(this.traceMode) CUtil.trace("\tCEF***");
 				

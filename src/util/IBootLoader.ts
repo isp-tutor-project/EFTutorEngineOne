@@ -279,6 +279,10 @@ export namespace LoaderPackage {
         loaders: any;
         
         tutors: any;
+
+        supplSets: any;
+        
+        supplScripts: any;
         
         moduleSets: any;
 
