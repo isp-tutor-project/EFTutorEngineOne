@@ -549,8 +549,8 @@ export class TButtonGroup extends TObject
 			}				
 		}
 
-		if(xmlSrc.wozname != undefined)										//## added Jan 23 2013 - wozName uninitialized previously			
-			this.wozName = xmlSrc.wozname;
+		if(xmlSrc.xname != undefined)										//## added Jan 23 2013 - xname uninitialized previously			
+			this.xname = xmlSrc.xname;
 					
 		if(xmlSrc.radioType != undefined)										//## Added Jun 26 2012 - to support non radio style button groups.
 			this.radioType = (Boolean(xmlSrc.radioType == "true"? true:false));

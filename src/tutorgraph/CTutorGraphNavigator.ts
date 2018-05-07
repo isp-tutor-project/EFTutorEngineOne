@@ -41,6 +41,8 @@ import { CONST }            from "../util/CONST";
 import { CUtil } 			from "../util/CUtil";
 
 
+import Ticker 		  = createjs.Ticker;
+
 
 
 /**
@@ -119,10 +121,8 @@ export class CTutorGraphNavigator extends CEFNavigator
 		*  initializes the root tutorGraph instance 
 		*/
 	public static rootFactory(_tutorDoc:IEFTutorDoc, factory:any) : CTutorGraphNavigator
-	{
-		let tutorNav			 = new CTutorGraphNavigator(_tutorDoc);		
-		let scene:CTutorScene; 
-		
+	{	
+		let tutorNav 	  = new CTutorGraphNavigator(_tutorDoc);				
 		tutorNav._history = new CTutorHistory(_tutorDoc);
 		
 		if(factory['history'] != null)
@@ -130,7 +130,7 @@ export class CTutorGraphNavigator extends CEFNavigator
 			tutorNav._history.volatile = (factory['history'] == "volatile")? true:false; 
 		}
 		
-		// Generate the global scene graph
+		// Generate the global tutor graph
 		
 		tutorNav._rootGraph = CTutorGraph.factory(_tutorDoc, null, "root", factory); 
 		
@@ -175,12 +175,12 @@ export class CTutorGraphNavigator extends CEFNavigator
 		*/
 	private enQueueTerminateEvent() : void
 	{			
-		addEventListener(CEFEvent.ENTER_FRAME, this._deferredTerminate);
+		this.on(CEFEvent.ENTER_FRAME, this._deferredTerminate);
 	}
 	
 	private _deferredTerminate(e:Event) : void
 	{			
-		removeEventListener(CEFEvent.ENTER_FRAME, this._deferredTerminate);
+		this.off(CEFEvent.ENTER_FRAME, this._deferredTerminate);
 		
 		this.tutorDoc.log.logTerminateEvent();
 	}
@@ -209,8 +209,8 @@ export class CTutorGraphNavigator extends CEFNavigator
 		// Do the scene Transition 
 		
 		this._xType = "WOZNEXT";
-
-		this._rootGraph.parseSkills(this.tutorDoc.sessionAccount.session.profile.stateData.ktSkills);
+		
+		this._rootGraph.recoverSkills(this.tutorDoc.sessionAccount.session.profile.stateData.ktSkills);
 		
 		this.tutorDoc._globals 		= this.tutorDoc.sessionAccount.session.profile.stateData.globals;
 		this.tutorDoc.features 		= this.tutorDoc.sessionAccount.session.profile.stateData.features;
@@ -228,12 +228,12 @@ export class CTutorGraphNavigator extends CEFNavigator
 		// Do automated scene increments asynchronously to allow
 		// actiontrack scripts to complete prior to scene nav
 		
-		addEventListener(CEFEvent.ENTER_FRAME, this._deferredNextScene);
+		Ticker.on(CEFEvent.ENTER_FRAME, this._deferredNextScene, this);
 	}
 	
 	private _deferredNextScene(e:Event) : void
 	{			
-		removeEventListener(CEFEvent.ENTER_FRAME, this._deferredNextScene);
+		this.off(CEFEvent.ENTER_FRAME, this._deferredNextScene);
 					
 		this.traceGraphEdge();
 	}
@@ -256,7 +256,7 @@ export class CTutorGraphNavigator extends CEFNavigator
 			if(this._inNavigation) 
 						return;
 			
-						this._inNavigation = true;
+			this._inNavigation = true;
 			
 			// The next button can target either the tutorgraph or the animationgraph.
 			// i.e. You either want it to trigger the next step in the animationGraph or the tutorgraph
@@ -537,7 +537,7 @@ export class CTutorGraphNavigator extends CEFNavigator
 			this.updateSceneIteration();
 			
 			// Do the actual scene transitions			
-			this.tutorDoc.tutorContainer.xitions.addEventListener(CEFEvent.COMPLETE, this.doEnterScene);			
+			this.tutorDoc.tutorContainer.xitions.this.on(CEFEvent.COMPLETE, this.doEnterScene);			
 			this.tutorDoc.tutorContainer.xitions.gotoScene(this._nextScene.scenename);
 		}
 		catch(err)
@@ -560,7 +560,7 @@ export class CTutorGraphNavigator extends CEFNavigator
 		{
 			if(this.traceMode) CUtil.trace("doEnterScene: " , this.sceneCurr);
 			
-			this.tutorDoc.tutorContainer.xitions.removeEventListener(CEFEvent.COMPLETE, this.doEnterScene);						
+			this.tutorDoc.tutorContainer.xitions.off(CEFEvent.COMPLETE, this.doEnterScene);						
 			
 			// increment the global frame ID - for logging 
 			

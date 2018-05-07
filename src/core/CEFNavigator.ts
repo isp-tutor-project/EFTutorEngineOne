@@ -28,13 +28,14 @@ import { CEFEvent } 		from "../events/CEFEvent";
 import { CONST }            from "../util/CONST";
 import { CUtil } 			from "../util/CUtil";
 
+import EventDispatcher 	  = createjs.EventDispatcher;
 
 /**
 * ...
 * 
 * ## Mod Apr 15 2014 - rebased from CEFScene - was CEFObject 
 */
-export class CEFNavigator 
+export class CEFNavigator extends EventDispatcher
 {
 	//************ Stage Symbols
 	
@@ -44,6 +45,7 @@ export class CEFNavigator
 	public traceMode:boolean = false;
 
 	public tutorDoc:CEFTutorDoc;		
+	public tutorAutoObj:any;					// This allows us to automate non-EF objects - They have no code behind and therefore no local variables to store initial state
 	public sceneCnt:number = 0;
 	
 	//*************** Navigator "ROOT INSTANCE" CONSTANTS - 
@@ -60,9 +62,10 @@ export class CEFNavigator
 	
 	constructor(_tutorDoc:any) 
 	{
-		this.traceMode = true;
-					
-		this.tutorDoc = _tutorDoc;
+		super();
+
+		this.traceMode = true;					
+		this.tutorDoc  = _tutorDoc;
 	}
 
 	
@@ -490,7 +493,7 @@ export class CEFNavigator
 			this.tutorDoc.TutAutomator[this.sceneSeq[this.scenePrev]].instance.onExitScene();
 			
 			// Do the scene transitions
-			this.tutorDoc.tutorContainer.xitions.addEventListener(CEFEvent.COMPLETE, this.doEnterNext);			
+			this.tutorDoc.tutorContainer.xitions.on(CEFEvent.COMPLETE, this.doEnterNext);			
 			this.tutorDoc.tutorContainer.xitions.gotoScene(redScene);							
 		}
 	}
@@ -608,7 +611,7 @@ export class CEFNavigator
 	{
 		if(this.traceMode) CUtil.trace("this.doEnterNext: " , this.sceneCurr);
 		
-		this.tutorDoc.tutorContainer.xitions.removeEventListener(CEFEvent.COMPLETE, this.doEnterNext);						
+		this.tutorDoc.tutorContainer.xitions.off(CEFEvent.COMPLETE, this.doEnterNext);						
 		
 		//*** Destroy non persistent scenes
 		//
@@ -646,7 +649,7 @@ export class CEFNavigator
 	{
 		if(this.traceMode) CUtil.trace("doEnterBack: " , this.sceneCurr);
 		
-		this.tutorDoc.tutorContainer.xitions.removeEventListener(CEFEvent.COMPLETE, this.doEnterBack);						
+		this.tutorDoc.tutorContainer.xitions.off(CEFEvent.COMPLETE, this.doEnterBack);						
 
 		//*** Destroy non persistent scenes
 		//
@@ -677,7 +680,7 @@ export class CEFNavigator
 	{
 		if(this.traceMode) CUtil.trace("this.doEnterScene: " , this.sceneCurr);
 		
-		this.tutorDoc.tutorContainer.xitions.removeEventListener(CEFEvent.COMPLETE, this.doEnterScene);						
+		this.tutorDoc.tutorContainer.xitions.off(CEFEvent.COMPLETE, this.doEnterScene);						
 
 		//*** Destroy non persistent scenes
 		//

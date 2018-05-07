@@ -212,17 +212,17 @@ export class CEFTransitions extends TAnimator
 			if(this.newScene != null)
 			{	
 				// If object exists in the new scene, then:
-				//  	1: If it is CEF and the wozNames match then they are the same
+				//  	1: If it is CEF and the xnames match then they are the same
 				//		2: If they are non-WOZ then they match by default
 				//
 				if (this.tutorAutoObj[this.newScene][sceneObj] != undefined)
 				{
 					if (this.tutorAutoObj[this.currScene][sceneObj].instance instanceof TObject)
 					{
-						if(this.traceMode) CUtil.trace("newObject: " + this.tutorAutoObj[this.newScene][sceneObj].instance.wozName);
-						if(this.traceMode) CUtil.trace("oldObject: " + this.tutorAutoObj[this.currScene][sceneObj].instance.wozName);
+						if(this.traceMode) CUtil.trace("newObject: " + this.tutorAutoObj[this.newScene][sceneObj].instance.xname);
+						if(this.traceMode) CUtil.trace("oldObject: " + this.tutorAutoObj[this.currScene][sceneObj].instance.xname);
 						
-						if (this.tutorAutoObj[this.newScene][sceneObj].instance.wozName == this.tutorAutoObj[this.currScene][sceneObj].instance.wozName )
+						if (this.tutorAutoObj[this.newScene][sceneObj].instance.xname == this.tutorAutoObj[this.currScene][sceneObj].instance.xname )
 																															bMatch = true;
 					}
 					else 
@@ -267,7 +267,7 @@ export class CEFTransitions extends TAnimator
 		let targObj:any;
 		let liveObj:DisplayObject;
 		let tween:Tween;
-		let wozName:string;
+		let xname:string;
 		
 		// always start the current Object array from scratch
 		
@@ -296,22 +296,22 @@ export class CEFTransitions extends TAnimator
 					if(!targObj.instance.isTweenable())
 												continue;
 					
-					// use the wozName to identify unique instances
+					// use the xname to identify unique instances
 					
-					wozName = targObj.instance.wozName;
+					xname = targObj.instance.xname;
 				}
 				else 
-					wozName = namedObj;
+					xname = namedObj;
 				
 				
 				// If matching object has been onscreen before copy its properties
 				// Note that all unique objects in a movie must have a unique name even across scenes(CEFScenes)
 				//
-				if(this.activeObjs[wozName] != undefined)
+				if(this.activeObjs[xname] != undefined)
 				{
 					// Convenience Copy
 					//
-					liveObj = this.activeObjs[wozName];
+					liveObj = this.activeObjs[xname];
 					
 					// note that swapping and sub-tweening are mutually exclusive 
 					//
@@ -349,7 +349,7 @@ export class CEFTransitions extends TAnimator
 						//
 						if((liveObj instanceof TObject) && (targObj.instance.tweenID == liveObj.tweenID))
 						{				
-//								if(wozName == "CCRSOLCAT1TBL2")						//@@ debug
+//								if(xname == "CCRSOLCAT1TBL2")						//@@ debug
 //													CUtil.trace("table2 hit");			//@@ debug			
 							
 							targObj.instance.deepStateCopy(liveObj);
@@ -445,13 +445,13 @@ export class CEFTransitions extends TAnimator
 					
 					if(targObj.instance.bPersist)
 					{
-						this.persistObjs[wozName] = targObj.instance;
+						this.persistObjs[xname] = targObj.instance;
 					}
 					else
 					{
 						// If not WOZobject add it to the currentObjs - we don't want persistent objects duplicated
 						
-						this.currentObjs.push(new Array(wozName,targObj.instance));													
+						this.currentObjs.push(new Array(xname,targObj.instance));													
 					}
 					
 					// Recurse any objects that require subobject tweening - tables etc
@@ -469,7 +469,7 @@ export class CEFTransitions extends TAnimator
 					
 					// If not WOZobject add it to the currentObjs - we don't want persistent objects duplicated
 					
-					this.currentObjs.push(new Array(wozName,targObj.instance));						
+					this.currentObjs.push(new Array(xname,targObj.instance));						
 				}
 			}
 		}
@@ -486,7 +486,7 @@ export class CEFTransitions extends TAnimator
 		
 		for (let perObj of this.persistObjs)
 		{
-			this.activeObjs[perObj.wozName] = perObj;
+			this.activeObjs[perObj.xname] = perObj;
 		}			
 	}				
 	

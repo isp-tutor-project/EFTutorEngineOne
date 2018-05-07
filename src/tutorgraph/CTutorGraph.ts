@@ -32,9 +32,9 @@ import { TObject } 			 from "../thermite/TObject";
 import { TRoot } 			 from "../thermite/TRoot";
 
 
-
 import { CONST }            from "../util/CONST";
 import { CUtil } 			from "../util/CUtil";
+
 
 
 export class CTutorGraph extends CTutorNode
@@ -50,27 +50,29 @@ export class CTutorGraph extends CTutorNode
 	private _currScene:CTutorScene;
 	private _prevScene:CTutorScene;
 
-	private static _pFeatures:any    = {}; 
-	private static _pConstraints:any = {}; 
+	private _factory:any;
+	private _pFeatures:any    = {}; 
+	private _pConstraints:any = {}; 
 	
 	
 	/**
 	 * Creates a new CSceneGraphNavigator instance. 
 	 */
-	constructor(_tutorDoc:any)
+	constructor(_tutorDoc:any, factory:any)
 	{
 		super(_tutorDoc);		
+
+		this._factory = factory;
 	}
 
 	
 	public static factory(_tutorDoc:any, parent:CTutorGraph, id:string, factory:any) : CTutorGraph
 	{			
-		let tutorgraph:CTutorGraph = new CTutorGraph(_tutorDoc);			
+		let tutorgraph:CTutorGraph = new CTutorGraph(_tutorDoc, factory);			
 					
-		tutorgraph.parseNodes(factory);			
-		tutorgraph.parseConstraints(factory['CConstraints']);
-		
-		tutorgraph.parseSkills(factory['CSkills']);
+		tutorgraph.parseNodes();			
+		tutorgraph.parseConstraints();		
+		tutorgraph.parseSkills();
 		
 		return tutorgraph;
 	}
@@ -137,21 +139,21 @@ export class CTutorGraph extends CTutorNode
 		// On subsequent accesses we increment the iteration count 
 		// If it has surpassed the size of the pFeature array we cycle on the last 'cycle' entries
 		
-		if(CTutorGraph._pFeatures[pid] != undefined)
+		if(this._pFeatures[pid] != undefined)
 		{
-			iter = CTutorGraph._pFeatures[pid] + 1;
+			iter = this._pFeatures[pid] + 1;
 			
 			if(iter >= size)
 			{
 				iter = size - cycle;					
 			}
 			
-			CTutorGraph._pFeatures[pid] = iter;
+			this._pFeatures[pid] = iter;
 		}
 			
 			// On first touch we have to create the property
 			
-		else CTutorGraph._pFeatures[pid] = 0;
+		else this._pFeatures[pid] = 0;
 		
 		return iter;
 	}
@@ -167,21 +169,21 @@ export class CTutorGraph extends CTutorNode
 		// On subsequent accesses we increment the iteration count 
 		// If it has surpassed the size of the pFeature array we cycle on the last 'cycle' entries
 		
-		if(CTutorGraph._pConstraints[pid] != undefined)
+		if(this._pConstraints[pid] != undefined)
 		{
-			iter = CTutorGraph._pConstraints[pid] + 1;
+			iter = this._pConstraints[pid] + 1;
 			
 			if(iter >= size)
 			{
 				iter = size - cycle;					
 			}
 			
-			CTutorGraph._pConstraints[pid] = iter;
+			this._pConstraints[pid] = iter;
 		}
 			
 			// On first touch we have to create the property
 			
-		else CTutorGraph._pConstraints[pid] = 0;
+		else this._pConstraints[pid] = 0;
 		
 		return iter;
 	}
@@ -275,31 +277,34 @@ export class CTutorGraph extends CTutorNode
 	
 	//***** Private
 	
-	private parseNodes(_factory:any) : boolean
+	private parseNodes() : boolean
 	{
-		let nodeList:any = _factory.CNodes;
+		let nodeList:any = this._factory.CNodes;
 		
 		// Note: this is not order garanteed 
 		
 		for(let name in nodeList) 
 		{
 			if(name != "COMMENT")				
+
+				CUtil.trace("TutorGraph - generating node: " + name);
+				
 				switch(nodeList[name].type)
 				{
 					case "action":					
-						this._nodes[name] = CTutorAction.factory(this.tutorDoc, this, name, _factory);
+						this._nodes[name] = CTutorAction.factory(this.tutorDoc, this, name, this._factory);
 						break;
 					
 					case "module":					
-						this._nodes[name] = CTutorModule.factory(this.tutorDoc, this, name, nodeList[name], _factory);
+						this._nodes[name] = CTutorModule.factory(this.tutorDoc, this, name, nodeList[name], this._factory);
 						break;
 					
 					case "modulegroup":					
-						this._nodes[name] = CTutorModuleGroup.factory(this.tutorDoc, this, name, nodeList[name], _factory);
+						this._nodes[name] = CTutorModuleGroup.factory(this.tutorDoc, this, name, nodeList[name], this._factory);
 						break;
 					
 					case "subgraph":					
-						//_nodes[name] = CSceneGraph.factory(this, name, _factory.CSubGraphs[nodeList[name].name]);
+						//_nodes[name] = CSceneGraph.factory(this, name, this._factory.CSubGraphs[nodeList[name].name]);
 						break;
 					
 					case "external":					
@@ -311,8 +316,9 @@ export class CTutorGraph extends CTutorNode
 	}
 
 	
-	private parseConstraints(constFactory:any) : boolean
-	{
+	private parseConstraints() : boolean
+	{		
+		let constFactory:any = this._factory.CConstraints;
 		
 		for(let name in constFactory) 
 		{
@@ -324,9 +330,17 @@ export class CTutorGraph extends CTutorNode
 	}
 	
 	
-	
-	public parseSkills(skillsFactory:any) : boolean
-	{
+	public recoverSkills(recoveredSkills:any) : boolean {
+
+		this._factory.CSkills = recoveredSkills;
+
+		return this.parseSkills();
+	}
+
+
+	public parseSkills() : boolean {
+
+		let skillsFactory:any = this._factory.CSkills;
 		
 		for(let name in skillsFactory) 
 		{

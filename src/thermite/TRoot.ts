@@ -42,10 +42,11 @@ export class TRoot extends MovieClip
 {				
 	public traceMode:boolean;
 	
-	public wozName:string;
-	public static _wozInstance:number = 1;		
+	public xname:string;
+	public static xInstID:number = 1;		
 
 	public tutorDoc:IEFTutorDoc;
+	public tutorAutoObj:any;		// This allows us to automate non-EF objects - They have no code behind and therefore no local variables to store initial state
 
 	protected _listenerArr:Array<Function|Object>;				// Array of listeners on this object - 
 		
@@ -91,12 +92,13 @@ export class TRoot extends MovieClip
 		
 		if (this.traceMode) CUtil.trace("TRoot:Constructor");		
 		
-		// By default we set the woz name to the object name.
-		// Sub-classes can modify wozName to have objects behave independently in CEFTransitions
+		// By default we set the "transition" xname to a globally unique name.
+		// Sub-classes can modify xname to have objects persist through 
+		// scene transitions (CEFTransitions)
 		//
-		this.wozName = "CEF" + TRoot._wozInstance.toString();
+		this.xname = "CEF" + TRoot.xInstID.toString();
 		
-		TRoot._wozInstance++;					
+		TRoot.xInstID++;					
     }
 
 	/* ######################################################### */
@@ -136,7 +138,7 @@ export class TRoot extends MovieClip
 		let element:any;
 		let elementOBJ:any = {};
 		let elClass:string;
-		let elwozname:string;
+		let elxname:string;
 		
 		for(let i1:number = 0 ; i1 < this.numChildren ; i1++)
 		{
@@ -150,11 +152,11 @@ export class TRoot extends MovieClip
 			//
 			if(element instanceof TRoot)
 			{
-				elwozname = (element as TRoot).wozName;
+				elxname = (element as TRoot).xname;
 			}
 			else
 			{
-				elwozname = "null";
+				elxname = "null";
 			}
 			
 			elementOBJ = new String("<obj " +" class=\"" + elClass +"\" name=\"" + element.name + "\" x=\"" + element.x + "\" y=\"" + element.y + "\" w=\"" + element.width + "\" h=\"" + element.height + "\" r=\"" + element.rotation + "\" a=\"" + element.alpha + "\"/>");
@@ -199,7 +201,7 @@ export class TRoot extends MovieClip
 	// @@@@@@@@@@@
 	public getSymbolClone(_cloneOf:string, _named:string) :string
 	{
-		let xClone:string = ""; 	// this.tutorDoc.gSceneConfig.scenedata[_cloneOf].create.symbol.(@wozname==_named).table[0];
+		let xClone:string = ""; 	// this.tutorDoc.gSceneConfig.scenedata[_cloneOf].create.symbol.(@xname==_named).table[0];
 		
 		CUtil.trace(xClone);
 		

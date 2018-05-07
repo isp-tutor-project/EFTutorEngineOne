@@ -1547,8 +1547,8 @@ export class TObject extends TAnimator
 			
 			this._XMLsrc = xmlSrc;
 			
-			if(xmlSrc.wozname != undefined)						
-				this.wozName = xmlSrc.wozname;			
+			if(xmlSrc.xname != undefined)						
+				this.xname = xmlSrc.xname;			
 			
 			if(xmlSrc.x != undefined)						
 			this.x = Number(xmlSrc.x);

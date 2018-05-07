@@ -24,7 +24,8 @@ import Event = createjs.Event;
 
 export class CEFEvent extends Event
 {				
-	public static readonly ENTER_FRAME:string 		 = "enterFrame";
+	public static readonly ENTER_FRAME:string 		 = "tick";
+	public static readonly EXIT_FRAME:string 		 = "tickend";
 	public static readonly ADDED_TO_STAGE:string 	 = "added";
 	public static readonly REMOVED_FROM_STAGE:string = "removed";
 	public static readonly MOTION_FINISH:string		 = "complete";

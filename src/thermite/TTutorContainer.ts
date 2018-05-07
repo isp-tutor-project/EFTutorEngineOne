@@ -97,7 +97,6 @@ export class TTutorContainer extends TRoot
 	
 	public   sceneCnt:number   		   	= 0;							// Total number of scenes	
 
-	public   tutorAutoObj:any;											// This allows us to automate non-WOZ objects - They have no code behind and therefore no local variables to store initial state
 	public   xitions:CEFTransitions 	= new CEFTransitions;			// This is the tutor transition object
 
 			  replayIndex:Array<number> 	= new Array;
@@ -145,11 +144,7 @@ export class TTutorContainer extends TRoot
 		this.traceMode = true;		
 		
 		if (this.traceMode) CUtil.trace("TTutorContainer:Constructor");						
-		
-		//*** Init the Tutor Global Variables
-		
-		this.tutorAutoObj  = {};						// Create the Automation Object		
-		
+				
 		// TODO derive container dimensions from TutorLoader module
 		//
         this.containerBounds = new Shape();
@@ -214,6 +209,8 @@ export class TTutorContainer extends TRoot
 	}
 	
 	
+	// TODO: This appears to be deprecated
+	// 
 	public addScene(sceneTitle:string, scenePage:string, sceneName:string, sceneClass:string, sceneFeatures:string, sceneEnqueue:boolean, sceneCreate:boolean, sceneVisible:boolean, scenePersist:boolean, sceneObj:any = null ) : void
 	{		
 		//@@ debug - for building XML spec of Tutor spec only - captureSceneGraph			
@@ -246,7 +243,8 @@ export class TTutorContainer extends TRoot
 		if (this.traceMode) CUtil.trace("Creating Scene : "+ sceneName);
 
 		tarScene = CUtil.instantiateThermiteObject("moduleName", sceneClass);
-		tarScene.tutorDoc = this.tutorDoc;
+		tarScene.tutorDoc     = this.tutorDoc;
+		tarScene.tutorAutoObj = this.tutorAuto;
 			
 		this.addChild(tarScene);
 
@@ -651,8 +649,6 @@ export class TTutorContainer extends TRoot
 		//
 		if(this.xitions)
 			this.xitions.connectToTutor(this, this.tutorAutoObj);									
-		if(this.SnavPanel)
-			this.SnavPanel.connectToTutor(this, this.tutorAutoObj);			
 		
 	}
 

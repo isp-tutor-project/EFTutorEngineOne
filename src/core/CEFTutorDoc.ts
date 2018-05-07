@@ -46,10 +46,8 @@ export class CEFTutorDoc extends EventDispatcher implements IEFTutorDoc
 
 	//************ Stage Symbols
 
-    public tutorNavigator:CTutorGraphNavigator;
-	
+    public tutorNavigator:CTutorGraphNavigator;	
 	public tutorDescr:LoaderPackage.IPackage;
-
 	
 	//************ Stage Symbols
 	
@@ -141,15 +139,15 @@ export class CEFTutorDoc extends EventDispatcher implements IEFTutorDoc
 	
 //****************		
 	
-	public fSkipAssess:boolean      = false;				// Controls where to go after the ramp test - user trials support 	
+	public fSkipAssess:boolean      = false;			// Controls where to go after the ramp test - user trials support 	
 	public fEnableBack:boolean      = true;				// force all back buttons to enabled
 	public fForceBackButton:boolean = true;				//@@ Mod May 22 2013 - Prepost module integration - back button behaves different in prepost then anywhere else
-																//                     So in general outside the prepost we force the back button to off
-	public fSkillometer:boolean 	   = false;				//@@ Mod Mar2 2012 - support for showing skillometer in loader
+														//                     So in general outside the prepost we force the back button to off
+	public fSkillometer:boolean 	   = false;			//@@ Mod Mar2 2012 - support for showing skillometer in loader
 
 //********
 
-	public sessionAccount:any	   = {};				//@@ Mod Dec 03 2013 - session Account data  
+	public sessionAccount:any = {};						//@@ Mod Dec 03 2013 - session Account data  
 	
 	public fSessionID:string;							// Unique session identifier
 	public fSessionTime:number;
@@ -163,13 +161,13 @@ export class CEFTutorDoc extends EventDispatcher implements IEFTutorDoc
     
 	//*************** Automation Shadow Display List
 	// 
-	public TutAutomator:any;				        // The location of this tutor automation object			
+	public TutAutomator:any	= {};		        		// The location of this tutor automation object			
 
     // CSceneGraphNavigator
     //
-    public _globals:any	 = {};			        
-	public _sceneData:any = {};						//## Added Dec 11 2013 - DB based state logging
-	public _phaseData:any = {};						//## Added Dec 12 2013 - DB based state logging
+    public _globals:any	  = {};			        
+	public _sceneData:any = {};							//## Added Dec 11 2013 - DB based state logging
+	public _phaseData:any = {};							//## Added Dec 12 2013 - DB based state logging
 	
 
 	//**************** Current feature vector
@@ -201,9 +199,10 @@ export class CEFTutorDoc extends EventDispatcher implements IEFTutorDoc
         // Create the tutor container - 
         // TODO: extract the dimensions from the tutor loader
         //
-        this.tutorContainer          = new TTutorContainer();
-        this.tutorContainer.tutorDoc = this;
-        this.tutorContainer.name     = "Stutor";
+        this.tutorContainer          	 = new TTutorContainer();
+		this.tutorContainer.tutorDoc     = this;
+		this.tutorContainer.tutorAutoObj = this.TutAutomator;		
+        this.tutorContainer.name     	 = "Stutor";
         
         EFLoadManager.efStage.addChild(this.tutorContainer);
         
@@ -247,8 +246,9 @@ export class CEFTutorDoc extends EventDispatcher implements IEFTutorDoc
         // Parse the active Tutor
         //
         this.tutorContainer.initAutomation();										
-        
-        // NOTE: Logger Connections must be made before cursor replacement
+
+		// TODO: implement under HTML5 
+		// NOTE: Logger Connections must be made before cursor replacement
         //
         // this.Stutor.replaceCursor();
         
@@ -421,6 +421,8 @@ export class CEFTutorDoc extends EventDispatcher implements IEFTutorDoc
 		// reset the frame and state IDs
 		
 		this.resetStateFrameID();	
+
+		this.tutorNavigator.gotoNextScene();
 	}
 	
 			
