@@ -14,32 +14,36 @@
 //
 //*********************************************************************************
 
+//** Imports
+
+import { IEFTutorDoc } from "./IEFTutorDoc";
+
 import { TRoot } 			from "../thermite/TRoot";
 import { TObject } 			from "../thermite/TObject";
 import { TObjectMask } 		from "../thermite/TObjectMask";
 import { TTutorContainer } 	from "../thermite/TTutorContainer";
-import { TAnimator } 		from "../thermite/TAnimator";
 
+import { CEFAnimator } 		from "../core/CEFAnimator";
 import { CEFEvent } 		from "../events/CEFEvent";
-
 
 import { CONST }            from "../util/CONST";
 import { CUtil } 			from "../util/CUtil";
 
 import Tween    		  	= createjs.Tween;
+import Event    		  	= createjs.Event;
 import DisplayObject 		= createjs.DisplayObject;
 import Ease			  	    = createjs.Ease;
 
 
 
 
-export class CEFTransitions extends TAnimator 
+export class CEFTransitions extends CEFAnimator 
 {	
 	// There are N scenes in any given app
 	// Each scene represents a different step in the tutoring process
 	// and has an array of tweens that set the stage context for the scene itelf.
 	//	 
-	public currScene:string = "Sscene0";		// null initial scene
+	public currScene:string = null;				// null initial scene
 	public newScene:string  = null;				// null next scene
 	
 	public rTime:number     = .25;				// Removal Transition time
@@ -47,54 +51,25 @@ export class CEFTransitions extends TAnimator
 
 	public fSingleStep:boolean = true;			// single stepping operations - debug
 
-	public prntTutor:Object;					// The parent CEFTutorContainer of these transitions
-	public tutorAutoObj:any;					// The location of this tutor to automation array
-	
-	private activeObjs:any  = {};		// Pointers to the objects in the most recent scene + persistent ojects
+	private activeObjs:any  = {};				// Pointers to the objects in the most recent scene + persistent ojects
+	private persistObjs:any = {};				// Pointers to persistent objects - these live thorughout the tutor lifecycle
 	private currentObjs:Array<any>;				// Pointers to the objects in the current scene
-	private persistObjs:any = {};		// Pointers to persistent objects - these live thorughout the tutor lifecycle
 	private fSwapObjects:boolean = false;		// flag - true - swap objects  - false - use deep state copy 
 	
 	
-	constructor()
+	constructor(_tutorDoc:IEFTutorDoc)
 	{
-		super();
-		this.init2();
-	}	
-
-
-	/*  ###########  START CREATEJS SUBCLASS SUPPORT ##########  */
-	/* ######################################################### */
-
-	public CEFTransitionsInitialize() {
-        this.TAnimatorInitialize.call(this);
-
-        this.init2();
-    }
-
-    public initialize() {
-        this.TAnimatorInitialize.call(this);
-		
-        this.init2();
-    }
-
-    private init2() {
+		super(_tutorDoc);
 
 		this.traceMode = true;
 		if(this.traceMode) CUtil.trace("CEFTransitions:Constructor");						
     }
 
-	/* ######################################################### */
-	/*  ###########  END CREATEJS SUBCLASS SUPPORT ###########   */
-
-
 
 	public connectToTutor(parentTutor:TTutorContainer, autoTutor:Object) : void
 	{
-		this.prntTutor = parentTutor;
-		this.tutorAutoObj = autoTutor;
-		
-		this.activeObjs = {};	// Start with an empty activeObj - nothing currently on stage									
+		this.tutorAutoObj = autoTutor;		
+		this.activeObjs   = {};				// Start with an empty activeObj - nothing currently on stage									
 	}
 	
 	//## Mod Oct 29 2012 - Support for scene reentry in demo mode. 
@@ -278,7 +253,7 @@ export class CEFTransitions extends TAnimator
 		// NOTE: The WOZ environment treats all objects with the same name as the same instances so that scenes
 		//       may be edited individually in Flash but treated as part of a single timeline in the WOZ environment
 		//
-		for(let namedObj of objectList[objectName])
+		for(let namedObj in objectList[objectName])
 		{
 			// Exclude the instance property of the scene itself
 			
@@ -484,9 +459,9 @@ export class CEFTransitions extends TAnimator
 			this.activeObjs[objRec[0]] = objRec[1];
 		}
 		
-		for (let perObj of this.persistObjs)
+		for (let perObj in this.persistObjs)
 		{
-			this.activeObjs[perObj.xname] = perObj;
+			this.activeObjs[this.persistObjs[perObj].xname] = this.persistObjs[perObj];
 		}			
 	}				
 	
@@ -505,7 +480,9 @@ export class CEFTransitions extends TAnimator
 	{		
 		// switch the visible scene
 		//  
-		this.tutorAutoObj[this.currScene].instance.visible = false;
+		if(this.currScene)
+			this.tutorAutoObj[this.currScene].instance.visible = false;
+
 		this.tutorAutoObj[this.newScene].instance.visible  = true;
 		
 		// From this point on all newScene elements will be visible so proceed 
@@ -570,7 +547,7 @@ export class CEFTransitions extends TAnimator
 			}
 		}
 		else
-			this.dispatchEvent(new Event(CEFEvent.CHANGE));
+			this.dispatchEvent(new Event(CEFEvent.CHANGE,false,false));
 			
 	}				
 	
@@ -582,7 +559,7 @@ export class CEFTransitions extends TAnimator
 		CUtil.trace("inFinished");
 	
 		this.currScene = this.newScene;
-		this.dispatchEvent(new Event(CEFEvent.COMPLETE));
+		this.dispatchEvent(new Event(CEFEvent.COMPLETE,false,false));
 	}				
 			
 }

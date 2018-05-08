@@ -21,7 +21,6 @@ import { TObjectDyno } 		from "./TObjectDyno";
 import { TSceneBase }  		from "./TSceneBase";
 
 import { TTutorContainer } 	from "../thermite/TTutorContainer";
-import { TAnimator }  		from "../thermite/TAnimator";
 
 import { CEFNavigator } 	from "../core/CEFNavigator";
 
@@ -46,7 +45,7 @@ import Ease			      = createjs.Ease;
 //@@ Bug - Note that tweens start automatically so the push onto the running array should be coupled with a stop 
 //		   to allow us to control the onFinish proc.
 
-export class TObject extends TAnimator
+export class TObject extends TRoot
 {		
 	//************ Stage Symbols
 	
@@ -149,13 +148,13 @@ export class TObject extends TAnimator
 
 	public TObjectInitialize() {
 
-        this.TAnimatorInitialize.call(this);
+        this.TRootInitialize.call(this);
         this.init2();
     }
 
     public initialize() {
 
-        this.TAnimatorInitialize.call(this);		
+        this.TRootInitialize.call(this);		
         this.init2();
     }
 

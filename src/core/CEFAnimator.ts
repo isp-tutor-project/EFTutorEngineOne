@@ -15,6 +15,8 @@
 //*********************************************************************************
 
 
+import { IEFTutorDoc } 		from "../core/IEFTutorDoc";
+
 import { TRoot } 			from "../thermite/TRoot";
 import { TObject }			from "../thermite/TObject";
 
@@ -24,13 +26,28 @@ import { CEFEvent } 		from "../events/CEFEvent";
 import { CONST }            from "../util/CONST";
 import { CUtil } 			from "../util/CUtil";
 
-import Tween 				  = createjs.Tween;
+
+import Tween 			  = createjs.Tween;
+import Event 		  	  = createjs.Event;
+import EventDispatcher 	  = createjs.EventDispatcher;
+
+
 
 /**
 * ...
 */
-export class TAnimator extends TRoot
+export class CEFAnimator extends EventDispatcher
 {
+	//************ Stage Symbols
+	
+	
+	//************ Stage Symbols
+
+	public traceMode:boolean = false;
+
+	public tutorDoc:IEFTutorDoc;		
+	public tutorAutoObj:any;		
+	
 	public Running:Array<any> = new Array();			
 	public started:number   = 0;
 	public runCount:number  = 0;
@@ -40,34 +57,15 @@ export class TAnimator extends TRoot
 	/**
 	 * Abstract base class providing object animation features
 	 */
-	constructor() 
+	constructor(_tutorDoc:IEFTutorDoc) 
 	{
 		super();
-		this.init1();
+
+		this.traceMode    = true;					
+		this.tutorDoc     = _tutorDoc;
+		this.tutorAutoObj = _tutorDoc.TutAutomator;
 	}
-	
-	
-	/*  ###########  START CREATEJS SUBCLASS SUPPORT ##########  */
-	/* ######################################################### */
-
-	public TAnimatorInitialize() {
-        this.TRootInitialize.call(this);
-
-        this.init1();
-    }
-
-    public initialize() {
-        this.TRootInitialize.call(this);
-		
-        this.init1();
-    }
-
-    private init1() {
-    }
-
-	/* ######################################################### */
-	/*  ###########  END CREATEJS SUBCLASS SUPPORT ###########   */
-
+			
 
 	/**
 	 * 

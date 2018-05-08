@@ -17,7 +17,6 @@
 //** Imports
 
 import { TRoot }                from "./thermite/TRoot";
-import { TAnimator }            from "./thermite/TAnimator";
 
 import { CEFTutorDoc }          from "./core/CEFTutorDoc";
 
@@ -63,6 +62,7 @@ export class CEngine {
     public _sceneDescr:any;
     public _sceneGraph:any;
     public _tutorGraph:any;
+
 
 
     constructor() { }
@@ -221,9 +221,9 @@ export class CEngine {
         Promise.all(modulePromises)        
             .then(() => {
 
-                console.log("module load complete");
+                console.log("module load complete: ");
 
-            //    this.constructTutor();
+               this.constructTutor();
                 
                 CUtil.preLoader(false);
 
@@ -252,18 +252,15 @@ export class CEngine {
 				tag.text = scriptText + "\n//# sourceURL= http://127.0.0.1/"+ moduleDescr.tutor + "/" + moduleDescr.URL;
 				document.head.appendChild(tag);
 
-				let comp=AdobeAn.getComposition(moduleDescr.compID);
-			
-				let lib=comp.getLibrary();
-
+				let comp   = AdobeAn.getComposition(moduleDescr.compID);			
+				let lib    = comp.getLibrary();
 				let loader = new createjs.LoadQueue(false);
 
-				loader.addEventListener("complete", function(evt){engine.handleComplete(evt,comp)});
-				loader.loadManifest(lib.properties.manifest);	
-                
-            }).catch((_error) => {
-
-                console.log("module load failed: " + _error);
+                return new Promise((resolve, reject) => {
+                    loader.addEventListener("complete", function(evt){engine.handleComplete(evt,comp,resolve)});
+                    loader.addEventListener("error", function(evt){engine.handleError(evt,comp,reject)});
+                    loader.loadManifest(lib.properties.manifest);	
+                });                
             });
     }
 
@@ -272,7 +269,7 @@ export class CEngine {
 	//
 	//@@ TODO: create declarations 
 	//
-	public handleComplete(evt:any,comp:any) {
+	public handleComplete(evt:any,comp:any, resolve:Function) {
 
 		let lib:any     = comp.getLibrary();
 		let ss          = comp.getSpriteSheet();
@@ -299,8 +296,16 @@ export class CEngine {
         //
         this.mapThermiteClasses(lib);
 
-		AdobeAn.compositionLoaded(lib.properties.id);
+        AdobeAn.compositionLoaded(lib.properties.id);
+        
+        // resolve the preloader promise
+        resolve();
 	}	
+	public handleError(evt:any,comp:any, reject:Function) {
+
+        reject("AnModule load Failed:");
+    }
+
 
 
     public mapThermiteClasses(AnLib:any) {
@@ -336,7 +341,7 @@ export class CEngine {
 
     public importAndMap(AnObject:any, moduleName:string, className:string, variant:string ) {
 
-        console.log("Import className: " + className);
+        console.log("Import and Map: " + moduleName + " => " + className);
 
         return SystemJS.import(moduleName).then((ClassObj:any) => {
 

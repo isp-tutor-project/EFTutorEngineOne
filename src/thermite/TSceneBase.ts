@@ -405,7 +405,7 @@ export class TSceneBase extends TObject
 	//
 	public preEnterScene(lTutor:any, sceneLabel:string, sceneTitle:string, scenePage:string, Direction:string ) : string
 	{
-		if(this.traceMode) CUtil.trace("Default Pre-Enter Scene Behavior: " + sceneTitle);		
+		if(this.traceMode) CUtil.trace("Base Pre-Enter Scene Behavior: " + sceneTitle);		
 		
 		// Update the title				
 		//

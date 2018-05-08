@@ -1,12 +1,8 @@
 {
-    // This was generated automatically by VSCode when the default build task was assigned.
-    // See https://go.microsoft.com/fwlink/?LinkId=733558
-    // for the documentation about the tasks.json format
-    "version": "2.0.0",
     "tasks": [
         {
             "type": "typescript",
-            "tsconfig": "EFTutorEngineOne\\tsconfig.json",
+            "tsconfig": "tsconfig.json",
             "problemMatcher": [
                 "$tsc"
             ],

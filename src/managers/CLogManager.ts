@@ -667,7 +667,9 @@ export class CLogManager extends EventDispatcher implements ILogManager
 			logData['version'] = '1.0'; 
 			logData['time']    = this.sessionTime; 
 			logData['seqid']   = CLogManager._logQueue.nextNdx;
-			logData['userid']  = this._sessionAccount.userData._id;
+
+			// TODO: Implement
+			// logData['userid']  = this._sessionAccount.userData._id;
 
 			// Generate an mongo insert packet for the log event
 			

@@ -206,7 +206,6 @@ export class CEFTutorDoc extends EventDispatcher implements IEFTutorDoc
         
         EFLoadManager.efStage.addChild(this.tutorContainer);
         
-
         //@@ Mod May 09 2012 - Demo Support - manage the features so that the demo can augment the default set.
         
         this.setTutorDefaults(this._tutorFeatures);
