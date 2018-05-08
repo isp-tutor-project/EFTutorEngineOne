@@ -113,6 +113,8 @@ export class TScene extends TSceneBase
 		this.audioStartTimer.reset();
 		this.audioStartTimer.stop();
 		// this.audioStartTimer.addEventListener("timer", this.playHandler);		//** TODO */
+
+		if(this.traceMode) CUtil.trace("TScene:Constructor");					
     }
 
 	/* ######################################################### */
@@ -295,7 +297,7 @@ export class TScene extends TSceneBase
 	*/
 	public initAudio() :void 
 	{
-		if(this.traceMode) CUtil.trace("Base:initAudio Behavior");		
+		if(this.traceMode) CUtil.trace("Default Audio Behavior");		
 		
 		this.createAudio();
 

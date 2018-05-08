@@ -298,10 +298,10 @@ export class TRoot extends MovieClip
 	 */
 	public superPlay(): void	
 	{
-		if(this.traceMode) CUtil.trace(name + " Super Play");
+		if(this.traceMode) CUtil.trace(this.name + " Super Play");
 		
 		//@@
-		if(name == "SgenericPrompt")
+		if(this.name == "SgenericPrompt")
 			CUtil.trace("SgenericPrompt Play Found in superPlay");
 		//@@
 		
@@ -314,7 +314,7 @@ export class TRoot extends MovieClip
 	 */
 	public superStop(): void	
 	{
-		if(this.traceMode) CUtil.trace(name + " Super Stop");
+		if(this.traceMode) CUtil.trace(this.name + " Super Stop");
 		
 		super.stop();
 	}
@@ -338,7 +338,7 @@ export class TRoot extends MovieClip
 	 */
 	public stop(): void	
 	{
-		if(this.traceMode) CUtil.trace(name + " is stopped");
+		if(this.traceMode) CUtil.trace(this.name + " is stopped");
 		
 		if(this.tutorDoc.tutorContainer) this.tutorDoc.tutorContainer.playRemoveThis(this);
 
@@ -351,10 +351,10 @@ export class TRoot extends MovieClip
 	 */
 	public gotoAndPlay(frame:Object, scene:string = null):void 
 	{
-		if(this.traceMode) CUtil.trace(name + " is playing at : " + frame + ":" + scene);
+		if(this.traceMode) CUtil.trace(this.name + " is playing at : " + frame + ":" + scene);
 		
 		//@@
-		if(name == "SgenericPrompt")
+		if(this.name == "SgenericPrompt")
 			CUtil.trace("SgenericPrompt Play Found in gotoAndPlay");
 		//@@
 		
@@ -368,10 +368,10 @@ export class TRoot extends MovieClip
 	 */
 	public play(): void	
 	{
-		if(this.traceMode) CUtil.trace(name + " is playing");
+		if(this.traceMode) CUtil.trace(this.name + " is playing");
 		
 		//@@
-		if(name == "SgenericPrompt")
+		if(this.name == "SgenericPrompt")
 			CUtil.trace("SgenericPrompt Play Found in Play");
 		//@@
 		
@@ -385,10 +385,10 @@ export class TRoot extends MovieClip
 	 */
 	public bindPlay(tutor:TTutorContainer ): void	
 	{
-		if(this.traceMode) CUtil.trace(name + " is playing");
+		if(this.traceMode) CUtil.trace(this.name + " is playing");
 
 		//@@
-		if(name == "SgenericPrompt")
+		if(this.name == "SgenericPrompt")
 					CUtil.trace("SgenericPrompt Play Found in BindPlay");
 		//@@
 		

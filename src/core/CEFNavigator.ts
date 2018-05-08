@@ -15,6 +15,7 @@
 //*********************************************************************************
 
 import { CEFTutorDoc } 		from "./CEFTutorDoc";
+import { CEFTransitions } 	from "./CEFTransitions";
 
 import { TRoot } 			from "../thermite/TRoot";
 import { TScene } 			from "../thermite/TScene";
@@ -46,8 +47,11 @@ export class CEFNavigator extends EventDispatcher
 	public traceMode:boolean = false;
 
 	public tutorDoc:CEFTutorDoc;		
-	public tutorAutoObj:any;					// This allows us to automate non-EF objects - They have no code behind and therefore no local variables to store initial state
+	public tutorAutoObj:any;							// This allows us to automate non-EF objects - They have no code behind and therefore no local variables to store initial state
 	public sceneCnt:number = 0;
+	
+	public   xitions:CEFTransitions;					// This is the tutor transition object
+
 	
 	//*************** Navigator "ROOT INSTANCE" CONSTANTS - 
 	// Place these within a subclass to set the root of a navigation sequence
@@ -55,20 +59,25 @@ export class CEFNavigator extends EventDispatcher
 	//static Stthis.scenePrev:number;
 	//static Stthis.sceneCurr:number;
 	//
-	//static StsceneTitle:Array;		// initialize the Tutor specific scene titles
-	//static Stthis.sceneSeq:Array;			// initialize the Tutor specific scene sequence
+	//static StsceneTitle:Array;						// initialize the Tutor specific scene titles
+	//static Stthis.sceneSeq:Array;						// initialize the Tutor specific scene sequence
 	//*************** Navigator "ROOT INSTANCE" CONSTANTS - 
+
 
 	protected _inNavigation:boolean = false; 
 	
+
+
+
 	constructor(_tutorDoc:any) 
 	{
 		super();
 
 		this.traceMode = true;					
 		this.tutorDoc  = _tutorDoc;
-	}
 
+		this.xitions = new CEFTransitions(_tutorDoc);
+	}
 	
 	/**
 	 * returns the current scenes iteration count

@@ -486,39 +486,40 @@ export class CTutorGraphNavigator extends CEFNavigator
 
 			// Only scenes which can act as starting points - i.e. are independent of other scenes are eligible for
 			// progress logging
-			
-			if(this._nextScene.isCheckPoint)
-			{
-				// On the first pass we need to generate an object scaffold to hold the progress update packet.
-				// On subsequent passes we just need to change the value fields and add the stateData
-				
-				// Note: a progress event is processed as a mongo update operation - so we must use
-				//       CObject and MObject types to define UPDATEABLE and REPLACEABLE Objects respectively
-				
-				if(_progressData == null)
-				{
-					_progressData 	  = {};			
-					this._profileData = {};				 
-																				
-					_progressData['reify']           = {}; 	// 'reify' is the portion that is parsed for update fields - it and any sub-documents  			
-					_progressData['reify']['phases'] = {};		// should be either CObjects, MObjects or AS3 primitive data types String, Number,int,Boolean,Null,void
-					
-					_progressData['reify']['phases'][this.tutorDoc.sessionAccount.session.profile_Index] = this._profileData;
-					
-					this._profileData['stateData']   = new MObject;			// Use a MObject ot force replacement of entire stateData sub-document in MongoDB 
-				}
-				
-				this._profileData.progress = CONST._INPROGRESS;								
-				
-				this._profileData['stateData']['tutorgraph'] = this._rootGraph.captureGraph({});
-				
-				this._profileData['stateData']['ktSkills']  = this.tutorDoc.ktSkills;
-				this._profileData['stateData']['globals']   = this.tutorDoc._globals;
-				this._profileData['stateData']['features']  = this.tutorDoc.features;
-				this._profileData['stateData']['data']  	= this.tutorDoc._phaseData;
 
-				this.tutorDoc.log.logProgressEvent(_progressData);
-			}
+			// TODO: validate logging
+			// if(this._nextScene.isCheckPoint)
+			// {
+			// 	// On the first pass we need to generate an object scaffold to hold the progress update packet.
+			// 	// On subsequent passes we just need to change the value fields and add the stateData
+				
+			// 	// Note: a progress event is processed as a mongo update operation - so we must use
+			// 	//       CObject and MObject types to define UPDATEABLE and REPLACEABLE Objects respectively
+				
+			// 	if(_progressData == null)
+			// 	{
+			// 		_progressData 	  = {};			
+			// 		this._profileData = {};				 
+																				
+			// 		_progressData['reify']           = {}; 	// 'reify' is the portion that is parsed for update fields - it and any sub-documents  			
+			// 		_progressData['reify']['phases'] = {};	// should be either CObjects, MObjects or AS3 primitive data types String, Number,int,Boolean,Null,void
+					
+			// 		_progressData['reify']['phases'][this.tutorDoc.sessionAccount.session.profile_Index] = this._profileData;
+					
+			// 		this._profileData['stateData']   = new MObject;			// Use an MObject to force replacement of entire stateData sub-document in MongoDB 
+			// 	}
+				
+			// 	this._profileData.progress = CONST._INPROGRESS;								
+				
+			// 	this._profileData['stateData']['tutorgraph'] = this._rootGraph.captureGraph({});
+				
+			// 	this._profileData['stateData']['ktSkills']  = this.tutorDoc.ktSkills;
+			// 	this._profileData['stateData']['globals']   = this.tutorDoc._globals;
+			// 	this._profileData['stateData']['features']  = this.tutorDoc.features;
+			// 	this._profileData['stateData']['data']  	= this.tutorDoc._phaseData;
+
+			// 	this.tutorDoc.log.logProgressEvent(_progressData);
+			// }
 			
 			
 			//@@ Mod Mar 9 2015 - interrupt if connection lost
@@ -539,8 +540,8 @@ export class CTutorGraphNavigator extends CEFNavigator
 			this.updateSceneIteration();
 			
 			// Do the actual scene transitions			
-			this.tutorDoc.tutorContainer.xitions.this.on(CEFEvent.COMPLETE, this.doEnterScene);			
-			this.tutorDoc.tutorContainer.xitions.gotoScene(this._nextScene.scenename);
+			this.xitions.on(CEFEvent.COMPLETE, this.doEnterScene, this);			
+			this.xitions.gotoScene(this._nextScene.scenename);
 		}
 		catch(err)
 		{
@@ -562,7 +563,7 @@ export class CTutorGraphNavigator extends CEFNavigator
 		{
 			if(this.traceMode) CUtil.trace("doEnterScene: " , this.sceneCurr);
 			
-			this.tutorDoc.tutorContainer.xitions.off(CEFEvent.COMPLETE, this.doEnterScene);						
+			evt.remove();						
 			
 			// increment the global frame ID - for logging 
 			

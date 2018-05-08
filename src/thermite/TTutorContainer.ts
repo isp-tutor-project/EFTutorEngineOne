@@ -26,7 +26,6 @@ import { TTitleBar } 		from "../thermite/TTitleBar";
 
 import { TMouseEvent } 		from "../thermite/events/TMouseEvent";
 
-import { CEFTransitions } 	from "../core/CEFTransitions";	
 import { CEFNavigator } 	from "../core/CEFNavigator";	
 import { CEFTimeStamp } 	from "../core/CEFTimeStamp";	
 
@@ -96,8 +95,6 @@ export class TTutorContainer extends TRoot
 	public 	 cCursor:TCursorProxy;		
 	
 	public   sceneCnt:number   		   	= 0;							// Total number of scenes	
-
-	public   xitions:CEFTransitions 	= new CEFTransitions;			// This is the tutor transition object
 
 			  replayIndex:Array<number> 	= new Array;
 			  replayTime:number    			= 0;
@@ -243,6 +240,7 @@ export class TTutorContainer extends TRoot
 		if (this.traceMode) CUtil.trace("Creating Scene : "+ sceneName);
 
 		tarScene = CUtil.instantiateThermiteObject("moduleName", sceneClass);
+		tarScene.name         = sceneName;
 		tarScene.tutorDoc     = this.tutorDoc;
 		tarScene.tutorAutoObj = this.tutorAuto;
 			
