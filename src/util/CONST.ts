@@ -2,7 +2,7 @@
 
 export class CONST {
 
-    public static readonly BOOT_LOADER:string   = "./data/bootLoader.json5";
+    public static readonly BOOT_LOADER:string   = "./EFData/bootLoader.json5";
     public static readonly LOCAL:string          = "LOCAL";
     public static readonly WAIT:number           = 250;
 

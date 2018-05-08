@@ -83,7 +83,7 @@ export class CEngine {
             // Generally there aren't any in the Loader project - when debugging a module
             // however there generally are components.
             //
-            this.mapThermiteClasses(EFLoadManager.efLoaderLib, CONST.DONT_LAUNCH);
+            this.mapThermiteClasses(EFLoadManager.efLoaderLib);
 
             this.getBootLoader();
         }
@@ -103,11 +103,11 @@ export class CEngine {
         
                     console.log("Boot-Loader");
                     
-                    this.moduleSet   = this.tutorDescr.moduleSets[this.tutorDescr.loaders[this.bootLoader.toUpperCase()]._moduleSet]._anModules;
+                    this.moduleSet   = this.tutorDescr.moduleSets[this.tutorDescr.tutors[this.bootLoader]._moduleSet]._anModules;
                     this.loadModules = this.moduleSet.split(",").map((modName:string) => modName.trim().toUpperCase());
                     this.anModules   = this.tutorDescr.anModules;
 
-                    this.supplSet    = this.tutorDescr.supplSets[this.tutorDescr.loaders[this.bootLoader.toUpperCase()]._supplSet]._supplScripts;
+                    this.supplSet    = this.tutorDescr.supplSets[this.tutorDescr.tutors[this.bootLoader]._supplSet]._supplScripts;
                     this.loadSuppls  = this.supplSet.split(",").map((supplName:string) => supplName.trim().toUpperCase());
                     this.supplScripts= this.tutorDescr.supplScripts;
 
@@ -128,7 +128,7 @@ export class CEngine {
         try {
             for(let tutorel of CONST.TUTOR_JSON_IMAGE) {
 
-                this.tutorImagePath.push("tutors/" + this.tutorDescr.tutors[this.bootLoader].path + "/" + tutorel);
+                this.tutorImagePath.push("EFTutors/" + this.tutorDescr.tutors[this.bootLoader].path + "/" + tutorel);
             }
 
             let modulePromises = this.tutorImagePath.map((module, index) => {
@@ -188,7 +188,7 @@ export class CEngine {
 
     public injectScript(scriptDescr:IModuleDesc) : Promise<any> {
 
-        console.log("Loading Script: " + scriptDescr);
+        console.log("Loading Script: " + scriptDescr.URL);
 
         let engine = this;
         let loader = new CURLLoader();
@@ -223,6 +223,8 @@ export class CEngine {
 
                 console.log("module load complete");
 
+            //    this.constructTutor();
+                
                 CUtil.preLoader(false);
 
             }).catch(() => {
@@ -295,13 +297,13 @@ export class CEngine {
 
         // Do the engine code injection 
         //
-        this.mapThermiteClasses(lib, CONST.LAUNCH);
+        this.mapThermiteClasses(lib);
 
 		AdobeAn.compositionLoaded(lib.properties.id);
 	}	
 
 
-    public mapThermiteClasses(AnLib:any, launchOnComplete:boolean) {
+    public mapThermiteClasses(AnLib:any) {
         
         let engine = this;
         let importPromises:Array<Promise<any>> = new Array();
@@ -325,9 +327,6 @@ export class CEngine {
 
                 console.log("Thermite mapping complete");
 
-                if(launchOnComplete)
-                    this.constructTutor();
-
             }).catch((Error) => {
 
                 console.log("Thermite mapping failed:" + Error);
@@ -337,7 +336,7 @@ export class CEngine {
 
     public importAndMap(AnObject:any, moduleName:string, className:string, variant:string ) {
 
-        console.log("className: " + className);
+        console.log("Import className: " + className);
 
         return SystemJS.import(moduleName).then((ClassObj:any) => {
 

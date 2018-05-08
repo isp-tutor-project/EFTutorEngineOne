@@ -41,6 +41,7 @@ import { CONST }            from "../util/CONST";
 import { CUtil } 			from "../util/CUtil";
 
 
+import Event 		  = createjs.Event;
 import Ticker 		  = createjs.Ticker;
 
 
@@ -66,6 +67,7 @@ export class CTutorGraphNavigator extends CEFNavigator
 	private _iterations:any = {};
 
 	private _profileData:any;
+	private _tickHandler:Function;
 	
 	
 	/**
@@ -193,7 +195,7 @@ export class CTutorGraphNavigator extends CEFNavigator
 		*/
 	public onButtonNext(evt:TMouseEvent) : void
 	{
-		dispatchEvent(new Event("NEXT_CLICK"));
+		this.dispatchEvent(new Event("NEXT_CLICK",false,false));
 
 		// Do button clicks synchronously
 		
@@ -228,12 +230,12 @@ export class CTutorGraphNavigator extends CEFNavigator
 		// Do automated scene increments asynchronously to allow
 		// actiontrack scripts to complete prior to scene nav
 		
-		Ticker.on(CEFEvent.ENTER_FRAME, this._deferredNextScene, this);
+		this._tickHandler = Ticker.on(CEFEvent.ENTER_FRAME, this._deferredNextScene, this);
 	}
 	
-	private _deferredNextScene(e:Event) : void
+	private _deferredNextScene(evt:Event) : void
 	{			
-		this.off(CEFEvent.ENTER_FRAME, this._deferredNextScene);
+		Ticker.off(CEFEvent.ENTER_FRAME, this._tickHandler);
 					
 		this.traceGraphEdge();
 	}
@@ -525,7 +527,7 @@ export class CTutorGraphNavigator extends CEFNavigator
 			
 			if(!this.tutorDoc.log.connectionActive)
 			{				
-				this.tutorDoc.dispatchEvent(new Event("CONNECTION_LOST"));
+				this.tutorDoc.dispatchEvent(new Event("CONNECTION_LOST",false,false));
 			}				
 			
 //@@ Progress Logging			
@@ -597,7 +599,7 @@ export class CTutorGraphNavigator extends CEFNavigator
 			// In demo mode defer demo clicks while scene switches are in progress
 			
 			if(this.tutorDoc.fDemo)
-				this.tutorDoc.tutorContainer.dispatchEvent(new Event("deferedDemoCheck"));
+				this.tutorDoc.tutorContainer.dispatchEvent(new Event("deferedDemoCheck",false,false));
 			
 			//@@ Mod Sep 27 2011 - protect against recursive calls
 			

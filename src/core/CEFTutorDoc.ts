@@ -220,6 +220,8 @@ export class CEFTutorDoc extends EventDispatcher implements IEFTutorDoc
 
 		this.tutorDescr = _tutorDescr;
 		
+		// Load the scene extension code
+		// 
 		for(let suppl in this.tutorDescr.supplScripts) {
 
 			if(this.tutorDescr.supplScripts[suppl].intNameSpace == CONST.SCENE_EXT) {
@@ -228,15 +230,6 @@ export class CEFTutorDoc extends EventDispatcher implements IEFTutorDoc
 			}
 		}
 
-		let test:any;
-		try {
-			test = new this.sceneExt["SSignIn"];
-		}
-		catch(error) {
-			console.log(error);
-		}
-
-		
         // This manufactures the tutorGraph from the JSON spec file 			
         //
         this.tutorNavigator = CTutorGraphNavigator.rootFactory(this, this.tutorGraph);

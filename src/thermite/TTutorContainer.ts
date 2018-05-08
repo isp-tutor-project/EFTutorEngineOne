@@ -55,9 +55,9 @@ export class TTutorContainer extends TRoot
 	
 	//************ Standard Stage Symbols
 	
-	public StitleBar:TTitleBar;
-	public SnavPanel:CEFNavigator;
-	public Sscene0:CEFScene0;
+	// public StitleBar:TTitleBar;
+	// public SnavPanel:CEFNavigator;
+	// public Sscene0:CEFScene0;
 			
 	//************ Standard Stage Symbols
 	
@@ -593,7 +593,7 @@ export class TTutorContainer extends TRoot
 	 */
 	public showPPlay(fShow:boolean) : void
 	{
-		this.StitleBar.Spause.visible = fShow;
+		// this.StitleBar.Spause.visible = fShow;
 	}
 
 	/**
@@ -602,7 +602,7 @@ export class TTutorContainer extends TRoot
 	 */
 	public showReplay(fShow:boolean) : void
 	{
-		this.StitleBar.Sreplay.visible = fShow;
+		// this.StitleBar.Sreplay.visible = fShow;
 	}
 					
 	

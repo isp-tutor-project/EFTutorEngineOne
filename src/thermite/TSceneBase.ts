@@ -409,8 +409,8 @@ export class TSceneBase extends TObject
 		
 		// Update the title				
 		//
-		lTutor.StitleBar.Stitle.text = sceneTitle;
-		lTutor.StitleBar.Spage.text  = scenePage;
+		// lTutor.StitleBar.Stitle.text = sceneTitle;
+		// lTutor.StitleBar.Spage.text  = scenePage;
 
 		// Set fComplete and do other demo specific processing here
 		// deprecated 

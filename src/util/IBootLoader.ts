@@ -276,10 +276,8 @@ export namespace LoaderPackage {
         
         accounts: any;
         
-        loaders: any;
-        
         tutors: any;
-
+        
         supplSets: any;
         
         supplScripts: any;

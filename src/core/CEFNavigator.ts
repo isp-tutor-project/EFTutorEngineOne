@@ -28,6 +28,7 @@ import { CEFEvent } 		from "../events/CEFEvent";
 import { CONST }            from "../util/CONST";
 import { CUtil } 			from "../util/CUtil";
 
+import Event 		  	  = createjs.Event;
 import EventDispatcher 	  = createjs.EventDispatcher;
 
 /**
@@ -631,7 +632,7 @@ export class CEFNavigator extends EventDispatcher
 		// In demo mode defer demo clicks while scene switches are in progress
 		
 		if(this.tutorDoc.fDemo)
-			this.tutorDoc.tutorContainer.dispatchEvent(new Event("deferedDemoCheck"));
+			this.tutorDoc.tutorContainer.dispatchEvent(new Event("deferedDemoCheck",false,false));
 		
 		//@@ Mod Sep 27 2011 - protect against recurrent calls
 		
@@ -665,7 +666,7 @@ export class CEFNavigator extends EventDispatcher
 		// In demo mode defer demo clicks while scene switches are in progress
 		
 		if(this.tutorDoc.fDemo)
-			this.tutorDoc.tutorContainer.dispatchEvent(new Event("deferedDemoCheck"));
+			this.tutorDoc.tutorContainer.dispatchEvent(new Event("deferedDemoCheck",false,false));
 
 		//@@ Mod Sep 27 2011 - protect against recurrent calls
 		
@@ -696,7 +697,7 @@ export class CEFNavigator extends EventDispatcher
 		// In demo mode defer demo clicks while scene switches are in progress
 		
 		if(this.tutorDoc.fDemo)
-			this.tutorDoc.tutorContainer.dispatchEvent(new Event("deferedDemoCheck"));
+			this.tutorDoc.tutorContainer.dispatchEvent(new Event("deferedDemoCheck",false,false));
 		
 		//@@ Mod Sep 27 2011 - protect against recurrent calls
 		
