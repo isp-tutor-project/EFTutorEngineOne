@@ -23,13 +23,14 @@ import { TObject } 			from "../thermite/TObject";
 import { TObjectMask } 		from "../thermite/TObjectMask";
 import { TTutorContainer } 	from "../thermite/TTutorContainer";
 
-import { CEFAnimator } 		from "../core/CEFAnimator";
+import { CEFTimeLine } 		from "../core/CEFTimeLine";
 import { CEFEvent } 		from "../events/CEFEvent";
 
 import { CONST }            from "../util/CONST";
 import { CUtil } 			from "../util/CUtil";
 
 import Tween    		  	= createjs.Tween;
+import Timeline   		  	= createjs.Timeline;
 import Event    		  	= createjs.Event;
 import DisplayObject 		= createjs.DisplayObject;
 import Ease			  	    = createjs.Ease;
@@ -37,7 +38,7 @@ import Ease			  	    = createjs.Ease;
 
 
 
-export class CEFTransitions extends CEFAnimator 
+export class CEFTransitions extends CEFTimeLine 
 {	
 	// There are N scenes in any given app
 	// Each scene represents a different step in the tutoring process
@@ -55,6 +56,8 @@ export class CEFTransitions extends CEFAnimator
 	private persistObjs:any = {};				// Pointers to persistent objects - these live thorughout the tutor lifecycle
 	private currentObjs:Array<any>;				// Pointers to the objects in the current scene
 	private fSwapObjects:boolean = false;		// flag - true - swap objects  - false - use deep state copy 
+
+	private timeLine:Timeline;
 	
 	
 	constructor(_tutorDoc:IEFTutorDoc)
@@ -130,10 +133,11 @@ export class CEFTransitions extends CEFAnimator
 		
 		if(this.currScene != null)
 		{
+			this.timeLine = new Timeline(null,null, {useTicks:true, loop:-1, paused:true});
 			this.setTransitionOUT();	
 			
 			if(this.Running.length)
-			this.startTransition(this.outFinished);				
+				this.startTransition(this.outFinished);				
 				
 			else 
 			{

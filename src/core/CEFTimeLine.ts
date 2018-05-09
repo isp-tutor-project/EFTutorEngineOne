@@ -36,7 +36,7 @@ import EventDispatcher 	  = createjs.EventDispatcher;
 /**
 * ...
 */
-export class CEFAnimator extends EventDispatcher
+export class CEFTimeLine extends EventDispatcher
 {
 	//************ Stage Symbols
 	
@@ -140,7 +140,7 @@ export class CEFAnimator extends EventDispatcher
 		
 		this.runCount--;
 		
-		// If it is comletely transparent, make it invisible. 
+		// If it is completely transparent, make it invisible. 
 		
 		if(targObj.alpha == 0)
 			targObj.visible = false;			
