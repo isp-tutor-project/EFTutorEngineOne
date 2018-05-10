@@ -202,7 +202,7 @@ export class CEFTutorDoc extends EventDispatcher implements IEFTutorDoc
         this.tutorContainer          	 = new TTutorContainer();
 		this.tutorContainer.tutorDoc     = this;
 		this.tutorContainer.tutorAutoObj = this.TutAutomator;		
-        this.tutorContainer.name     	 = "Stutor";
+        this.tutorContainer.name     	 = CONST.TUTORCONTAINER;
         
         EFLoadManager.efStage.addChild(this.tutorContainer);
         

@@ -30,6 +30,7 @@ import { CONST }            from "../util/CONST";
 import { CUtil } 			from "../util/CUtil";
 
 import DisplayObject      = createjs.DisplayObject;
+import MovieClip     	  = createjs.MovieClip;
 
 
 export class TSceneBase extends TObject
@@ -109,6 +110,13 @@ export class TSceneBase extends TObject
 		catch(error) {
 			console.log("TScene.onCreate Failed: " + error);
 		}
+	}
+
+	public addChild(obj:DisplayObject) : DisplayObject {
+
+		super.addChild(obj);
+
+		return obj;
 	}
 
 
@@ -216,59 +224,78 @@ export class TSceneBase extends TObject
 //***************** Automation *******************************		
 	
 	
-	public initAutomation(_parentScene:TSceneBase, scene:any, ObjIdRef:string, lLogger:ILogManager, lTutor:TTutorContainer) : void
+	public initAutomation(_parentScene:TSceneBase, sceneAutoObj:any, ObjIdRef:string, lLogger:ILogManager, lTutor:TTutorContainer) : void
 	{								
+
 		// parse all the component objects - NOTE: everything must be derived from CEFObject
 		//
-		var sceneObj:DisplayObject;
-		var wozObj:TObject;
-		var wozRoot:TRoot;
+		let propName:string;
+		let childObj:any;
+		let wozObj:TObject;
 
-		// Do XML initialization
+		// Do scripted initialization
 		
 		this.onCreate();							
 		
 		// Do Automation Capture
+
+		// Enumerate the child objects - Animate instantiates these as properties of the object 
+		// itself and only adds them to the display list as managedChildren in a Tween
+		//
+		let nonTObj:Array<string> = Object.getOwnPropertyNames(_parentScene);
 		
-		for(var i1:number = 0 ; i1 < this.numChildren ; i1++)
-		{
-			sceneObj = this.getChildAt(i1) as DisplayObject;
+		for(propName of nonTObj) {
+
+			childObj = _parentScene[propName];
 			
-			// Record each Object within scene
+			// Skip any Tutor container references
 			//
-			scene[sceneObj.name] = {};
-			scene[sceneObj.name].instance = sceneObj;										
-			
+			if(childObj instanceof TTutorContainer)
+											continue;
+
 			// Have Object determine its inplace size
 			//
-			if(sceneObj instanceof TObject)
+			if(childObj instanceof TObject)
 			{
-				//## Mod Apr 14 2014 - maintain linkage to parent scene - used for D.eval execution context - e.g. button script execution
-				sceneObj.parentScene = _parentScene;
+				//## Mod Apr 14 2014 - maintain linkage to parent scene - used for D.eval execution context
+				//  - e.g. button script execution
+				// 
+				childObj.parentScene = _parentScene;
 				
-				(sceneObj as TObject).measure();					
+				(childObj as TObject).measure();					
 			}
 			
-			// Record object in-place position - This is only done for top level objects in scene to record their inplace positions 
-			// for inter-scene tweening.
-			//
-			// scene[sceneObj.name].inPlace = {X:sceneObj.x, Y:sceneObj.y, Width:sceneObj.width, Height:sceneObj.height, Alpha:sceneObj.alpha};	 //** TODO */							
 
-			if(this.traceMode) CUtil.trace("\t\tCEFScene found subObject named:" + sceneObj.name + " ... in-place: ");
-
-			// Recurse WOZ Children
-			//
-			if(sceneObj instanceof TObject)
+			if(childObj instanceof DisplayObject)
 			{
-				wozObj = sceneObj as TObject;				// Coerce the Object					
-				wozObj.initAutomation(_parentScene, scene[sceneObj.name], name+".", lLogger, lTutor);
+				// Record each Object within scene
+				//
+				sceneAutoObj[childObj.name] = {};
+				sceneAutoObj[childObj.name].instance = childObj;										
+						
+				// Record object in-place position - This is only done for top level objects in scene to record their inplace positions 
+				// for inter-scene tweening.
+				//
+				sceneAutoObj[childObj.name].inPlace = childObj._cloneProps({});
+
+				// sceneAutoObj[childObj.name].inPlace = {X:childObj.x, Y:childObj.y, Width:childObj.width, Height:childObj.height, Alpha:childObj.alpha};	 //** TODO */							
+
+				if(this.traceMode) CUtil.trace("\t\tTScene found subObject named:" + childObj.name + " ... in-place: ");
+
+				// Recurse WOZ Children
+				//
+				if(childObj instanceof TObject)
+				{
+					wozObj = childObj as TObject;				// Coerce the Object					
+					wozObj.initAutomation(_parentScene, sceneAutoObj[childObj.name], name+".", lLogger, lTutor);
+				}
+				
+				if(this.traceMode) for(var id in sceneAutoObj[childObj.name].inPlace)
+				{
+					CUtil.trace("\t\t\t\t" + id + " : " + sceneAutoObj[childObj.name].inPlace[id]);
+				}						
 			}
-			
-			if(this.traceMode) for(var id in scene[sceneObj.name].inPlace)
-			{
-				CUtil.trace("\t\t\t\t" + id + " : " + scene[sceneObj.name].inPlace[id]);
-			}						
-		}	
+		}
 	}
 	
 	

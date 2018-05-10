@@ -197,7 +197,7 @@ export class TScene extends TSceneBase
 	 */
 	public playHandler(evt:CEFTimerEvent) : void 
 	{
-		if(this.traceMode) CUtil.trace("CEFSceneSequence timerHandler: " + evt);
+		if(this.traceMode) CUtil.trace("TScene timerHandler: " + evt);
 		
 		this.audioStartTimer.stop();
 		this.audioStartTimer.reset();
@@ -447,7 +447,7 @@ export class TScene extends TSceneBase
 					}
 					catch(err)							
 					{
-						CUtil.trace("CEFSceneSequence:parseOBJ: " + err);
+						CUtil.trace("TScene:parseOBJ: " + err);
 					}
 					break;
 			}
@@ -631,7 +631,7 @@ export class TScene extends TSceneBase
 	
 	public onEnterScene(Direction:string) : void
 	{				
-		if(this.traceMode) CUtil.trace("CEFSceneSequence Enter Scene Behavior:" + Direction);		
+		if(this.traceMode) CUtil.trace("TScene Enter Scene Behavior:" + Direction);		
 		
 		if((Direction == "WOZNEXT") ||
 			(Direction == "WOZGOTO"))
@@ -650,7 +650,7 @@ export class TScene extends TSceneBase
 	
 	public onExitScene() : void
 	{				
-		if(this.traceMode) CUtil.trace("CEFSceneSequence Exit Scene Behavior:");		
+		if(this.traceMode) CUtil.trace("TScene Exit Scene Behavior:");		
 		
 		//***** Kill the ActionTrack
 		

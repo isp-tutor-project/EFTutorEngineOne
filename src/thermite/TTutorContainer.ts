@@ -252,7 +252,7 @@ export class TTutorContainer extends TRoot
 		//gTruck.add(tarScene);					//@@ Debug memory test May 27 2010
 		
 		tarScene.visible = false;				
-		tarScene.stop();						
+		// tarScene.stop();						// TODO: COMMENTED FOR DEBUG
 
 		//## Mod Aug 10 2012 - must wait for initializeScenes to ensure basic scenes are in place now that 
 		//					   we allow dynamic creation of the navPanel etc.

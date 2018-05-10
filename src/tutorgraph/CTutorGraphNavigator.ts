@@ -608,7 +608,7 @@ export class CTutorGraphNavigator extends CEFNavigator
 		}
 		catch(err)
 		{
-			CUtil.trace("CONST.doEnterScene: " + err.toString());
+			CUtil.trace("doEnterScene: " + err.toString());
 			
 			let logData:Object = {'location':'doEnterScene', 'message':err.toString()};
 			

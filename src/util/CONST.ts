@@ -2,6 +2,8 @@
 
 export class CONST {
 
+	public static readonly TUTORCONTAINER = "STutorContainer";
+
     public static readonly BOOT_LOADER:string   = "./EFData/bootLoader.json5";
     public static readonly LOCAL:string          = "LOCAL";
     public static readonly WAIT:number           = 250;

@@ -47,8 +47,8 @@ export class CEFTransitions extends CEFTimeLine
 	public currScene:string = null;				// null initial scene
 	public newScene:string  = null;				// null next scene
 	
-	public rTime:number     = .25;				// Removal Transition time
-	public tTime:number     = .25;				// Normal Transition time
+	public rTime:number     = 250;				// Removal Transition time
+	public tTime:number     = 250;				// Normal Transition time
 
 	public fSingleStep:boolean = true;			// single stepping operations - debug
 
@@ -62,7 +62,7 @@ export class CEFTransitions extends CEFTimeLine
 	
 	constructor(_tutorDoc:IEFTutorDoc)
 	{
-		super(_tutorDoc);
+		super(null, null, {"useTicks":false, "loop":false, "paused":true }, _tutorDoc);
 
 		this.traceMode = true;
 		if(this.traceMode) CUtil.trace("CEFTransitions:Constructor");						
@@ -99,9 +99,9 @@ export class CEFTransitions extends CEFTimeLine
 	
 		if(this.traceMode) CUtil.trace("Tween Enumeration for Scene: ", this.currScene);
 		
-		for(i1 = 0 ; i1 < this.Running.length ; i1++)
+		for(i1 = 0 ; i1 < this._tweens.length ; i1++)
 		{			
-			if(this.traceMode) CUtil.trace("Object Value: ", this.Running[i1].obj);
+			if(this.traceMode) CUtil.trace("Object Value: ", this.targets[i1].obj);
 		}
 	}				
 
@@ -136,18 +136,20 @@ export class CEFTransitions extends CEFTimeLine
 			this.timeLine = new Timeline(null,null, {useTicks:true, loop:-1, paused:true});
 			this.setTransitionOUT();	
 			
-			if(this.Running.length)
+			if(this.targets.length)
 				this.startTransition(this.outFinished);				
 				
 			else 
 			{
 				this.setTransitionIN(this.tutorAutoObj, this.newScene);	
 				this.changeScene();
-				this.startTransition(this.inFinished);	
-				
+
 				// Catch special case where there are no tweens
-				
-				if(!this.started) 
+				// 
+				if(this._tweens.length > 0) {
+					this.startTransition(this.inFinished);					
+				}
+				else
 					this.inFinished();
 			}
 		}
@@ -225,7 +227,7 @@ export class CEFTransitions extends CEFTimeLine
 										
 				// push the tween on to the run stack
 				//
-				this.Running.push(tween);
+				this.addTween(tween);
 			}				
 		}
 	}				
@@ -241,7 +243,7 @@ export class CEFTransitions extends CEFTimeLine
 	//
 	// returns: NULL
 	//		
-	public setTransitionIN(objectList:any, objectName:string ) : void
+	public setTransitionIN(objectList:any, sceneName:string ) : void
 	{		
 		let targObj:any;
 		let liveObj:DisplayObject;
@@ -257,7 +259,7 @@ export class CEFTransitions extends CEFTimeLine
 		// NOTE: The WOZ environment treats all objects with the same name as the same instances so that scenes
 		//       may be edited individually in Flash but treated as part of a single timeline in the WOZ environment
 		//
-		for(let namedObj in objectList[objectName])
+		for(let namedObj in objectList[sceneName])
 		{
 			// Exclude the instance property of the scene itself
 			
@@ -265,7 +267,7 @@ export class CEFTransitions extends CEFTimeLine
 			{
 				// Convenience Copy
 				
-				targObj = objectList[objectName][namedObj];
+				targObj = objectList[sceneName][namedObj];
 				
 				// Skip WOZ objects that aren't to be tweened
 				// Use the namedObj to disinguish unique instances
@@ -319,7 +321,7 @@ export class CEFTransitions extends CEFTimeLine
 						
 						// update the convenience copy
 						
-						targObj = objectList[objectName][namedObj];									
+						targObj = objectList[sceneName][namedObj];									
 					}
 					else
 					{
@@ -343,51 +345,51 @@ export class CEFTransitions extends CEFTimeLine
 					// Now that the object is initialized - check if its in-place properties are different from its current state
 					// indicating the need for a tween.
 					//
-					if(targObj.inPlace.X != liveObj.x)
+					if(targObj.inPlace.x != liveObj.x)
 					{
 						
-						tween = new Tween(targObj.instance).to({x:targObj.inPlace.X}, this.tTime, Ease.cubicInOut);
-						if(this.traceMode) CUtil.trace("Tweening obj in scene: " + objectName + "  named : " + targObj.name + " property: " + targObj.prop + " in: " + tween.duration + "secs");
+						tween = new Tween(targObj.instance).to({x:targObj.inPlace.x}, this.tTime, Ease.cubicInOut);
+						if(this.traceMode) CUtil.trace("Tweening obj in scene: " + sceneName + "  named : " + targObj.name + " property: " + targObj.prop + " in: " + tween.duration + "msecs");
 						
 						// push the tween on to the run stack
 						//
-						this.Running.push(tween);						
+						this.addTween(tween);						
 					}
-					if(targObj.inPlace.Y != liveObj.y)
+					if(targObj.inPlace.y != liveObj.y)
 					{
-						tween = new Tween(targObj.instance).to({y:targObj.inPlace.Y}, this.tTime, Ease.cubicInOut);
-						if(this.traceMode) CUtil.trace("Tweening obj in scene: " + objectName + "  named : " + targObj.name + " property: " + targObj.prop + " in: " + tween.duration + "secs");
+						tween = new Tween(targObj.instance).to({y:targObj.inPlace.y}, this.tTime, Ease.cubicInOut);
+						if(this.traceMode) CUtil.trace("Tweening obj in scene: " + sceneName + "  named : " + targObj.name + " property: " + targObj.prop + " in: " + tween.duration + "msecs");
 												
 						// push the tween on to the run stack
 						//
-						this.Running.push(tween);						
+						this.addTween(tween);						
 					}
 					// if(targObj.inPlace.Width != liveObj.width)		//** TODO */
 					// {
 					// 	tween = new Tween(targObj.instance, "width", Cubic.easeInOut, targObj.instance.width, targObj.inPlace.Width, tTime, true );
-					// 	if(this.traceMode) CUtil.trace("Tweening obj in scene: " + objectName + "  named : " + tween.obj.name + " property: " + tween.prop + " from: " + tween.begin + "  to : " + tween.finish + " in: " + tween.duration + "secs");
+					// 	if(this.traceMode) CUtil.trace("Tweening obj in scene: " + objectName + "  named : " + tween.obj.name + " property: " + tween.prop + " from: " + tween.begin + "  to : " + tween.finish + " in: " + tween.duration + "msecs");
 						
 					// 	// push the tween on to the run stack
 					// 	//
-					// 	this.Running.push(tween);						
+					// 	this.addTween(tween);						
 					// }
 					// if(targObj.inPlace.Height != liveObj.height)
 					// {
 					// 	tween = new Tween(targObj.instance, "height", Cubic.easeInOut, targObj.instance.height, targObj.inPlace.Height, tTime, true );
-					// 	if(this.traceMode) CUtil.trace("Tweening obj in scene: " + objectName + "  named : " + tween.obj.name + " property: " + tween.prop + " from: " + tween.begin + "  to : " + tween.finish + " in: " + tween.duration + "secs");
+					// 	if(this.traceMode) CUtil.trace("Tweening obj in scene: " + objectName + "  named : " + tween.obj.name + " property: " + tween.prop + " from: " + tween.begin + "  to : " + tween.finish + " in: " + tween.duration + "msecs");
 						
 					// 	// push the tween on to the run stack
 					// 	//
-					// 	this.Running.push(tween);						
+					// 	this.addTween(tween);						
 					// }
-					if(targObj.inPlace.Alpha != liveObj.alpha)
+					if(targObj.inPlace.alpha != liveObj.alpha)
 					{
-						tween = new Tween(targObj.instance).to({alpha:targObj.inPlace.Alpha}, this.tTime, Ease.cubicInOut);
-						if(this.traceMode) CUtil.trace("Tweening obj in scene: " + objectName + "  named : " + targObj.name + " property: " + targObj.prop + " in: " + tween.duration + "secs");
+						tween = new Tween(targObj.instance).to({alpha:targObj.inPlace.alpha}, this.tTime, Ease.cubicInOut);
+						if(this.traceMode) CUtil.trace("Tweening obj in scene: " + sceneName + "  named : " + targObj.instance.name + " property: alpha" + " in: " + tween.duration + "msecs");
 
 						// push the tween on to the run stack
 						//
-						this.Running.push(tween);						
+						this.addTween(tween);						
 					}
 					
 				}
@@ -402,12 +404,12 @@ export class CEFTransitions extends CEFTimeLine
 					
 					// Generate the tween
 					//
-					tween = new Tween(targObj.instance).to({alpha:targObj.inPlace.Alpha}, this.tTime, Ease.cubicInOut);
-					if(this.traceMode) CUtil.trace("Tweening obj in scene: " + objectName + "  named : " + targObj.name + " property: " + targObj.prop + " in: " + tween.duration + "secs");
+					tween = new Tween(targObj.instance).to({alpha:targObj.inPlace.alpha}, this.tTime, Ease.cubicInOut);
+					if(this.traceMode) CUtil.trace("Tweening obj in scene: " + sceneName + "  named : " + targObj.instance.name + " property: alpha" + " in: " + tween.duration + "msecs");
 					
 					// push the tween on to the run stack
 					//
-					this.Running.push(tween);
+					this.addTween(tween);
 				}					
 			
 									
@@ -439,7 +441,7 @@ export class CEFTransitions extends CEFTimeLine
 					{
 						if(this.traceMode) CUtil.trace("SubTweening : " + targObj.instance.name );
 						
-						this.setTransitionIN(objectList[objectName], namedObj ); 
+						this.setTransitionIN(objectList[sceneName], namedObj ); 
 					}
 				}
 				else
@@ -513,18 +515,6 @@ export class CEFTransitions extends CEFTimeLine
 		tar.alpha  = src.alpha;			
 	}				
 
-	
-	/**
-	 * default behavior to hide objects as they go offscreen
-	 */
-	public xnFinished(evt:any ) : void
-	{				
-		if (evt.currentTarget.obj.alpha == 0)
-					evt.currentTarget.obj.visible = false;
-		
-		super.xnFinished(evt);
-	}					
-	
 	
 	/**
 	 * Object specific finalization behaviors - invoked through  reference in xnFinished

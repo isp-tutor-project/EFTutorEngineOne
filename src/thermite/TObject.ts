@@ -1227,7 +1227,7 @@ export class TObject extends TRoot
 			
 			this.tutorDoc._phaseData[attrName]["duration"] = this.tutorDoc.tutorContainer.timeStamp.createLogAttr("dur_"+name);
 			
-			// Simple Scene state record - some values set in CEFSceneSequence.onExitScene 
+			// Simple Scene state record - some values set in TScene.onExitScene 
 			
 			this.tutorDoc._sceneData[element.logattr] = dataStr;
 			
