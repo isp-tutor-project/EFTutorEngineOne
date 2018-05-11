@@ -94,7 +94,7 @@ export class TTutorContainer extends TRoot
 	//
 	public 	 cCursor:TCursorProxy;		
 	
-	public   sceneCnt:number   		   	= 0;							// Total number of scenes	
+	public   sceneCnt:number   		   		= 0;						// Total number of scenes	
 
 			  replayIndex:Array<number> 	= new Array;
 			  replayTime:number    			= 0;
@@ -111,6 +111,11 @@ export class TTutorContainer extends TRoot
 	public containerBounds:Shape;
     public nominalBounds:Rectangle;
     
+	// This is a special signature to avoid typescript error "because <type> has no index signature."
+	// on this[<element name>]
+	// 
+	[key: string]: any;
+
 	
 	/**
 	 * CEFTutorContainer constructor
@@ -243,7 +248,8 @@ export class TTutorContainer extends TRoot
 		tarScene.name         = sceneName;
 		tarScene.tutorDoc     = this.tutorDoc;
 		tarScene.tutorAutoObj = this.tutorAuto;
-			
+		tarScene.sceneExt     = this.tutorDoc.tutorExt[sceneName];	
+
 		this.addChild(tarScene);
 
 		//enumChildren(tarScene,0);				//@@ Debug display list Test May 10 2014
@@ -262,7 +268,7 @@ export class TTutorContainer extends TRoot
 		
 		if(sceneVisible)
 		{
-			(this as any)[sceneName]  = tarScene;
+			this[sceneName]  = tarScene;
 			tarScene.visible = true;
 		}
 		
@@ -322,7 +328,7 @@ export class TTutorContainer extends TRoot
 		
 		if(this.hasOwnProperty(sceneName))
 		{
-			(this as any)[sceneName] = null;
+			this[sceneName] = null;
 			
 			// Remove each SCENE Object
 			if(this.tutorAutoObj.hasOwnProperty(sceneName))
@@ -339,10 +345,10 @@ export class TTutorContainer extends TRoot
 	{						
 		// name the object
 		
-		(this as any)[sceneName] = sceneObj;		
+		this[sceneName] = sceneObj;		
 		
 		if(nameObj)									// Can't rename an object placed in Flash
-			(this as any)[sceneName].name = sceneName;
+			this[sceneName].name = sceneName;
 		
 		// Attach the navigator to the scene itself - let it know what navigation object to use when NAV events occur
 		

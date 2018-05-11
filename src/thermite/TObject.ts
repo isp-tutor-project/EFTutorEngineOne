@@ -174,47 +174,6 @@ export class TObject extends TRoot
 	/*  ###########  END CREATEJS SUBCLASS SUPPORT ###########   */
 
 
-	
-	public onCreate() : void
-	{
-		// Parse the Tutor.config for create procedures for this scene 
-		
-		// if((this.tutorDoc.gSceneConfig != null) && (this.tutorDoc.gSceneConfig.objectdata[this.name] != undefined))
-		// 				this.parseOBJ(this, this.tutorDoc.gSceneConfig.objectdata[this.name].children(), name);
-		
-		//## Mod May 04 2014 - support declarative button actions from scenedescr.xml <create>
-		if(this.onCreateScript != null)
-					this.doCreateAction();
-	}					
-
-	
-	protected doCreateAction() : void
-	{
-		try
-		{
-			eval(this.onCreateScript);
-		}
-		catch(e)
-		{
-			CUtil.trace("Error in onCreate script: " + this.onCreateScript);
-		}
-	}
-	
-	public doExitAction() : void
-	{
-		if(this.onExitScript != null)
-		{		
-			try
-			{
-				eval(this.onExitScript);
-			}
-			catch(e)
-			{
-				CUtil.trace("Error in onExit script: " + this.onExitScript);
-			}
-		}
-	}
-	
 	/**
 	 * This is a mechanism to keep woz objects !.visible through a transition
 	 *  
@@ -1140,7 +1099,9 @@ export class TObject extends TRoot
 
 	
 //*************** Creation / Initialization
-				
+			
+		// TODO: clean up parseObj etc... these may not be required in TObject butonly at TScene level
+
 		/**
 		 * 
 		 * @param	baseObj

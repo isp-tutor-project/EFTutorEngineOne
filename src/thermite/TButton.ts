@@ -49,7 +49,6 @@ export class TButton extends TObject
 
 	private onClickScript:TObject = null;
 	
-	public sceneExt:any;
 
 	constructor()
 	{
@@ -110,8 +109,6 @@ export class TButton extends TObject
 
 		this.resetState();
 		this.enableButton(true);
-
-		this.sceneExt = new this.tutorDoc.sceneExt["SSoundCheck"]();		
 	}
 
 	// Walk the WOZ Objects to capture their default state
@@ -310,11 +307,12 @@ export class TButton extends TObject
 		
 	}					
 
+	// TODO: implement sceneExt action
 	protected doClickAction(evt:TMouseEvent) : void
 	{
 		try
 		{
-			this.sceneExt["SButton1_Action"].call(this);
+			// this.sceneExt["SButton1_Action"].call(this);
 		}
 		catch(e)
 		{

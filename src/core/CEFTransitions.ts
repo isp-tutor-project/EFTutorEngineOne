@@ -57,7 +57,6 @@ export class CEFTransitions extends CEFTimeLine
 	private currentObjs:Array<any>;				// Pointers to the objects in the current scene
 	private fSwapObjects:boolean = false;		// flag - true - swap objects  - false - use deep state copy 
 
-	private timeLine:Timeline;
 	
 	
 	constructor(_tutorDoc:IEFTutorDoc)
@@ -133,7 +132,6 @@ export class CEFTransitions extends CEFTimeLine
 		
 		if(this.currScene != null)
 		{
-			this.timeLine = new Timeline(null,null, {useTicks:true, loop:-1, paused:true});
 			this.setTransitionOUT();	
 			
 			if(this.targets.length)

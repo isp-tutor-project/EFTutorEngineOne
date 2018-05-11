@@ -476,10 +476,6 @@ export class CTutorGraphNavigator extends CEFNavigator
 			if(this._currScene)
 			{
 				this.tutorDoc.TutAutomator[this._currScene.scenename].instance.onExitScene();
-				
-				//## Mod May 10 2014 - Support runtime scripting
-				
-				this.tutorDoc.TutAutomator[this._currScene.scenename].instance.doExitAction();					
 			}				
 			
 //@@ Progress Logging

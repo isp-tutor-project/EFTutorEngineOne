@@ -35,6 +35,10 @@ import MovieClip     	  = createjs.MovieClip;
 
 export class TSceneBase extends TObject
 {		
+	// This is a special signature to avoid typescript error "because <type> has no index signature."
+	// on this[<element name>]
+	// 
+	[key: string]: any;
 
 	public fComplete:boolean = false;			// scene Complete Flag
 	
@@ -49,7 +53,13 @@ export class TSceneBase extends TObject
 	
 	protected _section:string;					// Arbitrary tutor section id
 	
-	
+	protected _nextButton:any = null;
+	protected _prevButton:any = null;
+
+	protected sceneExt:any;						// Scene customization - extension code.
+
+
+
 	/**
 	 * Scene Constructor
 	 */
@@ -90,69 +100,22 @@ export class TSceneBase extends TObject
 	public onCreate() : void
 	{
 		try {
-			// if(this.tutorDoc.gSceneConfig.scenedata[this.name] === undefined) {
-			// 	throw("Error: scene description not found: " + this.name);
-			// }
-			// // Parse the Tutor.config for create procedures for this scene 
+			// Execute the create procedures for this scene instance
+			// see notes on sceneExt Code - tutor Supplimentary code
+			// 
+			this.sceneExt.oncreate.call(this);
 			
-			// if(this.tutorDoc.gSceneConfig.scenedata[this.name].create != undefined)
-			// 	this.parseOBJ(this, this.tutorDoc.gSceneConfig.scenedata[this.name].create, "create");
-
-			// //## Mod May 04 2014 - support declarative button actions from scenedescr.xml <create>
-			// if(this.onCreateScript != null)
-			// 			this.doCreateAction();
-			
-			// //## Mod Oct 25 2012 - support for demo scene-initialization
-			
-			// if((this.tutorDoc.gSceneConfig != null) && (this.tutorDoc.gSceneConfig.scenedata[this.name].demoinit != undefined))
-			// 	this.parseOBJ(this, this.tutorDoc.gSceneConfig.scenedata[this.name].demoinit.children(), "demoinit");
+			// Support for demo scene-initialization
+			// 
+			this.sceneExt.demoinit.call(this);
 		}		
 		catch(error) {
-			console.log("TScene.onCreate Failed: " + error);
-		}
-	}
 
-	public addChild(obj:DisplayObject) : DisplayObject {
-
-		super.addChild(obj);
-
-		return obj;
-	}
-
-
-	/**
-	 *  Must provide valid execution context when operating at Scene level as here parentScene is NULL
-	 *  
-	 */
-	protected doCreateAction() : void
-	{
-		try
-		{
-			eval(this.onCreateScript);
-		}
-		catch(e)
-		{
 			CUtil.trace("Error in onCreate script: " + this.onCreateScript);
 		}
 	}
-	
-	
-	public doExitAction() : void
-	{
-		if(this.onExitScript != null)
-		{		
-			try
-			{
-				eval(this.onExitScript);
-			}
-			catch(e)
-			{
-				CUtil.trace("Error in onExit script: " + this.onExitScript);
-			}
-		}
-	}
-	
-	
+
+
 	/**
 	 * polymorphic UI set up
 	 */
@@ -160,7 +123,48 @@ export class TSceneBase extends TObject
 	{
 		
 	}
+
 	
+	public connectNavButton(type:string, butComp:string) {
+
+		this.disConnectNavButton(type, butComp );
+
+		switch(type) {
+			case CONST.NEXTSCENE:
+				this._nextButton = this[butComp].on(CONST.CLICK, this.tutorDoc.tutorNavigator.onButtonNext, this.tutorDoc.tutorNavigator);
+				break;
+
+			case CONST.PREVSCENE:
+				this._prevButton = this[butComp].on(CONST.CLICK, this.tutorDoc.tutorNavigator.onButtonPrev, this.tutorDoc.tutorNavigator);
+				break;				
+		}
+	}
+
+
+	public disConnectNavButton(type:string, butComp:string ) {
+
+		switch(type) {
+			case CONST.NEXTSCENE:
+				if(this._nextButton) {
+
+					this[butComp].off(this._nextButton);
+					this._nextButton = null;
+				}
+				break;
+
+			case CONST.PREVSCENE:
+				if(this._prevButton) {
+
+					this[butComp].off(this._prevButton);
+					this._prevButton = null;
+				}
+				break;				
+		}
+	}
+
+
+
+
 //*************** Effect management - from Audio Stream
 	
 	/**
@@ -170,7 +174,7 @@ export class TSceneBase extends TObject
 	{
 		if(this.traceMode) CUtil.trace("Effect Event: " + evt);
 		
-		(this as any)[evt.prop1](evt.prop2, evt.prop3, evt.prop4, evt.prop5);
+		this[evt.prop1](evt.prop2, evt.prop3, evt.prop4, evt.prop5);
 	}		
 	
 	
@@ -444,9 +448,13 @@ export class TSceneBase extends TObject
 		this.demoBehavior();
 		
 		// Parse the Tutor.config for preenter procedures for this scene 
-		
-		// if((this.tutorDoc.gSceneConfig != null) && (this.tutorDoc.gSceneConfig.scenedata[this.name].preenter != undefined))			
-		// 								this.parseOBJ(this, this.tutorDoc.gSceneConfig.scenedata[this.name].preenter.children(), "preenter");				
+		// 
+		try {
+			this.sceneExt.preenter.call(this);
+		}
+		catch(error) {
+			CUtil.trace("preenter error on scene: " + this.name + " - " + error);
+		}
 
 		//@@ Mod May 22 2013 - moved to after the XML spec is executed - If the user uses the back button this should
 		//                     override the spec based on fComplete
@@ -473,9 +481,13 @@ export class TSceneBase extends TObject
 		if (this.traceMode) CUtil.trace("Default Enter Scene Behavior:");
 		
 		// Parse the Tutor.config for onenter procedures for this scene 
-		
-		// if((this.tutorDoc.gSceneConfig != null) && (this.tutorDoc.gSceneConfig.scenedata[this.name].onenter != undefined))			
-		// 								this.parseOBJ(this, this.tutorDoc.gSceneConfig.scenedata[this.name].onenter.children(), "onenter");						
+		// 
+		try {
+			this.sceneExt.onenter.call(this);
+		}
+		catch(error) {
+			CUtil.trace("onenter error on scene: " + this.name + " - " + error);
+		}
 	}
 	
 	// Direction can be - "NEXT" , "BACK" , "GOTO"
@@ -485,10 +497,13 @@ export class TSceneBase extends TObject
 		if(this.traceMode) CUtil.trace("Default Pre-Exit Scene Behavior:");
 		
 		// Parse the Tutor.config for onenter procedures for this scene 
-		
-		// if((this.tutorDoc.gSceneConfig != null) && (this.tutorDoc.gSceneConfig.scenedata[this.name].preexit != undefined))		
-		// 								this.parseOBJ(this, this.tutorDoc.gSceneConfig.scenedata[this.name].preexit.children(), "preexit");				
-		
+		// 
+		try {
+			this.sceneExt.preexit.call(this);
+		}
+		catch(error) {
+			CUtil.trace("preexit error on scene: " + this.name + " - " + error);
+		}
 		return(CONST.OKNAV);			
 	}
 
@@ -497,9 +512,13 @@ export class TSceneBase extends TObject
 		if (this.traceMode) CUtil.trace("Default Exit Scene Behavior:");
 		
 		// Parse the Tutor.config for onenter procedures for this scene 
-		
-		// if((this.tutorDoc.gSceneConfig != null) && (this.tutorDoc.gSceneConfig.scenedata[this.name].onexit != undefined))			
-		// 								this.parseOBJ(this, this.tutorDoc.gSceneConfig.scenedata[this.name].onexit.children(), "onexit");						
+		// 
+		try {
+			this.sceneExt.onexit.call(this);
+		}
+		catch(error) {
+			CUtil.trace("onexit error on scene: " + this.name + " - " + error);
+		}
 	}
 	
 //****** DEMO Behaviors

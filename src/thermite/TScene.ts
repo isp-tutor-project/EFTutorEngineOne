@@ -143,14 +143,21 @@ export class TScene extends TSceneBase
 	public rewindScene() : void
 	{
 		// Parse the Tutor.config for create procedures for this scene 
-		
-		// if((this.tutorDoc.gSceneConfig != null) && (this.tutorDoc.gSceneConfig.scenedata[this.name].rewind != undefined))
-		// 	this.parseOBJ(this, this.tutorDoc.gSceneConfig.scenedata[this.name].rewind.children(), "rewind");
-		
-		// //## Mod Feb 07 2013 - support for scene rewind -initialization
-		
-		// if((this.tutorDoc.gSceneConfig != null) && (this.tutorDoc.gSceneConfig.scenedata[this.name].demoinit != undefined))
-		// 	this.parseOBJ(this, this.tutorDoc.gSceneConfig.scenedata[this.name].demoinit.children(), "demoinit");			
+	
+		try {
+			// Execute the rewind procedures for this scene instance
+			// see notes on sceneExt Code - tutor Supplimentary code
+			// 
+			this.sceneExt.rewind.call(this);
+			
+			// Support for demo scene-initialization
+			// 
+			this.sceneExt.demoinit.call(this);
+		}		
+		catch(error) {
+
+			CUtil.trace("Error in onCreate script: " + this.onCreateScript);
+		}
 	}
 	
 	
@@ -168,8 +175,13 @@ export class TScene extends TSceneBase
 		
 		//## Mod Feb 07 2013 - added to support actionsequence replay functionality 
 		// restart the ActionTrack sequence
-		
-		// this.parseOBJ(null, this.tutorDoc.gSceneConfig.scenedata[this.name].preenter.children(), "preenter");
+		// 
+		try {
+			this.sceneExt.preenter.call(this);
+		}
+		catch(error) {
+			CUtil.trace("sceneReplay preenter error on scene: " + this.name + " - " + error);
+		}
 		
 		// Use the timer to do an asynchronous start of the actionTrack
 		
@@ -668,10 +680,12 @@ export class TScene extends TSceneBase
 		
 		this.tutorDoc._sceneData = {};			
 		
-		// if((this.tutorDoc.gSceneConfig != null) && (this.tutorDoc.gSceneConfig.scenedata[this.name].logging != undefined))
-		// {
-		// 	this.parseOBJ(this, this.tutorDoc.gSceneConfig.scenedata[this.name].logging.children(), "logging");
-		// }
+		try {
+			this.sceneExt.logging.call(this);
+		}
+		catch(error) {
+			CUtil.trace("logging error on scene: " + this.name + " - " + error);
+		}
 		
 		// Always log the scene duration data
 		
@@ -682,20 +696,22 @@ export class TScene extends TSceneBase
 		this.tutorDoc.log.logStateEvent(this.tutorDoc._sceneData);
 		
 		
-		// Parse the Tutor.config for Terminate event
-		
-		// if((this.tutorDoc.gSceneConfig != null) && (this.tutorDoc.gSceneConfig.scenedata[this.name].logterm != undefined))
-		// {
-		// 	//@@Mod Sep 04 2013 - feature enable the logterm command
-			
-		// 	if(this.tutorDoc.gSceneConfig.scenedata[this.name].logterm.features != undefined)
-		// 	{					
-		// 		if(this.tutorDoc.tutorContainer.testFeatureSet(String(this.tutorDoc.gSceneConfig.scenedata[this.name].logterm.features)))
-		// 																				this.enQueueTerminateEvent();
-		// 	}
-		// 	else 
-		// 	this.enQueueTerminateEvent();
-		// }
+		// Check for Terminate Flag
+		// 
+		try {
+			if(this.sceneExt.logterm) {
+				if(this.tutorDoc.testFeatureSet(this.sceneExt.features)) {
+					this.enQueueTerminateEvent();
+				}
+				else {
+					this.enQueueTerminateEvent();
+				}
+			}
+		}
+		catch(error) {
+			CUtil.trace("enQueueTerminateEvent error on scene: " + this.name + " - " + error);
+		}
+
 		
 		//## Mod aug 22 2013 - Update KT beliefs 
 		
