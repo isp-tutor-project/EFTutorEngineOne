@@ -1,6 +1,14 @@
 
 VSCode regex cheatsheet:
 
+Regex to insert $ before identifier name in sceneExt code
+find: public(\s*)(\w)
+replace: public$1$$$2
+
+Note: capture groups are in () and are rememebered and numbered sequentially
+	  they are recalled with $# where # is the capture index above 
+	  $$ is escape to insert just a $
+
 Regex to convert external module import statements to namespace reference path statements
 
 find: ^import\s*\{\s*\w*\s*\}\s*from\s*(".*/\w*");

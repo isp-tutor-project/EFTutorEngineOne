@@ -248,7 +248,12 @@ export class TTutorContainer extends TRoot
 		tarScene.name         = sceneName;
 		tarScene.tutorDoc     = this.tutorDoc;
 		tarScene.tutorAutoObj = this.tutorAuto;
-		tarScene.sceneExt     = this.tutorDoc.tutorExt[sceneName];	
+
+		// Mixin the supplimentary code.
+		//
+		CUtil.extractOwnProperties(tarScene, this.tutorDoc.tutorExt[sceneName], CONST.EXT_SIG);
+		CUtil.extractOwnProperties(tarScene, this.tutorDoc.tutorExt[CONST.COMMON_CODE], CONST.EXT_SIG);
+		// tarScene.sceneExt     = this.tutorDoc.tutorExt[sceneName];	
 
 		this.addChild(tarScene);
 

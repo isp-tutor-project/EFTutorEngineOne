@@ -103,6 +103,19 @@ export class CUtil extends Object
         return className;
     }
 
+	
+	public static extractOwnProperties(recObj:any, donorObj:any, constraint:string) {
+
+		let propName:string;
+
+		let nonTObj:Array<string> = Object.getOwnPropertyNames(donorObj);
+		
+		for(propName of nonTObj) {
+			if(constraint && !propName.startsWith(constraint))
+														continue;
+			recObj[propName] = donorObj[propName];
+		}		
+	}
 
 
 	public static getDefinitionByName2(name:string):any {

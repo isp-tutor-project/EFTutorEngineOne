@@ -15,6 +15,10 @@ export class CONST {
 
 	static readonly CLICK:string 			= "click";				// Click event from the button 
 				
+	public static readonly COMMON_CODE  = "$Common";
+	public static readonly EXT_SIG      = "$";
+
+
     public static readonly BOOT_LOADER:string   = "./EFData/bootLoader.json5";
     public static readonly LOCAL:string          = "LOCAL";
     public static readonly WAIT:number           = 250;
