@@ -148,11 +148,11 @@ export class TScene extends TSceneBase
 			// Execute the rewind procedures for this scene instance
 			// see notes on sceneExt Code - tutor Supplimentary code
 			// 
-			this.sceneExt.rewind.call(this);
+			this.$rewind();
 			
 			// Support for demo scene-initialization
 			// 
-			this.sceneExt.demoinit.call(this);
+			this.$demoinit();
 		}		
 		catch(error) {
 
@@ -177,7 +177,7 @@ export class TScene extends TSceneBase
 		// restart the ActionTrack sequence
 		// 
 		try {
-			this.sceneExt.preenter.call(this);
+			this.$preenter();
 		}
 		catch(error) {
 			CUtil.trace("sceneReplay preenter error on scene: " + this.name + " - " + error);
@@ -681,26 +681,27 @@ export class TScene extends TSceneBase
 		this.tutorDoc._sceneData = {};			
 		
 		try {
-			this.sceneExt.logging.call(this);
+			this.$logging();
 		}
 		catch(error) {
 			CUtil.trace("logging error on scene: " + this.name + " - " + error);
 		}
 		
+		// TODO: implement
 		// Always log the scene duration data
 		
-		this.tutorDoc._sceneData['scene']     = name;
-		this.tutorDoc._sceneData['iteration'] = this.tutorDoc.tutorContainer.gNavigator.iteration.toString();
-		this.tutorDoc._sceneData['duration']  = this.tutorDoc.tutorContainer.timeStamp.createLogAttr("dur_"+name);
+		// this.tutorDoc._sceneData['scene']     = name;
+		// this.tutorDoc._sceneData['iteration'] = this.tutorDoc.tutorContainer.gNavigator.iteration.toString();
+		// this.tutorDoc._sceneData['duration']  = this.tutorDoc.tutorContainer.timeStamp.createLogAttr("dur_"+name);
 		
-		this.tutorDoc.log.logStateEvent(this.tutorDoc._sceneData);
+		// this.tutorDoc.log.logStateEvent(this.tutorDoc._sceneData);
 		
 		
 		// Check for Terminate Flag
 		// 
 		try {
-			if(this.sceneExt.logterm) {
-				if(this.tutorDoc.testFeatureSet(this.sceneExt.features)) {
+			if(this.$logterm) {
+				if(this.tutorDoc.testFeatureSet(this.$features)) {
 					this.enQueueTerminateEvent();
 				}
 				else {

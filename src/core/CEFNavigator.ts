@@ -73,8 +73,9 @@ export class CEFNavigator extends EventDispatcher
 	{
 		super();
 
-		this.traceMode = true;					
-		this.tutorDoc  = _tutorDoc;
+		this.traceMode    = true;					
+		this.tutorDoc     = _tutorDoc;
+		this.tutorAutoObj = _tutorDoc.TutAutomator;
 
 		this.xitions = new CEFTransitions(_tutorDoc);
 	}
@@ -214,7 +215,7 @@ export class CEFNavigator extends EventDispatcher
 //			sceneTitle.splice(SceneNdx + 1, 0, SceneTitle); 
 //			  this.sceneSeq.splice(SceneNdx + 1, 0, SceneName); 
 //			
-//			return TutAutomator[this.sceneSeq[SceneNdx]].instance;
+//			return TutAutomator[this.sceneSeq[SceneNdx]]._instance;
 //		}		
 	
 	
@@ -287,7 +288,7 @@ export class CEFNavigator extends EventDispatcher
 			{
 				// Do the exit behavior
 				
-				this.tutorDoc.TutAutomator[this.sceneSeq[this.sceneCurr]].instance.preExitScene("WOZGOTO", this.sceneCurr);
+				this.tutorDoc.TutAutomator[this.sceneSeq[this.sceneCurr]]._instance.preExitScene("WOZGOTO", this.sceneCurr);
 				
 				// switch the curent active scene
 				
@@ -295,7 +296,7 @@ export class CEFNavigator extends EventDispatcher
 			}
 			// Allow current scene to update next scene dynamically
 			
-			else switch(redScene = this.tutorDoc.TutAutomator[this.sceneSeq[this.sceneCurr]].instance.preExitScene("WOZGOTO", this.sceneCurr))
+			else switch(redScene = this.tutorDoc.TutAutomator[this.sceneSeq[this.sceneCurr]]._instance.preExitScene("WOZGOTO", this.sceneCurr))
 			{
 				case CONST.CANCELNAV: 						// Do not allow scene to change
 						if(this.tutorDoc.fDemo)
@@ -330,7 +331,7 @@ export class CEFNavigator extends EventDispatcher
 				
 				newScene = redScene;
 				
-				redScene = this.tutorDoc.TutAutomator[this.sceneSeq[this.sceneCurr]].instance.preEnterScene(this.tutorDoc.tutorContainer, newScene, this.sceneTitle[this.sceneCurr], this.scenePage[this.sceneCurr], "WOZGOTO");
+				redScene = this.tutorDoc.TutAutomator[this.sceneSeq[this.sceneCurr]]._instance.preEnterScene(this.tutorDoc.tutorContainer, newScene, this.sceneTitle[this.sceneCurr], this.scenePage[this.sceneCurr], "WOZGOTO");
 
 				//@@@ NOTE: either discontinue support for redirection through PreEnterScene - or manage scene creation and destruction here
 				
@@ -359,7 +360,7 @@ export class CEFNavigator extends EventDispatcher
 			
 			// On exit behaviors
 			
-			this.tutorDoc.TutAutomator[this.sceneSeq[this.scenePrev]].instance.onExitScene();
+			this.tutorDoc.TutAutomator[this.sceneSeq[this.scenePrev]]._instance.onExitScene();
 			
 			// Initialize the stategraph for the new scene
 			
@@ -429,7 +430,7 @@ export class CEFNavigator extends EventDispatcher
 			
 			// Allow current scene to update next scene dynamically
 			//
-			switch(redScene = this.tutorDoc.TutAutomator[this.sceneSeq[this.sceneCurr]].instance.preExitScene("WOZNEXT", this.sceneCurr))
+			switch(redScene = this.tutorDoc.TutAutomator[this.sceneSeq[this.sceneCurr]]._instance.preExitScene("WOZNEXT", this.sceneCurr))
 			{
 				case CONST.CANCELNAV: 						// Do not allow scene to change
 						if(this.tutorDoc.fDemo)
@@ -471,7 +472,7 @@ export class CEFNavigator extends EventDispatcher
 				
 				//@@@ NOTE: either discontinue support for redirection through PreEnterScene - or manage scene creation and destruction here
 				
-				redScene = this.tutorDoc.TutAutomator[this.sceneSeq[this.sceneCurr]].instance.preEnterScene(this.tutorDoc.tutorContainer, newScene, this.sceneTitle[this.sceneCurr], this.scenePage[this.sceneCurr], "WOZNEXT");
+				redScene = this.tutorDoc.TutAutomator[this.sceneSeq[this.sceneCurr]]._instance.preEnterScene(this.tutorDoc.tutorContainer, newScene, this.sceneTitle[this.sceneCurr], this.scenePage[this.sceneCurr], "WOZNEXT");
 				
 				// Skip to next scene in sequence
 				if(redScene == "WOZNEXT")
@@ -500,7 +501,7 @@ export class CEFNavigator extends EventDispatcher
 			
 			// On exit behaviors
 			
-			this.tutorDoc.TutAutomator[this.sceneSeq[this.scenePrev]].instance.onExitScene();
+			this.tutorDoc.TutAutomator[this.sceneSeq[this.scenePrev]]._instance.onExitScene();
 			
 			// Do the scene transitions
 			this.tutorDoc.tutorContainer.xitions.on(CEFEvent.COMPLETE, this.doEnterNext);			
@@ -550,7 +551,7 @@ export class CEFNavigator extends EventDispatcher
 
 			// Allow current scene to update next scene dynamically
 			//
-			switch(redScene = this.tutorDoc.TutAutomator[this.sceneSeq[this.sceneCurr]].instance.preExitScene("WOZBACK", this.sceneCurr))
+			switch(redScene = this.tutorDoc.TutAutomator[this.sceneSeq[this.sceneCurr]]._instance.preExitScene("WOZBACK", this.sceneCurr))
 			{
 				case CONST.CANCELNAV: 						// Do not allow scene to change
 						if(this.tutorDoc.fDemo)
@@ -578,7 +579,7 @@ export class CEFNavigator extends EventDispatcher
 			{
 				newScene = redScene;
 				
-				redScene = this.tutorDoc.TutAutomator[this.sceneSeq[this.sceneCurr]].instance.preEnterScene(this.tutorDoc.tutorContainer, newScene, this.sceneTitle[this.sceneCurr], this.scenePage[this.sceneCurr], "WOZBACK");
+				redScene = this.tutorDoc.TutAutomator[this.sceneSeq[this.sceneCurr]]._instance.preEnterScene(this.tutorDoc.tutorContainer, newScene, this.sceneTitle[this.sceneCurr], this.scenePage[this.sceneCurr], "WOZBACK");
 								
 				if(redScene == "WOZNEXT")
 				{
@@ -605,7 +606,7 @@ export class CEFNavigator extends EventDispatcher
 			
 			// On exit behaviors
 			
-			this.tutorDoc.TutAutomator[this.sceneSeq[this.scenePrev]].instance.onExitScene();
+			this.tutorDoc.TutAutomator[this.sceneSeq[this.scenePrev]]._instance.onExitScene();
 			
 			// Do the scene transitions
 			this.tutorDoc.tutorContainer.xitions.addEventListener(CEFEvent.COMPLETE, this.doEnterBack);			
@@ -634,7 +635,7 @@ export class CEFNavigator extends EventDispatcher
 		
 		// Do scene Specific Enter Scripts
 		//
-		this.tutorDoc.TutAutomator[this.sceneSeq[this.sceneCurr]].instance.onEnterScene("WOZNEXT");
+		this.tutorDoc.TutAutomator[this.sceneSeq[this.sceneCurr]]._instance.onEnterScene("WOZNEXT");
 		
 		//this.tutorDoc.prntTutor.enumScenes();	//@@debug
 
@@ -670,7 +671,7 @@ export class CEFNavigator extends EventDispatcher
 		
 		// Do scene Specific Enter Scripts
 		//
-		this.tutorDoc.TutAutomator[this.sceneSeq[this.sceneCurr]].instance.onEnterScene("WOZBACK");
+		this.tutorDoc.TutAutomator[this.sceneSeq[this.sceneCurr]]._instance.onEnterScene("WOZBACK");
 		
 		// In demo mode defer demo clicks while scene switches are in progress
 		
@@ -701,7 +702,7 @@ export class CEFNavigator extends EventDispatcher
 		
 		// Do scene Specific Enter Scripts
 		//
-		this.tutorDoc.TutAutomator[this.sceneSeq[this.sceneCurr]].instance.onEnterScene("WOZGOTO");
+		this.tutorDoc.TutAutomator[this.sceneSeq[this.sceneCurr]]._instance.onEnterScene("WOZGOTO");
 		
 		// In demo mode defer demo clicks while scene switches are in progress
 		

@@ -756,11 +756,11 @@ export class TObject extends TRoot
 		
 		for(let subObject in tutObject)
 		{			
-			if(subObject != "instance" && tutObject[subObject].instance instanceof TObject)
+			if(subObject != "_instance" && tutObject[subObject]._instance instanceof TObject)
 			{
-				if(this.traceMode) CUtil.trace("capturing: " + tutObject[subObject].instance.name);
+				if(this.traceMode) CUtil.trace("capturing: " + tutObject[subObject]._instance.name);
 				
-				tutObject[subObject].instance.captureDefState(tutObject[subObject] );										
+				tutObject[subObject]._instance.captureDefState(tutObject[subObject] );										
 			}					
 		}		
 	}
@@ -779,11 +779,11 @@ export class TObject extends TRoot
 		
 		for(let subObject in tutObject)
 		{			
-			if(subObject != "instance" && tutObject[subObject].instance instanceof TObject)
+			if(subObject != "_instance" && tutObject[subObject]._instance instanceof TObject)
 			{
-				if(this.traceMode) CUtil.trace("restoring: " + tutObject[subObject].instance.name);
+				if(this.traceMode) CUtil.trace("restoring: " + tutObject[subObject]._instance.name);
 				
-				tutObject[subObject].instance.restoreDefState(tutObject[subObject] );										
+				tutObject[subObject]._instance.restoreDefState(tutObject[subObject] );										
 			}					
 		}					
 	}
@@ -868,7 +868,7 @@ export class TObject extends TRoot
 			// Record each Sub-Object - only maintain pointers
 			//
 			sceneObj[subObj.name] = {};
-			sceneObj[subObj.name].instance = subObj;										
+			sceneObj[subObj.name]._instance = subObj;										
 
 			// Have Object determine its inplace size
 			//
@@ -919,9 +919,9 @@ export class TObject extends TRoot
 		//
 		for(let subObj in sceneObj)
 		{
-			if(subObj != "instance" && sceneObj[subObj].instance instanceof TObject)
+			if(subObj != "_instance" && sceneObj[subObj]._instance instanceof TObject)
 			{
-				sceneObj[subObj].instance.setAutomationMode(sceneObj[subObj], sMode );										
+				sceneObj[subObj]._instance.setAutomationMode(sceneObj[subObj], sMode );										
 			}					
 		}		
 	}
@@ -938,26 +938,26 @@ export class TObject extends TRoot
 		{
 			if(this.traceMode) CUtil.trace(Indent + "\tsubObj : " + subObj);
 
-			if(subObj != "instance")
+			if(subObj != "_instance")
 			{
 				let ObjData:any = sceneObj[subObj]; // Convenience Pointer
 				
-				if(sceneObj[subObj].instance instanceof TObject)
+				if(sceneObj[subObj]._instance instanceof TObject)
 				{
 					if(this.traceMode) CUtil.trace(Indent + "\t");						
 					
-					let wozObj:TObject = sceneObj[subObj].instance;
+					let wozObj:TObject = sceneObj[subObj]._instance;
 				
 					if(ObjData['inPlace'] != undefined)
 					{
 						if(this.traceMode) CUtil.trace(Indent + "\tCEF* Object: " + " x: " + wozObj.x + " y: " + wozObj.y + " width: " + wozObj.scaleX + " height: " + wozObj.scaleY + " alpha: " + wozObj.alpha + " visible: " + wozObj.visible + " name: " + wozObj.name );													
 						if(this.traceMode) CUtil.trace(Indent + "\tIn-Place Pos: " + " X: " + ObjData['inPlace'].X + " Y: " + ObjData['inPlace'].Y + " Width: " + ObjData['inPlace'].scaleX + " Height: " + ObjData['inPlace'].scaleY + " Alpha: " + ObjData['inPlace'].Alpha );
 					}
-					sceneObj[subObj].instance.dumpSubObjs(sceneObj[subObj], Indent + "\t");												
+					sceneObj[subObj]._instance.dumpSubObjs(sceneObj[subObj], Indent + "\t");												
 				}
 				else 
 				{
-					let disObj:DisplayObject = sceneObj[subObj].instance;
+					let disObj:DisplayObject = sceneObj[subObj]._instance;
 				
 					if(ObjData['inPlace'] != undefined)
 					{

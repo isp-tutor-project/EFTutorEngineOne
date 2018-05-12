@@ -103,11 +103,11 @@ export class TSceneBase extends TObject
 			// Execute the create procedures for this scene instance
 			// see notes on sceneExt Code - tutor Supplimentary code
 			// 
-			this.sceneExt.oncreate.call(this);
+			this.$oncreate();
 			
 			// Support for demo scene-initialization
 			// 
-			this.sceneExt.demoinit.call(this);
+			this.$demoinit();
 		}		
 		catch(error) {
 
@@ -234,6 +234,7 @@ export class TSceneBase extends TObject
 		// parse all the component objects - NOTE: everything must be derived from CEFObject
 		//
 		let propName:string;
+		let childName:string;
 		let childObj:any;
 		let wozObj:TObject;
 
@@ -250,9 +251,11 @@ export class TSceneBase extends TObject
 		
 		for(propName of nonTObj) {
 
+			// Note: in checking all props... many will be null
+			// 
 			childObj = _parentScene[propName];
 			
-			// Skip any Tutor container references
+			// Skip any Tutor container references - would be infinitely recursive
 			//
 			if(childObj instanceof TTutorContainer)
 											continue;
@@ -269,34 +272,42 @@ export class TSceneBase extends TObject
 				(childObj as TObject).measure();					
 			}
 			
-
 			if(childObj instanceof DisplayObject)
 			{
+				// Assign transition names (xnames) to AnimateCC objects
+				
+				if(!(childObj as any).xname) {
+					(childObj as any).xname = this.nextXname();
+				}
+
+				if(childObj.name) childName = childObj.name;
+				else childName = propName;
+	   
 				// Record each Object within scene
 				//
-				sceneAutoObj[childObj.name] = {};
-				sceneAutoObj[childObj.name].instance = childObj;										
+				sceneAutoObj[childName] = {};
+				sceneAutoObj[childName]._instance = childObj;										
 						
 				// Record object in-place position - This is only done for top level objects in scene to record their inplace positions 
 				// for inter-scene tweening.
 				//
-				sceneAutoObj[childObj.name].inPlace = childObj._cloneProps({});
+				sceneAutoObj[childName].inPlace = childObj._cloneProps({});
 
-				// sceneAutoObj[childObj.name].inPlace = {X:childObj.x, Y:childObj.y, Width:childObj.width, Height:childObj.height, Alpha:childObj.alpha};	 //** TODO */							
+				// sceneAutoObj[childName].inPlace = {X:childObj.x, Y:childObj.y, Width:childObj.width, Height:childObj.height, Alpha:childObj.alpha};	 //** TODO */							
 
-				if(this.traceMode) CUtil.trace("\t\tTScene found subObject named:" + childObj.name + " ... in-place: ");
+				if(this.traceMode) CUtil.trace("\t\tTScene found subObject named:" + childName + " ... in-place: ");
 
 				// Recurse WOZ Children
 				//
 				if(childObj instanceof TObject)
 				{
 					wozObj = childObj as TObject;				// Coerce the Object					
-					wozObj.initAutomation(_parentScene, sceneAutoObj[childObj.name], name+".", lLogger, lTutor);
+					wozObj.initAutomation(_parentScene, sceneAutoObj[childName], name+".", lLogger, lTutor);
 				}
 				
-				if(this.traceMode) for(var id in sceneAutoObj[childObj.name].inPlace)
+				if(this.traceMode) for(var id in sceneAutoObj[childName].inPlace)
 				{
-					CUtil.trace("\t\t\t\t" + id + " : " + sceneAutoObj[childObj.name].inPlace[id]);
+					CUtil.trace("\t\t\t\t" + id + " : " + sceneAutoObj[childName].inPlace[id]);
 				}						
 			}
 		}
@@ -311,11 +322,11 @@ export class TSceneBase extends TObject
 
 		for(var sceneObj in TutScene)
 		{			
-			if(sceneObj != "instance" && TutScene[sceneObj].instance instanceof TObject)
+			if(sceneObj != "_instance" && TutScene[sceneObj]._instance instanceof TObject)
 			{
-				if(this.traceMode) CUtil.trace("capturing: " + TutScene[sceneObj].instance.name);
+				if(this.traceMode) CUtil.trace("capturing: " + TutScene[sceneObj]._instance.name);
 				
-				TutScene[sceneObj].instance.captureDefState(TutScene[sceneObj] );										
+				TutScene[sceneObj]._instance.captureDefState(TutScene[sceneObj] );										
 			}					
 		}		
 		if(this.traceMode) CUtil.trace("\t*** End Capture - Walking Top Level Objects***");
@@ -330,11 +341,11 @@ export class TSceneBase extends TObject
 
 		for(var sceneObj in TutScene)
 		{			
-			if(sceneObj != "instance" && TutScene[sceneObj].instance instanceof TObject)
+			if(sceneObj != "_instance" && TutScene[sceneObj]._instance instanceof TObject)
 			{
-				if(this.traceMode) CUtil.trace("restoring: " + TutScene[sceneObj].instance.name);
+				if(this.traceMode) CUtil.trace("restoring: " + TutScene[sceneObj]._instance.name);
 				
-				TutScene[sceneObj].instance.restoreDefState(TutScene[sceneObj] );									
+				TutScene[sceneObj]._instance.restoreDefState(TutScene[sceneObj] );									
 			}					
 		}		
 		if(this.traceMode) CUtil.trace("\t*** End Restore - Walking Top Level Objects***");
@@ -349,9 +360,9 @@ export class TSceneBase extends TObject
 
 		for(var sceneObj in TutScene)
 		{			
-			if(sceneObj != "instance" && TutScene[sceneObj].instance instanceof TObject)
+			if(sceneObj != "_instance" && TutScene[sceneObj]._instance instanceof TObject)
 			{
-				TutScene[sceneObj].instance.setAutomationMode(TutScene[sceneObj], sMode );										
+				TutScene[sceneObj]._instance.setAutomationMode(TutScene[sceneObj], sMode );										
 			}					
 		}		
 		if(this.traceMode) CUtil.trace("\t*** End - Walking Top Level Objects***");
@@ -370,11 +381,11 @@ export class TSceneBase extends TObject
 		{
 			if(this.traceMode) CUtil.trace("\tSceneObj : " + sceneObj);
 			
-			if(sceneObj != "instance" && TutScene[sceneObj].instance instanceof TObject)
+			if(sceneObj != "_instance" && TutScene[sceneObj]._instance instanceof TObject)
 			{
 				if(this.traceMode) CUtil.trace("\tCEF***");
 				
-				TutScene[sceneObj].instance.dumpSubObjs(TutScene[sceneObj], "\t");										
+				TutScene[sceneObj]._instance.dumpSubObjs(TutScene[sceneObj], "\t");										
 			}					
 		}		
 	}
@@ -450,7 +461,7 @@ export class TSceneBase extends TObject
 		// Parse the Tutor.config for preenter procedures for this scene 
 		// 
 		try {
-			this.sceneExt.preenter.call(this);
+			this.$preenter();
 		}
 		catch(error) {
 			CUtil.trace("preenter error on scene: " + this.name + " - " + error);
@@ -483,7 +494,7 @@ export class TSceneBase extends TObject
 		// Parse the Tutor.config for onenter procedures for this scene 
 		// 
 		try {
-			this.sceneExt.onenter.call(this);
+			this.$onenter();
 		}
 		catch(error) {
 			CUtil.trace("onenter error on scene: " + this.name + " - " + error);
@@ -499,7 +510,7 @@ export class TSceneBase extends TObject
 		// Parse the Tutor.config for onenter procedures for this scene 
 		// 
 		try {
-			this.sceneExt.preexit.call(this);
+			this.$preexit();
 		}
 		catch(error) {
 			CUtil.trace("preexit error on scene: " + this.name + " - " + error);
@@ -514,7 +525,7 @@ export class TSceneBase extends TObject
 		// Parse the Tutor.config for onenter procedures for this scene 
 		// 
 		try {
-			this.sceneExt.onexit.call(this);
+			this.$onexit();
 		}
 		catch(error) {
 			CUtil.trace("onexit error on scene: " + this.name + " - " + error);

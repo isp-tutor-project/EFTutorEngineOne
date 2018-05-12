@@ -201,9 +201,9 @@ export class TTitleBar extends TSceneBase
 
 		for(let sceneObj in TutScene)
 		{			
-			if(sceneObj != "instance" && TutScene[sceneObj].instance instanceof TObject)
+			if(sceneObj != "_instance" && TutScene[sceneObj]._instance instanceof TObject)
 			{
-				TutScene[sceneObj].instance.setAutomationMode(TutScene[sceneObj], sMode );										
+				TutScene[sceneObj]._instance.setAutomationMode(TutScene[sceneObj], sMode );										
 			}					
 		}		
 		if(this.traceMode) CUtil.trace("\t*** End - Walking Top Level Nav Objects***");
@@ -220,11 +220,11 @@ export class TTitleBar extends TSceneBase
 		{
 			if(this.traceMode) CUtil.trace("\tNavPanelObj : " + sceneObj);
 			
-			if(sceneObj != "instance" && TutScene[sceneObj].instance instanceof TObject)
+			if(sceneObj != "_instance" && TutScene[sceneObj]._instance instanceof TObject)
 			{
 				if(this.traceMode) CUtil.trace("\tCEF***");
 				
-				TutScene[sceneObj].instance.dumpSubObjs(TutScene[sceneObj], "\t");										
+				TutScene[sceneObj]._instance.dumpSubObjs(TutScene[sceneObj], "\t");										
 			}					
 		}		
 	}

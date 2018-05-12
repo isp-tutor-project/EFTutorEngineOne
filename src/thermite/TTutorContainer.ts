@@ -249,11 +249,12 @@ export class TTutorContainer extends TRoot
 		tarScene.tutorDoc     = this.tutorDoc;
 		tarScene.tutorAutoObj = this.tutorAuto;
 
-		// Mixin the supplimentary code.
+		// Supplimentary code has leading $ (CONST.EXT_SIG) on each identifier to be mixed in
+		// Mixin the common code first to initialize defaults
+		// Mixin the supplimentary code on the scene instance.
 		//
-		CUtil.extractOwnProperties(tarScene, this.tutorDoc.tutorExt[sceneName], CONST.EXT_SIG);
-		CUtil.extractOwnProperties(tarScene, this.tutorDoc.tutorExt[CONST.COMMON_CODE], CONST.EXT_SIG);
-		// tarScene.sceneExt     = this.tutorDoc.tutorExt[sceneName];	
+		CUtil.mixinSceneSuppliments(tarScene, this.tutorDoc.tutorExt[CONST.COMMON_CODE], CONST.EXT_SIG);
+		CUtil.mixinSceneSuppliments(tarScene, this.tutorDoc.tutorExt[sceneName], CONST.EXT_SIG);
 
 		this.addChild(tarScene);
 
@@ -338,7 +339,7 @@ export class TTutorContainer extends TRoot
 			// Remove each SCENE Object
 			if(this.tutorAutoObj.hasOwnProperty(sceneName))
 			{				
-				this.tutorAutoObj[sceneName].instance = null;			
+				this.tutorAutoObj[sceneName]._instance = null;			
 				
 				delete this.tutorAutoObj[sceneName];
 			}
@@ -356,14 +357,15 @@ export class TTutorContainer extends TRoot
 			this[sceneName].name = sceneName;
 		
 		// Attach the navigator to the scene itself - let it know what navigation object to use when NAV events occur
-		
-		if(sceneObj instanceof TScene)
-			sceneObj.connectNavigator(this.SnavPanel);
+
+		// TODO: check if required
+		// if(sceneObj instanceof TScene)
+		// 	sceneObj.connectNavigator(this.SnavPanel);
 		
 		// Record each SCENE Object
 		//
 		this.tutorAutoObj[sceneName] = {};
-		this.tutorAutoObj[sceneName].instance = sceneObj;			
+		this.tutorAutoObj[sceneName]._instance = sceneObj;			
 		
 		// Propogate to children  
 		//
@@ -672,9 +674,9 @@ export class TTutorContainer extends TRoot
 		{
 			if(this.traceMode) CUtil.trace("\tSCENE : " + scene);
 			
-			if(scene != "instance" && Tutor[scene].instance instanceof TSceneBase)
+			if(scene != "_instance" && Tutor[scene]._instance instanceof TSceneBase)
 			{				
-				Tutor[scene].instance.captureDefState(Tutor[scene] );					
+				Tutor[scene]._instance.captureDefState(Tutor[scene] );					
 			}					
 		}		
 		if(this.traceMode) CUtil.trace("\t*** End Capture - Walking Scenes***");
@@ -691,11 +693,11 @@ export class TTutorContainer extends TRoot
 		{
 			if(this.traceMode) CUtil.trace("\tSCENE : " + scene);
 			
-			if(scene != "instance" && Tutor[scene].instance instanceof TSceneBase)
+			if(scene != "_instance" && Tutor[scene]._instance instanceof TSceneBase)
 			{				
 				if(this.traceMode) CUtil.trace("reseting: " + scene);
 			
-				Tutor[scene].instance.restoreDefState(Tutor[scene] );					
+				Tutor[scene]._instance.restoreDefState(Tutor[scene] );					
 			}					
 		}		
 		if(this.traceMode) CUtil.trace("\t*** End Restore - Walking Scenes***");
@@ -1028,11 +1030,11 @@ export class TTutorContainer extends TRoot
 		{
 			if(this.traceMode) CUtil.trace("\tSCENE : " + scene);
 			
-			if(scene != "instance" && Tutor[scene].instance instanceof TObject)
+			if(scene != "_instance" && Tutor[scene]._instance instanceof TObject)
 			{
 				if(this.traceMode) CUtil.trace("\tCEF***");
 	
-				Tutor[scene].instance.dumpSceneObjs(Tutor[scene]);					
+				Tutor[scene]._instance.dumpSceneObjs(Tutor[scene]);					
 			}					
 		}		
 	}
@@ -1148,11 +1150,11 @@ export class TTutorContainer extends TRoot
 		{
 			if(this.traceMode) CUtil.trace("TUTOR : " + tutor);
 		
-			if(this.tutorAutoObj[tutor].instance instanceof TTutorContainer) 
+			if(this.tutorAutoObj[tutor]._instance instanceof TTutorContainer) 
 			{
 				if(this.traceMode) CUtil.trace("CEF***");
 				
-				this.tutorAutoObj[tutor].instance.dumpScenes(this.tutorAutoObj[tutor]);
+				this.tutorAutoObj[tutor]._instance.dumpScenes(this.tutorAutoObj[tutor]);
 			}				
 		}			
 		

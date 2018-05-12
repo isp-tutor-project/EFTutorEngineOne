@@ -446,18 +446,18 @@ export class CTutorGraphNavigator extends CEFNavigator
 						
 			// Do the exit behavior			
 			if(this._currScene)
-				this.tutorDoc.TutAutomator[this._currScene.scenename].instance.preExitScene(this._xType, 0);
+				this.tutorAutoObj[this._currScene.scenename]._instance.preExitScene(this._xType, 0);
 						
 			// Do scene Specific initialization 
 			//
 			//*** Create scene on demand
 			//
-			if(this.tutorDoc.TutAutomator[this._nextScene.scenename] == undefined)
+			if(this.tutorAutoObj[this._nextScene.scenename] == undefined)
 			{
 				this._nextScene.instantiateScene();
 			}
 			
-			this.tutorDoc.TutAutomator[this._nextScene.scenename].instance.preEnterScene(this.tutorDoc.tutorContainer, this._nextScene.scenename, this._nextScene.title, this._nextScene.page, this._xType);
+			this.tutorAutoObj[this._nextScene.scenename]._instance.preEnterScene(this.tutorDoc.tutorContainer, this._nextScene.scenename, this._nextScene.title, this._nextScene.page, this._xType);
 			
 //@@ Action Logging
 			
@@ -475,7 +475,7 @@ export class CTutorGraphNavigator extends CEFNavigator
 			
 			if(this._currScene)
 			{
-				this.tutorDoc.TutAutomator[this._currScene.scenename].instance.onExitScene();
+				this.tutorAutoObj[this._currScene.scenename]._instance.onExitScene();
 			}				
 			
 //@@ Progress Logging
@@ -577,7 +577,7 @@ export class CTutorGraphNavigator extends CEFNavigator
 			// Do scene Specific Enter Scripts
 			//
 			
-			this.tutorDoc.TutAutomator[this._currScene.scenename].instance.onEnterScene(this._xType);
+			this.tutorDoc.TutAutomator[this._currScene.scenename]._instance.onEnterScene(this._xType);
 			
 			//## DEBUG May 11 2014 - dump display list
 			
@@ -591,7 +591,7 @@ export class CTutorGraphNavigator extends CEFNavigator
 			//	TODO: This should be rationalized with the standard preEnter when all the preEnter customizations
 			//        in CEFScene derivatives have been moved to the XML (JSON) spec. 		
 			//
-			this.tutorDoc.TutAutomator[this._currScene.scenename].instance.deferredEnterScene(this._xType);			
+			this.tutorDoc.TutAutomator[this._currScene.scenename]._instance.deferredEnterScene(this._xType);			
 			
 			// In demo mode defer demo clicks while scene switches are in progress
 			

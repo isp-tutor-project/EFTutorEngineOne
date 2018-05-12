@@ -103,18 +103,28 @@ export class CUtil extends Object
         return className;
     }
 
-	
-	public static extractOwnProperties(recObj:any, donorObj:any, constraint:string) {
+
+	public static mixinSceneSuppliments(recObj:any, donorObj:any, constraint:string) {
 
 		let propName:string;
+		let donor:any = new donorObj();
 
-		let nonTObj:Array<string> = Object.getOwnPropertyNames(donorObj);
+		let TObjProps:Array<string> = Object.getOwnPropertyNames(donor);
 		
-		for(propName of nonTObj) {
+		for(propName of TObjProps) {
 			if(constraint && !propName.startsWith(constraint))
 														continue;
-			recObj[propName] = donorObj[propName];
+			recObj[propName] = donor[propName];
 		}		
+
+		let protoProps:Array<string> = Object.getOwnPropertyNames(Object.getPrototypeOf(donor));
+		
+		for(propName of protoProps) {
+			if(constraint && !propName.startsWith(constraint))
+														continue;
+			recObj[propName] = donor[propName];
+		}		
+		
 	}
 
 
