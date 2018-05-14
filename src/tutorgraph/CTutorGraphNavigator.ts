@@ -557,7 +557,7 @@ export class CTutorGraphNavigator extends CEFNavigator
 	{
 		try
 		{
-			if(this.traceMode) CUtil.trace("doEnterScene: " , this.sceneCurr);
+			if(this.traceMode) CUtil.trace("doEnterScene: " , this._currScene._name);
 			
 			evt.remove();						
 			

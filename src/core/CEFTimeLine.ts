@@ -46,6 +46,7 @@ export class CEFTimeLine extends Timeline
 	public traceMode:boolean = false;
 
 	public tutorDoc:IEFTutorDoc;		
+	public tutorContainer:any;		
 	public tutorAutoObj:any;		
 	
 	public targets:Array<any>;				
@@ -58,9 +59,10 @@ export class CEFTimeLine extends Timeline
 	{
 		super(tweens, labels, props);
 
-		this.traceMode    = true;					
-		this.tutorDoc     = _tutorDoc;
-		this.tutorAutoObj = _tutorDoc.TutAutomator;
+		this.traceMode      = true;					
+		this.tutorDoc       = _tutorDoc;
+		this.tutorContainer = _tutorDoc.tutorContainer;
+		this.tutorAutoObj   = _tutorDoc.TutAutomator;
 
 		this.targets = new Array();
 	}

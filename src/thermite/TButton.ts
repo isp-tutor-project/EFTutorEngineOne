@@ -26,6 +26,7 @@ import { CONST }        from "../util/CONST";
 import { CUtil } 		from "../util/CUtil";
 
 import MovieClip     		  = createjs.MovieClip;
+import Timeline     		  = createjs.Timeline;
 import DisplayObject 		  = createjs.DisplayObject;
 import DisplayObjectContainer = createjs.Container;
 
@@ -102,10 +103,13 @@ export class TButton extends TObject
 
 		console.log("Button On Stage");
 
-		this.gotoAndStop(0);
+		this.mouseChildren = false;
+		this.timeline      = new Timeline(null,null,null);
+
 		this.addChild(this[CONST.STATE_UP]);
 		this.addChild(this[CONST.STATE_OVER]);
 		this.addChild(this[CONST.STATE_DOWN]);
+		this.addChild(this[CONST.STATE_DISABLED]);
 
 		this.resetState();
 		this.enableButton(true);
@@ -175,20 +179,10 @@ export class TButton extends TObject
 		if(this.traceMode) CUtil.trace("Button.gotoState: ", this.name + " " + sState);
 		
 		this.resetState();
-
 		this.curState = sState;
 
-		if(!this.fEnabled)
-		{
-			this[CONST.STATE_OVER].visible = false;
-			this[CONST.STATE_UP].visible   = false;				
-			
-			this[CONST.STATE_DISABLED].visible = true;
-			this.fPressed = false;
-		}
-		
-		else switch(sState)
-		{
+		switch(sState) {
+
 			case CONST.STATE_DOWN:
 				this[CONST.STATE_DOWN].visible = true;
 				this.fPressed = true;
@@ -221,6 +215,15 @@ export class TButton extends TObject
 				this.fPressed = false;
 				break;
 		}
+
+		if(!this.fEnabled) {
+
+			this.resetState();
+			this[CONST.STATE_UP].visible 	   = false;
+			this[CONST.STATE_DISABLED].visible = true;
+		}
+		
+
 	}					
 
 	
@@ -256,6 +259,7 @@ export class TButton extends TObject
 	public enableButton( bFlag:boolean)
 	{			
 		// set flag
+		// 
 		this.fEnabled = bFlag;
 		
 		//## Mod May 10 2014 - was changing state explicitly which is undesirable - 
@@ -290,7 +294,7 @@ export class TButton extends TObject
 
 	public doMouseClicked(evt:TMouseEvent) : void 
 	{						
-		if(this.fPressed) {
+		if(this.fPressed && this.fEnabled) {
 
 			if(this.traceMode) CUtil.trace("dispatch CLICK");
 			

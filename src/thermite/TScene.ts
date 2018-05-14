@@ -662,7 +662,7 @@ export class TScene extends TSceneBase
 	
 	public onExitScene() : void
 	{				
-		if(this.traceMode) CUtil.trace("TScene Exit Scene Behavior:");		
+		if(this.traceMode) CUtil.trace("TScene onexit Behavior:");		
 		
 		//***** Kill the ActionTrack
 		

@@ -55,7 +55,7 @@ export class CEFTransitions extends CEFTimeLine
 	private activeObjs:any  = {};				// Pointers to the objects in the most recent scene + persistent ojects
 	private persistObjs:any = {};				// Pointers to persistent objects - these live thorughout the tutor lifecycle
 	private currentObjs:Array<any>;				// Pointers to the objects in the current scene
-	private fSwapObjects:boolean = false;		// flag - true - swap objects  - false - use deep state copy 
+	private fSwapObjects:boolean = true;		// flag - true - swap objects  - false - use deep state copy 
 
 	
 	
@@ -267,7 +267,7 @@ export class CEFTransitions extends CEFTimeLine
 				
 				targObj = objectList[sceneName][namedObj];
 				
-				// Skip WOZ objects that aren't to be tweened
+				// Skip objects that aren't to be tweened
 				// Use the namedObj to disinguish unique instances
 				//
 				if(targObj._instance instanceof TObject)
@@ -299,15 +299,14 @@ export class CEFTransitions extends CEFTimeLine
 						let dO2:DisplayObject = this.tutorAutoObj[this.newScene][namedObj]._instance;
 						
 						// Get their locations in the display list
-						// TODO: fix gTutor reference
 						
-						// let dI1:number = this.tutorDoc.tutorContainer[this.currScene].getChildIndex(dO1);
-						// let dI2:number = this.tutorDoc.tutorContainer[this.newScene].getChildIndex(dO2);
+						let dI1:number = this.tutorContainer[this.currScene].getChildIndex(dO1);
+						let dI2:number = this.tutorContainer[this.newScene].getChildIndex(dO2);
 						
 						// Swap them in the scenes display lists
 						
-						// this.tutorDoc.tutorContainer[this.currScene].addChildAt(dO2, dI1 );
-						// this.tutorDoc.tutorContainer[this.newScene].addChildAt(dO1, dI2);
+						this.tutorContainer[this.currScene].addChildAt(dO2, dI1 );
+						this.tutorContainer[this.newScene].addChildAt(dO1, dI2);
 						
 						// Swap the instances in the TutorObj
 						
@@ -324,10 +323,7 @@ export class CEFTransitions extends CEFTimeLine
 						// We assume all named WOZ Objects are WOZ in all instances
 						//
 						if((liveObj instanceof TObject) && (targObj._instance.tweenID == liveObj.tweenID))
-						{				
-//								if(xname == "CCRSOLCAT1TBL2")						//@@ debug
-//													CUtil.trace("table2 hit");			//@@ debug			
-							
+						{											
 							targObj._instance.deepStateCopy(liveObj);
 						}
 						// Otherwise just take its x.y.width.height.alpha

@@ -45,6 +45,7 @@ import MovieClip     		  = createjs.MovieClip;
 import DisplayObject 		  = createjs.DisplayObject;
 import DisplayObjectContainer = createjs.Container;
 import Tween 				  = createjs.Tween;
+import CJSEvent				  = createjs.Event;
 import Rectangle     	  	  = createjs.Rectangle;
 import Shape     		  	  = createjs.Shape;
 
@@ -258,13 +259,20 @@ export class TTutorContainer extends TRoot
 
 		this.addChild(tarScene);
 
+		// Special CreateJS processing to initialize the scene with components.
+		// AnimateCC uses ManagedChildren - i.e. movie clips add child components automatically in their timeline
+		// on frame 0... etc - we do a single tick to load the scene so the transitions has inPlace components 
+		// to work with
+		// 
+		this.initSceneTick(tarScene);
+
 		//enumChildren(tarScene,0);				//@@ Debug display list Test May 10 2014
 		//enumScenes();							//@@ Debug display list Test Oct 29 2012
 		
 		//gTruck.add(tarScene);					//@@ Debug memory test May 27 2010
 		
 		tarScene.visible = false;				
-		// tarScene.stop();						// TODO: COMMENTED FOR DEBUG
+		tarScene.stop();						// TODO: COMMENTED FOR DEBUG
 
 		//## Mod Aug 10 2012 - must wait for initializeScenes to ensure basic scenes are in place now that 
 		//					   we allow dynamic creation of the navPanel etc.
@@ -303,6 +311,18 @@ export class TTutorContainer extends TRoot
 		return tarScene;			
 	}
 	
+
+	private initSceneTick(tarScene:any) {
+
+		let event = new CJSEvent("tick",false,false);
+		event.delta = 0;
+		event.paused = true;
+		event.time = CUtil.getTimer();
+		event.runTime = event.time;
+		
+		tarScene._tick(event);
+	}
+
 	
 	public destroyScene(sceneName:string ) : void
 	{			

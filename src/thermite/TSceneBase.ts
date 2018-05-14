@@ -125,17 +125,17 @@ export class TSceneBase extends TObject
 	}
 
 	
-	public connectNavButton(type:string, butComp:string) {
+	public connectNavButton(type:string, butComp:string, _once:boolean = true) {
 
 		this.disConnectNavButton(type, butComp );
 
 		switch(type) {
 			case CONST.NEXTSCENE:
-				this._nextButton = this[butComp].on(CONST.CLICK, this.tutorDoc.tutorNavigator.onButtonNext, this.tutorDoc.tutorNavigator);
+				this._nextButton = this[butComp].on(CONST.MOUSE_CLICK, this.tutorDoc.tutorNavigator.onButtonNext, this.tutorDoc.tutorNavigator);
 				break;
 
 			case CONST.PREVSCENE:
-				this._prevButton = this[butComp].on(CONST.CLICK, this.tutorDoc.tutorNavigator.onButtonPrev, this.tutorDoc.tutorNavigator);
+				this._prevButton = this[butComp].on(CONST.MOUSE_CLICK, this.tutorDoc.tutorNavigator.onButtonPrev, this.tutorDoc.tutorNavigator);
 				break;				
 		}
 	}
