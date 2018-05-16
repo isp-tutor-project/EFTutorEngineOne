@@ -18,16 +18,16 @@
 
 import { IEFTutorDoc } 		from "../core/IEFTutorDoc";
 
-import { CAnimationGraph } 	from "./CAnimationGraph";
-import { CAnimationEdge } 	from "./CAnimationEdge";
+import { CSceneGraph } 		from "./CSceneGraph";
+import { CSceneEdge } 		from "./CSceneEdge";
 
 import EventDispatcher 	  = createjs.EventDispatcher;
 
 
-export class CAnimationNode extends EventDispatcher
+export class CSceneNode extends EventDispatcher
 {
 	protected tutorDoc:IEFTutorDoc;		
-	protected _parent:CAnimationGraph;
+	protected _parent:CSceneGraph;
 	
 	protected _id:string;
 	protected _name:string;
@@ -46,7 +46,7 @@ export class CAnimationNode extends EventDispatcher
 		this.tutorDoc = _tutorDoc;
 	}
 	
-	protected nodeFactory(parent:CAnimationGraph, id:string, nodefactory:any) : void
+	protected nodeFactory(parent:CSceneGraph, id:string, nodefactory:any) : void
 	{
 		this._parent = parent;
 		
@@ -63,7 +63,7 @@ export class CAnimationNode extends EventDispatcher
 		
 		for (let edge of nodefactory.edges)
 		{
-			this._edges.push(CAnimationEdge.factory(this.tutorDoc, parent, edge));	
+			this._edges.push(CSceneEdge.factory(this.tutorDoc, parent, edge));	
 		}
 	}
 	
@@ -72,10 +72,10 @@ export class CAnimationNode extends EventDispatcher
 		return null;
 	}	
 	
-	public nextNode() : CAnimationNode
+	public nextNode() : CSceneNode
 	{
-		let edge:CAnimationEdge;
-		let node:CAnimationNode = null;		// When we run out of tracks we just want to stop
+		let edge:CSceneEdge;
+		let node:CSceneNode = null;		// When we run out of tracks we just want to stop
 
 		if(this._preExit != null)
 		{

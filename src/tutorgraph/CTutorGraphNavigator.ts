@@ -260,7 +260,7 @@ export class CTutorGraphNavigator extends CEFNavigator
 			
 			this._inNavigation = true;
 			
-			// The next button can target either the tutorgraph or the animationgraph.
+			// The next button can target either the tutorgraph or the scenegraph.
 			// i.e. You either want it to trigger the next step in the animationGraph or the tutorgraph
 			// reset _fTutorGraph if you want the next button to drive the animationGraph
 			//      

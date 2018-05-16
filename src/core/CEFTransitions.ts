@@ -312,6 +312,11 @@ export class CEFTransitions extends CEFTimeLine
 						
 						this.tutorAutoObj[this.currScene][namedObj]._instance = dO2;
 						this.tutorAutoObj[this.newScene][namedObj]._instance  = dO1;
+
+						// Swap the instances in the scenes themselves
+						
+						this.tutorAutoObj[this.currScene]._instance[namedObj] = dO2;
+						this.tutorAutoObj[this.newScene]._instance[namedObj]  = dO1;
 						
 						// update the convenience copy
 						

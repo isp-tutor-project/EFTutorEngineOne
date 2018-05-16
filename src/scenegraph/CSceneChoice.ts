@@ -16,7 +16,7 @@
 
 
 
-export class CAnimationChoice
+export class CSceneChoice
 {
 	private _classname:string;		
 	private _odds:Array<number>;

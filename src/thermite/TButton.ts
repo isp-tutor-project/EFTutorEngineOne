@@ -112,7 +112,6 @@ export class TButton extends TObject
 		this.addChild(this[CONST.STATE_DISABLED]);
 
 		this.resetState();
-		this.enableButton(true);
 	}
 
 	// Walk the WOZ Objects to capture their default state

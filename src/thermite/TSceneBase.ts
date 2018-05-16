@@ -440,6 +440,11 @@ export class TSceneBase extends TObject
 	
 //****** Navigation Behaviors
 
+	public deferredEnterScene(Direction:string) : void
+	{				
+	}
+
+
 	// Default behavior - Set the Tutor Title and return same target scene
 	// Direction can be - "WOZNEXT" , "WOZBACK" , "WOZGOTO"
 	// 
@@ -447,16 +452,7 @@ export class TSceneBase extends TObject
 	//
 	public preEnterScene(lTutor:any, sceneLabel:string, sceneTitle:string, scenePage:string, Direction:string ) : string
 	{
-		if(this.traceMode) CUtil.trace("Base Pre-Enter Scene Behavior: " + sceneTitle);		
-		
-		// Update the title				
-		//
-		// lTutor.StitleBar.Stitle.text = sceneTitle;
-		// lTutor.StitleBar.Spage.text  = scenePage;
-
-		// Set fComplete and do other demo specific processing here
-		// deprecated 
-		this.demoBehavior();
+		if(this.traceMode) CUtil.trace("Base preenter Scene Behavior: " + this.name);		
 		
 		// Parse the Tutor.config for preenter procedures for this scene 
 		// 
@@ -467,29 +463,24 @@ export class TSceneBase extends TObject
 			CUtil.trace("preenter error on scene: " + this.name + " - " + error);
 		}
 
-		//@@ Mod May 22 2013 - moved to after the XML spec is executed - If the user uses the back button this should
-		//                     override the spec based on fComplete
-		// Update the Navigation
-		//
-		if(this.fComplete)
-		this.updateNav();						
+		// //@@ Mod May 22 2013 - moved to after the XML spec is executed - If the user uses the back button this should
+		// //                     override the spec based on fComplete
+		// // Update the Navigation
+		// //
+		// if(this.fComplete)
+		// 	this.updateNav();						
 		
-		// polymorphic UI initialization - must be done after this.parseOBJ 
-		//
-		this.initUI();				
+		// // polymorphic UI initialization - must be done after this.parseOBJ 
+		// //
+		// this.initUI();				
 			
 		return sceneLabel;
 	}
 
 	
-	public deferredEnterScene(Direction:string) : void
-	{				
-	}
-	
-	
 	public onEnterScene(Direction:string) : void
 	{				
-		if (this.traceMode) CUtil.trace("Default Enter Scene Behavior:");
+		if (this.traceMode) CUtil.trace("Base onenter Scene Behavior:" + this.name);
 		
 		// Parse the Tutor.config for onenter procedures for this scene 
 		// 
@@ -505,7 +496,7 @@ export class TSceneBase extends TObject
 	// 
 	public preExitScene(Direction:string, sceneCurr:number ) : string
 	{
-		if(this.traceMode) CUtil.trace("Default Pre-Exit Scene Behavior:");
+		if(this.traceMode) CUtil.trace("Base preexit Scene Behavior:" + this.name);
 		
 		// Parse the Tutor.config for onenter procedures for this scene 
 		// 
@@ -520,7 +511,7 @@ export class TSceneBase extends TObject
 
 	public onExitScene() : void
 	{				
-		if (this.traceMode) CUtil.trace("Default Exit Scene Behavior:");
+		if (this.traceMode) CUtil.trace("Base onexit Scene Behavior:" + this.name);
 		
 		// Parse the Tutor.config for onenter procedures for this scene 
 		// 

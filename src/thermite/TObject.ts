@@ -771,7 +771,7 @@ export class TObject extends TRoot
 	public restoreDefState(tutObject:any ) : void 
 	{
 		this.rotation = this.defRot; 
-		this.scaleX    = this.defWidth;
+		this.scaleX   = this.defWidth;
 		this.scaleY   = this.defHeight;
 		this.x        = this.defX;
 		this.y        = this.defY;

@@ -17,23 +17,23 @@
 
 //## imports
 
-import { IEFTutorDoc } 		from "../core/IEFTutorDoc";
+import { IEFTutorDoc } 			from "../core/IEFTutorDoc";
 
-import { CAnimationNode } 			from "./CAnimationNode";
-import { CAnimationAction } 		from "./CAnimationAction";
-import { CAnimationModule } 		from "./CAnimationModule";
-import { CAnimationChoiceSet } 		from "./CAnimationChoiceSet";
-import { CAnimationConstraint } 	from "./CAnimationConstraint";
+import { CSceneNode } 			from "./CSceneNode";
+import { CSceneAction } 		from "./CSceneAction";
+import { CSceneModule } 		from "./CSceneModule";
+import { CSceneChoiceSet } 		from "./CSceneChoiceSet";
+import { CSceneConstraint } 	from "./CSceneConstraint";
 
-import { TRoot }					from "../thermite/TRoot";
-import { TScene }					from "../thermite/TScene";
-
-
-import { CONST }            		from "../util/CONST";
+import { TRoot }				from "../thermite/TRoot";
+import { TScene }				from "../thermite/TScene";
 
 
+import { CONST }            	from "../util/CONST";
 
-export class CAnimationGraph extends CAnimationNode 
+
+
+export class CSceneGraph extends CSceneNode 
 {
 	private _nodes:any       = {};		
 	private _modules:any     = {};
@@ -42,7 +42,7 @@ export class CAnimationGraph extends CAnimationNode
 	private _graphs:any      = {};
 	private _constraints:any = {};		
 	
-	private _currNode:CAnimationNode;
+	private _currNode:CSceneNode;
 	private _currAnimation:string;
 	private _prevAnimation:string;
 	
@@ -58,27 +58,27 @@ export class CAnimationGraph extends CAnimationNode
 	}				
 
 	
-	public static factory(_tutorDoc:IEFTutorDoc, parent:TScene, id:string, factoryName:string) : CAnimationGraph
+	public static factory(_tutorDoc:IEFTutorDoc, parent:TScene, id:string, factoryName:string) : CSceneGraph
 	{			
-		let animationgraph:CAnimationGraph = new CAnimationGraph(_tutorDoc);			
+		let scenegraph:CSceneGraph = new CSceneGraph(_tutorDoc);			
 	
-		animationgraph._graphFactory = _tutorDoc.sceneGraph[factoryName];
+		scenegraph._graphFactory = _tutorDoc.sceneGraph[factoryName];
 		
-		animationgraph.sceneInstance = parent;
+		scenegraph.sceneInstance = parent;
 
-		animationgraph.parseModules();
-		animationgraph.parseActions();
-		animationgraph.parseChoiceSets();
-		animationgraph.parseConstraints();
+		scenegraph.parseModules();
+		scenegraph.parseActions();
+		scenegraph.parseChoiceSets();
+		scenegraph.parseConstraints();
 		
 		//@@ TODO - Allow for shared nodes by linking to pre-parsed AnimationModules, AnimationChoiceSets etc. instead of always 
 		//          creating a unique module (or action...etc) node.
 		
-		animationgraph.parseNodes();			
+		scenegraph.parseNodes();			
 	
-		animationgraph.seekRoot();
+		scenegraph.seekRoot();
 		
-		return animationgraph;
+		return scenegraph;
 	}
 	
 	
@@ -144,7 +144,7 @@ export class CAnimationGraph extends CAnimationNode
 	//
 	public nextAnimation() : string
 	{
-		let nextNode:CAnimationNode;
+		let nextNode:CSceneNode;
 		
 		if(this._currNode) do 
 		{
@@ -192,15 +192,15 @@ export class CAnimationGraph extends CAnimationNode
 				switch(nodeList[name].subtype)
 				{
 					case "action":					
-						this._nodes[name] = CAnimationAction.factory(this.tutorDoc, this, name, nodeList[name]);
+						this._nodes[name] = CSceneAction.factory(this.tutorDoc, this, name, nodeList[name]);
 						break;
 					
 					case "module":					
-						this._nodes[name] = CAnimationModule.factory(this.tutorDoc, this, name, nodeList[name]);
+						this._nodes[name] = CSceneModule.factory(this.tutorDoc, this, name, nodeList[name]);
 						break;
 					
 					case "choiceset":					
-						this._nodes[name] = CAnimationChoiceSet.factory(this.tutorDoc, this, name, nodeList[name]);
+						this._nodes[name] = CSceneChoiceSet.factory(this.tutorDoc, this, name, nodeList[name]);
 						break;						
 				}
 			}
@@ -217,7 +217,7 @@ export class CAnimationGraph extends CAnimationNode
 		for(let name in moduleFactory) 
 		{
 			if(name != "COMMENT")
-				this._modules[name] = CAnimationModule.factory(this.tutorDoc, this, name, moduleFactory[name]);	
+				this._modules[name] = CSceneModule.factory(this.tutorDoc, this, name, moduleFactory[name]);	
 		}			
 		
 		return true;
@@ -231,7 +231,7 @@ export class CAnimationGraph extends CAnimationNode
 		for(let name in actionFactory) 
 		{
 			if(name != "COMMENT")
-				this._actions[name] = CAnimationAction.factory(this.tutorDoc, this, name, actionFactory[name]);	
+				this._actions[name] = CSceneAction.factory(this.tutorDoc, this, name, actionFactory[name]);	
 		}			
 		
 		return true;
@@ -245,7 +245,7 @@ export class CAnimationGraph extends CAnimationNode
 		for(let name in choicesetFactory) 
 		{
 			if(name != "COMMENT")
-				this._choicesets[name] = CAnimationChoiceSet.factory(this.tutorDoc, this, name, choicesetFactory[name]);	
+				this._choicesets[name] = CSceneChoiceSet.factory(this.tutorDoc, this, name, choicesetFactory[name]);	
 		}			
 		
 		return true;
@@ -259,31 +259,31 @@ export class CAnimationGraph extends CAnimationNode
 		for(let name in constraintFactory) 
 		{
 			if(name != "COMMENT")
-				this._constraints[name] = CAnimationConstraint.factory(this.tutorDoc, this, constraintFactory[name]);	
+				this._constraints[name] = CSceneConstraint.factory(this.tutorDoc, this, constraintFactory[name]);	
 		}			
 		
 		return true;
 	}
 			
 	
-	public findNodeByName(name:string) : CAnimationNode
+	public findNodeByName(name:string) : CSceneNode
 	{
 		return this._nodes[name];
 	}
 	
 	
-	public findConstraintByName(name:string) : CAnimationConstraint
+	public findConstraintByName(name:string) : CSceneConstraint
 	{
 		return this._constraints[name];
 	}
 	
 	
-	public get node() : CAnimationNode
+	public get node() : CSceneNode
 	{
 		return this._currNode;
 	}
 	
-	public set node(newNode:CAnimationNode) 
+	public set node(newNode:CSceneNode) 
 	{
 		// If backtracking through a volatile history we need to reset
 		// nodes so that if we revisit them they will increment their

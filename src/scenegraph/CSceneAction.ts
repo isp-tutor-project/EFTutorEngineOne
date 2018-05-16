@@ -19,18 +19,19 @@
 
 import { IEFTutorDoc } 		from "../core/IEFTutorDoc";
 
-import { CAnimationNode } 	from "./CAnimationNode";
-import { CAnimationGraph } 	from "./CAnimationGraph";
+import { CSceneNode } 		from "./CSceneNode";
+import { CSceneGraph } 		from "./CSceneGraph";
+
 import { TRoot } 			from "../thermite/TRoot";
-
-import EventDispatcher 	  = createjs.EventDispatcher;
-
 
 import { CONST }            from "../util/CONST";
 import { CUtil } 			from "../util/CUtil";
 
+import EventDispatcher 	  = createjs.EventDispatcher;
 
-export class CAnimationAction extends CAnimationNode
+
+
+export class CSceneAction extends CSceneNode
 {
 	private _cmd:string;
 	private _code:string;
@@ -48,9 +49,9 @@ export class CAnimationAction extends CAnimationNode
 		*   	When moduleFactory is a "type":"action" the generated object is a global referenced elsewhere 
 		*      
 		**/		
-	public static factory(_tutorDoc:IEFTutorDoc, parent:CAnimationGraph, nodeName:string, moduleFactory:any) : CAnimationAction
+	public static factory(_tutorDoc:IEFTutorDoc, parent:CSceneGraph, nodeName:string, moduleFactory:any) : CSceneAction
 	{			
-		let node:CAnimationAction = new CAnimationAction(_tutorDoc);
+		let node:CSceneAction = new CSceneAction(_tutorDoc);
 		
 		// If this is a CNode spec then extract the CNode info - e.g. edges etc. 
 		

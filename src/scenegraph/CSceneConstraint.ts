@@ -19,7 +19,7 @@
 	
 import { IEFTutorDoc } 		from "../core/IEFTutorDoc";
 
-import { CAnimationGraph } 	from "./CAnimationGraph";
+import { CSceneGraph } 		from "./CSceneGraph";
 
 import { TRoot } 			from "../thermite/TRoot";
 
@@ -29,10 +29,10 @@ import { CUtil } 			from "../util/CUtil";
 
 
 
-export class CAnimationConstraint 
+export class CSceneConstraint 
 {
 	protected tutorDoc:IEFTutorDoc;		
-	protected _parent:CAnimationGraph;
+	protected _parent:CSceneGraph;
 	
 	private _cmd:string;
 	private _code:string;
@@ -43,9 +43,9 @@ export class CAnimationConstraint
 	}			
 	
 
-	public static factory(_tutorDoc:IEFTutorDoc, parent:CAnimationGraph, factory:any) : CAnimationConstraint
+	public static factory(_tutorDoc:IEFTutorDoc, parent:CSceneGraph, factory:any) : CSceneConstraint
 	{
-		let node:CAnimationConstraint = new CAnimationConstraint(_tutorDoc);			
+		let node:CSceneConstraint = new CSceneConstraint(_tutorDoc);			
 		
 		node._parent = parent;
 		
