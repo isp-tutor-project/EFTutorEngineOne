@@ -280,9 +280,14 @@ export class CEngine {
         // which is used for dynamic component creation
         //
         for(let compName in lib) {
-            if(compName.toUpperCase().startsWith("EFMOD_" )) {
 
-                EFLoadManager.modules[compName.toUpperCase()] = lib;
+            let namespace:string = compName.toUpperCase();
+            
+            if(namespace.startsWith("EFMOD_" )) {
+
+                lib.namespace = namespace;
+                EFLoadManager.modules[namespace]  = lib;
+                EFLoadManager.classLib[namespace] = {};                
                 break;
             }
         }

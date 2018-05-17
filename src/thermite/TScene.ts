@@ -72,7 +72,7 @@ export class TScene extends TSceneBase
 
 	//## MOD Aug 31 2013 - actiontrack AnimationGraph support
 	
-	private animationGraph:CSceneGraph = null;		
+	private sceneGraph:CSceneGraph = null;		
 	
 	
 	
@@ -379,7 +379,32 @@ export class TScene extends TSceneBase
 			
 //****** Navigation Behaviors
 
+	public connectGraph(name:string, features:string) {
+
+		if(features)
+		{
+			if(!this.tutorDoc.testFeatureSet(features))
+													return;
+		}
+		
+		try
+		{
+			this.sceneGraph = CSceneGraph.factory(this.tutorDoc, this, "root", name);
+			
+			if(this.sceneGraph != null)
+			{
+				this.Saudio1 = this.bindAudio(CUtil.instantiateThermiteObject("moduleName", this.sceneGraph.nextAnimation()));
+				this.Saudio1.stop();
+			}
+		}
+		catch(err)							
+		{
+			CUtil.trace("scenegraph load Failed" + err);
+		}
+	}
+
 	/**
+	 * deprecated - replaced with connectGraph ...
 	 * 
 	 * @param	tarObj
 	 * @param	tarOBJ
@@ -408,11 +433,11 @@ export class TScene extends TSceneBase
 					
 					try
 					{
-						this.animationGraph = CSceneGraph.factory(this.tutorDoc, this, "root", element.name);
+						this.sceneGraph = CSceneGraph.factory(this.tutorDoc, this, "root", element.name);
 						
-						if(this.animationGraph != null)
+						if(this.sceneGraph != null)
 						{
-							this.Saudio1 = this.bindAudio(CUtil.instantiateThermiteObject("moduleName", this.animationGraph.nextAnimation()));
+							this.Saudio1 = this.bindAudio(CUtil.instantiateThermiteObject("moduleName", this.sceneGraph.nextAnimation()));
 							this.Saudio1.stop();
 						}
 					}
@@ -485,7 +510,7 @@ export class TScene extends TSceneBase
 		// If this scene has an animation graph
 		// This may be called as a result of scene increment on scenes that just have actiontracks
 		
-		if(this.animationGraph != null)
+		if(this.sceneGraph != null)
 		{				
 			if(this.Saudio1)
 			{
@@ -494,7 +519,7 @@ export class TScene extends TSceneBase
 				this.Saudio1 = null;
 			}
 						
-			nextSeq = this.animationGraph.nextAnimation();
+			nextSeq = this.sceneGraph.nextAnimation();
 			
 			if(nextSeq != null)
 			{
@@ -597,9 +622,9 @@ export class TScene extends TSceneBase
 		if((Direction == "WOZNEXT") ||
 			(Direction == "WOZGOTO"))
 		{
-			if(this.animationGraph != null)
+			if(this.sceneGraph != null)
 			{					
-				this.animationGraph.onEnterRoot();
+				this.sceneGraph.onEnterRoot();
 			}
 			
 			// Create a unique timestamp for this scene

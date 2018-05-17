@@ -71,7 +71,7 @@ export class CSceneGraph extends CSceneNode
 		scenegraph.parseChoiceSets();
 		scenegraph.parseConstraints();
 		
-		//@@ TODO - Allow for shared nodes by linking to pre-parsed AnimationModules, AnimationChoiceSets etc. instead of always 
+		//@@ TODO - Allow for shared nodes by linking to pre-parsed SceneModules, SceneChoiceSets etc. instead of always 
 		//          creating a unique module (or action...etc) node.
 		
 		scenegraph.parseNodes();			
