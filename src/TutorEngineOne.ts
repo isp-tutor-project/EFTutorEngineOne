@@ -281,13 +281,13 @@ export class CEngine {
         //
         for(let compName in lib) {
 
-            let namespace:string = compName.toUpperCase();
+            let moduleName:string = compName.toUpperCase();
             
-            if(namespace.startsWith("EFMOD_" )) {
+            if(moduleName.startsWith("EFMOD_" )) {
 
-                lib.namespace = namespace;
-                EFLoadManager.modules[namespace]  = lib;
-                EFLoadManager.classLib[namespace] = {};                
+                lib._ANmoduleName = moduleName;
+                EFLoadManager.modules[moduleName]  = lib;
+                EFLoadManager.classLib[moduleName] = {};
                 break;
             }
         }
@@ -318,17 +318,17 @@ export class CEngine {
         let engine = this;
         let importPromises:Array<Promise<any>> = new Array();
         
-        for (const modName in AnLib) {
+        for (const compName in AnLib) {
 
-            if(modName.startsWith(CONST.THERMITE_PREFIX)) {
+            if(compName.startsWith(CONST.THERMITE_PREFIX)) {
                 
-                let varPath: Array<string> = modName.split("__");
+                let varPath: Array<string> = compName.split("__");
                 let classPath:string[]     = varPath[0].split("_"); 
                 let comPath:string         = varPath[0].replace("_","/");
 
                 comPath = comPath.replace("TC/","thermite/");
 
-                importPromises.push(this.importAndMap(AnLib[modName], comPath, classPath[classPath.length-1], varPath[1]));
+                importPromises.push(this.importAndMap(AnLib._ANmoduleName, AnLib[compName], comPath, classPath[classPath.length-1], varPath[1]));
             }
         }
 
@@ -344,11 +344,11 @@ export class CEngine {
     }
 
 
-    public importAndMap(AnObject:any, moduleName:string, className:string, variant:string ) {
+    public importAndMap(AnModuleName:string, AnObject:any, classPath:string, className:string, variant:string ) {
 
-        console.log("Import and Map: " + moduleName + " => " + className);
+        console.log("Import and Map: " + AnModuleName + " => " + classPath + " : " + variant);
 
-        return SystemJS.import(moduleName).then((ClassObj:any) => {
+        return SystemJS.import(classPath).then((ClassObj:any) => {
 
             let temp1:any = {};
 
@@ -369,7 +369,7 @@ export class CEngine {
             AnObject.prototype.tutorDoc       = this.tutorDoc;
             AnObject.prototype.tutorContainer = this.tutorDoc.tutorContainer;
 
-            EFLoadManager.classLib[variant.toUpperCase()] = AnObject;
+            EFLoadManager.classLib[AnModuleName][variant.toUpperCase()] = AnObject;            
         })
     }
 

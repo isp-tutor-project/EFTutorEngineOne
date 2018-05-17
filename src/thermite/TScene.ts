@@ -393,7 +393,7 @@ export class TScene extends TSceneBase
 			
 			if(this.sceneGraph != null)
 			{
-				this.Saudio1 = this.bindAudio(CUtil.instantiateThermiteObject("moduleName", this.sceneGraph.nextAnimation()));
+				this.Saudio1 = this.bindAudio(CUtil.instantiateThermiteObject(this.sceneGraph.nextAnimation()));
 				this.Saudio1.stop();
 			}
 		}
@@ -437,7 +437,7 @@ export class TScene extends TSceneBase
 						
 						if(this.sceneGraph != null)
 						{
-							this.Saudio1 = this.bindAudio(CUtil.instantiateThermiteObject("moduleName", this.sceneGraph.nextAnimation()));
+							this.Saudio1 = this.bindAudio(CUtil.instantiateThermiteObject(this.sceneGraph.nextAnimation()));
 							this.Saudio1.stop();
 						}
 					}
@@ -479,7 +479,7 @@ export class TScene extends TSceneBase
 					
 					try
 					{
-						this.Saudio1 = this.bindAudio(CUtil.instantiateThermiteObject("moduleName", element.type));
+						this.Saudio1 = this.bindAudio(CUtil.instantiateThermiteObject(element.type));
 						this.Saudio1.stop();
 					}
 					catch(err)							
@@ -523,7 +523,7 @@ export class TScene extends TSceneBase
 			
 			if(nextSeq != null)
 			{
-				this.Saudio1 = this.bindAudio(CUtil.instantiateThermiteObject("moduleName", nextSeq) as any);
+				this.Saudio1 = this.bindAudio(CUtil.instantiateThermiteObject(nextSeq) as any);
 				
 				this.scenePlay();								
 			}

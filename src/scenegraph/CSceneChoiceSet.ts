@@ -131,7 +131,7 @@ export class CSceneChoiceSet extends CSceneNode
 			
 			if(rand < curOdds)
 			{
-				nextTrackClass = choice.classname;
+				nextTrackClass = choice.classpath;
 				
 				if(!this._replace)
 					choice.choose();

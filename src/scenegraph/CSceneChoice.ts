@@ -18,13 +18,13 @@
 
 export class CSceneChoice
 {
-	private _classname:string;		
+	private _classpath:string;		
 	private _odds:Array<number>;
 	private _chosen:boolean = false; 
 	
 	constructor(data:any)
 	{			
-		this._classname	= data.classname;
+		this._classpath	= data.classpath;
 		this._odds    	= data.odds.split('.');
 	}
 	
@@ -48,7 +48,7 @@ export class CSceneChoice
 	
 	public get classname() : string
 	{
-		return this._classname;
+		return this._classpath;
 	}		
 	
 	public replace() : void

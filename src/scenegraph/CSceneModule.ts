@@ -143,7 +143,7 @@ export class CSceneModule extends CSceneNode
 					switch(nextAnimation.type)
 					{
 						case "actiontrack":
-							nextTrackClass = nextAnimation.classname;
+							nextTrackClass = nextAnimation.classpath;
 							break;
 						
 						case "choiceset":
@@ -181,7 +181,7 @@ export class CSceneModule extends CSceneNode
 		
 		for (let animation of this._animations)
 		{
-			if(seek == animation.classname)
+			if(seek == animation.classpath)
 			{
 				this._ndx = ndx;
 				break;
@@ -189,7 +189,7 @@ export class CSceneModule extends CSceneNode
 			ndx++;
 		}
 		
-		return animation.classname;
+		return animation.classpath;
 	}
 	
 	

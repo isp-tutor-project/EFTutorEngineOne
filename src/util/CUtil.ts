@@ -202,11 +202,14 @@ export class CUtil extends Object
 
 	//****** Overridable Behaviors
 
-	public static instantiateThermiteObject(moduleName:string, className:string) : DisplayObject
+
+	public static instantiateThermiteObject(classPath:string) : DisplayObject
 	{			
 		let tarObject:any;
 		
-		let ClassRef:any = this.getConstructorByName(moduleName, className);
+		let moduleName:Array<string> = classPath.toUpperCase().split(".");
+
+		let ClassRef:any = this.getConstructorByName(moduleName[0], moduleName[1]);
 		
 		tarObject = new ClassRef();
 		
@@ -220,7 +223,7 @@ export class CUtil extends Object
 
 		try {
 
-			classConstructor = EFLoadManager.classLib[className.toUpperCase()];
+			classConstructor = EFLoadManager.classLib[moduleName][className];
 		}
 		catch(error) {
 
@@ -229,9 +232,6 @@ export class CUtil extends Object
 
 		return classConstructor;
 	}
-
-
-
 }
 
 let __global = this.__global || this;

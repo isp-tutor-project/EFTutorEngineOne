@@ -179,6 +179,7 @@ export class CSceneGraph extends CSceneNode
 	
 	//***** Private
 	
+	
 	private parseNodes() : boolean
 	{
 		let nodeList:any = this._graphFactory.CNodes;

@@ -254,7 +254,7 @@ export class TObject extends TRoot
 		let newObject:TObject;
 		let maskDim:Point;
 		
-		newObject = CUtil.instantiateThermiteObject("moduleName", objectClass) as TObject;
+		newObject = CUtil.instantiateThermiteObject(objectClass) as TObject;
 		newObject.name = objectName;
 		
 		newObject.onCreate();		// perform object initialization

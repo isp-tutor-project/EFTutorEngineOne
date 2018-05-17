@@ -212,32 +212,7 @@ export class TTutorContainer extends TRoot
 	}
 	
 	
-	// TODO: This appears to be deprecated
-	// 
-	public addScene(sceneTitle:string, scenePage:string, sceneName:string, sceneClass:string, sceneFeatures:string, sceneEnqueue:boolean, sceneCreate:boolean, sceneVisible:boolean, scenePersist:boolean, sceneObj:any = null ) : void
-	{		
-		//@@ debug - for building XML spec of Tutor spec only - captureSceneGraph			
-		//sceneGraph.appendChild(<scene sceneTitle={sceneTitle} scenePage={scenePage} sceneName={sceneName} sceneClass={sceneClass} sceneFeatures={sceneFeatures} sceneEnqueue={sceneEnqueue? "true:boolean":":boolean"} sceneCreate={sceneCreate? "true:boolean":":boolean"} scenePersist={scenePersist? "true:boolean":":boolean"} sceneObj={sceneObj? sceneObj.name:"null"} condition="" />);
-						
-		// Build the Navigation sequences
-		// Note that this adds the scene to the sequence as well as connecting the scene to the sequence
-		//
-		if(sceneEnqueue)
-			this.SnavPanel.addScene(sceneTitle, scenePage, sceneName, sceneClass, scenePersist, sceneFeatures );
-
-		// Pre-Create scene if requested
-		
-		if(sceneCreate)
-			this.instantiateScene(sceneName, sceneClass, sceneVisible); 				
-
-		// Otherwise add it to the automation object if it is Extant - i.e. Flash instantiated
-		
-		if(sceneObj != null)
-			this.automateScene(sceneName, sceneObj, false);
-	}
-	
-	
-	public instantiateScene(sceneName:string, sceneClass:string, sceneVisible:boolean=false) : any
+	public instantiateScene(sceneName:string, classPath:string, sceneVisible:boolean=false) : any
 	{			
 		let i1:number;
 		let tarScene:any;
@@ -245,8 +220,9 @@ export class TTutorContainer extends TRoot
 
 		if (this.traceMode) CUtil.trace("Creating Scene : "+ sceneName);
 
-		tarScene = CUtil.instantiateThermiteObject("moduleName", sceneClass);
+		tarScene = CUtil.instantiateThermiteObject(classPath);
 		tarScene.name         = sceneName;
+		tarScene.classPath    = classPath;
 		tarScene.tutorDoc     = this.tutorDoc;
 		tarScene.tutorAutoObj = this.tutorAuto;
 

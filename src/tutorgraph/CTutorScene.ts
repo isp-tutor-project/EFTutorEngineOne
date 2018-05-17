@@ -40,17 +40,15 @@ export class CTutorScene
 	private _scene:TObject;
 	
 	public  _name:string;
-	public  _namespace:string;
 	private _title:string;
 	private _page:string;
-	private _class:string;
+	private _classPath:string;
 	private _features:string;
 	private _enqueue:boolean;
 	private _create:boolean;
 	private _visible:boolean;
 	private _persist:boolean;
 	private _checkpnt:boolean;		
-	private _object:string;		
 			
 	private _pid:string;			// GUID for stocastic object
 	private _cycle:number;			// recycle distance for looping
@@ -60,23 +58,20 @@ export class CTutorScene
 	
 	constructor(_tutorDoc:IEFTutorDoc, factory:any, parent:CTutorGraph)
 	{
-
 		this.tutorDoc 		= _tutorDoc;
 		this.tutorContainer = _tutorDoc.tutorContainer;
 		this._parent	 	= parent;
 		
 		this._name		= factory.name;
-		this._namespace = factory.namespace;		
+		this._classPath	= factory.classpath;
 		this._title 	= factory.title;
 		this._page		= factory.page;
-		this._class		= factory.classname;
 		this._features	= factory.features;
 		this._enqueue	= (factory.enqueue    === "true")? true:false
 		this._create	= (factory.create     === "true")? true:false
 		this._visible	= (factory.visible    === "true")? true:false
 		this._persist	= (factory.persist    === "true")? true:false
 		this._checkpnt  = (factory.ischeckpnt === "true")? true:false				
-		this._object	= factory.object;
 		
 		// Handle Stocastic Features
 		
@@ -96,7 +91,7 @@ export class CTutorScene
 	
 	public instantiateScene() : any
 	{
-		this._scene = this.tutorContainer.instantiateScene(this._name, this._class, this._visible) as TObject;
+		this._scene = this.tutorContainer.instantiateScene(this._name, this._classPath, this._visible) as TObject;
 		
 		// Transcribe the factory feature to the object itself
 		
@@ -143,7 +138,7 @@ export class CTutorScene
 	
 	public get classname() : string
 	{
-		return this._class;
+		return this._classPath;
 	}
 	
 	public get title() : string

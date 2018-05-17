@@ -31,7 +31,7 @@ export class CSceneTrack
 	private _type:string;
 	
 	private _choiceset:CSceneChoiceSet;		
-	private _classname:string;
+	private _classpath:string;
 	
 	private _features:string;
 
@@ -51,10 +51,10 @@ export class CSceneTrack
 			this._choiceset	= CSceneChoiceSet.factory(_tutorDoc, this._parent, factory.choiceset, this._parent._graphFactory.CChoiceSets[factory.choiceset]);
 		}
 		
-		else if(factory.classname != undefined)
+		else if(factory.classpath != undefined)
 		{
 			this._type       = 'actiontrack';				
-			this._classname	= factory.classname;
+			this._classpath	= factory.classpath;
 		}
 		
 		this._features 	= factory.features;
@@ -106,9 +106,9 @@ export class CSceneTrack
 		return this._features;
 	}		
 	
-	public get classname() : string
+	public get classpath() : string
 	{
-		return this._classname;
+		return this._classpath;
 	}		
 	
 }
