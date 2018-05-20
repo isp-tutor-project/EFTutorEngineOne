@@ -23,7 +23,7 @@ import { CEFNavigator } 		from "../core/CEFNavigator";
 import { CEFTimer } 			from "../core/CEFTimer";
 
 import { CEFNavEvent } 			from "../events/CEFNavEvent";
-import { CAnimationGraph } 		from "../animationgraph/CAnimationGraph";
+import { CSceneGraph } 		from "../scenegraph/CSceneGraph";
 import { CTutorGraphNavigator } from "../tutorgraph/CTutorGraphNavigator";
 
 import { CEFTimerEvent } 		from "../events/CEFTimerEvent";
@@ -72,7 +72,7 @@ export class TScene extends TSceneBase
 
 	//## MOD Aug 31 2013 - actiontrack AnimationGraph support
 	
-	private animationGraph:CAnimationGraph = null;		
+	private sceneGraph:CSceneGraph = null;		
 	
 	
 	
@@ -143,14 +143,21 @@ export class TScene extends TSceneBase
 	public rewindScene() : void
 	{
 		// Parse the Tutor.config for create procedures for this scene 
-		
-		// if((this.tutorDoc.gSceneConfig != null) && (this.tutorDoc.gSceneConfig.scenedata[this.name].rewind != undefined))
-		// 	this.parseOBJ(this, this.tutorDoc.gSceneConfig.scenedata[this.name].rewind.children(), "rewind");
-		
-		// //## Mod Feb 07 2013 - support for scene rewind -initialization
-		
-		// if((this.tutorDoc.gSceneConfig != null) && (this.tutorDoc.gSceneConfig.scenedata[this.name].demoinit != undefined))
-		// 	this.parseOBJ(this, this.tutorDoc.gSceneConfig.scenedata[this.name].demoinit.children(), "demoinit");			
+	
+		try {
+			// Execute the rewind procedures for this scene instance
+			// see notes on sceneExt Code - tutor Supplimentary code
+			// 
+			this.$rewind();
+			
+			// Support for demo scene-initialization
+			// 
+			this.$demoinit();
+		}		
+		catch(error) {
+
+			CUtil.trace("Error in onCreate script: " + this.onCreateScript);
+		}
 	}
 	
 	
@@ -168,8 +175,13 @@ export class TScene extends TSceneBase
 		
 		//## Mod Feb 07 2013 - added to support actionsequence replay functionality 
 		// restart the ActionTrack sequence
-		
-		// this.parseOBJ(null, this.tutorDoc.gSceneConfig.scenedata[this.name].preenter.children(), "preenter");
+		// 
+		try {
+			this.$preenter();
+		}
+		catch(error) {
+			CUtil.trace("sceneReplay preenter error on scene: " + this.name + " - " + error);
+		}
 		
 		// Use the timer to do an asynchronous start of the actionTrack
 		
@@ -197,7 +209,7 @@ export class TScene extends TSceneBase
 	 */
 	public playHandler(evt:CEFTimerEvent) : void 
 	{
-		if(this.traceMode) CUtil.trace("CEFSceneSequence timerHandler: " + evt);
+		if(this.traceMode) CUtil.trace("TScene timerHandler: " + evt);
 		
 		this.audioStartTimer.stop();
 		this.audioStartTimer.reset();
@@ -367,7 +379,32 @@ export class TScene extends TSceneBase
 			
 //****** Navigation Behaviors
 
+	public connectGraph(name:string, features:string) {
+
+		if(features)
+		{
+			if(!this.tutorDoc.testFeatureSet(features))
+													return;
+		}
+		
+		try
+		{
+			this.sceneGraph = CSceneGraph.factory(this.tutorDoc, this, "root", name);
+			
+			if(this.sceneGraph != null)
+			{
+				this.Saudio1 = this.bindAudio(CUtil.instantiateThermiteObject(this.sceneGraph.nextAnimation()));
+				this.Saudio1.stop();
+			}
+		}
+		catch(err)							
+		{
+			CUtil.trace("scenegraph load Failed" + err);
+		}
+	}
+
 	/**
+	 * deprecated - replaced with connectGraph ...
 	 * 
 	 * @param	tarObj
 	 * @param	tarOBJ
@@ -382,7 +419,7 @@ export class TScene extends TSceneBase
 		{
 			switch(element)
 			{
-				case "animationgraph":
+				case "scenegraph":
 					
 					if(element['features'] != undefined)
 					{
@@ -396,17 +433,17 @@ export class TScene extends TSceneBase
 					
 					try
 					{
-						this.animationGraph = CAnimationGraph.factory(this.tutorDoc, this, "root", element.name);
+						this.sceneGraph = CSceneGraph.factory(this.tutorDoc, this, "root", element.name);
 						
-						if(this.animationGraph != null)
+						if(this.sceneGraph != null)
 						{
-							this.Saudio1 = this.bindAudio(CUtil.instantiateThermiteObject("moduleName", this.animationGraph.nextAnimation()));
+							this.Saudio1 = this.bindAudio(CUtil.instantiateThermiteObject(this.sceneGraph.nextAnimation()));
 							this.Saudio1.stop();
 						}
 					}
 					catch(err)							
 					{
-						CUtil.trace("animationgraph JSON Spec Failed" + err);
+						CUtil.trace("scenegraph JSON Spec Failed" + err);
 					}
 					break;
 					
@@ -442,12 +479,12 @@ export class TScene extends TSceneBase
 					
 					try
 					{
-						this.Saudio1 = this.bindAudio(CUtil.instantiateThermiteObject("moduleName", element.type));
+						this.Saudio1 = this.bindAudio(CUtil.instantiateThermiteObject(element.type));
 						this.Saudio1.stop();
 					}
 					catch(err)							
 					{
-						CUtil.trace("CEFSceneSequence:parseOBJ: " + err);
+						CUtil.trace("TScene:parseOBJ: " + err);
 					}
 					break;
 			}
@@ -463,7 +500,7 @@ export class TScene extends TSceneBase
 	/**
 	 *##Mod Sep 01 2013 - Support for Animation Graphs 
 		* 
-		* If this is called from scenegraphnavigator don't inc scene when animationgraph exhausted
+		* If this is called from scenegraphnavigator don't inc scene when scenegraph exhausted
 		* let the scenegraph handle it
 		*/
 	public nextGraphAnimation(bNavigating:boolean = false) : string
@@ -473,7 +510,7 @@ export class TScene extends TSceneBase
 		// If this scene has an animation graph
 		// This may be called as a result of scene increment on scenes that just have actiontracks
 		
-		if(this.animationGraph != null)
+		if(this.sceneGraph != null)
 		{				
 			if(this.Saudio1)
 			{
@@ -482,11 +519,11 @@ export class TScene extends TSceneBase
 				this.Saudio1 = null;
 			}
 						
-			nextSeq = this.animationGraph.nextAnimation();
+			nextSeq = this.sceneGraph.nextAnimation();
 			
 			if(nextSeq != null)
 			{
-				this.Saudio1 = this.bindAudio(CUtil.instantiateThermiteObject("moduleName", nextSeq) as any);
+				this.Saudio1 = this.bindAudio(CUtil.instantiateThermiteObject(nextSeq) as any);
 				
 				this.scenePlay();								
 			}
@@ -580,6 +617,23 @@ export class TScene extends TSceneBase
 	}
 	
 	
+	public deferredEnterScene(Direction:string) : void
+	{				
+		if((Direction == "WOZNEXT") ||
+			(Direction == "WOZGOTO"))
+		{
+			if(this.sceneGraph != null)
+			{					
+				this.sceneGraph.onEnterRoot();
+			}
+			
+			// Create a unique timestamp for this scene
+			
+			this.tutorDoc.tutorContainer.timeStamp.createLogAttr("dur_"+name, true);
+		}			
+	}
+	
+	
 	// Default behavior - Set the Tutor Title and return same target scene
 	// Direction can be - "WOZNEXT" , "WOZBACK" , "WOZGOTO"
 	// 
@@ -589,7 +643,7 @@ export class TScene extends TSceneBase
 	{
 		let result:string;
 		
-		if(this.traceMode) CUtil.trace("Default Pre-Enter Scene Behavior: " + sceneTitle);		
+		if(this.traceMode) CUtil.trace("TScene preenter Scene Behavior: " + this.name);		
 
 		//*********** Call super to run scene config first
 		
@@ -612,26 +666,9 @@ export class TScene extends TSceneBase
 	}
 
 	
-	public deferredEnterScene(Direction:string) : void
-	{				
-		if((Direction == "WOZNEXT") ||
-			(Direction == "WOZGOTO"))
-		{
-			if(this.animationGraph != null)
-			{					
-				this.animationGraph.onEnterRoot();
-			}
-			
-			// Create a unique timestamp for this scene
-			
-			this.tutorDoc.tutorContainer.timeStamp.createLogAttr("dur_"+name, true);
-		}			
-	}
-	
-	
 	public onEnterScene(Direction:string) : void
 	{				
-		if(this.traceMode) CUtil.trace("CEFSceneSequence Enter Scene Behavior:" + Direction);		
+		if(this.traceMode) CUtil.trace("TScene onenter Scene Behavior:" + this.name);		
 		
 		if((Direction == "WOZNEXT") ||
 			(Direction == "WOZGOTO"))
@@ -650,7 +687,7 @@ export class TScene extends TSceneBase
 	
 	public onExitScene() : void
 	{				
-		if(this.traceMode) CUtil.trace("CEFSceneSequence Exit Scene Behavior:");		
+		if(this.traceMode) CUtil.trace("TScene onexit Behavior:" + this.name);		
 		
 		//***** Kill the ActionTrack
 		
@@ -659,7 +696,7 @@ export class TScene extends TSceneBase
 		this.Saudio1 = null;
 		
 		// only listen for replay events while the scene instance in playing
-		
+		// 
 		this.tutorDoc.tutorContainer.removeEventListener(CONST.WOZREPLAY, this.sceneReplay);					
 		
 		
@@ -668,34 +705,38 @@ export class TScene extends TSceneBase
 		
 		this.tutorDoc._sceneData = {};			
 		
-		// if((this.tutorDoc.gSceneConfig != null) && (this.tutorDoc.gSceneConfig.scenedata[this.name].logging != undefined))
-		// {
-		// 	this.parseOBJ(this, this.tutorDoc.gSceneConfig.scenedata[this.name].logging.children(), "logging");
-		// }
+		try {
+			this.$logging();
+		}
+		catch(error) {
+			CUtil.trace("logging error on scene: " + this.name + " - " + error);
+		}
 		
+		// TODO: implement
 		// Always log the scene duration data
 		
-		this.tutorDoc._sceneData['scene']     = name;
-		this.tutorDoc._sceneData['iteration'] = this.tutorDoc.tutorContainer.gNavigator.iteration.toString();
-		this.tutorDoc._sceneData['duration']  = this.tutorDoc.tutorContainer.timeStamp.createLogAttr("dur_"+name);
+		// this.tutorDoc._sceneData['scene']     = name;
+		// this.tutorDoc._sceneData['iteration'] = this.tutorDoc.tutorContainer.gNavigator.iteration.toString();
+		// this.tutorDoc._sceneData['duration']  = this.tutorDoc.tutorContainer.timeStamp.createLogAttr("dur_"+name);
 		
-		this.tutorDoc.log.logStateEvent(this.tutorDoc._sceneData);
+		// this.tutorDoc.log.logStateEvent(this.tutorDoc._sceneData);
 		
 		
-		// Parse the Tutor.config for Terminate event
-		
-		// if((this.tutorDoc.gSceneConfig != null) && (this.tutorDoc.gSceneConfig.scenedata[this.name].logterm != undefined))
-		// {
-		// 	//@@Mod Sep 04 2013 - feature enable the logterm command
-			
-		// 	if(this.tutorDoc.gSceneConfig.scenedata[this.name].logterm.features != undefined)
-		// 	{					
-		// 		if(this.tutorDoc.tutorContainer.testFeatureSet(String(this.tutorDoc.gSceneConfig.scenedata[this.name].logterm.features)))
-		// 																				this.enQueueTerminateEvent();
-		// 	}
-		// 	else 
-		// 	this.enQueueTerminateEvent();
-		// }
+		// Check for Terminate Flag
+		// 
+		try {
+			if(this.$logterm) {
+				if(this.tutorDoc.testFeatureSet(this.$features)) {
+					this.enQueueTerminateEvent();
+				}
+				else {
+					this.enQueueTerminateEvent();
+				}
+			}
+		}
+		catch(error) {
+			CUtil.trace("enQueueTerminateEvent error on scene: " + this.name + " - " + error);
+		}
 		
 		//## Mod aug 22 2013 - Update KT beliefs 
 		

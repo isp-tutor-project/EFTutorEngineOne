@@ -45,6 +45,7 @@ import MovieClip     		  = createjs.MovieClip;
 import DisplayObject 		  = createjs.DisplayObject;
 import DisplayObjectContainer = createjs.Container;
 import Tween 				  = createjs.Tween;
+import CJSEvent				  = createjs.Event;
 import Rectangle     	  	  = createjs.Rectangle;
 import Shape     		  	  = createjs.Shape;
 
@@ -94,7 +95,7 @@ export class TTutorContainer extends TRoot
 	//
 	public 	 cCursor:TCursorProxy;		
 	
-	public   sceneCnt:number   		   	= 0;							// Total number of scenes	
+	public   sceneCnt:number   		   		= 0;						// Total number of scenes	
 
 			  replayIndex:Array<number> 	= new Array;
 			  replayTime:number    			= 0;
@@ -111,6 +112,11 @@ export class TTutorContainer extends TRoot
 	public containerBounds:Shape;
     public nominalBounds:Rectangle;
     
+	// This is a special signature to avoid typescript error "because <type> has no index signature."
+	// on this[<element name>]
+	// 
+	[key: string]: any;
+
 	
 	/**
 	 * CEFTutorContainer constructor
@@ -206,32 +212,7 @@ export class TTutorContainer extends TRoot
 	}
 	
 	
-	// TODO: This appears to be deprecated
-	// 
-	public addScene(sceneTitle:string, scenePage:string, sceneName:string, sceneClass:string, sceneFeatures:string, sceneEnqueue:boolean, sceneCreate:boolean, sceneVisible:boolean, scenePersist:boolean, sceneObj:any = null ) : void
-	{		
-		//@@ debug - for building XML spec of Tutor spec only - captureSceneGraph			
-		//sceneGraph.appendChild(<scene sceneTitle={sceneTitle} scenePage={scenePage} sceneName={sceneName} sceneClass={sceneClass} sceneFeatures={sceneFeatures} sceneEnqueue={sceneEnqueue? "true:boolean":":boolean"} sceneCreate={sceneCreate? "true:boolean":":boolean"} scenePersist={scenePersist? "true:boolean":":boolean"} sceneObj={sceneObj? sceneObj.name:"null"} condition="" />);
-						
-		// Build the Navigation sequences
-		// Note that this adds the scene to the sequence as well as connecting the scene to the sequence
-		//
-		if(sceneEnqueue)
-			this.SnavPanel.addScene(sceneTitle, scenePage, sceneName, sceneClass, scenePersist, sceneFeatures );
-
-		// Pre-Create scene if requested
-		
-		if(sceneCreate)
-			this.instantiateScene(sceneName, sceneClass, sceneVisible); 				
-
-		// Otherwise add it to the automation object if it is Extant - i.e. Flash instantiated
-		
-		if(sceneObj != null)
-			this.automateScene(sceneName, sceneObj, false);
-	}
-	
-	
-	public instantiateScene(sceneName:string, sceneClass:string, sceneVisible:boolean=false) : any
+	public instantiateScene(sceneName:string, classPath:string, sceneVisible:boolean=false) : any
 	{			
 		let i1:number;
 		let tarScene:any;
@@ -239,12 +220,27 @@ export class TTutorContainer extends TRoot
 
 		if (this.traceMode) CUtil.trace("Creating Scene : "+ sceneName);
 
-		tarScene = CUtil.instantiateThermiteObject("moduleName", sceneClass);
+		tarScene = CUtil.instantiateThermiteObject(classPath);
 		tarScene.name         = sceneName;
+		tarScene.classPath    = classPath;
 		tarScene.tutorDoc     = this.tutorDoc;
 		tarScene.tutorAutoObj = this.tutorAuto;
-			
+
+		// Supplimentary code has leading $ (CONST.EXT_SIG) on each identifier to be mixed in
+		// Mixin the common code first to initialize defaults
+		// Mixin the supplimentary code on the scene instance.
+		//
+		CUtil.mixinSceneSuppliments(tarScene, this.tutorDoc.tutorExt[CONST.COMMON_CODE], CONST.EXT_SIG);
+		CUtil.mixinSceneSuppliments(tarScene, this.tutorDoc.tutorExt[sceneName], CONST.EXT_SIG);
+
 		this.addChild(tarScene);
+
+		// Special CreateJS processing to initialize the scene with components.
+		// AnimateCC uses ManagedChildren - i.e. movie clips add child components automatically in their timeline
+		// on frame 0... etc - we do a single tick to load the scene so the transitions has inPlace components 
+		// to work with
+		// 
+		this.initSceneTick(tarScene);
 
 		//enumChildren(tarScene,0);				//@@ Debug display list Test May 10 2014
 		//enumScenes();							//@@ Debug display list Test Oct 29 2012
@@ -252,7 +248,7 @@ export class TTutorContainer extends TRoot
 		//gTruck.add(tarScene);					//@@ Debug memory test May 27 2010
 		
 		tarScene.visible = false;				
-		tarScene.stop();						
+		tarScene.stop();						// TODO: COMMENTED FOR DEBUG
 
 		//## Mod Aug 10 2012 - must wait for initializeScenes to ensure basic scenes are in place now that 
 		//					   we allow dynamic creation of the navPanel etc.
@@ -262,7 +258,7 @@ export class TTutorContainer extends TRoot
 		
 		if(sceneVisible)
 		{
-			(this as any)[sceneName]  = tarScene;
+			this[sceneName]  = tarScene;
 			tarScene.visible = true;
 		}
 		
@@ -291,6 +287,18 @@ export class TTutorContainer extends TRoot
 		return tarScene;			
 	}
 	
+
+	private initSceneTick(tarScene:any) {
+
+		let event = new CJSEvent("tick",false,false);
+		event.delta = 0;
+		event.paused = true;
+		event.time = CUtil.getTimer();
+		event.runTime = event.time;
+		
+		tarScene._tick(event);
+	}
+
 	
 	public destroyScene(sceneName:string ) : void
 	{			
@@ -322,12 +330,12 @@ export class TTutorContainer extends TRoot
 		
 		if(this.hasOwnProperty(sceneName))
 		{
-			(this as any)[sceneName] = null;
+			this[sceneName] = null;
 			
 			// Remove each SCENE Object
 			if(this.tutorAutoObj.hasOwnProperty(sceneName))
 			{				
-				this.tutorAutoObj[sceneName].instance = null;			
+				this.tutorAutoObj[sceneName]._instance = null;			
 				
 				delete this.tutorAutoObj[sceneName];
 			}
@@ -339,20 +347,21 @@ export class TTutorContainer extends TRoot
 	{						
 		// name the object
 		
-		(this as any)[sceneName] = sceneObj;		
+		this[sceneName] = sceneObj;		
 		
 		if(nameObj)									// Can't rename an object placed in Flash
-			(this as any)[sceneName].name = sceneName;
+			this[sceneName].name = sceneName;
 		
 		// Attach the navigator to the scene itself - let it know what navigation object to use when NAV events occur
-		
-		if(sceneObj instanceof TScene)
-			sceneObj.connectNavigator(this.SnavPanel);
+
+		// TODO: check if required
+		// if(sceneObj instanceof TScene)
+		// 	sceneObj.connectNavigator(this.SnavPanel);
 		
 		// Record each SCENE Object
 		//
 		this.tutorAutoObj[sceneName] = {};
-		this.tutorAutoObj[sceneName].instance = sceneObj;			
+		this.tutorAutoObj[sceneName]._instance = sceneObj;			
 		
 		// Propogate to children  
 		//
@@ -661,9 +670,9 @@ export class TTutorContainer extends TRoot
 		{
 			if(this.traceMode) CUtil.trace("\tSCENE : " + scene);
 			
-			if(scene != "instance" && Tutor[scene].instance instanceof TSceneBase)
+			if(scene != "_instance" && Tutor[scene]._instance instanceof TSceneBase)
 			{				
-				Tutor[scene].instance.captureDefState(Tutor[scene] );					
+				Tutor[scene]._instance.captureDefState(Tutor[scene] );					
 			}					
 		}		
 		if(this.traceMode) CUtil.trace("\t*** End Capture - Walking Scenes***");
@@ -680,11 +689,11 @@ export class TTutorContainer extends TRoot
 		{
 			if(this.traceMode) CUtil.trace("\tSCENE : " + scene);
 			
-			if(scene != "instance" && Tutor[scene].instance instanceof TSceneBase)
+			if(scene != "_instance" && Tutor[scene]._instance instanceof TSceneBase)
 			{				
 				if(this.traceMode) CUtil.trace("reseting: " + scene);
 			
-				Tutor[scene].instance.restoreDefState(Tutor[scene] );					
+				Tutor[scene]._instance.restoreDefState(Tutor[scene] );					
 			}					
 		}		
 		if(this.traceMode) CUtil.trace("\t*** End Restore - Walking Scenes***");
@@ -1017,11 +1026,11 @@ export class TTutorContainer extends TRoot
 		{
 			if(this.traceMode) CUtil.trace("\tSCENE : " + scene);
 			
-			if(scene != "instance" && Tutor[scene].instance instanceof TObject)
+			if(scene != "_instance" && Tutor[scene]._instance instanceof TObject)
 			{
 				if(this.traceMode) CUtil.trace("\tCEF***");
 	
-				Tutor[scene].instance.dumpSceneObjs(Tutor[scene]);					
+				Tutor[scene]._instance.dumpSceneObjs(Tutor[scene]);					
 			}					
 		}		
 	}
@@ -1137,11 +1146,11 @@ export class TTutorContainer extends TRoot
 		{
 			if(this.traceMode) CUtil.trace("TUTOR : " + tutor);
 		
-			if(this.tutorAutoObj[tutor].instance instanceof TTutorContainer) 
+			if(this.tutorAutoObj[tutor]._instance instanceof TTutorContainer) 
 			{
 				if(this.traceMode) CUtil.trace("CEF***");
 				
-				this.tutorAutoObj[tutor].instance.dumpScenes(this.tutorAutoObj[tutor]);
+				this.tutorAutoObj[tutor]._instance.dumpScenes(this.tutorAutoObj[tutor]);
 			}				
 		}			
 		

@@ -19,9 +19,9 @@
 
 import { IEFTutorDoc } 		from "../core/IEFTutorDoc";
 
-import { CAnimationNode } 	from "./CAnimationNode";
-import { CAnimationGraph } 	from "./CAnimationGraph";
-import { CAnimationTrack } 	from "./CAnimationTrack";
+import { CSceneNode } 		from "./CSceneNode";
+import { CSceneGraph } 		from "./CSceneGraph";
+import { CSceneTrack } 		from "./CSceneTrack";
 
 import { TRoot } 			from "../thermite/TRoot";
 
@@ -33,7 +33,7 @@ import EventDispatcher = createjs.EventDispatcher;
 
 
 
-export class CAnimationModule extends CAnimationNode
+export class CSceneModule extends CSceneNode
 {
 	private _animations:Array<any> = new Array;	
 	private _ndx:number = -1;
@@ -53,9 +53,9 @@ export class CAnimationModule extends CAnimationNode
 		*   	When moduleFactory is a "type":"module" the generated object is a global referenced elsewhere 
 		*      
 	**/		
-	public static factory(_tutorDoc:IEFTutorDoc, parent:CAnimationGraph, nodeName:string, moduleFactory:any) : CAnimationModule
+	public static factory(_tutorDoc:IEFTutorDoc, parent:CSceneGraph, nodeName:string, moduleFactory:any) : CSceneModule
 	{
-		let node:CAnimationModule = new CAnimationModule(_tutorDoc);			
+		let node:CSceneModule = new CSceneModule(_tutorDoc);			
 		
 		// If this is a CNode spec then extract the CNode info - e.g. edges etc. 
 		
@@ -78,7 +78,7 @@ export class CAnimationModule extends CAnimationNode
 		
 		for (let track in actiontracks)
 		{
-			node._animations.push(new CAnimationTrack(_tutorDoc, track, parent));	
+			node._animations.push(new CSceneTrack(_tutorDoc, track, parent));	
 		}
 		
 		return node;
@@ -88,7 +88,7 @@ export class CAnimationModule extends CAnimationNode
 	public nextAnimation() : string
 	{
 		let nextTrackClass:string = null; 
-		let nextAnimation:CAnimationTrack;
+		let nextAnimation:CSceneTrack;
 		let features:string;
 		let featurePass:boolean = false;
 		
@@ -143,7 +143,7 @@ export class CAnimationModule extends CAnimationNode
 					switch(nextAnimation.type)
 					{
 						case "actiontrack":
-							nextTrackClass = nextAnimation.classname;
+							nextTrackClass = nextAnimation.classpath;
 							break;
 						
 						case "choiceset":
@@ -174,14 +174,14 @@ export class CAnimationModule extends CAnimationNode
 	
 	public seekToAnimation(seek:string) : string
 	{
-		let animation:CAnimationTrack = null;
+		let animation:CSceneTrack = null;
 		let ndx:number = 0;
 		
 		// Move to the correct scene within the module
 		
 		for (let animation of this._animations)
 		{
-			if(seek == animation.classname)
+			if(seek == animation.classpath)
 			{
 				this._ndx = ndx;
 				break;
@@ -189,7 +189,7 @@ export class CAnimationModule extends CAnimationNode
 			ndx++;
 		}
 		
-		return animation.classname;
+		return animation.classpath;
 	}
 	
 	

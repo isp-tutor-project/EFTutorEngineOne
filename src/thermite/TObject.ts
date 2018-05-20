@@ -174,47 +174,6 @@ export class TObject extends TRoot
 	/*  ###########  END CREATEJS SUBCLASS SUPPORT ###########   */
 
 
-	
-	public onCreate() : void
-	{
-		// Parse the Tutor.config for create procedures for this scene 
-		
-		// if((this.tutorDoc.gSceneConfig != null) && (this.tutorDoc.gSceneConfig.objectdata[this.name] != undefined))
-		// 				this.parseOBJ(this, this.tutorDoc.gSceneConfig.objectdata[this.name].children(), name);
-		
-		//## Mod May 04 2014 - support declarative button actions from scenedescr.xml <create>
-		if(this.onCreateScript != null)
-					this.doCreateAction();
-	}					
-
-	
-	protected doCreateAction() : void
-	{
-		try
-		{
-			eval(this.onCreateScript);
-		}
-		catch(e)
-		{
-			CUtil.trace("Error in onCreate script: " + this.onCreateScript);
-		}
-	}
-	
-	public doExitAction() : void
-	{
-		if(this.onExitScript != null)
-		{		
-			try
-			{
-				eval(this.onExitScript);
-			}
-			catch(e)
-			{
-				CUtil.trace("Error in onExit script: " + this.onExitScript);
-			}
-		}
-	}
-	
 	/**
 	 * This is a mechanism to keep woz objects !.visible through a transition
 	 *  
@@ -295,7 +254,7 @@ export class TObject extends TRoot
 		let newObject:TObject;
 		let maskDim:Point;
 		
-		newObject = CUtil.instantiateThermiteObject("moduleName", objectClass) as TObject;
+		newObject = CUtil.instantiateThermiteObject(objectClass) as TObject;
 		newObject.name = objectName;
 		
 		newObject.onCreate();		// perform object initialization
@@ -797,11 +756,11 @@ export class TObject extends TRoot
 		
 		for(let subObject in tutObject)
 		{			
-			if(subObject != "instance" && tutObject[subObject].instance instanceof TObject)
+			if(subObject != "_instance" && tutObject[subObject]._instance instanceof TObject)
 			{
-				if(this.traceMode) CUtil.trace("capturing: " + tutObject[subObject].instance.name);
+				if(this.traceMode) CUtil.trace("capturing: " + tutObject[subObject]._instance.name);
 				
-				tutObject[subObject].instance.captureDefState(tutObject[subObject] );										
+				tutObject[subObject]._instance.captureDefState(tutObject[subObject] );										
 			}					
 		}		
 	}
@@ -812,7 +771,7 @@ export class TObject extends TRoot
 	public restoreDefState(tutObject:any ) : void 
 	{
 		this.rotation = this.defRot; 
-		this.scaleX    = this.defWidth;
+		this.scaleX   = this.defWidth;
 		this.scaleY   = this.defHeight;
 		this.x        = this.defX;
 		this.y        = this.defY;
@@ -820,11 +779,11 @@ export class TObject extends TRoot
 		
 		for(let subObject in tutObject)
 		{			
-			if(subObject != "instance" && tutObject[subObject].instance instanceof TObject)
+			if(subObject != "_instance" && tutObject[subObject]._instance instanceof TObject)
 			{
-				if(this.traceMode) CUtil.trace("restoring: " + tutObject[subObject].instance.name);
+				if(this.traceMode) CUtil.trace("restoring: " + tutObject[subObject]._instance.name);
 				
-				tutObject[subObject].instance.restoreDefState(tutObject[subObject] );										
+				tutObject[subObject]._instance.restoreDefState(tutObject[subObject] );										
 			}					
 		}					
 	}
@@ -909,7 +868,7 @@ export class TObject extends TRoot
 			// Record each Sub-Object - only maintain pointers
 			//
 			sceneObj[subObj.name] = {};
-			sceneObj[subObj.name].instance = subObj;										
+			sceneObj[subObj.name]._instance = subObj;										
 
 			// Have Object determine its inplace size
 			//
@@ -960,9 +919,9 @@ export class TObject extends TRoot
 		//
 		for(let subObj in sceneObj)
 		{
-			if(subObj != "instance" && sceneObj[subObj].instance instanceof TObject)
+			if(subObj != "_instance" && sceneObj[subObj]._instance instanceof TObject)
 			{
-				sceneObj[subObj].instance.setAutomationMode(sceneObj[subObj], sMode );										
+				sceneObj[subObj]._instance.setAutomationMode(sceneObj[subObj], sMode );										
 			}					
 		}		
 	}
@@ -979,26 +938,26 @@ export class TObject extends TRoot
 		{
 			if(this.traceMode) CUtil.trace(Indent + "\tsubObj : " + subObj);
 
-			if(subObj != "instance")
+			if(subObj != "_instance")
 			{
 				let ObjData:any = sceneObj[subObj]; // Convenience Pointer
 				
-				if(sceneObj[subObj].instance instanceof TObject)
+				if(sceneObj[subObj]._instance instanceof TObject)
 				{
 					if(this.traceMode) CUtil.trace(Indent + "\t");						
 					
-					let wozObj:TObject = sceneObj[subObj].instance;
+					let wozObj:TObject = sceneObj[subObj]._instance;
 				
 					if(ObjData['inPlace'] != undefined)
 					{
 						if(this.traceMode) CUtil.trace(Indent + "\tCEF* Object: " + " x: " + wozObj.x + " y: " + wozObj.y + " width: " + wozObj.scaleX + " height: " + wozObj.scaleY + " alpha: " + wozObj.alpha + " visible: " + wozObj.visible + " name: " + wozObj.name );													
 						if(this.traceMode) CUtil.trace(Indent + "\tIn-Place Pos: " + " X: " + ObjData['inPlace'].X + " Y: " + ObjData['inPlace'].Y + " Width: " + ObjData['inPlace'].scaleX + " Height: " + ObjData['inPlace'].scaleY + " Alpha: " + ObjData['inPlace'].Alpha );
 					}
-					sceneObj[subObj].instance.dumpSubObjs(sceneObj[subObj], Indent + "\t");												
+					sceneObj[subObj]._instance.dumpSubObjs(sceneObj[subObj], Indent + "\t");												
 				}
 				else 
 				{
-					let disObj:DisplayObject = sceneObj[subObj].instance;
+					let disObj:DisplayObject = sceneObj[subObj]._instance;
 				
 					if(ObjData['inPlace'] != undefined)
 					{
@@ -1140,7 +1099,9 @@ export class TObject extends TRoot
 
 	
 //*************** Creation / Initialization
-				
+			
+		// TODO: clean up parseObj etc... these may not be required in TObject butonly at TScene level
+
 		/**
 		 * 
 		 * @param	baseObj
@@ -1227,7 +1188,7 @@ export class TObject extends TRoot
 			
 			this.tutorDoc._phaseData[attrName]["duration"] = this.tutorDoc.tutorContainer.timeStamp.createLogAttr("dur_"+name);
 			
-			// Simple Scene state record - some values set in CEFSceneSequence.onExitScene 
+			// Simple Scene state record - some values set in TScene.onExitScene 
 			
 			this.tutorDoc._sceneData[element.logattr] = dataStr;
 			

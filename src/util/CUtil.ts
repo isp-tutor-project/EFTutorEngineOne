@@ -104,6 +104,29 @@ export class CUtil extends Object
     }
 
 
+	public static mixinSceneSuppliments(recObj:any, donorObj:any, constraint:string) {
+
+		let propName:string;
+		let donor:any = new donorObj();
+
+		let TObjProps:Array<string> = Object.getOwnPropertyNames(donor);
+		
+		for(propName of TObjProps) {
+			if(constraint && !propName.startsWith(constraint))
+														continue;
+			recObj[propName] = donor[propName];
+		}		
+
+		let protoProps:Array<string> = Object.getOwnPropertyNames(Object.getPrototypeOf(donor));
+		
+		for(propName of protoProps) {
+			if(constraint && !propName.startsWith(constraint))
+														continue;
+			recObj[propName] = donor[propName];
+		}		
+		
+	}
+
 
 	public static getDefinitionByName2(name:string):any {
 
@@ -179,11 +202,14 @@ export class CUtil extends Object
 
 	//****** Overridable Behaviors
 
-	public static instantiateThermiteObject(moduleName:string, className:string) : DisplayObject
+
+	public static instantiateThermiteObject(classPath:string) : DisplayObject
 	{			
 		let tarObject:any;
 		
-		let ClassRef:any = this.getConstructorByName(moduleName, className);
+		let _namespace:Array<string> = classPath.toUpperCase().split(".");
+
+		let ClassRef:any = this.getConstructorByName(_namespace[0], _namespace[1]);
 		
 		tarObject = new ClassRef();
 		
@@ -197,7 +223,7 @@ export class CUtil extends Object
 
 		try {
 
-			classConstructor = EFLoadManager.classLib[className.toUpperCase()];
+			classConstructor = EFLoadManager.classLib[moduleName][className];
 		}
 		catch(error) {
 
@@ -206,9 +232,6 @@ export class CUtil extends Object
 
 		return classConstructor;
 	}
-
-
-
 }
 
 let __global = this.__global || this;

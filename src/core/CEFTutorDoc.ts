@@ -83,7 +83,7 @@ export class CEFTutorDoc extends EventDispatcher implements IEFTutorDoc
 
     public state:Array<string>;
     public scenedata:Array<string>;
-    public sceneExt:any;
+    public tutorExt:any;
 
     // knowledge tracing 
     public   ktSkills:any;							    //@@ Mod Aug 28 2013 - support for new kt structure in sceneGraph
@@ -202,7 +202,7 @@ export class CEFTutorDoc extends EventDispatcher implements IEFTutorDoc
         this.tutorContainer          	 = new TTutorContainer();
 		this.tutorContainer.tutorDoc     = this;
 		this.tutorContainer.tutorAutoObj = this.TutAutomator;		
-        this.tutorContainer.name     	 = "Stutor";
+        this.tutorContainer.name     	 = CONST.TUTORCONTAINER;
         
         EFLoadManager.efStage.addChild(this.tutorContainer);
         
@@ -224,7 +224,7 @@ export class CEFTutorDoc extends EventDispatcher implements IEFTutorDoc
 		for(let suppl in this.tutorDescr.supplScripts) {
 
 			if(this.tutorDescr.supplScripts[suppl].intNameSpace == CONST.SCENE_EXT) {
-				this.sceneExt = this.tutorDescr.supplScripts[suppl].instance;
+				this.tutorExt = this.tutorDescr.supplScripts[suppl].instance;
 				break;
 			}
 		}

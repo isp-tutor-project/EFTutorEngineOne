@@ -16,18 +16,18 @@
 
 //** Imports
 
-import { IEFTutorDoc } 		from "../core/IEFTutorDoc";
+import { IEFTutorDoc } 			from "../core/IEFTutorDoc";
 
-import { CAnimationGraph } 			from "./CAnimationGraph";
-import { CAnimationConstraint } 	from "./CAnimationConstraint";
-import { CAnimationNode } 			from "./CAnimationNode";
+import { CSceneGraph } 			from "./CSceneGraph";
+import { CSceneConstraint } 	from "./CSceneConstraint";
+import { CSceneNode } 			from "./CSceneNode";
 
 
 
-export class CAnimationEdge
+export class CSceneEdge
 {
 	protected tutorDoc:IEFTutorDoc;		
-	protected _parent:CAnimationGraph;
+	protected _parent:CSceneGraph;
 	
 	private _edgeConst:string;
 	private _edgeNode:string;
@@ -37,9 +37,9 @@ export class CAnimationEdge
 		this.tutorDoc = _tutorDoc;
 	}			
 	
-	public static factory(_tutorDoc:IEFTutorDoc, parent:CAnimationGraph, factory:any) : CAnimationEdge
+	public static factory(_tutorDoc:IEFTutorDoc, parent:CSceneGraph, factory:any) : CSceneEdge
 	{
-		let edge:CAnimationEdge = new CAnimationEdge(_tutorDoc);			
+		let edge:CSceneEdge = new CSceneEdge(_tutorDoc);			
 		
 		edge._parent = parent;
 		
@@ -53,7 +53,7 @@ export class CAnimationEdge
 	{
 		let result:boolean = true;
 		
-		let constraint:CAnimationConstraint = this._parent.findConstraintByName(this._edgeConst);			
+		let constraint:CSceneConstraint = this._parent.findConstraintByName(this._edgeConst);			
 		
 		if(constraint != null)
 			result = constraint.execute();
@@ -61,7 +61,7 @@ export class CAnimationEdge
 		return 	result;		 	
 	}
 	
-	public followEdge() : CAnimationNode
+	public followEdge() : CSceneNode
 	{					
 		return this._parent.findNodeByName(this._edgeNode);	 	
 	}		

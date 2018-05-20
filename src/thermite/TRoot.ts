@@ -96,14 +96,20 @@ export class TRoot extends MovieClip
 		// Sub-classes can modify xname to have objects persist through 
 		// scene transitions (CEFTransitions)
 		//
-		this.xname = "CEF" + TRoot.xInstID.toString();
-		
-		TRoot.xInstID++;					
+		this.xname = this.nextXname();
     }
 
 	/* ######################################################### */
 	/*  ###########  END CREATEJS SUBCLASS SUPPORT ###########   */
 
+	public nextXname() : string {
+
+		let Xname:string  = "CEF" + TRoot.xInstID.toString();
+		
+		TRoot.xInstID++;	
+
+		return Xname;
+	}
 
 	
 	public Destructor() : void

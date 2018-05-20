@@ -16,22 +16,22 @@
 
 //** Imports
 
-import { IEFTutorDoc } 			from "../core/IEFTutorDoc";
+import { IEFTutorDoc } 		from "../core/IEFTutorDoc";
 
-import { CAnimationGraph } 		from "./CAnimationGraph";
-import { CAnimationChoiceSet } 	from "./CAnimationChoiceSet";
+import { CSceneGraph } 		from "./CSceneGraph";
+import { CSceneChoiceSet } 	from "./CSceneChoiceSet";
 
 
 
-export class CAnimationTrack
+export class CSceneTrack
 {
 	protected tutorDoc:IEFTutorDoc;		
-	private _parent:CAnimationGraph;
+	private _parent:CSceneGraph;
 	
 	private _type:string;
 	
-	private _choiceset:CAnimationChoiceSet;		
-	private _classname:string;
+	private _choiceset:CSceneChoiceSet;		
+	private _classpath:string;
 	
 	private _features:string;
 
@@ -40,7 +40,7 @@ export class CAnimationTrack
 	private _prob:Array<any>;		// Array of probabliities for given PID 
 	
 	
-	constructor(_tutorDoc:IEFTutorDoc, factory:any, parent:CAnimationGraph)
+	constructor(_tutorDoc:IEFTutorDoc, factory:any, parent:CSceneGraph)
 	{			
 		this.tutorDoc = _tutorDoc;
 		this._parent  = parent;
@@ -48,13 +48,13 @@ export class CAnimationTrack
 		if(factory.choiceset != undefined)
 		{
 			this._type       = 'choiceset';	
-			this._choiceset	= CAnimationChoiceSet.factory(_tutorDoc, this._parent, factory.choiceset, this._parent._graphFactory.CChoiceSets[factory.choiceset]);
+			this._choiceset	= CSceneChoiceSet.factory(_tutorDoc, this._parent, factory.choiceset, this._parent._graphFactory.CChoiceSets[factory.choiceset]);
 		}
 		
-		else if(factory.classname != undefined)
+		else if(factory.classpath != undefined)
 		{
 			this._type       = 'actiontrack';				
-			this._classname	= factory.classname;
+			this._classpath	= factory.classpath;
 		}
 		
 		this._features 	= factory.features;
@@ -106,9 +106,9 @@ export class CAnimationTrack
 		return this._features;
 	}		
 	
-	public get classname() : string
+	public get classpath() : string
 	{
-		return this._classname;
+		return this._classpath;
 	}		
 	
 }

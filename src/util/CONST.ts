@@ -2,6 +2,12 @@
 
 export class CONST {
 
+	public static readonly TUTORCONTAINER = "STutorContainer";
+
+	public static readonly COMMON_CODE  = "$Common";
+	public static readonly EXT_SIG      = "$";
+
+
     public static readonly BOOT_LOADER:string   = "./EFData/bootLoader.json5";
     public static readonly LOCAL:string          = "LOCAL";
     public static readonly WAIT:number           = 250;
@@ -36,6 +42,17 @@ export class CONST {
 
 	public static readonly STATE_OUT   		= "state_out";	// this represents a transition not a display object
 
+	public static readonly NEXTSCENE      = "nextbutton";
+	public static readonly PREVSCENE      = "prevbutton";
+
+	static readonly MOUSE_MOVE:string 		= "mousemove";			// Click event from the button 
+	static readonly MOUSE_DOWN:string 		= "mousedown";			// Click event from the button 
+	static readonly MOUSE_UP:string 		= "mouseup";			// Click event from the button 
+	static readonly MOUSE_CLICK:string 		= "click";				// Click event from the button 
+	static readonly DOUBLE_CLICK:string 	= "dblclick";			// Click event from the button 
+
+	static readonly CLICK:string 			= "click";				// Click event from the button 
+				
 
 
     //*************** Navigator static constants

@@ -17,17 +17,17 @@
 
 //** imports
 
-import { IEFTutorDoc } 		from "../core/IEFTutorDoc";
+import { IEFTutorDoc } 			from "../core/IEFTutorDoc";
 
-import { CAnimationNode } 		from "./CAnimationNode";
-import { CAnimationGraph } 		from "./CAnimationGraph";
-import { CAnimationChoice } 	from "./CAnimationChoice";
+import { CSceneNode } 			from "./CSceneNode";
+import { CSceneGraph } 			from "./CSceneGraph";
+import { CSceneChoice } 		from "./CSceneChoice";
 
 import EventDispatcher  = createjs.EventDispatcher;
 
 
 
-export class CAnimationChoiceSet extends CAnimationNode
+export class CSceneChoiceSet extends CSceneNode
 {
 	private _choices:Array<any> = new Array;
 	
@@ -55,9 +55,9 @@ export class CAnimationChoiceSet extends CAnimationNode
 		*   	When moduleFactory is a "type":"choiceset" the generated object is a global referenced elsewhere 
 		*      
 		**/		
-	public static factory(_tutorDoc:IEFTutorDoc, parent:CAnimationGraph, nodeName:string, moduleFactory:any) : CAnimationChoiceSet
+	public static factory(_tutorDoc:IEFTutorDoc, parent:CSceneGraph, nodeName:string, moduleFactory:any) : CSceneChoiceSet
 	{			
-		let node:CAnimationChoiceSet = new CAnimationChoiceSet(_tutorDoc);
+		let node:CSceneChoiceSet = new CSceneChoiceSet(_tutorDoc);
 		
 		// If this is a CNode spec then extract the CNode info - e.g. edges etc. 
 		
@@ -77,7 +77,7 @@ export class CAnimationChoiceSet extends CAnimationNode
 		
 		for (let set in choices)
 		{
-			node._choices.push(new CAnimationChoice(set));	
+			node._choices.push(new CSceneChoice(set));	
 		}
 
 		node._replace = moduleFactory.replace;
@@ -91,7 +91,7 @@ export class CAnimationChoiceSet extends CAnimationNode
 	public nextAnimation() : string
 	{
 		let nextTrackClass:string 		= null; 
-		let choice:CAnimationChoice;
+		let choice:CSceneChoice;
 		let curOdds:number 				= 0;
 		let sampleSize:number;			
 		let rand:number;
@@ -131,7 +131,7 @@ export class CAnimationChoiceSet extends CAnimationNode
 			
 			if(rand < curOdds)
 			{
-				nextTrackClass = choice.classname;
+				nextTrackClass = choice.classpath;
 				
 				if(!this._replace)
 					choice.choose();

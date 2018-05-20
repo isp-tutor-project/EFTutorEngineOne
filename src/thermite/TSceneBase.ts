@@ -30,10 +30,15 @@ import { CONST }            from "../util/CONST";
 import { CUtil } 			from "../util/CUtil";
 
 import DisplayObject      = createjs.DisplayObject;
+import MovieClip     	  = createjs.MovieClip;
 
 
 export class TSceneBase extends TObject
 {		
+	// This is a special signature to avoid typescript error "because <type> has no index signature."
+	// on this[<element name>]
+	// 
+	[key: string]: any;
 
 	public fComplete:boolean = false;			// scene Complete Flag
 	
@@ -48,7 +53,13 @@ export class TSceneBase extends TObject
 	
 	protected _section:string;					// Arbitrary tutor section id
 	
-	
+	protected _nextButton:any = null;
+	protected _prevButton:any = null;
+
+	protected sceneExt:any;						// Scene customization - extension code.
+
+
+
 	/**
 	 * Scene Constructor
 	 */
@@ -89,62 +100,22 @@ export class TSceneBase extends TObject
 	public onCreate() : void
 	{
 		try {
-			// if(this.tutorDoc.gSceneConfig.scenedata[this.name] === undefined) {
-			// 	throw("Error: scene description not found: " + this.name);
-			// }
-			// // Parse the Tutor.config for create procedures for this scene 
+			// Execute the create procedures for this scene instance
+			// see notes on sceneExt Code - tutor Supplimentary code
+			// 
+			this.$oncreate();
 			
-			// if(this.tutorDoc.gSceneConfig.scenedata[this.name].create != undefined)
-			// 	this.parseOBJ(this, this.tutorDoc.gSceneConfig.scenedata[this.name].create, "create");
-
-			// //## Mod May 04 2014 - support declarative button actions from scenedescr.xml <create>
-			// if(this.onCreateScript != null)
-			// 			this.doCreateAction();
-			
-			// //## Mod Oct 25 2012 - support for demo scene-initialization
-			
-			// if((this.tutorDoc.gSceneConfig != null) && (this.tutorDoc.gSceneConfig.scenedata[this.name].demoinit != undefined))
-			// 	this.parseOBJ(this, this.tutorDoc.gSceneConfig.scenedata[this.name].demoinit.children(), "demoinit");
+			// Support for demo scene-initialization
+			// 
+			this.$demoinit();
 		}		
 		catch(error) {
-			console.log("TScene.onCreate Failed: " + error);
-		}
-	}
 
-
-	/**
-	 *  Must provide valid execution context when operating at Scene level as here parentScene is NULL
-	 *  
-	 */
-	protected doCreateAction() : void
-	{
-		try
-		{
-			eval(this.onCreateScript);
-		}
-		catch(e)
-		{
 			CUtil.trace("Error in onCreate script: " + this.onCreateScript);
 		}
 	}
-	
-	
-	public doExitAction() : void
-	{
-		if(this.onExitScript != null)
-		{		
-			try
-			{
-				eval(this.onExitScript);
-			}
-			catch(e)
-			{
-				CUtil.trace("Error in onExit script: " + this.onExitScript);
-			}
-		}
-	}
-	
-	
+
+
 	/**
 	 * polymorphic UI set up
 	 */
@@ -152,7 +123,48 @@ export class TSceneBase extends TObject
 	{
 		
 	}
+
 	
+	public connectNavButton(type:string, butComp:string, _once:boolean = true) {
+
+		this.disConnectNavButton(type, butComp );
+
+		switch(type) {
+			case CONST.NEXTSCENE:
+				this._nextButton = this[butComp].on(CONST.MOUSE_CLICK, this.tutorDoc.tutorNavigator.onButtonNext, this.tutorDoc.tutorNavigator);
+				break;
+
+			case CONST.PREVSCENE:
+				this._prevButton = this[butComp].on(CONST.MOUSE_CLICK, this.tutorDoc.tutorNavigator.onButtonPrev, this.tutorDoc.tutorNavigator);
+				break;				
+		}
+	}
+
+
+	public disConnectNavButton(type:string, butComp:string ) {
+
+		switch(type) {
+			case CONST.NEXTSCENE:
+				if(this._nextButton) {
+
+					this[butComp].off(this._nextButton);
+					this._nextButton = null;
+				}
+				break;
+
+			case CONST.PREVSCENE:
+				if(this._prevButton) {
+
+					this[butComp].off(this._prevButton);
+					this._prevButton = null;
+				}
+				break;				
+		}
+	}
+
+
+
+
 //*************** Effect management - from Audio Stream
 	
 	/**
@@ -162,7 +174,7 @@ export class TSceneBase extends TObject
 	{
 		if(this.traceMode) CUtil.trace("Effect Event: " + evt);
 		
-		(this as any)[evt.prop1](evt.prop2, evt.prop3, evt.prop4, evt.prop5);
+		this[evt.prop1](evt.prop2, evt.prop3, evt.prop4, evt.prop5);
 	}		
 	
 	
@@ -216,59 +228,89 @@ export class TSceneBase extends TObject
 //***************** Automation *******************************		
 	
 	
-	public initAutomation(_parentScene:TSceneBase, scene:any, ObjIdRef:string, lLogger:ILogManager, lTutor:TTutorContainer) : void
+	public initAutomation(_parentScene:TSceneBase, sceneAutoObj:any, ObjIdRef:string, lLogger:ILogManager, lTutor:TTutorContainer) : void
 	{								
+
 		// parse all the component objects - NOTE: everything must be derived from CEFObject
 		//
-		var sceneObj:DisplayObject;
-		var wozObj:TObject;
-		var wozRoot:TRoot;
+		let propName:string;
+		let childName:string;
+		let childObj:any;
+		let wozObj:TObject;
 
-		// Do XML initialization
+		// Do scripted initialization
 		
 		this.onCreate();							
 		
 		// Do Automation Capture
+
+		// Enumerate the child objects - Animate instantiates these as properties of the object 
+		// itself and only adds them to the display list as managedChildren in a Tween
+		//
+		let nonTObj:Array<string> = Object.getOwnPropertyNames(_parentScene);
 		
-		for(var i1:number = 0 ; i1 < this.numChildren ; i1++)
-		{
-			sceneObj = this.getChildAt(i1) as DisplayObject;
+		for(propName of nonTObj) {
+
+			// Note: in checking all props... many will be null
+			// 
+			childObj = _parentScene[propName];
 			
-			// Record each Object within scene
+			// Skip any Tutor container references - would be infinitely recursive
 			//
-			scene[sceneObj.name] = {};
-			scene[sceneObj.name].instance = sceneObj;										
-			
+			if(childObj instanceof TTutorContainer)
+											continue;
+
 			// Have Object determine its inplace size
 			//
-			if(sceneObj instanceof TObject)
+			if(childObj instanceof TObject)
 			{
-				//## Mod Apr 14 2014 - maintain linkage to parent scene - used for D.eval execution context - e.g. button script execution
-				sceneObj.parentScene = _parentScene;
+				//## Mod Apr 14 2014 - maintain linkage to parent scene - used for D.eval execution context
+				//  - e.g. button script execution
+				// 
+				childObj.parentScene = _parentScene;
 				
-				(sceneObj as TObject).measure();					
+				(childObj as TObject).measure();					
 			}
 			
-			// Record object in-place position - This is only done for top level objects in scene to record their inplace positions 
-			// for inter-scene tweening.
-			//
-			// scene[sceneObj.name].inPlace = {X:sceneObj.x, Y:sceneObj.y, Width:sceneObj.width, Height:sceneObj.height, Alpha:sceneObj.alpha};	 //** TODO */							
-
-			if(this.traceMode) CUtil.trace("\t\tCEFScene found subObject named:" + sceneObj.name + " ... in-place: ");
-
-			// Recurse WOZ Children
-			//
-			if(sceneObj instanceof TObject)
+			if(childObj instanceof DisplayObject)
 			{
-				wozObj = sceneObj as TObject;				// Coerce the Object					
-				wozObj.initAutomation(_parentScene, scene[sceneObj.name], name+".", lLogger, lTutor);
+				// Assign transition names (xnames) to AnimateCC objects
+				
+				if(!(childObj as any).xname) {
+					(childObj as any).xname = this.nextXname();
+				}
+
+				if(childObj.name) childName = childObj.name;
+				else childName = propName;
+	   
+				// Record each Object within scene
+				//
+				sceneAutoObj[childName] = {};
+				sceneAutoObj[childName]._instance = childObj;										
+						
+				// Record object in-place position - This is only done for top level objects in scene to record their inplace positions 
+				// for inter-scene tweening.
+				//
+				sceneAutoObj[childName].inPlace = childObj._cloneProps({});
+
+				// sceneAutoObj[childName].inPlace = {X:childObj.x, Y:childObj.y, Width:childObj.width, Height:childObj.height, Alpha:childObj.alpha};	 //** TODO */							
+
+				if(this.traceMode) CUtil.trace("\t\tTScene found subObject named:" + childName + " ... in-place: ");
+
+				// Recurse WOZ Children
+				//
+				if(childObj instanceof TObject)
+				{
+					wozObj = childObj as TObject;				// Coerce the Object					
+					wozObj.initAutomation(_parentScene, sceneAutoObj[childName], name+".", lLogger, lTutor);
+				}
+				
+				if(this.traceMode) for(var id in sceneAutoObj[childName].inPlace)
+				{
+					CUtil.trace("\t\t\t\t" + id + " : " + sceneAutoObj[childName].inPlace[id]);
+				}						
 			}
-			
-			if(this.traceMode) for(var id in scene[sceneObj.name].inPlace)
-			{
-				CUtil.trace("\t\t\t\t" + id + " : " + scene[sceneObj.name].inPlace[id]);
-			}						
-		}	
+		}
 	}
 	
 	
@@ -280,11 +322,11 @@ export class TSceneBase extends TObject
 
 		for(var sceneObj in TutScene)
 		{			
-			if(sceneObj != "instance" && TutScene[sceneObj].instance instanceof TObject)
+			if(sceneObj != "_instance" && TutScene[sceneObj]._instance instanceof TObject)
 			{
-				if(this.traceMode) CUtil.trace("capturing: " + TutScene[sceneObj].instance.name);
+				if(this.traceMode) CUtil.trace("capturing: " + TutScene[sceneObj]._instance.name);
 				
-				TutScene[sceneObj].instance.captureDefState(TutScene[sceneObj] );										
+				TutScene[sceneObj]._instance.captureDefState(TutScene[sceneObj] );										
 			}					
 		}		
 		if(this.traceMode) CUtil.trace("\t*** End Capture - Walking Top Level Objects***");
@@ -299,11 +341,11 @@ export class TSceneBase extends TObject
 
 		for(var sceneObj in TutScene)
 		{			
-			if(sceneObj != "instance" && TutScene[sceneObj].instance instanceof TObject)
+			if(sceneObj != "_instance" && TutScene[sceneObj]._instance instanceof TObject)
 			{
-				if(this.traceMode) CUtil.trace("restoring: " + TutScene[sceneObj].instance.name);
+				if(this.traceMode) CUtil.trace("restoring: " + TutScene[sceneObj]._instance.name);
 				
-				TutScene[sceneObj].instance.restoreDefState(TutScene[sceneObj] );									
+				TutScene[sceneObj]._instance.restoreDefState(TutScene[sceneObj] );									
 			}					
 		}		
 		if(this.traceMode) CUtil.trace("\t*** End Restore - Walking Top Level Objects***");
@@ -318,9 +360,9 @@ export class TSceneBase extends TObject
 
 		for(var sceneObj in TutScene)
 		{			
-			if(sceneObj != "instance" && TutScene[sceneObj].instance instanceof TObject)
+			if(sceneObj != "_instance" && TutScene[sceneObj]._instance instanceof TObject)
 			{
-				TutScene[sceneObj].instance.setAutomationMode(TutScene[sceneObj], sMode );										
+				TutScene[sceneObj]._instance.setAutomationMode(TutScene[sceneObj], sMode );										
 			}					
 		}		
 		if(this.traceMode) CUtil.trace("\t*** End - Walking Top Level Objects***");
@@ -339,11 +381,11 @@ export class TSceneBase extends TObject
 		{
 			if(this.traceMode) CUtil.trace("\tSceneObj : " + sceneObj);
 			
-			if(sceneObj != "instance" && TutScene[sceneObj].instance instanceof TObject)
+			if(sceneObj != "_instance" && TutScene[sceneObj]._instance instanceof TObject)
 			{
 				if(this.traceMode) CUtil.trace("\tCEF***");
 				
-				TutScene[sceneObj].instance.dumpSubObjs(TutScene[sceneObj], "\t");										
+				TutScene[sceneObj]._instance.dumpSubObjs(TutScene[sceneObj], "\t");										
 			}					
 		}		
 	}
@@ -398,6 +440,11 @@ export class TSceneBase extends TObject
 	
 //****** Navigation Behaviors
 
+	public deferredEnterScene(Direction:string) : void
+	{				
+	}
+
+
 	// Default behavior - Set the Tutor Title and return same target scene
 	// Direction can be - "WOZNEXT" , "WOZBACK" , "WOZGOTO"
 	// 
@@ -405,74 +452,75 @@ export class TSceneBase extends TObject
 	//
 	public preEnterScene(lTutor:any, sceneLabel:string, sceneTitle:string, scenePage:string, Direction:string ) : string
 	{
-		if(this.traceMode) CUtil.trace("Base Pre-Enter Scene Behavior: " + sceneTitle);		
-		
-		// Update the title				
-		//
-		// lTutor.StitleBar.Stitle.text = sceneTitle;
-		// lTutor.StitleBar.Spage.text  = scenePage;
-
-		// Set fComplete and do other demo specific processing here
-		// deprecated 
-		this.demoBehavior();
+		if(this.traceMode) CUtil.trace("Base preenter Scene Behavior: " + this.name);		
 		
 		// Parse the Tutor.config for preenter procedures for this scene 
-		
-		// if((this.tutorDoc.gSceneConfig != null) && (this.tutorDoc.gSceneConfig.scenedata[this.name].preenter != undefined))			
-		// 								this.parseOBJ(this, this.tutorDoc.gSceneConfig.scenedata[this.name].preenter.children(), "preenter");				
+		// 
+		try {
+			this.$preenter();
+		}
+		catch(error) {
+			CUtil.trace("preenter error on scene: " + this.name + " - " + error);
+		}
 
-		//@@ Mod May 22 2013 - moved to after the XML spec is executed - If the user uses the back button this should
-		//                     override the spec based on fComplete
-		// Update the Navigation
-		//
-		if(this.fComplete)
-		this.updateNav();						
+		// //@@ Mod May 22 2013 - moved to after the XML spec is executed - If the user uses the back button this should
+		// //                     override the spec based on fComplete
+		// // Update the Navigation
+		// //
+		// if(this.fComplete)
+		// 	this.updateNav();						
 		
-		// polymorphic UI initialization - must be done after this.parseOBJ 
-		//
-		this.initUI();				
+		// // polymorphic UI initialization - must be done after this.parseOBJ 
+		// //
+		// this.initUI();				
 			
 		return sceneLabel;
 	}
 
 	
-	public deferredEnterScene(Direction:string) : void
-	{				
-	}
-	
-	
 	public onEnterScene(Direction:string) : void
 	{				
-		if (this.traceMode) CUtil.trace("Default Enter Scene Behavior:");
+		if (this.traceMode) CUtil.trace("Base onenter Scene Behavior:" + this.name);
 		
 		// Parse the Tutor.config for onenter procedures for this scene 
-		
-		// if((this.tutorDoc.gSceneConfig != null) && (this.tutorDoc.gSceneConfig.scenedata[this.name].onenter != undefined))			
-		// 								this.parseOBJ(this, this.tutorDoc.gSceneConfig.scenedata[this.name].onenter.children(), "onenter");						
+		// 
+		try {
+			this.$onenter();
+		}
+		catch(error) {
+			CUtil.trace("onenter error on scene: " + this.name + " - " + error);
+		}
 	}
 	
 	// Direction can be - "NEXT" , "BACK" , "GOTO"
 	// 
 	public preExitScene(Direction:string, sceneCurr:number ) : string
 	{
-		if(this.traceMode) CUtil.trace("Default Pre-Exit Scene Behavior:");
+		if(this.traceMode) CUtil.trace("Base preexit Scene Behavior:" + this.name);
 		
 		// Parse the Tutor.config for onenter procedures for this scene 
-		
-		// if((this.tutorDoc.gSceneConfig != null) && (this.tutorDoc.gSceneConfig.scenedata[this.name].preexit != undefined))		
-		// 								this.parseOBJ(this, this.tutorDoc.gSceneConfig.scenedata[this.name].preexit.children(), "preexit");				
-		
+		// 
+		try {
+			this.$preexit();
+		}
+		catch(error) {
+			CUtil.trace("preexit error on scene: " + this.name + " - " + error);
+		}
 		return(CONST.OKNAV);			
 	}
 
 	public onExitScene() : void
 	{				
-		if (this.traceMode) CUtil.trace("Default Exit Scene Behavior:");
+		if (this.traceMode) CUtil.trace("Base onexit Scene Behavior:" + this.name);
 		
 		// Parse the Tutor.config for onenter procedures for this scene 
-		
-		// if((this.tutorDoc.gSceneConfig != null) && (this.tutorDoc.gSceneConfig.scenedata[this.name].onexit != undefined))			
-		// 								this.parseOBJ(this, this.tutorDoc.gSceneConfig.scenedata[this.name].onexit.children(), "onexit");						
+		// 
+		try {
+			this.$onexit();
+		}
+		catch(error) {
+			CUtil.trace("onexit error on scene: " + this.name + " - " + error);
+		}
 	}
 	
 //****** DEMO Behaviors

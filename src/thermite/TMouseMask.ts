@@ -68,7 +68,7 @@ export class TMouseMask extends TObject
 
 		for(var dialogObj in dlgPanel)
 		{			
-			if(dialogObj != "instance" && dlgPanel[dialogObj].instance instanceof TObject)
+			if(dialogObj != "_instance" && dlgPanel[dialogObj].instance instanceof TObject)
 			{
 				dlgPanel[dialogObj].instance.setAutomationMode(dlgPanel[dialogObj], sMode );										
 			}					
@@ -87,7 +87,7 @@ export class TMouseMask extends TObject
 		{
 			if(this.traceMode) CUtil.trace("\tNavPanelObj : " + dialogObj);
 			
-			if(dialogObj != "instance" && dlgPanel[dialogObj].instance instanceof TObject)
+			if(dialogObj != "_instance" && dlgPanel[dialogObj].instance instanceof TObject)
 			{
 				if(this.traceMode) CUtil.trace("\tCEF***");
 				

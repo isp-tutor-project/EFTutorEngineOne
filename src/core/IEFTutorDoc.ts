@@ -8,7 +8,6 @@ export interface IEFTutorDoc {
 	//************ Stage Symbols
 	
     tutorContainer:any;			// every WOZObject must be associated with a specific tutor
-
     tutorNavigator:any;
 
 	
@@ -51,7 +50,7 @@ export interface IEFTutorDoc {
 		
 	sceneGraph:any;						    // The factory definition object used to create scene graphs for specified scenes
 	tutorGraph:any;							// The factory definition object used to create the tutor Graph		
-	sceneExt:any;							// Scene customization - extension code.
+	tutorExt:any;							// Scene customization - extension code.
 
     _tutorFeatures:string;                      // used in Flash mode to instance features   
     _forcedPause:boolean;		        		//@@ Mod Mar 15 2013 - FLEX support - manage pause when transitioning in and out of full screen mode 

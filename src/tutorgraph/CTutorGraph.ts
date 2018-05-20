@@ -115,7 +115,7 @@ export class CTutorGraph extends CTutorNode
 			//
 			if(this._prevScene != null)
 			{
-				objInstance = this.tutorDoc.TutAutomator[this._prevScene.scenename].instance as TObject;
+				objInstance = this.tutorDoc.TutAutomator[this._prevScene.scenename]._instance as TObject;
 			}
 		}
 		catch(err)
