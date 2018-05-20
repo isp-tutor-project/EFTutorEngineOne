@@ -207,9 +207,9 @@ export class CUtil extends Object
 	{			
 		let tarObject:any;
 		
-		let moduleName:Array<string> = classPath.toUpperCase().split(".");
+		let _namespace:Array<string> = classPath.toUpperCase().split(".");
 
-		let ClassRef:any = this.getConstructorByName(moduleName[0], moduleName[1]);
+		let ClassRef:any = this.getConstructorByName(_namespace[0], _namespace[1]);
 		
 		tarObject = new ClassRef();
 		
