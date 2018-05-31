@@ -1,0 +1,489 @@
+﻿//*********************************************************************************
+//
+//  Copyright(c) 2008,2018 Kevin Willows. All Rights Reserved
+//
+//	License: Proprietary
+//
+//  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+//  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+//  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+//  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+//  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+//  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+//  THE SOFTWARE.
+//
+//*********************************************************************************
+
+//** Imports
+
+import { TButton } 			from "./TButton";
+import { TObject } 			from "./TObject";
+import { TRoot } 			from "./TRoot";
+
+import { TMouseEvent } 		from "../events/CEFMouseEvent";
+import { CONST }            from "../util/CONST";
+import { CUtil } 			from "../util/CUtil";
+
+import MovieClip     	  = createjs.MovieClip;
+import Text     		  = createjs.Text;
+
+
+
+
+public class TTextField extends TObject
+{
+	//************ Stage Symbols
+
+	public ScontrolRgn:MovieClip;
+	
+	// Dynamic Scene Elements
+	
+	public StxtField:Text	= new Text;
+	
+	//************ Stage Symbols
+	
+	private _text:string    = "";
+	private _leading:number    = 2;
+	private _spacing:number    = 0;
+	private _kerning:number    = 1;
+	private _halign:string  = "left";
+	private _valign:string  = "center";
+	private	_wordWrap:Boolean;
+	private	_autoSize:string; 
+	
+	protected _cx:Number;
+	protected _cy:Number;
+	protected _cwidth:Number;
+	protected _cheight:Number;		
+	
+	private _format:TTextFormat;
+	private _newText:string;
+	
+	/**
+	 * TODO: Update this to use getLineMetrics for measurements 
+	 * 
+	 */
+	public TTextField():void
+	{
+		if (traceMode) trace("TTextField:Constructor");	
+		
+		// The region is just a visual reference during authoring
+		
+		if(ScontrolRgn != null)
+			ScontrolRgn.visible = false;
+		
+		// create the html format object - this contains the component format vectors
+		
+		_format = new TTextFormat();
+		
+		// create the text field itself - polymorphically
+		// Combo boxes position their textfield differently
+		
+		recordTextExtent();
+		createChildren();
+	}
+	
+	
+	protected recordTextExtent():void
+	{			
+		_cx      = 0;
+		_cy      = 0;
+		_cwidth  = width;
+		_cheight = height;
+	}
+	
+	protected createChildren():void
+	{						
+		// reset this controls aspect ratio - so children are proportional
+		
+		scaleX = 1.0;
+		scaleY = 1.0;
+		
+		addChild(StxtField);
+	}
+	
+	protected updateTextBoundry():void
+	{			
+		StxtField.x		     = _cx;
+		StxtField.y		     = _cy;
+		StxtField.width      = _cwidth;
+		StxtField.height     = _cheight;		
+	}
+	
+	protected setTextExtent(width:Number, height:Number):void
+	{			
+		_cx      = 0;
+		_cy      = 0;
+		_cwidth  = width;
+		_cheight = height;
+	}
+	
+	// Walk the WOZ Objects to capture their default state
+	//
+	public captureDefState(TutScene:Object ) : void 
+	{
+		super.captureDefState(TutScene );
+	}
+	
+	
+	// Walk the WOZ Objects to restore their default state
+	//
+	public restoreDefState(TutScene:Object ) : void 
+	{
+		super.restoreDefState(TutScene );
+	}
+	
+	
+	public highLight(_sample:string, ncolor:string, nface:string = "", nsize:string = "", nbackground:string = "", instances:Array = null) : void
+	{
+		var pattern:RegExp = /\n/g;
+		var sample:string;
+									//@@ Mod Sep 05 2013 - StxtField.text has CR linefeeds removed so count is wrong when finding text  
+		var txt:string = _text;		// StxtField.text;
+		var loc:number;
+		
+		var newTag:TTextFontTag;
+		var endTag:TTextFontTag;
+	
+		if(_sample == "")
+			sample = txt;
+		else
+			sample = _sample.replace(pattern,"");
+		
+		if((loc = txt.indexOf(sample)) != -1)
+		{
+			endTag = _format.getFontTagAt(loc + sample.length);
+
+			//@@ Mod Feb 19 2013 - must reassert the face and size if removing the initial tag but not giving it new values 
+			//                     for those properties.  Recapture any tag properties not passed
+			
+			if(loc == 0) 
+			{				
+				nface = (nface == "")? endTag.face:nface;
+				nsize = (nsize == "")? endTag.size:nsize;
+			}
+			
+			newTag = new TTextFontTag(nface, ncolor, nsize, loc.toString());
+			
+			_format.delFontTag(loc, loc + sample.length);
+			
+			_format.addFontTag(newTag);
+			_format.addFontTag(endTag);
+		}
+		
+		StxtField.htmlText = htmlText;
+	}
+	
+	
+	public flash(sample:string) : void
+	{
+		// need to implement a push pop for the fontTag array to make this work
+	}
+	
+					
+	public swapText(newText:string) : void
+	{				
+		fadeChild("StxtField", "off");
+
+		_newText = newText;
+		
+		startTween(finishSwapText);
+	}
+	private finishSwapText() : void
+	{
+		text = _newText;
+		
+		fadeChild("StxtField", "on");
+		startTween();			
+	}
+	
+	
+	public set text(ntext:string) : void
+	{
+		_text = ntext;
+		
+		StxtField.htmlText = htmlText;			
+		
+		//@@ Mod Mar 1 2012 - setting the text does not produce a reliable layout.
+		//  By trial and error it was found that waiting for the next frame was sufficient to
+		//  ensure correct layout and thus allows us to do a valid alignment in the 
+		//  ENTER_FRAME event 
+		
+		StxtField.addEventListener(Event.ENTER_FRAME, enterFrameHdlr);
+	}
+
+	
+	//@@ Mod Mar 1 2012 - setting the text does not produce a reliable layout.
+	//  By trial and error it was found that waiting for the next frame was sufficient to
+	//  ensure correct layout and thus allows us to do a valid alignment in the 
+	//  ENTER_FRAME event - This only needs to be done once on each change of the text 
+	
+	public enterFrameHdlr(evt:Event) : void
+	{						
+//			trace("************************************************************");
+//			trace(StxtField.getLineLength(StxtField.numLines-1));
+//		
+//			for (var i:number = 0; i < StxtField.numLines; i++) 
+//									trace(StxtField.getLineText(i));
+		
+		// Only do this once for each text mod
+		
+		StxtField.removeEventListener(Event.ENTER_FRAME, enterFrameHdlr);			
+		
+		// vertically align the text in the text region
+		
+		switch(_valign)
+		{
+			case "top":
+				StxtField.y	 = _cy;			
+				
+				if (traceMode) trace("StxtField : " + name + "New y:" + StxtField.y + "  _cy:" + _cy ); 
+				break;
+			
+			case "center":
+				StxtField.y	 = _cy + (_cheight - StxtField.textHeight) / 2;			
+				
+				if (traceMode) trace("StxtField : " + name + "New y:" + StxtField.y + "  _cy:" + _cy + " _cheight" + _cheight + " StxtField.textHeight:" + StxtField.textHeight); 
+				break;
+			
+			case "bottom":
+				StxtField.y	 = _cy + _cheight - StxtField.textHeight;
+				
+				if (traceMode) trace("StxtField : " + name + "New y:" + StxtField.y + "  _cy:" + _cy + " _cheight" + _cheight + " StxtField.textHeight:" + StxtField.textHeight); 
+				break;
+		}
+		
+		
+	}
+
+	
+	public get text() :string
+	{
+		return _text;
+	}
+	
+	
+	public set htmlText(newLabel:string) : void
+	{
+		StxtField.htmlText = newLabel;
+		
+		//@@ Mod Mar 1 2012 - setting the text does not produce a reliable layout.
+		//  By trial and error it was found that waiting for the next frame was sufficient to
+		//  ensure correct layout and thus allows us to do a valid alignment in the 
+		//  ENTER_FRAME event 
+		
+		StxtField.addEventListener(Event.ENTER_FRAME, enterFrameHdlr);
+	}
+	
+	
+	public get htmlText() :string
+	{
+		var tempStr:string;
+		
+		tempStr  = "<textformat leading=\""+_leading+"\"><p align=\""+_halign+"\">";
+		tempStr += composeHTML();
+		tempStr += "</p></textformat>";
+		
+		return tempStr;
+	}
+	
+	
+	/*
+		* 
+		*/
+	private composeHTML() :string
+	{
+		var output:string = "";
+		var i1:number;
+		
+		var length:number   = _text.length;
+		var curNdx:number   = 0;
+		var minNdx:number   = 0;
+		var currAttr:number = 0;
+		var fontCnt:number  = 0;
+		var font:TTextFontTag;
+		var prop:TTextPropTag;
+		var curFont:TTextFontTag;
+		var curProp:TTextPropTag;
+		
+		if(length > 0)
+		{
+			// recover the first font and prop tags
+			
+			font    = _format.getFirstFont();
+			prop    = _format.getFirstProp();
+			
+			// define default font and property tags
+			
+			curFont = new TTextFontTag("arial","0x000000","10","0");
+			curProp = new TTextPropTag("","0");
+			
+			while(true)
+			{
+				minNdx = (font.index <= prop.index)? font.index:prop.index;
+				
+				if(minNdx >= length)
+				{
+					minNdx = length;
+				}
+				
+				// This is the difference between where we are in the input stream and where the next font/prop tag is.
+				// we send the enclosed text block to the output string - then move the curNdx
+				
+				if(curNdx < minNdx)
+				{
+					output += _text.substring(curNdx, minNdx);
+					curNdx = minNdx;
+					
+					// If we reach the end of the input stream we terminate the tags and quit
+					
+					if(curNdx >= length)
+					{
+						output += curProp.end();
+						
+						for(i1 = 0 ; i1 < fontCnt ; i1++)
+										output += curFont.end();
+						fontCnt = 0;
+						break;
+					}
+				}
+				
+				// If we are now sitting on a Font tag we:
+				//	Terminate the current props
+				//	then Output the new Font tag
+				//  Incrementing the font nesting level
+				
+				else if(font.index <= prop.index)
+				{
+					output += curProp.end();
+					output += font.start();
+					fontCnt++;
+					
+					// if the props change with the font change we do it here
+					// instead of waiting for another loop iteration - just more efficient
+					
+					if(font.index == prop.index)
+					{
+						output += prop.start();
+						
+						curProp = prop;
+						
+						prop = _format.getNextProp();
+					}
+					
+					// If the font change does not coincide with a prop restart the current props
+					
+					else
+					{
+						output += curProp.start();
+					}
+					
+					// update the current font and then get the next one in the queue
+					
+					curFont = font;
+					
+					font = _format.getNextFont();
+				}
+				
+				// Otherwise we must be sitting on a prop tag
+				
+				else
+				{
+					output += curProp.end();
+					output += prop.start();
+					
+					curProp = prop;
+					
+					prop = _format.getNextProp();
+				}
+			}			
+
+			// put an end tag on any open attributes
+			
+			curProp.end();
+			
+			// put an end tag on all open fonts
+
+			for(i1 = 0 ; i1 < fontCnt ; i1++)
+							output += curFont.end();
+		}
+		
+		if (traceMode) trace(output);
+		
+		return output;
+	}
+	
+//*************** Deep state management
+
+	public deepStateCopy(src:TObject) : void 
+	{
+		super.deepStateCopy(src);
+	}		
+
+//*************** Deep state management
+
+	public restoreFieldState(xmlSrc:XML) : void
+	{			
+		if(xmlSrc.textvector.@text != undefined)
+		{
+			if(text != xmlSrc.textvector.@text)
+						text = xmlSrc.textvector.@text;
+		}
+	}
+	
+	
+	public resetXML() : void
+	{
+		// create the html format object - this contains the component format vectors
+		
+		_format = new TTextFormat();
+			
+		_format.loadXML(_XMLsrc);			
+	}		
+	
+	/*
+		* 
+		*/
+	public loadXML(xmlSrc:XML) : void
+	{			
+		super.loadXML(xmlSrc);
+		
+		_leading   = int(xmlSrc.textvector.@leading);
+		_spacing   = int(xmlSrc.textvector.@spacing);
+		_kerning   = int(xmlSrc.textvector.@kerning);
+		_halign    = xmlSrc.textvector.@halign;
+		_valign    = xmlSrc.textvector.@valign;
+		_wordWrap  = (xmlSrc.textvector.@wordwrap == "true")? true:false;
+		_autoSize  = xmlSrc.textvector.@autosize;
+
+		_format.loadXML(xmlSrc);
+		
+		StxtField.wordWrap = _wordWrap;
+		StxtField.autoSize = _autoSize;		
+		
+		updateTextBoundry();				 // update the text position polymorphically
+		
+		// If there is a text string load it up - subclass xmlTextField generally does not have a text parameter
+		
+		if(xmlSrc.textvector.@text != undefined)
+					text = xmlSrc.textvector.@text;
+		
+		// Note : we set the text height so that it shows everything
+		// Set the extent of the text field relative to the controlRgn - polymorphically
+		
+		StxtField.selectable = false;
+		StxtField.embedFonts = true;
+	}
+	
+	/*
+		*/
+	public saveXML() : XML
+	{
+		var propVector:XML;
+		
+		
+		
+		return propVector;
+	}
+	
+}

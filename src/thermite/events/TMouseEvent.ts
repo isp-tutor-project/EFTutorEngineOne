@@ -51,7 +51,7 @@ export class TMouseEvent extends MouseEvent
 	static readonly WOZKEYUP:string		= "WOZMKEY_UP";
 	static readonly WOZNULL:string		= "WOZNULL";
 
-	constructor(TarObjID:string, type: string, bubbles: boolean, cancelable: boolean, stageX: number, stageY: number, nativeEvent: NativeMouseEvent, pointerID: number, primary: boolean, rawX: number, rawY: number)
+	constructor(TarObjID:string, type: string, bubbles: boolean = false, cancelable: boolean = false, stageX: number = 0, stageY: number = 0, nativeEvent: NativeMouseEvent = null, pointerID: number = 0, primary: boolean = false, rawX: number = 0, rawY: number = 0)
 	{
 		super( type, bubbles, cancelable, stageX, stageY, nativeEvent, pointerID, primary, rawX, rawY);
 	}

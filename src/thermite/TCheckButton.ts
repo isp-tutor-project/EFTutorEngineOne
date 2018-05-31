@@ -22,19 +22,20 @@ import { TRoot } 			from "./TRoot";
 
 import { TMouseEvent } 		from "../events/CEFMouseEvent";
 
-
 import { CONST }            from "../util/CONST";
 import { CUtil } 			from "../util/CUtil";
 
-import MovieClip     		  = createjs.MovieClip;
+import MovieClip     	  = createjs.MovieClip;
+import Text     		  = createjs.Text;
+
 
 
 export class TCheckButton extends TButton
-{
+{	
 	//************ Stage Symbols
 	
 	public Schecked:MovieClip;
-	public Slabel:MovieClip;
+	public Slabel:Text;
 	
 	//************ Stage Symbols
 	

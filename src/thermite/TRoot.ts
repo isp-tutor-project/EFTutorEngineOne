@@ -17,11 +17,11 @@
 
 //** Imports
 
-import { IEFTutorDoc } 		from "../core/IEFTutorDoc";
+import { IEFTutorDoc } 			from "../core/IEFTutorDoc";
 
 import { TSceneBase }     		from "./TSceneBase";
 
-import { TTutorContainer } 	from "../thermite/TTutorContainer";
+import { TTutorContainer } 		from "../thermite/TTutorContainer";
 import { CEFNavigator } 	 	from "../core/CEFNavigator";
 
 import { ILogManager }  		from "../managers/ILogManager";
