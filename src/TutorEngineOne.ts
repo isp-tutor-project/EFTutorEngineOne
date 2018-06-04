@@ -74,6 +74,8 @@ export class CEngine {
 
         console.log("In TutorEngineOne startup: " + _bootLoader);
 
+        console.log("56px 'Bowlby One SC'");
+
         var frequency = 30;
         EFLoadManager.efStage.enableMouseOver(frequency);
 
@@ -83,7 +85,7 @@ export class CEngine {
             // Generally there aren't any in the Loader project - when debugging a module
             // however there generally are components.
             //
-            this.mapThermiteClasses(EFLoadManager.efLoaderLib);
+            this.mapThermiteClasses(EFLoadManager.efLoaderLib, null, null);
 
             this.getBootLoader();
         }
@@ -201,10 +203,12 @@ export class CEngine {
                 //## TODO: Check if there is a problem using "head" - i.e. is it universal
 
                 // Inject the script with a suffix to expose the source in the debugger listing.
-				tag.text = scriptText + "\n//# sourceURL= http://127.0.0.1/"+ scriptDescr.tutor + "/" + scriptDescr.URL;
+                tag.text = scriptText + "\n//# sourceURL= http://127.0.0.1/"+ scriptDescr.parentFldr + "/" + scriptDescr.URL;
+
+                // Inject the script into the page
                 document.head.appendChild(tag);
                 
-                scriptDescr.instance = EFLoadManager.global[scriptDescr.extNameSpace];
+                scriptDescr.instance = EFLoadManager.window[scriptDescr.extNameSpace];
                 
             }).catch((_error) => {
 
@@ -227,9 +231,9 @@ export class CEngine {
                 
                 CUtil.preLoader(false);
 
-            }).catch(() => {
+            }).catch((err) => {
 
-                console.log("module load failed");
+                console.log("module load failed: " + err);
             });
     }
 
@@ -249,7 +253,7 @@ export class CEngine {
                 //## TODO: Check if there is a problem using "head" - i.e. is it universal
 
                 // Inject the script with a suffix to expose the source in the debugger listing.
-				tag.text = scriptText + "\n//# sourceURL= http://127.0.0.1/"+ moduleDescr.tutor + "/" + moduleDescr.URL;
+				tag.text = scriptText + "\n//# sourceURL= http://127.0.0.1/"+ moduleDescr.parentFldr + "/" + moduleDescr.URL;
 				document.head.appendChild(tag);
 
 				let comp   = AdobeAn.getComposition(moduleDescr.compID);			
@@ -257,7 +261,7 @@ export class CEngine {
 				let loader = new createjs.LoadQueue(false);
 
                 return new Promise((resolve, reject) => {
-                    loader.addEventListener("complete", function(evt){engine.handleComplete(evt,comp,resolve)});
+                    loader.addEventListener("complete", function(evt){engine.handleComplete(evt,comp,resolve,reject)});
                     loader.addEventListener("error", function(evt){engine.handleError(evt,comp,reject)});
                     loader.loadManifest(lib.properties.manifest);	
                 });                
@@ -269,7 +273,7 @@ export class CEngine {
 	//
 	//@@ TODO: create declarations 
 	//
-	public handleComplete(evt:any,comp:any, resolve:Function) {
+	public handleComplete(evt:any,comp:any, resolve:Function, reject:Function) {
 
 		let lib:any     = comp.getLibrary();
 		let ss          = comp.getSpriteSheet();
@@ -299,12 +303,9 @@ export class CEngine {
 
         // Do the engine code injection 
         //
-        this.mapThermiteClasses(lib);
+        this.mapThermiteClasses(lib, resolve, reject);
 
-        AdobeAn.compositionLoaded(lib.properties.id);
-        
-        // resolve the preloader promise
-        resolve();
+        AdobeAn.compositionLoaded(lib.properties.id);        
 	}	
 	public handleError(evt:any,comp:any, reject:Function) {
 
@@ -313,7 +314,7 @@ export class CEngine {
 
 
 
-    public mapThermiteClasses(AnLib:any) {
+    public mapThermiteClasses(AnLib:any, resolve:Function, reject:Function) {
         
         let engine = this;
         let importPromises:Array<Promise<any>> = new Array();
@@ -334,12 +335,20 @@ export class CEngine {
 
         Promise.all(importPromises)        
             .then(() => {
-
+                
                 console.log("Thermite mapping complete");
+
+                // resolve the preloader promise
+                if(resolve)
+                    resolve();
 
             }).catch((Error) => {
 
                 console.log("Thermite mapping failed:" + Error);
+
+                // reject the preloader promise
+                if(reject)
+                    reject();
             });
     }
 

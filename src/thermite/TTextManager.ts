@@ -580,8 +580,8 @@ export class TTextManager {
 
             let obj:ITextSectionFormat = { prefix : prefix, word : word, lineBreak : false };
 
-            obj.prefixMetrics = this.ctx.measureText( prefix, el.font.text );
-            obj.wordMetrics = this.ctx.measureText( word, el.font.text );
+            obj.prefixMetrics = this.ctx.measureText( prefix, "ext" );
+            obj.wordMetrics = this.ctx.measureText( word, "ext" );
 
             // --- Calculate offset into the elements text
             obj.offset = offset;

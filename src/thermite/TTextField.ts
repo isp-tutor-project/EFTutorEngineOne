@@ -118,7 +118,7 @@ export class TTextField extends TObject {
         this.focus           = true;
         this.clearBackground = true;
 
-        this.defaultFontHeight = this.ctx.measureText( "H", defaultFont.text ).height;
+        this.defaultFontHeight = this.ctx.measureText( "H", "ext" ).height;
     }
 
 

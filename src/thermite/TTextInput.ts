@@ -38,6 +38,9 @@ import { CUtil } 			    from "../util/CUtil";
 
 import MovieClip     	  = createjs.MovieClip;
 
+    // let canvasElement = document.querySelector( '#editorCanvas' );
+    // canvasElement.onfocus = () => this.setFocus( true );
+    // canvasElement.onblur = () => this.setFocus( false );
 
 
 export class TTextInput extends TTextField {
@@ -49,88 +52,96 @@ export class TTextInput extends TTextField {
 
     }
 
-    // let canvasElement = document.querySelector( '#editorCanvas' );
-    // canvasElement.onfocus = () => this.setFocus( true );
-    // canvasElement.onblur = () => this.setFocus( false );
 
-    // --- Handle text input
-    document.onkeypress = ( event ) => {
-        if ( this.hasFocus() ) {
-            let code = window.event ? window.event.keyCode : event.which;
+    public setOnKeyPress() {
 
-            // --- No Backspace, enter or tab
-            if ( code !== 8 && code !== 13 && code != 9 )
-            {
-                let text = String.fromCharCode( code );
-                this.textInput( text );
-                update(); // Have to call manually after textInput()
-            }
-            event.preventDefault();
-        }
-    };
+        // --- Handle text input
+        document.onkeypress = ( event:KeyboardEvent ) => {
 
-    // --- Handle key down
-    document.onkeydown = ( event ) => {
+            if ( this.hasFocus() ) {
+                let code = event.keyCode;
 
-        if ( this.hasFocus() ) {
-            let keyCode = event.keyCode;
-
-            let keyText = "";
-            if ( keyCode === 13 ) keyText = "Enter";
-            else if ( keyCode === 8 ) keyText = "Backspace";
-            else if ( keyCode === 37 ) keyText = "ArrowLeft";
-            else if ( keyCode === 38 ) keyText = "ArrowUp";
-            else if ( keyCode === 39 ) keyText = "ArrowRight";
-            else if ( keyCode === 40 ) keyText = "ArrowDown";
-
-            if ( keyText ) {
-                this.keyDown( keyText );
+                // --- No Backspace, enter or tab
+                if ( code !== 8 && code !== 13 && code != 9 )
+                {
+                    let text = String.fromCharCode( code );
+                    this.textInput( text );
+                    this.update(); // Have to call manually after textInput()
+                }
                 event.preventDefault();
             }
-        }
-    };
+        };
+    }
 
+    public setOnKeyDown() {
 
-    // --- Resize
-    window.addEventListener( 'resize', () => {
-        let canvas = document.getElementById( 'editorCanvas' );
-        canvas.width = canvas.clientWidth; canvas.height = canvas.clientHeight;
-        this.layout( canvas.width, canvas.height );
-    } );
+        // --- Handle key down
+        document.onkeydown = ( event ) => {
 
-    // --- Clipboard Support
-    window.addEventListener('cut', function ( event ) {
-        if ( event.clipboardData ) {
-            let out = this.export( "text", true );
-            if ( out ) {
-                this.deleteSelection();
-                event.clipboardData.setData('text/plain', out );
-                event.preventDefault();
+            if ( this.hasFocus() ) {
+                let keyCode = event.keyCode;
+
+                let keyText = "";
+                if ( keyCode === 13 ) keyText = "Enter";
+                else if ( keyCode === 8 ) keyText = "Backspace";
+                else if ( keyCode === 37 ) keyText = "ArrowLeft";
+                else if ( keyCode === 38 ) keyText = "ArrowUp";
+                else if ( keyCode === 39 ) keyText = "ArrowRight";
+                else if ( keyCode === 40 ) keyText = "ArrowDown";
+
+                if ( keyText ) {
+                    this.keyDown( keyText );
+                    event.preventDefault();
+                }
             }
-        }
-    });
+        };
+    }
 
-    window.addEventListener('copy', function ( event ) {
-        if ( event.clipboardData ) {
-            let out = this.export( "text", true );
-            if ( out ) {
-                event.clipboardData.setData('text/plain', out );
-                event.preventDefault();
-            }
-        }
-    });
 
-    window.addEventListener('paste', function ( event ) {
-        if ( event.clipboardData ) {
-            let text = event.clipboardData.getData( 'text/plain' );
-            if ( text ) {
-                this.deleteSelection();
-                this.textInput( text );
-                update();
-                event.preventDefault();
+    public setOnCut() {
+        
+        // --- Clipboard Support
+        window.addEventListener('cut', function ( event:ClipboardEvent ) {
+            if ( event.clipboardData ) {
+                let out = this.export( "text", true );
+                if ( out ) {
+                    this.deleteSelection();
+                    event.clipboardData.setData('text/plain', out );
+                    event.preventDefault();
+                }
             }
-        }
-    });
+        });
+    }
+
+
+    public setOnCopy() {
+            
+        window.addEventListener('copy', function ( event:ClipboardEvent ) {
+            if ( event.clipboardData ) {
+                let out = this.export( "text", true );
+                if ( out ) {
+                    event.clipboardData.setData('text/plain', out );
+                    event.preventDefault();
+                }
+            }
+        });
+    }
+
+
+    public setOnPaste() {
+            
+            window.addEventListener('paste', function ( event:ClipboardEvent ) {
+            if ( event.clipboardData ) {
+                let text = event.clipboardData.getData( 'text/plain' );
+                if ( text ) {
+                    this.deleteSelection();
+                    this.textInput( text );
+                    this.update();
+                    event.preventDefault();
+                }
+            }
+        });
+    }
 
 
 }

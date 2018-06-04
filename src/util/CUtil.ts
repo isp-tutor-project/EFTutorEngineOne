@@ -224,6 +224,10 @@ export class CUtil extends Object
 		try {
 
 			classConstructor = EFLoadManager.classLib[moduleName][className];
+
+			if(!classConstructor) {
+				console.log("Module Not Loaded: " + moduleName);
+			}
 		}
 		catch(error) {
 
