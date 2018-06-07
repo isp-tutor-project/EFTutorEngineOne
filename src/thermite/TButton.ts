@@ -78,7 +78,7 @@ export class TButton extends TObject
 		this.traceMode = true;
 		if(this.traceMode) CUtil.trace("TButton:Constructor");
 
-		this.on(CEFEvent.ADDED_TO_STAGE, this.onAddedToStage)
+		this.on(CEFEvent.ADDED_TO_STAGE, this.onAddedToStage);
 
 		// Note the CreateJS(AnimateCC) parts of the button have not been created
 		// at this point.
@@ -104,6 +104,9 @@ export class TButton extends TObject
 		console.log("Button On Stage");
 
 		this.mouseChildren = false;
+		
+		// Remove the AnimateCC created button timeline
+		//
 		this.timeline      = new Timeline(null,null,null);
 
 		this.addChild(this[CONST.STATE_UP]);

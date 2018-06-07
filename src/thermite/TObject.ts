@@ -32,6 +32,7 @@ import { ILogManager }  	from "../managers/ILogManager";
 import { CONST }            from "../util/CONST";
 import { CUtil } 			from "../util/CUtil";
 
+import MovieClip     	  = createjs.MovieClip;
 import Point     		  = createjs.Point;
 import Shape     		  = createjs.Shape;
 import Sprite     		  = createjs.Sprite;
@@ -1110,8 +1111,8 @@ export class TObject extends TRoot
 		 */
 		protected decodeTarget(baseObj:DisplayObject, objArray:Array<any> ) : DisplayObject
 		{
-			var tmpObject:DisplayObject = baseObj;
-			var subObject:string;
+			let tmpObject:DisplayObject = baseObj;
+			let subObject:string;
 			
 			subObject = objArray.shift();
 			
@@ -1136,9 +1137,9 @@ export class TObject extends TRoot
 		 */
 		private parseOBJLog(tarObj:DisplayObject, element:any) : void
 		{		
-			var objArray:Array<any>;
-			var dataStr:string;
-			var attrName:string;
+			let objArray:Array<any>;
+			let dataStr:string;
+			let attrName:string;
 			
 			if(this.traceMode) CUtil.trace("Processing: " + element.localName() + " - named: " + element.named);
 			
@@ -1239,8 +1240,8 @@ export class TObject extends TRoot
 		 */
 		private constructLogName(attr:string) :string
 		{
-			var attrName:string = "L00000";
-			var frame:string;
+			let attrName:string = "L00000";
+			let frame:string;
 			
 			frame = this.tutorDoc._framendx.toString();
 			
@@ -1267,7 +1268,7 @@ export class TObject extends TRoot
 			{
 				// This sequence of conversions is critical for correct type assignments (automatic conversions - see built in types e.g Boolean)
 				
-				var parmDef:Array<string> = tarXML.value.split(":");						
+				let parmDef:Array<string> = tarXML.value.split(":");						
 				
 				if(parmDef[1] != "null")
 				{
@@ -1279,9 +1280,9 @@ export class TObject extends TRoot
 					}
 					else
 					{
-						var tClass:any = CUtil.getConstructorByName("moduleName", parmDef[1]) as any;
+						let tClass:any = CUtil.getConstructorByName("moduleName", parmDef[1]) as any;
 						
-						var value:string = parmDef[0];
+						let value:string = parmDef[0];
 						
 						(tarObj as any)[tarXML.prop] =  new tClass(value);
 					}
@@ -1301,12 +1302,12 @@ export class TObject extends TRoot
 		 */
 		private runXMLFunction(tarObj:DisplayObject, tarXML:any) : any
 		{
-			var i1:number = 1;
-			var tClass:any;
-			var value:string;
-			var objArray:Array<any>;
-			var parmDef:Array<string>;
-			var parms:Array<any> = new Array;
+			let i1:number = 1;
+			let tClass:any;
+			let value:string;
+			let objArray:Array<any>;
+			let parmDef:Array<string>;
+			let parms:Array<any> = new Array;
 			
 			// unmarshal the typed parameter array from the XML representation
 			
@@ -1358,9 +1359,9 @@ export class TObject extends TRoot
 		 */
 		public parseOBJ(tarObj:DisplayObject, factoryOBJ:any, factoryType:string) : void
 		{
-			var tarObject:DisplayObject;
-			var childList:any;
-			var objArray:Array<any>;
+			let tarObject:DisplayObject;
+			let childList:any;
+			let objArray:Array<any>;
 			let propName:any;
 						
 			for (propName in factoryOBJ)				
@@ -1567,4 +1568,6 @@ export class TObject extends TRoot
 			
 			super.loadXML(xmlSrc);				
 		}
+
+
 }

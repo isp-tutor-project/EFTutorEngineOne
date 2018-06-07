@@ -26,20 +26,24 @@ import { ITextCursor,
          ITextFont,
          ITextTag,
          ITextAttributes,
-         ITextSectionFormat}    from "./TTextInterfaces";
+         ITextSegmentFormat}    from "./TTextInterfaces";
 
 import { TTextManager }         from "./TTextManager";
 
+import { CEFEvent }             from "../events/CEFEvent";
 import { TMouseEvent } 		    from "../events/CEFMouseEvent";
 
 import { CONST }                from "../util/CONST";
 import { CUtil } 			    from "../util/CUtil";
 
 import MovieClip     	  = createjs.MovieClip;
+import Matrix2D     	  = createjs.Matrix2D;
 
 
 
 export class TTextField extends TObject {
+
+
 
     public canvas:HTMLCanvasElement;
     public ctx:CanvasRenderingContext2D;
@@ -64,7 +68,6 @@ export class TTextField extends TObject {
     public handleOffset:number;
     public handleDragOffset:number;
 
-    public _redraw:Function;
     public _fontChanged:Function;
     public _contentChanged:Function;
     public _gotoUrl:Function;
@@ -78,21 +81,64 @@ export class TTextField extends TObject {
 
 
 
-    constructor(canvas:HTMLCanvasElement, defaultFont:ITextFont, tagList:ITextTag[], selectionStyle:string, linkStyle:string, readOnly:boolean = false) {
+    constructor() {
 
         super();
 
-        this.canvas         = canvas;
-        this.ctx            = canvas.getContext('2d');
+    }
+
+
+/*  ###########  START CREATEJS SUBCLASS SUPPORT ##########  */
+/* ######################################################### */
+
+    public TTextFieldInitialize() {
+
+        this.TObjectInitialize.call(this);
+        this.init3();
+    }
+
+    public initialize() {
+
+        this.TObjectInitialize.call(this);		
+        this.init3();
+    }
+
+    private init3() {
+        
+        this.traceMode = true;
+        if(this.traceMode) CUtil.trace("TTextField:Constructor");
+
+        let defaultFont = {
+            name : "open sans",
+            size : 24,
+            attributes : { bold : false, italic : false },
+            style : 'black',
+            text : "24pt open sans"
+        };
+
+        let tagList = [
+            { name : "h1", size : 30 },
+            { name : "h2", size : 20 },
+            { name : "h3", size : 18 },
+            { name : "h4", size : 16 },
+            { name : "p", size : 14 },
+        ];        
+        // Note the CreateJS(AnimateCC) parts of the button have not been created
+        // at this point.
+
+        this.canvas         = EFLoadManager.window.canvas;
+        this.ctx            = this.canvas.getContext('2d');
         this.defaultFont    = defaultFont;
         this.tagList        = tagList;
-        this.selectionStyle = selectionStyle ? selectionStyle : '#b2d0ee';
-        this.linkStyle      = linkStyle ? linkStyle : 'blue';
-        this.readOnly       = readOnly;
+        this.selectionStyle = '#b2d0ee';
+        this.linkStyle      = 'blue';
+        this.readOnly       = false;
 
         this.wordWrap          = true;
         this.blinkStateChanged = 0;
 
+        this.lines = [];
+        
         this.cursorLocation = {
             x : 0,
             y : 0,
@@ -103,12 +149,11 @@ export class TTextField extends TObject {
         this.scrollBarWidth = 0;
         this.needsScrollBar = false;
 
-        this.elementMgr = new TTextManager(this.ctx, defaultFont );
+        this.elementMgr = new TTextManager(this.ctx, this.defaultFont );
 
         this.handleOffset     = 0;
         this.handleDragOffset = 0;
 
-        this._redraw         = (ctx:CanvasRenderingContext2D) => this.draw(ctx);
         this._fontChanged    = () => {};
         this._contentChanged = () => {};
         this._gotoUrl        = () => {};
@@ -119,7 +164,12 @@ export class TTextField extends TObject {
         this.clearBackground = true;
 
         this.defaultFontHeight = this.ctx.measureText( "H", "ext" ).height;
+        
     }
+
+/* ######################################################### */
+/*  ###########  END CREATEJS SUBCLASS SUPPORT ###########   */
+
 
 
     /**
@@ -134,10 +184,8 @@ export class TTextField extends TObject {
         if ( focus ) {
             this.resetBlinkState();
             this.updateBlinkState();
-            this._redraw();
         } else {
             this.blinkState = false;
-            this._redraw();
         }
     }
 
@@ -156,7 +204,6 @@ export class TTextField extends TObject {
      */
 
     public needsRedraw( func:Function ) {
-        this._redraw = func;
     }
 
     /**
@@ -240,7 +287,7 @@ export class TTextField extends TObject {
             this.resetBlinkState();
             this._contentChanged( this, "Edit" );
         } else {
-            if ( this.elementMgr.getCurrentElement() && !this.elementMgr.getCurrentElement().words ) {
+            if ( this.elementMgr.getCurrentElement() && !this.elementMgr.getCurrentElement().segment ) {
                 this.elementMgr.getCurrentElement().font = Object.assign( {}, font );
             } else {
                 let el = this.elementMgr.createElement( font );
@@ -279,7 +326,6 @@ export class TTextField extends TObject {
             if ( this.focus && time - this.blinkStateChanged >= 600 ) {
                 this.blinkState = !this.blinkState;
                 this.blinkStateChanged = time;
-                this._redraw();
             }
         }.bind( this ), 600 );
     }
@@ -498,8 +544,8 @@ export class TTextField extends TObject {
             return line;
         }
 
-        let pushLine = ( el:any, line:any ) => {
-            if ( !line.maxAscent ) line.maxAscent = el.maxAscent;
+        let pushLine = ( el:ITextElement, line:ITextLine ) => {
+            if ( !line.maxAscent )  line.maxAscent = el.maxAscent;
             if ( !line.maxDescent ) line.maxDescent = el.maxDescent;
 
             if ( !line.maxHeight )
@@ -552,8 +598,10 @@ export class TTextField extends TObject {
             }
 
             // --- Parse the words
-            for ( let w = 0; w < el.words.length; ++w ) {
-                let word = el.words[w];
+            for ( let w = 0; w < el.segment.length; ++w ) {
+
+                let word:ITextSegmentFormat = el.segment[w];
+
                 word.wrapped = false;
 
                 // --- line break
@@ -564,7 +612,7 @@ export class TTextField extends TObject {
 
                     if ( el.font.formatting ) {
                         line.offset = el.font.formatting.margin[0];
-                        remaining -= line.offset + el.font.formatting.margin[2];
+                        remaining  -= line.offset + el.font.formatting.margin[2];
                         line.symbol = "circle";
                     }
                     continue;
@@ -633,6 +681,19 @@ export class TTextField extends TObject {
         }
     }
 
+
+    /**
+     * 
+     * @param str 
+     * @param index 
+     * @param value 
+     */
+    public insert( str:string, index:number, value:string ) {
+
+        return str.substr(0, index) + value + str.substr(index);
+    };
+
+
     /**
      * Receives plain text input.
      * @param {string} text
@@ -650,13 +711,9 @@ export class TTextField extends TObject {
         }
         let el = this.elementMgr.getCurrentElement();
 
-        let insert = ( str:string, index:number, value:string ) => {
-            return str.substr(0, index) + value + str.substr(index);
-        };
+        el.text = this.insert( el.text, this.cursorLocation.offset, text );
 
-        el.text = insert( el.text, this.cursorLocation.offset, text );
-
-        this.elementMgr.rewordElement( el );
+        this.elementMgr.segmentElement( el );
         this.linalyze();
         this.resetBlinkState();
 
@@ -684,7 +741,6 @@ export class TTextField extends TObject {
                 this.getPositionForElementOffset( this.cursorLocation.element, this.cursorLocation.offset, this.cursorLocation );
                 this.resetBlinkState();
                 this._contentChanged( this, "Edit" );
-                this._redraw();
                 return;
             }
         }
@@ -698,7 +754,7 @@ export class TTextField extends TObject {
         {
             el.text = insert( el.text, this.cursorLocation.offset, "\n" );
 
-            this.elementMgr.rewordElement( el );
+            this.elementMgr.segmentElement( el );
             this.linalyze();
 
             this.cursorLocation.offset += 1;
@@ -734,7 +790,7 @@ export class TTextField extends TObject {
             if ( this.cursorLocation.offset ) {
                 el.text = el.text.slice(0, this.cursorLocation.offset - 1 ) + el.text.slice( this.cursorLocation.offset );
 
-                this.elementMgr.rewordElement( el );
+                this.elementMgr.segmentElement( el );
                 this.linalyze();
 
                 this.cursorLocation.offset -= 1;
@@ -787,7 +843,6 @@ export class TTextField extends TObject {
         }
 
         this.resetBlinkState();
-        this._redraw();
     }
 
     /**
@@ -839,7 +894,6 @@ export class TTextField extends TObject {
 
         this.mouseIsDown = true;
         this.selection = false;
-        this._redraw();
     }
 
     /**
@@ -863,7 +917,6 @@ export class TTextField extends TObject {
 
             this.vOffset = (this.handleOffset + this.handleDragOffset) * this.maxHeight / this.height;
 
-            this._redraw();
             return;
         }
 
@@ -877,11 +930,10 @@ export class TTextField extends TObject {
         if ( rc && !this.mouseIsDown ) {
             if ( this.hoverElement !== rc.element ) {
                 this.hoverElement = rc.element;
-                this._redraw();
 
                 if ( this.hoverElement ) {
                     if ( this.hoverElement.font.link ) this.canvas.style.cursor = "pointer";
-                    else this.canvas.style.cursor = "default";
+                                                  else this.canvas.style.cursor = "default";
                 }
             }
             return;
@@ -912,7 +964,6 @@ export class TTextField extends TObject {
             }
 
             this._fontChanged( this.elementMgr.createFontForRange( this.selectionStart, this.selectionEnd ) );
-            this._redraw();
         }
     }
 
@@ -940,7 +991,6 @@ export class TTextField extends TObject {
                 this.handleOffset = this.height - this.handleRect.height - this.handleDragOffset;
 
             this.vOffset = (this.handleOffset + this.handleDragOffset) * this.maxHeight / this.height;
-            this._redraw();
         }
     }
 
@@ -960,7 +1010,6 @@ export class TTextField extends TObject {
         if ( this.cursorLocation.element )
             this.getPositionForElementOffset( this.cursorLocation.element, this.cursorLocation.offset, this.cursorLocation );
 
-        this._redraw();
     }
 
     /**
@@ -1107,7 +1156,7 @@ export class TTextField extends TObject {
         {
             let el = elements[i];
             el.text = restoreString( el.text );
-            this.elementMgr.rewordElement( el );
+            this.elementMgr.segmentElement( el );
         }
 
         this.elementMgr.setElements(elements);
@@ -1120,7 +1169,6 @@ export class TTextField extends TObject {
         this.linalyze();
         if ( sendNotification )
             this._contentChanged( this, "Load" );
-        this._redraw();
 
         this.getPositionForElementOffset( this.cursorLocation.element, this.cursorLocation.offset, this.cursorLocation );
     }
@@ -1170,209 +1218,220 @@ export class TTextField extends TObject {
      */
     public draw(ctx: CanvasRenderingContext2D, ignoreCache?: boolean): boolean {
         
-    // draw( screenX = 0, screenY = 0 )
-
-        this._drawHTMLText
-
-        this.screenOffsetX = screenX; this.screenOffsetY = screenY;
+        this.screenOffsetX = 0;//screenX; 
+        this.screenOffsetY = screenY;
 
         // ---
-        let startX = screenX, startY = screenY;
+        let startX = 0;//screenX;
+        let startY = 0;//screenY;
 
         let x = 0, y = 0;
 
-        ctx.setTransform(1, 0, 0, 1, 0, 0);
-        if ( this.clearBackground )
-            ctx.clearRect( startX, startY, this.width, this.height );
+        if(ctx) {
 
-        // --- Clip the content
+            super.draw(ctx);
+            
+            // ctx.setTransform(1, 0, 0, 1, 0, 0);
+            // if ( this.clearBackground )
+            //     ctx.clearRect( startX, startY, this.width, this.height );
 
-        ctx.save();
-        ctx.rect( startX, startY, this.width, this.height );
-        ctx.clip();
+            // --- Clip the content
 
-        screenY -= this.vOffset;
+            ctx.save();
+            // ctx.rect( startX, startY, this.width, this.height );
+            // ctx.clip();
 
-        ctx.fillStyle = 'black';
-        ctx.textBaseline = 'alphabetic';
+            // Transform to the StxtField location
+            //
+            let mtx:Matrix2D = this.StxtField.getMatrix();
+            ctx.transform(mtx.a,  mtx.b, mtx.c, mtx.d, mtx.tx, mtx.ty);
 
-        let formatTag;
-        for( let l = 0; l < this.lines.length; ++l ) {
-            let line = this.lines[l];
+            screenY -= this.vOffset;
 
-            // --- Dont draw line if below visible area
-            if ( y - this.vOffset > this.height )
-                continue;
+            ctx.fillStyle = 'black';
+            ctx.textBaseline = 'alphabetic';
 
-            x += line.offset;
-            screenX += line.offset;
+            let formatTag;
+            for( let l = 0; l < this.lines.length; ++l ) {
+                let line = this.lines[l];
 
-            if ( line.symbol ) {
-                if ( line.symbol === "circle" ) {
-                    ctx.beginPath();
-                    let radius = Math.min( line.maxHeight, 3 );
-                    let centerX = line.offset - 4 - radius;
-                    let centerY = Math.ceil( line.maxHeight / 2 );
+                // --- Dont draw line if below visible area
+                if ( y - this.vOffset > this.height )
+                    continue;
 
-                    ctx.beginPath();
-                    ctx.arc( screenX - 14 - radius, screenY + centerY, 3, 0, 2 * Math.PI, false);
-                    ctx.fillStyle = this.defaultFont.style;
-                    ctx.strokeStyle = this.defaultFont.style;
-                    ctx.lineWidth = 1;
-                    ctx.fill();
-                    ctx.stroke();
-                    ctx.closePath();
-                }
-            }
+                x += line.offset;
+                screenX += line.offset;
 
-            if ( !line.words.length && this.selection && ( y >= this.selectionStart.y && y <= this.selectionEnd.y ) ) {
-                // --- If empty line, draw a selection rectangle
-                ctx.fillStyle = this.selectionStyle;
-                ctx.fillRect( startX + x, startY + y - this.vOffset, 5, line.maxHeight );
-            }
+                if ( line.symbol ) {
+                    if ( line.symbol === "circle" ) {
+                        ctx.beginPath();
+                        let radius = Math.min( line.maxHeight, 3 );
+                        let centerX = line.offset - 4 - radius;
+                        let centerY = Math.ceil( line.maxHeight / 2 );
 
-            for ( let w = 0; w < line.words.length; ++w ) {
-                let lWord = line.words[w];
-
-                ctx.font = lWord.element.font.text;
-
-                // --- Get the text and width to draw
-
-                let textToDraw, textToDrawWidth;
-
-                if ( lWord.wrapped ) {
-                    // --- Word wrap, only print word
-                    textToDraw = lWord.word;
-                    textToDrawWidth = lWord.wordMetrics.width;
-                } else {
-                    textToDraw = lWord.text;
-                    textToDrawWidth = lWord.width;
+                        ctx.beginPath();
+                        ctx.arc( screenX - 14 - radius, screenY + centerY, 3, 0, 2 * Math.PI, false);
+                        ctx.fillStyle = this.defaultFont.style;
+                        ctx.strokeStyle = this.defaultFont.style;
+                        ctx.lineWidth = 1;
+                        ctx.fill();
+                        ctx.stroke();
+                        ctx.closePath();
+                    }
                 }
 
-                // --- Draw selection background if necessary
+                if ( !line.words.length && this.selection && ( y >= this.selectionStart.y && y <= this.selectionEnd.y ) ) {
+                    // --- If empty line, draw a selection rectangle
+                    ctx.fillStyle = this.selectionStyle;
+                    ctx.fillRect( startX + x, startY + y - this.vOffset, 5, line.maxHeight );
+                }
 
-                if ( this.selection )
-                {
-                    // console.log( y, this.selectionStart.x, this.selectionStart.y, this.selectionEnd.x, this.selectionEnd.y );
+                for ( let w = 0; w < line.words.length; ++w ) {
+                    let lWord = line.words[w];
 
-                    if ( y >= this.selectionStart.y && y <= this.selectionEnd.y )
+                    ctx.font = lWord.element.font.text;
+
+                    // --- Get the text and width to draw
+
+                    let textToDraw, textToDrawWidth;
+
+                    if ( lWord.wrapped ) {
+                        // --- Word wrap, only print word
+                        textToDraw = lWord.word;
+                        textToDrawWidth = lWord.wordMetrics.width;
+                    } else {
+                        textToDraw = lWord.text;
+                        textToDrawWidth = lWord.width;
+                    }
+
+                    // --- Draw selection background if necessary
+
+                    if ( this.selection )
                     {
-                        ctx.fillStyle = this.selectionStyle;
+                        // console.log( y, this.selectionStart.x, this.selectionStart.y, this.selectionEnd.x, this.selectionEnd.y );
 
-                        let drawWholeText = false;
-
-                        if ( y > this.selectionStart.y && y < this.selectionEnd.y )
+                        if ( y >= this.selectionStart.y && y <= this.selectionEnd.y )
                         {
-                            // --- This line is in the middle of the vertical selection somewhere, select everything
-                            ctx.fillRect( startX + x, startY + y - this.vOffset, textToDrawWidth, line.maxHeight );
-                        } else
-                        if ( y === this.selectionStart.y && y === this.selectionEnd.y )
-                        {
-                            // --- This line is the start and end line of the selection
-                            let rx = startX + x, rw = textToDrawWidth;
+                            ctx.fillStyle = this.selectionStyle;
 
-                            if ( this.selectionStart.x > x ) {
-                                let diff = x - this.selectionStart.x;
-                                rx -= diff; rw += diff;
+                            let drawWholeText = false;
+
+                            if ( y > this.selectionStart.y && y < this.selectionEnd.y )
+                            {
+                                // --- This line is in the middle of the vertical selection somewhere, select everything
+                                ctx.fillRect( startX + x, startY + y - this.vOffset, textToDrawWidth, line.maxHeight );
+                            } else
+                            if ( y === this.selectionStart.y && y === this.selectionEnd.y )
+                            {
+                                // --- This line is the start and end line of the selection
+                                let rx = startX + x, rw = textToDrawWidth;
+
+                                if ( this.selectionStart.x > x ) {
+                                    let diff = x - this.selectionStart.x;
+                                    rx -= diff; rw += diff;
+                                }
+
+                                if ( this.selectionEnd.x <= rx + rw ) {
+                                    let diff = rx + rw - this.selectionEnd.x - startX;
+                                    rw -= diff;
+                                }
+
+                                if ( rw > 1 ) ctx.fillRect( rx, startY + y - this.vOffset, rw, line.maxHeight );
+                            } else
+                            if ( y === this.selectionStart.y )
+                            {
+                                // --- This line is the start line
+                                let rx = startX + x, rw = textToDrawWidth;
+
+                                if ( this.selectionStart.x > x ) {
+                                    let diff = x - this.selectionStart.x;
+                                    rx -= diff; rw += diff;
+                                }
+
+                                if ( rw > 1 ) ctx.fillRect( rx, startY + y - this.vOffset, rw, line.maxHeight );
+                            } else
+                            if ( y === this.selectionEnd.y )
+                            {
+                                // --- This line is end line
+                                let rx = startX + x, rw = textToDrawWidth;
+
+                                if ( this.selectionEnd.x <= rx + rw ) {
+                                    let diff = rx + rw - this.selectionEnd.x - startX;
+                                    rw -= diff;
+                                }
+
+                                if ( rw > 1 ) ctx.fillRect( rx, startY + y - this.vOffset, rw, line.maxHeight );
                             }
-
-                            if ( this.selectionEnd.x <= rx + rw ) {
-                                let diff = rx + rw - this.selectionEnd.x - startX;
-                                rw -= diff;
-                            }
-
-                            if ( rw > 1 ) ctx.fillRect( rx, startY + y - this.vOffset, rw, line.maxHeight );
-                        } else
-                        if ( y === this.selectionStart.y )
-                        {
-                            // --- This line is the start line
-                            let rx = startX + x, rw = textToDrawWidth;
-
-                            if ( this.selectionStart.x > x ) {
-                                let diff = x - this.selectionStart.x;
-                                rx -= diff; rw += diff;
-                            }
-
-                            if ( rw > 1 ) ctx.fillRect( rx, startY + y - this.vOffset, rw, line.maxHeight );
-                        } else
-                        if ( y === this.selectionEnd.y )
-                        {
-                            // --- This line is end line
-                            let rx = startX + x, rw = textToDrawWidth;
-
-                            if ( this.selectionEnd.x <= rx + rw ) {
-                                let diff = rx + rw - this.selectionEnd.x - startX;
-                                rw -= diff;
-                            }
-
-                            if ( rw > 1 ) ctx.fillRect( rx, startY + y - this.vOffset, rw, line.maxHeight );
                         }
                     }
-                }
 
-                // --- Draw the text
+                    // --- Draw the text
 
-                if ( lWord.element.font.style ) ctx.fillStyle = lWord.element.font.style;
-                else ctx.fillStyle = 'black';
+                    if ( lWord.element.font.style ) ctx.fillStyle = lWord.element.font.style;
+                    else ctx.fillStyle = 'black';
 
-                if ( lWord.element.font.link ) {
-                    ctx.fillStyle = this.linkStyle;
-                }
-
-                if ( lWord.element.font.link && lWord.element === this.hoverElement )
-                {
-                    // if ( lWord.element.font.link.hoverStyle )
-                    //ctx.fillStyle = lWord.element.font.link.hoverStyle;
-
-                    if ( lWord.element.font.link.hoverAttributes ) {
-                        let attributes = lWord.element.font.link.hoverAttributes;
-                        if ( attributes.includes( "underline") )
-                            ctx.fillRect( screenX, screenY + line.maxAscent + 1, textToDrawWidth, 1 );
+                    if ( lWord.element.font.link ) {
+                        ctx.fillStyle = this.linkStyle;
                     }
+
+                    if ( lWord.element.font.link && lWord.element === this.hoverElement )
+                    {
+                        // if ( lWord.element.font.link.hoverStyle )
+                        //ctx.fillStyle = lWord.element.font.link.hoverStyle;
+
+                        if ( lWord.element.font.link.hoverAttributes ) {
+                            let attributes = lWord.element.font.link.hoverAttributes;
+                            if ( attributes.includes( "underline") )
+                                ctx.fillRect( screenX, screenY + line.maxAscent + 1, textToDrawWidth, 1 );
+                        }
+                    }
+
+                    ctx.fillText( textToDraw, screenX, screenY + line.maxAscent );
+                    x += textToDrawWidth; screenX += textToDrawWidth;
                 }
 
-                ctx.fillText( textToDraw, screenX, screenY + line.maxAscent );
-                x += textToDrawWidth; screenX += textToDrawWidth;
+                if ( l < this.lines.length - 1 ) {
+                    x = 0;
+                    y += line.maxHeight;
+
+                    screenX = startX;
+                    screenY += line.maxHeight;
+                }
             }
 
-            if ( l < this.lines.length - 1 ) {
-                x = 0;
-                y += line.maxHeight;
+            // --- Cursor / Blink State
+            if ( !this.selection && !this.readOnly ) {
+                if( this.blinkState && this.cursorLocation ) {
+                    let height = this.defaultFont.size;
 
-                screenX = startX;
-                screenY += line.maxHeight;
-            }
-        }
+                    if ( this.cursorLocation.line )
+                        height = this.cursorLocation.line.maxAscent;// - this.cursorLocation.line.maxDescent;
 
-        // --- Cursor / Blink State
-        if ( !this.selection && !this.readOnly ) {
-            if ( this.blinkState && this.cursorLocation ) {
-                let height = this.defaultFont.size;
+                    ctx.fillStyle = this.defaultFont.style;
+                    // ctx.fillRect( startX + this.cursorLocation.x, startY + this.cursorLocation.y - this.vOffset, 1, height );
+                    ctx.fillRect( 0, 0, 1, height );
+                }
 
-                if ( this.cursorLocation.line )
-                    height = this.cursorLocation.line.maxAscent;// - this.cursorLocation.line.maxDescent;
-
-                ctx.fillStyle = this.defaultFont.style;
-                ctx.fillRect( startX + this.cursorLocation.x, startY + this.cursorLocation.y - this.vOffset, 1, height );
+                this.updateBlinkState();
             }
 
-            this.updateBlinkState();
+            ctx.restore();
+
+            // --- Scrollbar
+            if ( this.needsScrollBar && this.scrollBarWidth ) {
+                // --- Draw Scrollbar
+
+                let x = this.width - this.scrollBarWidth;
+                let y = Math.max( this.handleOffset + this.handleDragOffset, 0 );
+                let height = Math.min( this.height / this.maxHeight * this.height, this.height );
+
+                this.handleRect = { x : x, y : y, width : this.scrollBarWidth, height : height };
+                this._scrollBarFunc( ctx, this.handleRect );
+            }
         }
-
-        ctx.restore();
-
-        // --- Scrollbar
-        if ( this.needsScrollBar && this.scrollBarWidth ) {
-            // --- Draw Scrollbar
-
-            let x = this.width - this.scrollBarWidth;
-            let y = Math.max( this.handleOffset + this.handleDragOffset, 0 );
-            let height = Math.min( this.height / this.maxHeight * this.height, this.height );
-
-            this.handleRect = { x : x, y : y, width : this.scrollBarWidth, height : height };
-            this._scrollBarFunc( ctx, this.handleRect );
+        else {
+            console.log("ctx is undefined");
         }
-
         return true;
     }
 }

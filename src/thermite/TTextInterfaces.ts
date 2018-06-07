@@ -16,6 +16,13 @@
 
 //**Imports
 
+export interface ITextFormat {
+
+    tag: string;
+    margin: Array<number>;
+}
+
+
 
 export interface ITextFont {
 
@@ -24,6 +31,7 @@ export interface ITextFont {
     name?: string;
     size?: number;
     attributes?: ITextAttributes;
+    formatting?:ITextFormat;
     style?: string;
     text?: string;
 
@@ -35,6 +43,19 @@ export interface ITextTag {
 
     name: string;
     size: number;
+}
+
+
+export interface ITextLine {
+
+    words: Array<ITextSegmentFormat>;
+    maxHeight: number;
+    maxAscent: number;
+    maxDescent: number;
+    maxWidth: number;
+    offset: number;
+    symbol: string;
+
 }
 
 
@@ -63,7 +84,7 @@ export interface ITextElement {
 
     text: string;
     font: ITextFont;
-    words: Array<ITextSectionFormat>;
+    segment: Array<ITextSegmentFormat>;
 
     maxWordHeight?: number;
     maxAscent?: number;
@@ -71,7 +92,7 @@ export interface ITextElement {
 }
 
 
-export interface ITextSectionFormat {
+export interface ITextSegmentFormat {
 
     prefix?: string;
     word?: string;
@@ -92,14 +113,3 @@ export interface ITextSectionFormat {
     
 }
 
-export interface ITextLine {
-
-    words: Array<ITextSectionFormat>;
-    maxHeight: number;
-    maxAscent: number;
-    maxDescent: number;
-    maxWidth: number;
-    offset: number;
-    symbol: string;
-
-}

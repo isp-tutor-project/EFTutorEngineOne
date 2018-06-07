@@ -27,7 +27,7 @@ import { ITextCursor,
          ITextFont,
          ITextTag,
          ITextAttributes,
-         ITextSectionFormat}       from "./TTextInterfaces";
+         ITextSegmentFormat}       from "./TTextInterfaces";
 
 import { CONST }                from "../util/CONST";
 import { CUtil } 			    from "../util/CUtil";
@@ -81,7 +81,7 @@ export class TTextManager {
 
         let el:ITextElement = { text : "", 
                                 font : Object.assign( {}, font ),
-                                words : new Array<ITextSectionFormat>() };
+                                segment : new Array<ITextSegmentFormat>() };
         return el;
     }
 
@@ -187,8 +187,8 @@ export class TTextManager {
         newEl.text = el.text.substr( offset );
         el.text = el.text.substr( 0, offset );
 
-        this.rewordElement( el );
-        this.rewordElement( newEl );
+        this.segmentElement( el );
+        this.segmentElement( newEl );
 
         return newEl;
     }
@@ -273,7 +273,7 @@ export class TTextManager {
                 {
                     let text = fromLoc.element.text;
                     fromLoc.element.text = text.substr( 0, fromLoc.offset ) + text.substr( toLoc.offset, text.length - toLoc.offset );
-                    this.rewordElement( fromLoc.element );
+                    this.segmentElement( fromLoc.element );
 
                     elements.push( fromLoc.element );
                     newLoc.element = fromLoc.element;
@@ -283,7 +283,7 @@ export class TTextManager {
                 {
                     let text = fromLoc.element.text;
                     fromLoc.element.text = text.substr( 0, fromLoc.offset );
-                    this.rewordElement( fromLoc.element );
+                    this.segmentElement( fromLoc.element );
 
                     elements.push( fromLoc.element );
                     newLoc.element = fromLoc.element;
@@ -293,7 +293,7 @@ export class TTextManager {
                 {
                     let text = toLoc.element.text;
                     toLoc.element.text = text.substr( toLoc.offset, text.length - toLoc.offset );
-                    this.rewordElement( toLoc.element );
+                    this.segmentElement( toLoc.element );
 
                     elements.push( toLoc.element );
                 }
@@ -329,7 +329,7 @@ export class TTextManager {
                 {
                     // --- If inside the range, apply font to the whole element
                     el.font = Object.assign( {}, font );
-                    this.rewordElement( el );
+                    this.segmentElement( el );
                     elements.push( el );
                 }
                 else
@@ -339,7 +339,7 @@ export class TTextManager {
                     {
                         // --- The whole element is selected
                         el.font = Object.assign( {}, font );
-                        this.rewordElement( el );
+                        this.segmentElement( el );
                         elements.push( el );
 
                         newLoc.element = el;
@@ -349,13 +349,13 @@ export class TTextManager {
 
                         if ( fromLoc.offset ) {
                             el.text = text.substr( 0, fromLoc.offset );
-                            this.rewordElement( el );
+                            this.segmentElement( el );
                             elements.push( el );
                         }
 
                         let middleEl = this.createElement( font );
                         middleEl.text = text.substr( fromLoc.offset, toLoc.offset - fromLoc.offset );
-                        this.rewordElement( middleEl );
+                        this.segmentElement( middleEl );
                         elements.push( middleEl );
 
                         newFromOffset = 0;
@@ -364,7 +364,7 @@ export class TTextManager {
                         if ( text.length - toLoc.offset ) {
                             let endEl = this.createElement( toLoc.element.font );
                             endEl.text = text.substr( toLoc.offset, text.length - toLoc.offset );
-                            this.rewordElement( endEl );
+                            this.segmentElement( endEl );
                             elements.push( endEl );
                         }
 
@@ -380,13 +380,13 @@ export class TTextManager {
                     let text = el.text;
                     if ( fromLoc.offset === 0 ) el.font = Object.assign( {}, font );
                     else if ( fromLoc.offset > 0 ) el.text = text.substr( 0, fromLoc.offset );
-                    this.rewordElement( el );
+                    this.segmentElement( el );
                     elements.push( el );
 
                     if ( fromLoc.offset > 0 ) {
                         let middleEl = this.createElement( font );
                         middleEl.text = text.substr( fromLoc.offset, text.length - fromLoc.offset );
-                        this.rewordElement( middleEl );
+                        this.segmentElement( middleEl );
                         elements.push( middleEl );
 
                         newFromOffset = 0;
@@ -399,7 +399,7 @@ export class TTextManager {
                     let oldFont = Object.assign( {}, el.font );
                     el.text = text.substr( 0, toLoc.offset );
                     el.font = Object.assign( {}, font );
-                    this.rewordElement( el );
+                    this.segmentElement( el );
                     elements.push( el );
 
                     newToOffset = el.text.length;
@@ -411,7 +411,7 @@ export class TTextManager {
                     if ( toLoc.offset < text.length ) {
                         let middleEl = this.createElement( oldFont );
                         middleEl.text = text.substr( toLoc.offset, text.length - toLoc.offset );
-                        this.rewordElement( middleEl );
+                        this.segmentElement( middleEl );
                         elements.push( middleEl );
                     }
                 }
@@ -556,53 +556,56 @@ export class TTextManager {
         {
             let el = this.elements[i];
 
-            if ( el.words ) elements.push( el );
+            if ( el.segment ) elements.push( el );
         }
         this.elements = elements;
     }
 
 
+    public pushWord( el:ITextElement, prefix:string, word:string, endOffset:number ) : void {
+
+        let segment:ITextSegmentFormat = { prefix : prefix, word : word, lineBreak : false };
+
+        segment.prefixMetrics = this.ctx.measureText( prefix, "ext" );
+        segment.wordMetrics   = this.ctx.measureText( word, "ext" );
+
+        // --- Calculate offset into the elements text
+        segment.offset = endOffset;
+        if ( prefix.length ) segment.offset -= prefix.length;
+        if ( word.length )   segment.offset -= word.length;
+        segment.endOffset = endOffset;
+
+        segment.width  = segment.prefixMetrics.width + segment.wordMetrics.width;
+        segment.height = Math.max( segment.prefixMetrics.height, segment.wordMetrics.height );
+
+        el.maxAscent  = Math.max( el.maxAscent, segment.wordMetrics.ascent );
+        el.maxDescent = Math.max( el.maxDescent, segment.wordMetrics.descent );
+
+        segment.text = prefix + word;
+
+        el.segment.push( segment );
+    };
+
+
+    public pushLineBreak(el:ITextElement) : void  {
+
+        el.segment.push( { lineBreak : true } );
+    };
+
+    
     /**
      * Parses the given element and creates an array of words with their prefixes from the element's text.
      */
 
-    public rewordElement( el:ITextElement )
+    public segmentElement( el:ITextElement )
     {
-        el.words = [];
+        el.segment         = [];
         el.maxWordHeight = 0;
-        el.maxAscent = 0;
-        el.maxDescent = 0;
+        el.maxAscent     = 0;
+        el.maxDescent    = 0;
 
-        let prefix = "";
-        let word = "";
-
-        let pushWord = ( prefix:string, word:string, offset:number ) => {
-
-            let obj:ITextSectionFormat = { prefix : prefix, word : word, lineBreak : false };
-
-            obj.prefixMetrics = this.ctx.measureText( prefix, "ext" );
-            obj.wordMetrics = this.ctx.measureText( word, "ext" );
-
-            // --- Calculate offset into the elements text
-            obj.offset = offset;
-            if ( prefix.length ) obj.offset -= prefix.length;
-            if ( word.length ) obj.offset -= word.length;
-            obj.endOffset = offset;
-
-            obj.width = obj.prefixMetrics.width + obj.wordMetrics.width;
-            obj.height = Math.max( obj.prefixMetrics.height, obj.wordMetrics.height );
-
-            el.maxAscent = Math.max( el.maxAscent, obj.wordMetrics.ascent );
-            el.maxDescent = Math.max( el.maxDescent, obj.wordMetrics.descent );
-
-            obj.text = prefix + word;
-
-            el.words.push( obj );
-        };
-
-        let pushLineBreak = () => {
-            el.words.push( { lineBreak : true } );
-        };
+        let whitespace = "";
+        let text       = "";
 
         for ( let i = 0; i < el.text.length; ++i )
         {
@@ -610,25 +613,28 @@ export class TTextManager {
 
             if ( c === ' ' )
             {
-                if ( word.length ) {
-                    pushWord( prefix, word, i );
-                    prefix = ""; word = "";
-                }
-                prefix += c;
-            } else
-            if ( c == '\n' )
-            {
-                if ( prefix.length || word.length )
-                    pushWord( prefix, word, i );
+                if ( text.length ) {
 
-                pushLineBreak();
-                prefix = ""; word = "";
+                    this.pushWord( el, whitespace, text, i );                    
+                    whitespace = ""; text = "";
+                }
+                whitespace += c;
+            } 
+
+            else if ( c == '\n' )
+            {
+                if ( whitespace.length || text.length )
+                    this.pushWord( el, whitespace, text, i );
+
+                this.pushLineBreak( el );
+                whitespace = ""; text = "";
             }
-            else word += c;
+
+            else text += c;
         }
 
-        if ( prefix.length || word.length )
-            pushWord( prefix, word, el.text.length );
+        if ( whitespace.length || text.length )
+            this.pushWord( el, whitespace, text, el.text.length );
     }
 
 }
