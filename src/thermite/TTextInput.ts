@@ -35,7 +35,8 @@ import { TMouseEvent } 		    from "../events/CEFMouseEvent";
 import { CONST }                from "../util/CONST";
 import { CUtil } 			    from "../util/CUtil";
 
-import MovieClip     	  = createjs.MovieClip;
+import MovieClip     	      = createjs.MovieClip;
+import Text     	          = createjs.Text;
 import Timeline     		  = createjs.Timeline;
 import DisplayObject 		  = createjs.DisplayObject;
 import DisplayObjectContainer = createjs.Container;
@@ -44,35 +45,6 @@ import DisplayObjectContainer = createjs.Container;
     // canvasElement.onfocus = () => this.setFocus( true );
     // canvasElement.onblur = () => this.setFocus( false );
 
-interface CSSstyles {
-
-    // This is a special signature to avoid typescript error "because <type> has no index signature."
-	// on this[<element name>]
-	// 
-	[key: string]: any;
-    
-    resize:string,
-    border:string,
-  
-    position:string,
-    left:string, 
-    top:string,
-    width:string,
-    height:string,
-  
-    color:string,
-  
-    pointerEvents:string,
-    boxSizing:string,
-
-    fontFamily:string,  
-    fontSize:string,
-    fontStyle:string,
-    fontWeight:string,  
-
-    visibility:string
-
-}
 
 
 export class TTextInput extends TObject {
@@ -80,7 +52,7 @@ export class TTextInput extends TObject {
 
 	//************ Stage Symbols
 	
-	public StxtField:TObject;
+	public StxtField:Text;
     public SfocusBox:TObject;
     
     public STextArea: HTMLTextAreaElement;
@@ -89,7 +61,10 @@ export class TTextInput extends TObject {
     
 
     private fAdded:boolean;
-    private createOptions:CSSstyles;
+    private cssOptions:any;
+    private cssDirty:any;
+
+    private fontSize:number;
     private _updateVisibilityCbk:any;
     private _updateComponentCbk:any;
 
@@ -127,28 +102,31 @@ export class TTextInput extends TObject {
         
         this.fAdded = false;
 
-        this.createOptions = {
+        this.fontSize   = 17;
+        this.cssDirty   = {};
+        this.cssOptions = {
 
             resize:"none",
             border:"1px solid #CCC",
+            // background:"#CCC",
           
             position:"absolute",
-            left:"15px", 
-            top:"45px",
-            width:"303px",
-            height:"350px",
+            // left:"15px", 
+            // top:"45px",
+            // width:"303px",
+            // height:"350px",
           
-            color:"red",
+            // color:"red",
           
             pointerEvents: "all",
-            boxSizing:"border-box",
+            boxSizing:"border-box",            
     
             fontFamily:"verdana",  
-            fontSize:"21px",
+            fontSize:"10px",
             fontStyle:"normal",
             fontWeight:"normal",  
     
-            visibility:"show"
+            visibility:"hidden"
         };
     
         // this.setOnKeyPress();
@@ -179,6 +157,8 @@ export class TTextInput extends TObject {
 
     public onAddedToStage(evt:CEFEvent) {
 
+        let stage;
+
         console.log("TextInput On Stage");
 
         // We are added to the scene on each frame of an animation
@@ -190,29 +170,86 @@ export class TTextInput extends TObject {
             this.STextArea.id  = "StextInput";
 
             this.StxtField.visible = false;        
-            let value:string       = this.StxtField.text;
+            this.SfocusBox.visible = false;        
 
-            let attr:string;
-            let CSSstyle:CSSstyles = this.STextArea.style as CSSstyles;
+            this.decomposeFont(this.cssOptions, this.StxtField.font);
 
-            for(attr in this.createOptions) {
+            this.initText  = this.StxtField.text;
 
-                CSSstyle[attr] = this.createOptions[attr];
+            this.cssOptions.opacity   = this.StxtField.alpha     || this.cssOptions.opacity;
+            this.cssOptions.color     = this.StxtField.color     || this.cssOptions.color;
+            this.cssOptions.initAlign = this.StxtField.textAlign || this.cssOptions.textAlign;
+
+            // Set the default style
+            //
+            for(let attr in this.cssOptions) {
+
+                this.setProperty(attr, this.cssOptions[attr], true);
             }
+            this.updateStyle(true);
 
             dom_overlay_container.appendChild(this.STextArea); 
 
-            this.STextArea.focus();
+            // Set focus in the $onEnterScene override
+            //
+            // this.STextArea.focus();
+
             this.fAdded = true;
 
-
-            let stage = this.getStage();
-
-            if(stage) {
+            if(stage = this.getStage()) {
                 this._updateVisibilityCbk = stage.on('drawstart', this._handleDrawStart, this, false);
-                this._updateComponentCbk  = stage.on('drawend', this._handleDrawEnd, this, true);
+                this._updateComponentCbk  = stage.on('drawend'  , this._handleDrawEnd  , this, false);
             }
         }
+    }
+
+
+    public fontContainsElement(attr:string, candidates:Array<string>|Array<RegExp>) : any {
+
+        let result:string = null;
+        let match:Array<string> = null;
+
+        for(let candidate of candidates) {
+            if(match = attr.match(candidate)) {
+                result = match[0];
+                break;
+            }
+        }
+
+        return result;
+    }
+
+
+    /**
+     * Extract the font information from the STxtField control 
+     * 
+     * @param fontStr 
+     */
+    public decomposeFont(fontSpec:any, fontStr:string ) : any {
+
+        let match:Array<string> = null;
+
+        // fontStr = "italic bold 21px 'googleplex narrow'";
+        
+        // Note that in practice if the font is "normal" in any attribute - "normal" is excluded from the
+        // spec to make it non-ambiguous
+        // 
+        let styles:Array<string>  = ["normal","italic","oblique","initial","inherit"];
+        let weights:Array<string> = ["normal","bold","bolder","lighter","100","200","300","400","500","600","700","800","900","initial","inherit"];
+        let sizes:Array<RegExp>   = [/\d*px/];
+
+        // "test 'test rtst'"
+        if(fontStr) {
+
+            if(match = fontStr.match(/'[\w\s]*'/))
+                    fontSpec.fontFamily = match[0];
+
+            fontSpec.fontStyle   = this.fontContainsElement(fontStr, styles) || fontSpec.fontStyle;
+            fontSpec.fontWeight  = this.fontContainsElement(fontStr, weights) || fontSpec.fontWeight;
+            fontSpec.fontSize    = this.fontContainsElement(fontStr, sizes) || fontSpec.fontSize;
+        }
+
+        return fontSpec;
     }
 
 
@@ -332,12 +369,24 @@ export class TTextInput extends TObject {
     }
 
 
-    public setProperty(k:string, v:string|number) {
+    public setProperty(key:string, value:string|number, force:boolean = false) {
 
-        if(this._options[k] != v) {
-            this._dirty[k] = true;
+        if(force || this.cssOptions[key] != value) {
+            this.cssDirty[key] = true;
         }
-        this._options[k] = v;
+        this.cssOptions[key] = value;
+    }
+
+
+    public updateStyle(force:boolean) {
+            
+        for(let attr in this.cssOptions) {
+
+            if(force || this.cssDirty[attr]) {
+                this.cssDirty[attr] = false;
+                (this.STextArea.style as any)[attr] = this.cssOptions[attr];
+            }
+        }    
     }
 
 
@@ -358,18 +407,19 @@ export class TTextInput extends TObject {
 
     public _handleDrawEnd(evt:CEFEvent) {
 
-
         if(this.fAdded) {
-            let mat = this.StxtField.getConcatenatedDisplayProps(this.StxtField._props).matrix;
+            let mat = this.SfocusBox.getConcatenatedDisplayProps(this.SfocusBox._props).matrix;
 
             let tx1 = mat.decompose(); 
             let sx = tx1.scaleX; 
             let sy = tx1.scaleY;
 
-            let dp = window.devicePixelRatio || 1; 
-            let w = this.StxtField.nominalBounds.width * sx; 
-            let h = this.StxtField.nominalBounds.height * sy;
+            mat.tx += this.SfocusBox.nominalBounds.x  * sx; 
+            mat.ty += this.SfocusBox.nominalBounds.y  * sy; 
+            let w   = this.SfocusBox.nominalBounds.width  * sx; 
+            let h   = this.SfocusBox.nominalBounds.height * sy;
 
+            let dp = window.devicePixelRatio || 1; 
             mat.tx/=dp;
             mat.ty/=dp; 
             mat.a/=(dp*sx);
@@ -377,29 +427,23 @@ export class TTextInput extends TObject {
             mat.c/=(dp*sy);
             mat.d/=(dp*sy);
 
-            this._element.setProperty('transform-origin', this.regX + 'px ' + this.regY + 'px');
+            this.setProperty('transform-origin', this.regX + 'px ' + this.regY + 'px');
 
             let x = (mat.tx + this.regX*mat.a + this.regY*mat.c - this.regX);
             let y = (mat.ty + this.regX*mat.b + this.regY*mat.d - this.regY);
 
             let tx = 'matrix(' + mat.a + ',' + mat.b + ',' + mat.c + ',' + mat.d + ',' + x + ',' + y + ')';
 
-            this._element.setProperty('transform', tx);
-            this._element.setProperty('width', w + "px");
-            this._element.setProperty('height', h + "px");
-            this._element.update();
+            this.setProperty("visibility", this.visible? "visible":"hidden");
+            this.setProperty("opacity", this.alpha);
+            this.setProperty("fontSize", this.fontSize * sx + "px")
+            this.setProperty('transform', tx);
+            this.setProperty('width', w + "px");
+            this.setProperty('height', h + "px");
+            this.updateStyle(false);
         }
     }
     
-    // public _$tick() {
-    //     let stage = this.getStage();
-    //     stage&&stage.on('drawend', this._handleDrawEnd, this, true);
-    //     if(!this._updateVisibilityCbk) {
-    //         this._updateVisibilityCbk = stage.on('drawstart', this._updateVisibility, this, false);
-    //     }
-    // }
-    
-
 
 
 
