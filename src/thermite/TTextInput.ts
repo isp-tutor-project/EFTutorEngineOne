@@ -61,6 +61,10 @@ export class TTextInput extends TObject {
     
 
     private fAdded:boolean;
+
+    private isHTMLControl:boolean;
+    private HTMLmute:boolean;
+
     private cssOptions:any;
     private cssDirty:any;
 
@@ -100,7 +104,10 @@ export class TTextInput extends TObject {
 
         this.on(CEFEvent.ADDED_TO_STAGE, this.onAddedToStage);
         
-        this.fAdded = false;
+        this.fAdded   = false;
+        
+        this.isHTMLControl = true;
+        this.HTMLmute      = true;
 
         this.fontSize   = 17;
         this.cssDirty   = {};
@@ -201,6 +208,12 @@ export class TTextInput extends TObject {
                 this._updateComponentCbk  = stage.on('drawend'  , this._handleDrawEnd  , this, false);
             }
         }
+    }
+
+
+    public muteHTMLControl(mute:boolean) {
+
+        this.HTMLmute = mute;
     }
 
 
@@ -405,9 +418,10 @@ export class TTextInput extends TObject {
         }
     }
 
+
     public _handleDrawEnd(evt:CEFEvent) {
 
-        if(this.fAdded) {
+        if(this.fAdded && !this.HTMLmute) {
             let mat = this.SfocusBox.getConcatenatedDisplayProps(this.SfocusBox._props).matrix;
 
             let tx1 = mat.decompose(); 

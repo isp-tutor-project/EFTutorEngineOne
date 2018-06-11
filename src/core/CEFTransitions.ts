@@ -345,7 +345,7 @@ export class CEFTransitions extends CEFTimeLine
 					{
 						
 						tween = new Tween(targObj._instance).to({x:targObj.inPlace.x}, this.tTime, Ease.cubicInOut);
-						if(this.traceMode) CUtil.trace("Tweening obj in scene: " + sceneName + "  named : " + targObj.name + " property: " + targObj.prop + " in: " + tween.duration + "msecs");
+						if(this.traceMode) CUtil.trace("Tweening obj in scene: " + sceneName + "  named : " + targObj.name + " property:x  in: " + tween.duration + "msecs");
 						
 						// push the tween on to the run stack
 						//
@@ -354,34 +354,84 @@ export class CEFTransitions extends CEFTimeLine
 					if(targObj.inPlace.y != liveObj.y)
 					{
 						tween = new Tween(targObj._instance).to({y:targObj.inPlace.y}, this.tTime, Ease.cubicInOut);
-						if(this.traceMode) CUtil.trace("Tweening obj in scene: " + sceneName + "  named : " + targObj.name + " property: " + targObj.prop + " in: " + tween.duration + "msecs");
+						if(this.traceMode) CUtil.trace("Tweening obj in scene: " + sceneName + "  named : " + targObj.name + " property: y  in: " + tween.duration + "msecs");
 												
 						// push the tween on to the run stack
 						//
 						this.addTween(tween);						
 					}
-					// if(targObj.inPlace.Width != liveObj.width)		//** TODO */
-					// {
-					// 	tween = new Tween(targObj._instance, "width", Cubic.easeInOut, targObj._instance.width, targObj.inPlace.Width, tTime, true );
-					// 	if(this.traceMode) CUtil.trace("Tweening obj in scene: " + objectName + "  named : " + tween.obj.name + " property: " + tween.prop + " from: " + tween.begin + "  to : " + tween.finish + " in: " + tween.duration + "msecs");
+
+					if(targObj.inPlace.scaleX != liveObj.scaleX)		
+					{
+						tween = new Tween(targObj._instance).to({scaleX:targObj.inPlace.scaleX}, this.tTime, Ease.cubicInOut);
+						if(this.traceMode) CUtil.trace("Tweening obj in scene: " + sceneName + "  named : " + targObj.name + " property: scaleX  in: " + tween.duration + "msecs");
 						
-					// 	// push the tween on to the run stack
-					// 	//
-					// 	this.addTween(tween);						
-					// }
-					// if(targObj.inPlace.Height != liveObj.height)
-					// {
-					// 	tween = new Tween(targObj._instance, "height", Cubic.easeInOut, targObj._instance.height, targObj.inPlace.Height, tTime, true );
-					// 	if(this.traceMode) CUtil.trace("Tweening obj in scene: " + objectName + "  named : " + tween.obj.name + " property: " + tween.prop + " from: " + tween.begin + "  to : " + tween.finish + " in: " + tween.duration + "msecs");
+						// push the tween on to the run stack
+						//
+						this.addTween(tween);						
+					}
+					if(targObj.inPlace.scaleY != liveObj.scaleY)
+					{
+						tween = new Tween(targObj._instance).to({scaleY:targObj.inPlace.scaleY}, this.tTime, Ease.cubicInOut);
+						if(this.traceMode) CUtil.trace("Tweening obj in scene: " + sceneName + "  named : " + targObj.name + " property: scaleY  in: " + tween.duration + "msecs");
 						
-					// 	// push the tween on to the run stack
-					// 	//
-					// 	this.addTween(tween);						
-					// }
+						// push the tween on to the run stack
+						//
+						this.addTween(tween);						
+					}
+
+					if(targObj.inPlace.skewX != liveObj.skewX)		
+					{
+						tween = new Tween(targObj._instance).to({skewX:targObj.inPlace.skewX}, this.tTime, Ease.cubicInOut);
+						if(this.traceMode) CUtil.trace("Tweening obj in scene: " + sceneName + "  named : " + targObj.name + " property: skewX  in: " + tween.duration + "msecs");
+						
+						// push the tween on to the run stack
+						//
+						this.addTween(tween);						
+					}
+					if(targObj.inPlace.skewY != liveObj.skewY)
+					{
+						tween = new Tween(targObj._instance).to({skewY:targObj.inPlace.skewY}, this.tTime, Ease.cubicInOut);
+						if(this.traceMode) CUtil.trace("Tweening obj in scene: " + sceneName + "  named : " + targObj.name + " property: skewY  in: " + tween.duration + "msecs");
+						
+						// push the tween on to the run stack
+						//
+						this.addTween(tween);						
+					}
+					
+					if(targObj.inPlace.regX != liveObj.regX)		
+					{
+						tween = new Tween(targObj._instance).to({regX:targObj.inPlace.regX}, this.tTime, Ease.cubicInOut);
+						if(this.traceMode) CUtil.trace("Tweening obj in scene: " + sceneName + "  named : " + targObj.name + " property: regX  in: " + tween.duration + "msecs");
+						
+						// push the tween on to the run stack
+						//
+						this.addTween(tween);						
+					}
+					if(targObj.inPlace.regY != liveObj.regY)
+					{
+						tween = new Tween(targObj._instance).to({regY:targObj.inPlace.regY}, this.tTime, Ease.cubicInOut);
+						if(this.traceMode) CUtil.trace("Tweening obj in scene: " + sceneName + "  named : " + targObj.name + " property: regY  in: " + tween.duration + "msecs");
+						
+						// push the tween on to the run stack
+						//
+						this.addTween(tween);						
+					}
+
+					if(targObj.inPlace.rotation != liveObj.rotation)
+					{
+						tween = new Tween(targObj._instance).to({rotation:targObj.inPlace.rotation}, this.tTime, Ease.cubicInOut);
+						if(this.traceMode) CUtil.trace("Tweening obj in scene: " + sceneName + "  named : " + targObj._instance.name + " property: rotation  in: " + tween.duration + "msecs");
+
+						// push the tween on to the run stack
+						//
+						this.addTween(tween);						
+					}
+
 					if(targObj.inPlace.alpha != liveObj.alpha)
 					{
 						tween = new Tween(targObj._instance).to({alpha:targObj.inPlace.alpha}, this.tTime, Ease.cubicInOut);
-						if(this.traceMode) CUtil.trace("Tweening obj in scene: " + sceneName + "  named : " + targObj._instance.name + " property: alpha" + " in: " + tween.duration + "msecs");
+						if(this.traceMode) CUtil.trace("Tweening obj in scene: " + sceneName + "  named : " + targObj._instance.name + " property: alpha  in: " + tween.duration + "msecs");
 
 						// push the tween on to the run stack
 						//
@@ -397,6 +447,9 @@ export class CEFTransitions extends CEFTimeLine
 					//
 					if(!(targObj._instance instanceof TObjectMask))
 											targObj._instance.alpha = 0;
+
+					if(targObj._instance.isHTMLControl)
+							targObj._instance.muteHTMLControl(false);
 					
 					// Generate the tween
 					//

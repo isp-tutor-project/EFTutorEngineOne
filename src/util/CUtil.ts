@@ -231,7 +231,7 @@ export class CUtil extends Object
 		}
 		catch(error) {
 
-			console.log("getDefinitionByName Failed: " + error);
+			console.log("getConstructorByName Failed on Class: " + className + " in => " + moduleName + " - " + error);
 		}
 
 		return classConstructor;

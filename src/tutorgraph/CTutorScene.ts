@@ -63,7 +63,7 @@ export class CTutorScene
 		this._parent	 	= parent;
 		
 		this._name		= factory.name;
-		this._classPath	= factory.classpath;
+		this._classPath	= factory.classname;
 		this._title 	= factory.title;
 		this._page		= factory.page;
 		this._features	= factory.features;
