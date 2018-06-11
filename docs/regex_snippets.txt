@@ -1,6 +1,12 @@
 
 VSCode regex cheatsheet:
 
+Regex to insert this. before q?Check  Where ? is any character
+[^public](\s+)q(.)Ch
+$1this.q$2Ch
+
+
+
 Regex to insert $ before identifier name in sceneExt code
 find: public(\s*)(\w)
 replace: public$1$$$2

@@ -2364,7 +2364,7 @@ export class CLogManager extends EventDispatcher implements ILogManager
 
 // class at Module scope
 
-class SingletonObj
+export class SingletonObj
 {
 //nothing else required here
 }

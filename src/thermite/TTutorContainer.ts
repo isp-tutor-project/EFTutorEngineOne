@@ -225,6 +225,7 @@ export class TTutorContainer extends TRoot
 		tarScene.classPath    = classPath;
 		tarScene.tutorDoc     = this.tutorDoc;
 		tarScene.tutorAutoObj = this.tutorAuto;
+		tarScene.visible	  = false;				
 
 		// Supplimentary code has leading $ (CONST.EXT_SIG) on each identifier to be mixed in
 		// Mixin the common code first to initialize defaults
@@ -247,7 +248,6 @@ export class TTutorContainer extends TRoot
 		
 		//gTruck.add(tarScene);					//@@ Debug memory test May 27 2010
 		
-		tarScene.visible = false;				
 		tarScene.stop();						// TODO: COMMENTED FOR DEBUG
 
 		//## Mod Aug 10 2012 - must wait for initializeScenes to ensure basic scenes are in place now that 
