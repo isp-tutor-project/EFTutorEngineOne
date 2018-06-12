@@ -217,6 +217,25 @@ export class TTextInput extends TObject {
     }
 
 
+    public setFocus(focus:boolean) {
+        
+        if(focus)
+            this.STextArea.focus();
+        else 
+            this.STextArea.blur();
+        
+    }
+
+
+    public setEnabled(enabled:boolean) {
+        
+        if(enabled)
+            this.STextArea.disabled = false;
+        else 
+            this.STextArea.disabled = true;
+        
+    }
+    
     public fontContainsElement(attr:string, candidates:Array<string>|Array<RegExp>) : any {
 
         let result:string = null;
