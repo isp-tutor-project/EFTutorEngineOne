@@ -8,7 +8,7 @@ export class CONST {
 	public static readonly EXT_SIG      = "$";
 
 
-    public static readonly BOOT_LOADER:string   = "./EFData/bootLoader.json5";
+    public static readonly BOOT_LOADER:string   = "./EFLoader/bootLoader.json5";
     public static readonly LOCAL:string          = "LOCAL";
     public static readonly WAIT:number           = 250;
 
@@ -16,15 +16,14 @@ export class CONST {
 	public static readonly LAUNCH:boolean  		= true;
 
 	public static readonly THERMITE_PREFIX:string   = "TC_";
+	public static readonly MODULE_PREFIX:string     = "TM_";
 	public static readonly SCENE_EXT 				= "sceneExt";
 
 	public static readonly TUTOR_JSON_IMAGE:string[] = [
-		"scenegraph.json5",
 		"tutorgraph.json5"
 	];
 	
 	public static readonly TUTOR_FACTORIES:string[] = [
-		"_sceneGraph",
 		"_tutorGraph"
 	];
 	
