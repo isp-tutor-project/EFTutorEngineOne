@@ -221,13 +221,13 @@ export class CEFTutorDoc extends EventDispatcher implements IEFTutorDoc
 		
 		// Load the scene extension code
 		// 
-		for(let suppl in this.tutorDescr.supplScripts) {
+		// for(let suppl in this.tutorDescr.supplScripts) {
 
-			if(this.tutorDescr.supplScripts[suppl].intNameSpace == CONST.SCENE_EXT) {
-				this.tutorExt = this.tutorDescr.supplScripts[suppl].instance;
-				break;
-			}
-		}
+		// 	if(this.tutorDescr.supplScripts[suppl].intNameSpace == CONST.SCENE_EXT) {
+		// 		this.tutorExt = this.tutorDescr.supplScripts[suppl].instance;
+		// 		break;
+		// 	}
+		// }
 
         // This manufactures the tutorGraph from the JSON spec file 			
         //

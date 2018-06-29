@@ -7,10 +7,18 @@ export class CONST {
 	public static readonly COMMON_CODE  = "$Common";
 	public static readonly EXT_SIG      = "$";
 
-
-    public static readonly BOOT_LOADER:string   = "./EFLoader/bootLoader.json5";
-    public static readonly LOCAL:string          = "LOCAL";
-    public static readonly WAIT:number           = 250;
+    public static readonly ACCOUNT_LOADER:string        = "/EFTutors/accounts.json";
+    public static readonly MODID_FILEPATH:string        = "/EFconfig.json";
+    public static readonly GRAPH_FILEPATH:string        = "/EFgraphs/scenegraphs.json";
+    public static readonly EXTS_FILEPATH:string         = "/EFbuild/exts.js";
+    public static readonly MIXINS_FILEPATH:string       = "/EFbuild/mixins.js";
+    public static readonly DATA_FILEPATH:string         = "/EFdata/assets.json";
+    public static readonly FONTFACE_FILEPATH:string     = "/EFfonts/fontfaces.css";
+    public static readonly SCRIPTS_FILEPATH:string      = "/EFaudio/EFscripts/script.json";
+    public static readonly SCRIPTDATA_FILEPATH:string   = "/EFaudio/EFscripts/assets.json";
+    public static readonly ANMODULE_FILEPATH:string     = ".js";
+    public static readonly LOCAL:string                 = "LOCAL";
+    public static readonly WAIT:number                  = 250;
 
 	public static readonly DONT_LAUNCH:boolean  = false;
 	public static readonly LAUNCH:boolean  		= true;
@@ -19,18 +27,23 @@ export class CONST {
 	public static readonly MODULE_PREFIX:string     = "TM_";
 	public static readonly SCENE_EXT 				= "sceneExt";
 
-	public static readonly TUTOR_JSON_IMAGE:string[] = [
-		"tutorgraph.json5"
+
+	public static readonly TUTOR_VARIABLE:string[] = [
+        "tutorconfig.json",
+		"tutorgraph.json"
 	];
 	
 	public static readonly TUTOR_FACTORIES:string[] = [
+        "_tutorConfig",
 		"_tutorGraph"
 	];
 	
 	public static readonly TUTOR_SUPPL_CODE:string[] = [
 		"EFTut_Suppl.js"
 	];
-	
+
+    
+
 	//**  Button States - must match AnimateCC code conventions : see Adobe generated JS code */
 
 	public static readonly STATE_UP   		= "shape";
