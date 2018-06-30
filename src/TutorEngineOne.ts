@@ -49,22 +49,9 @@ export class CEngine {
 
     public timerID:number;
 
+    public loaderData:Array<LoaderPackage.ILoaderData>;
     public sourcePath:string[];
-
-    public moduleSet:string;
-    public loadModules:Array<string>;
-    public anModules:any;
-
-    public supplSet:string;
-    public loadSuppls:Array<string>;
-    public supplScripts:any;
     
-    public _tutorGraph:any;
-    public _sceneGraph:any;
-    public _tutorConfig:LoaderPackage.ITutorConfig;
-    public _modules:Array<LoaderPackage.IModuleDescr>;
-    public _moduleData:any;
-
 
 	// This is a special signature to avoid typescript error "because <type> has no index signature."
 	// on this[<element name>]
@@ -78,9 +65,6 @@ export class CEngine {
     public start(_bootTutorID:string ) : void
     {
         this.bootTutor   = _bootTutorID;
-        this._sceneGraph = {};
-        this._modules    = new Array<LoaderPackage.IModuleDescr>();
-        this._moduleData = {};
 
         console.log("In TutorEngineOne startup: " + _bootTutorID);
 
@@ -91,18 +75,20 @@ export class CEngine {
 
         if(_bootTutorID) {
 
-            // Do the engine code injection for the Tutor Loader HTML5 components
-            // Generally there aren't any in the Loader project - when debugging a module
-            // however there generally are components.
+            // Construct the Tutor Document object and the Tutor Container.
+            // We inject this into the prototypes of the Thermite classes.
             //
-            this.mapThermiteClasses(EFLoadManager.efLoaderLib, null, null);
+            if(!this.tutorDoc) {
+                this.tutorDoc      = new CEFTutorDoc();            //this._sceneGraph, this._tutorGraph 
+                this.tutorDoc.name = this.bootTutor;
+            }
 
             this.loadBootImage();
         }
     }
 
 
-    public loadBootImage() {
+    public loadTutorImage() : void {
 
         this.sourcePath = new Array();
 
@@ -112,334 +98,9 @@ export class CEngine {
                 this.sourcePath.push("EFTutors/" + this.bootTutor + "/" + filename);
             }
 
-            this.loadFileSet(this.sourcePath, this.onLoadJson.bind(this), this.loadModuleIDs.bind(this));
-        }        
-        catch(error){
 
-            console.log("Boot-Image load failed: " + error);
-        }
-    }
 
 
-    public loadModuleIDs() {
-        
-        this.sourcePath = new Array();
-
-        try {
-            for(let moduleName of this._tutorConfig.dependencies) {
-
-                // Generate the _modules base object
-                //
-                this._modules.push({modName:moduleName});
-                this.sourcePath.push(moduleName + CONST.MODID_FILEPATH);
-            }
-
-            this.loadFileSet(this.sourcePath, this.onLoadModID.bind(this), this.loadModuleGraphs.bind(this));
-        }        
-        catch(error){
-
-            console.log("Module-ID load failed: " + error);
-        }
-    }
-        
-    public loadModuleGraphs() {
-
-        this.sourcePath = new Array();
-
-        try {
-            for(let moduleName of this._tutorConfig.dependencies) {
-
-                this.sourcePath.push(moduleName + CONST.GRAPH_FILEPATH);
-            }
-
-            this.loadFileSet(this.sourcePath, this.onLoadSceneGraphs.bind(this), this.loadModuleExtensions.bind(this));
-        }        
-        catch(error){
-
-            console.log("Module-Graph load failed: " + error);
-        }
-    }
-
-    public loadModuleExtensions() {
-        
-        this.sourcePath = new Array();
-
-        try {
-            for(let moduleName of this._tutorConfig.dependencies) {
-
-                this.sourcePath.push(moduleName + CONST.EXTS_FILEPATH);
-            }
-
-            this.loadFileSet(this.sourcePath, this.onLoadCode.bind(this), this.loadModuleMixins.bind(this));
-        }        
-        catch(error){
-
-            console.log("Module-Exts load failed: " + error);
-        }
-    }
-
-    public loadModuleMixins() {
-        
-        this.sourcePath = new Array();
-
-        try {
-            for(let moduleName of this._tutorConfig.dependencies) {
-
-                this.sourcePath.push(moduleName + CONST.MIXINS_FILEPATH);
-            }
-
-            this.loadFileSet(this.sourcePath, this.onLoadCode.bind(this), this.loadModuleFonts.bind(this));
-        }        
-        catch(error){
-
-            console.log("Module-Mxins load failed: " + error);
-        }
-    }
-
-    public loadModuleFonts() {
-        
-        this.sourcePath = new Array();
-
-        try {
-            for(let moduleName of this._tutorConfig.dependencies) {
-
-                this.sourcePath.push(moduleName + CONST.FONTFACE_FILEPATH);
-            }
-
-            this.loadFileSet(this.sourcePath, this.onLoadFonts.bind(this), this.loadModuleData.bind(this));
-        }        
-        catch(error){
-
-            console.log("Module-Font load failed: " + error);
-        }
-    }
-
-    public loadModuleData() {
-        
-        this.sourcePath = new Array();
-
-        try {
-            for(let moduleName of this._tutorConfig.dependencies) {
-
-                this.sourcePath.push(moduleName + CONST.MODID_FILEPATH);
-            }
-
-            this.loadFileSet(this.sourcePath, this.onLoadData.bind(this), this.loadScripts.bind(this));
-        }        
-        catch(error){
-
-            console.log("Module-Data load failed: " + error);
-        }
-    }
-
-    public loadScripts() {
-        
-        this.sourcePath = new Array();
-
-        try {
-            for(let moduleName of this._tutorConfig.dependencies) {
-
-                this.sourcePath.push(moduleName + CONST.SCRIPTS_FILEPATH);
-            }
-
-            this.loadFileSet(this.sourcePath, this.onLoadData.bind(this), this.loadScriptData.bind(this));
-        }        
-        catch(error){
-
-            console.log("Module-Data load failed: " + error);
-        }
-    }
-
-    public loadScriptData() {
-        
-        this.sourcePath = new Array();
-
-        try {
-            for(let moduleName of this._tutorConfig.dependencies) {
-
-                this.sourcePath.push(moduleName + CONST.SCRIPTDATA_FILEPATH);
-            }
-
-            this.loadFileSet(this.sourcePath, this.onLoadData.bind(this), this.loadAnimateModules.bind(this));
-        }        
-        catch(error){
-
-            console.log("Module-Data load failed: " + error);
-        }
-    }
-
-    public loadAnimateModules() {
-        
-        this.sourcePath = new Array();
-
-        try {
-            for(let moduleName of this._tutorConfig.dependencies) {
-
-                this.sourcePath.push(moduleName + CONST.ANMODULE_FILEPATH);
-            }
-
-            this.loadFileSet(this.sourcePath, this.onLoadAnCode.bind(this), this.startTutor.bind(this));
-        }        
-        catch(error){
-
-            console.log("AnimateMod-load failed: " + error);
-        }
-    }
-
-
-
-    public onLoadJson(index:number, filedata:string) {
-
-        try {
-            console.log("JSON Loaded: " + CONST.TUTOR_FACTORIES[index]);
-
-            this[CONST.TUTOR_FACTORIES[index]] = JSON.parse(filedata);      
-        }
-        catch(error) {
-
-            console.log("JSON parse failed: " + error);
-        }
-    }
-
-
-    public onLoadModID(index:number, filedata:string) {
-
-        try {
-            console.log("MODID Loaded: " + this._modules[index].modName );
-
-            // Extract the compID from the file into the _modules IModuleDescr spec
-            //
-            Object.assign(this._modules[index],JSON.parse(filedata));      
-        }
-        catch(error) {
-
-            console.log("ModID parse failed: " + error);
-        }
-    }
-
-
-    public onLoadSceneGraphs(index:number, filedata:string) {
-
-        try {
-            console.log("SceneGraph Loaded: " + this._modules[index].modName );
-
-            // Extract the compID from the file into the _modules IModuleDescr spec
-            //
-            this._sceneGraph[this._modules[index].modName] = JSON.parse(filedata);      
-        }
-        catch(error) {
-
-            console.log("Graph parse failed: " + error);
-        }
-    }
-
-    public onLoadCode(index:number, filedata:string) {
-
-        try {
-            console.log("ModuleExts Loaded: " + this._modules[index].modName );
-
-            // Extract the compID from the file into the _modules IModuleDescr spec
-            //
-            let tag = document.createElement("script");
-
-            //## TODO: Check if there is a problem using "head" - i.e. is it universal
-
-            // Inject the script with a suffix to expose the source in the debugger listing.
-            tag.text = filedata + "\n//# sourceURL= http://127.0.0.1/"+ this._modules[index].debugPath + "/" + this._modules[index].modName + ".js";
-
-            // Inject the script into the page
-            document.head.appendChild(tag);
-
-        }
-        catch(error) {
-
-            console.log("Exts parse failed: " + error);
-        }
-    }
-
-
-    public onLoadAnCode(index:number, filedata:string) {
-
-        try {
-            console.log("AnimateMod Loaded: " + this._modules[index].modName );
-            let engine = this;
-
-            // Extract the compID from the file into the _modules IModuleDescr spec
-            //
-            let tag = document.createElement("script");
-
-            //## TODO: Check if there is a problem using "head" - i.e. is it universal
-
-            // Inject the script with a suffix to expose the source in the debugger listing.
-            tag.text = filedata + "\n//# sourceURL= http://127.0.0.1/"+ this._modules[index].debugPath + "/" + this._modules[index].modName + ".js";
-
-            // Inject the script into the page
-            document.head.appendChild(tag);
-
-            let comp   = AdobeAn.getComposition(this._modules[index].compID);			
-            let lib    = comp.getLibrary();
-            let loader = new createjs.LoadQueue(false);
-
-            return new Promise((resolve, reject) => {
-                loader.addEventListener("complete", function(evt){engine.handleComplete(evt,comp,resolve,reject)});
-                loader.addEventListener("error", function(evt){engine.handleError(evt,comp,reject)});
-                loader.loadManifest(lib.properties.manifest);	
-            });                
-
-        }   
-        catch(error) {
-
-            console.log("Exts parse failed: " + error);
-        }
-    }
-
-
-    public onLoadFonts(index:number, filedata:string) {
-
-        try {
-            console.log("Fonts Loaded: " + this._modules[index].modName );
-
-            // Create a link tag to inject the @fontface style sheet
-            //
-            let tag = document.createElement("style");
-
-            tag.type = 'text/css';
-            tag.appendChild(document.createTextNode(filedata));
-
-            // Inject the script into the page
-            document.head.appendChild(tag);
-
-    }
-        catch(error) {
-
-            console.log("Font parse failed: " + error);
-        }
-    }
-
-
-    public onLoadData(index:number, filedata:string) {
-
-        try {
-            console.log("Data Loaded: " + this._modules[index].modName );
-
-            // ****
-            //
-            this._moduleData[this._modules[index].modName] = JSON.parse(filedata);      
-        }
-        catch(error) {
-
-            console.log("Data parse failed: " + error);
-        }
-    }
-
-
-    public startTutor() {
-        
-        console.log("module load complete: ");
-
-        this.constructTutor();
-        
-        CUtil.preLoader(false);
     }
 
 
@@ -455,7 +116,7 @@ export class CEngine {
                 return loader.load(new CURLRequest(module))
                     .then((filetext:string) => {
         
-                        onLoad(index, filetext);
+                       return onLoad(index, filetext);
                     })                        
             })
 
@@ -467,7 +128,7 @@ export class CEngine {
                     if(onComplete)
                         onComplete();
 
-                })
+                })                
         }        
         catch(error){
 
@@ -476,117 +137,200 @@ export class CEngine {
     }
 
     
-	// Note that this is pulled from the Adobe HTML scripts to initialize the newly loaded module.
-	//
-	//@@ TODO: create declarations 
-	//
-	public handleComplete(evt:any,comp:any, resolve:Function, reject:Function) {
 
-		let lib:any     = comp.getLibrary();
-		let ss          = comp.getSpriteSheet();
-		let queue       = evt.target;
-		let ssMetadata  = lib.ssMetadata;
 
-        // Extract the module name and assign it as a named property of EFLoadManager.modules
-        // which is used for dynamic component creation
-        //
-        for(let compName in lib) {
+    public loadBootImage() {
 
-            let moduleName:string = compName.toUpperCase();
-            
-            if(moduleName.startsWith("EFMOD_" )) {
+        this.sourcePath = new Array();
 
-                lib._ANmoduleName = moduleName;
-                EFLoadManager.modules[moduleName]  = lib;
-                EFLoadManager.classLib[moduleName] = {};
-                break;
+        try {
+            for(let filename of CONST.TUTOR_VARIABLE) {
+
+                this.sourcePath.push("EFTutors/" + this.bootTutor + "/" + filename);
             }
+
+            this.loadFileSet(this.sourcePath, this.tutorDoc.onLoadJson.bind(this.tutorDoc), this.loadModuleIDs.bind(this));
+        }        
+        catch(error){
+
+            console.log("Boot-Image load failed: " + error);
         }
-
-		for(let i = 0 ; i < ssMetadata.length ; i++) {
-
-			ss[ssMetadata[i].name] = new createjs.SpriteSheet( {"images": [queue.getResult(ssMetadata[i].name)], "frames": ssMetadata[i].frames} )
-		}
-
-        // Do the engine code injection 
-        //
-        this.mapThermiteClasses(lib, resolve, reject);
-
-        AdobeAn.compositionLoaded(lib.properties.id);        
-	}	
-	public handleError(evt:any,comp:any, reject:Function) {
-
-        reject("AnModule load Failed:");
     }
 
 
-
-    public mapThermiteClasses(AnLib:any, resolve:Function, reject:Function) {
+    public loadModuleIDs() {
         
-        let engine = this;
-        let importPromises:Array<Promise<any>> = new Array();
-        
-        for (const compName in AnLib) {
+        this.sourcePath = new Array();
 
-            if(compName.startsWith(CONST.THERMITE_PREFIX)) {
-                
-                let varPath: Array<string> = compName.split("__");
-                let classPath:string[]     = varPath[0].split("_"); 
-                let comPath:string         = varPath[0].replace("_","/");
+        try {
+            for(let moduleName of this.tutorDoc.tutorConfig.dependencies) {
 
-                comPath = comPath.replace("TC/","thermite/");
-
-                importPromises.push(this.importAndMap(AnLib._ANmoduleName, AnLib[compName], comPath, classPath[classPath.length-1], varPath[1]));
+                // Generate the _modules base object
+                //
+                this.tutorDoc.modules.push({modName:moduleName});
+                this.sourcePath.push(moduleName + CONST.MODID_FILEPATH);
             }
+
+            this.loadFileSet(this.sourcePath, this.tutorDoc.onLoadModID.bind(this.tutorDoc), this.loadModuleGraphs.bind(this));
+        }        
+        catch(error){
+
+            console.log("Module-ID load failed: " + error);
         }
+    }
+        
+    public loadModuleGraphs() {
 
-        Promise.all(importPromises)        
-            .then(() => {
-                
-                console.log("Thermite mapping complete");
+        this.sourcePath = new Array();
 
-                // resolve the preloader promise
-                if(resolve)
-                    resolve();
+        try {
+            for(let moduleName of this.tutorDoc.tutorConfig.dependencies) {
 
-            }).catch((Error) => {
+                this.sourcePath.push(moduleName + CONST.GRAPH_FILEPATH);
+            }
 
-                console.log("Thermite mapping failed:" + Error);
+            this.loadFileSet(this.sourcePath, this.tutorDoc.onLoadSceneGraphs.bind(this.tutorDoc), this.loadModuleExtensions.bind(this));
+        }        
+        catch(error){
 
-                // reject the preloader promise
-                if(reject)
-                    reject();
-            });
+            console.log("Module-Graph load failed: " + error);
+        }
+    }
+
+    public loadModuleExtensions() {
+        
+        this.sourcePath = new Array();
+
+        try {
+            for(let moduleName of this.tutorDoc.tutorConfig.dependencies) {
+
+                this.sourcePath.push(moduleName + CONST.EXTS_FILEPATH);
+            }
+
+            this.loadFileSet(this.sourcePath, this.tutorDoc.onLoadCode.bind(this.tutorDoc), this.loadModuleMixins.bind(this));
+        }        
+        catch(error){
+
+            console.log("Module-Exts load failed: " + error);
+        }
+    }
+
+    public loadModuleMixins() {
+        
+        this.sourcePath = new Array();
+
+        try {
+            for(let moduleName of this.tutorDoc.tutorConfig.dependencies) {
+
+                this.sourcePath.push(moduleName + CONST.MIXINS_FILEPATH);
+            }
+
+            this.loadFileSet(this.sourcePath, this.tutorDoc.onLoadCode.bind(this.tutorDoc), this.loadModuleFonts.bind(this));
+        }        
+        catch(error){
+
+            console.log("Module-Mxins load failed: " + error);
+        }
+    }
+
+    public loadModuleFonts() {
+        
+        this.sourcePath = new Array();
+
+        try {
+            for(let moduleName of this.tutorDoc.tutorConfig.dependencies) {
+
+                this.sourcePath.push(moduleName + CONST.FONTFACE_FILEPATH);
+            }
+
+            this.loadFileSet(this.sourcePath, this.tutorDoc.onLoadFonts.bind(this.tutorDoc), this.loadModuleData.bind(this));
+        }        
+        catch(error){
+
+            console.log("Module-Font load failed: " + error);
+        }
+    }
+
+    public loadModuleData() {
+        
+        this.sourcePath = new Array();
+
+        try {
+            for(let moduleName of this.tutorDoc.tutorConfig.dependencies) {
+
+                this.sourcePath.push(moduleName + CONST.MODID_FILEPATH);
+            }
+
+            this.loadFileSet(this.sourcePath, this.tutorDoc.onLoadData.bind(this.tutorDoc), this.loadScripts.bind(this));
+        }        
+        catch(error){
+
+            console.log("Module-Data load failed: " + error);
+        }
+    }
+
+    public loadScripts() {
+        
+        this.sourcePath = new Array();
+
+        try {
+            for(let moduleName of this.tutorDoc.tutorConfig.dependencies) {
+
+                this.sourcePath.push(moduleName + CONST.SCRIPTS_FILEPATH);
+            }
+
+            this.loadFileSet(this.sourcePath, this.tutorDoc.onLoadData.bind(this.tutorDoc), this.loadScriptData.bind(this));
+        }        
+        catch(error){
+
+            console.log("Module-Data load failed: " + error);
+        }
+    }
+
+    public loadScriptData() {
+        
+        this.sourcePath = new Array();
+
+        try {
+            for(let moduleName of this.tutorDoc.tutorConfig.dependencies) {
+
+                this.sourcePath.push(moduleName + CONST.SCRIPTDATA_FILEPATH);
+            }
+
+            this.loadFileSet(this.sourcePath, this.tutorDoc.onLoadData.bind(this.tutorDoc), this.loadAnimateModules.bind(this));
+        }        
+        catch(error){
+
+            console.log("Module-Data load failed: " + error);
+        }
+    }
+
+    public loadAnimateModules() {
+        
+        this.sourcePath = new Array();
+
+        try {
+            for(let moduleName of this.tutorDoc.tutorConfig.dependencies) {
+
+                this.sourcePath.push(moduleName + CONST.ANMODULE_FILEPATH);
+            }
+
+            this.loadFileSet(this.sourcePath, this.tutorDoc.onLoadAnCode.bind(this.tutorDoc), this.startTutor.bind(this));
+        }        
+        catch(error){
+
+            console.log("AnimateMod-load failed: " + error);
+        }
     }
 
 
-    public importAndMap(AnModuleName:string, AnObject:any, classPath:string, className:string, variant:string ) {
+    public startTutor() {
+        
+        console.log("module load complete: ");
 
-        console.log("Import and Map: " + AnModuleName + " => " + classPath + " : " + variant);
-
-        return SystemJS.import(classPath).then((ClassObj:any) => {
-
-            let temp1:any = {};
-
-            temp1.constructor   = AnObject.prototype.constructor;
-            temp1.clone         = AnObject.prototype.clone;
-            temp1.nominalBounds = AnObject.prototype.nominalBounds;
-            temp1.frameBounds   = AnObject.prototype.frameBounds;
-
-            AnObject.prototype = Object.create(ClassObj[className].prototype);
-
-            AnObject.prototype.clone           = temp1.clone;
-            AnObject.prototype.nominalBounds   = temp1.nominalBounds;
-            AnObject.prototype.frameBounds     = temp1.frameBounds;
-
-            // Make the tutor document and container available to all thermite objects
-            // when they are created.
-            //
-            AnObject.prototype.tutorDoc       = this.tutorDoc;
-            AnObject.prototype.tutorContainer = this.tutorDoc.tutorContainer;
-
-            EFLoadManager.classLib[AnModuleName][variant.toUpperCase()] = AnObject;            
-        })
+        this.constructTutor();
+        
+        CUtil.preLoader(false);
     }
 
 
@@ -596,7 +340,7 @@ export class CEngine {
 
         try {
 
-            this.tutorDoc.initializeTutor(this.tutorDescr );
+            this.tutorDoc.initializeTutor();
                                     
             console.log("Tutor Construction Complete");
         }

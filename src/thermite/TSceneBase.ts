@@ -50,13 +50,16 @@ export class TSceneBase extends TObject
 	
 	public sceneAttempt:number = 1;		
 	public sceneTag:string;
-	
+    
+	public _classPath:string;
+	public _hostModule:string;
+	public _className:string;
+	public _features:string;
+    
 	protected _section:string;					// Arbitrary tutor section id
 	
 	protected _nextButton:any = null;
 	protected _prevButton:any = null;
-
-	protected sceneExt:any;						// Scene customization - extension code.
 
 
 

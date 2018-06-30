@@ -48,9 +48,16 @@ export interface IEFTutorDoc {
     
     //*** Tutor graph descriptions
 		
-	sceneGraph:any;						    // The factory definition object used to create scene graphs for specified scenes
-	tutorGraph:any;							// The factory definition object used to create the tutor Graph		
-	tutorExt:any;							// Scene customization - extension code.
+	sceneGraph:any;						        // The factory definition object used to create scene graphs for specified scenes
+	tutorGraph:any;						    	// The factory definition object used to create the tutor Graph		
+    tutorConfig:LoaderPackage.ITutorConfig;
+
+    modules:Array<LoaderPackage.IModuleDescr>;
+    moduleData:any;
+
+    state:Array<string>;
+    scenedata:Array<string>;
+    sceneExt:any;
 
     _tutorFeatures:string;                      // used in Flash mode to instance features   
     _forcedPause:boolean;		        		//@@ Mod Mar 15 2013 - FLEX support - manage pause when transitioning in and out of full screen mode 
@@ -153,10 +160,7 @@ export interface IEFTutorDoc {
     // TutorRoot.setTutorFeatures which occures in the CEFTutorDoc.doOnStage Handler
     
     extTutorFeatures:string;
-    
-    extLoader:string; 
-    extLoaded : boolean
-    
+        
     extmodPath:string;
 
     extLogManager:any;

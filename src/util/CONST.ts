@@ -34,8 +34,8 @@ export class CONST {
 	];
 	
 	public static readonly TUTOR_FACTORIES:string[] = [
-        "_tutorConfig",
-		"_tutorGraph"
+        "tutorConfig",
+		"tutorGraph"
 	];
 	
 	public static readonly TUTOR_SUPPL_CODE:string[] = [

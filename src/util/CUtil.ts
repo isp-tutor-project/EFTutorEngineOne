@@ -207,13 +207,11 @@ export class CUtil extends Object
 	//****** Overridable Behaviors
 
 
-	public static instantiateThermiteObject(classPath:string) : DisplayObject
+	public static instantiateThermiteObject(_module:string, _className:string) : DisplayObject
 	{			
 		let tarObject:any;
 		
-		let _namespace:Array<string> = classPath.toUpperCase().split(".");
-
-		let ClassRef:any = this.getConstructorByName(_namespace[0], _namespace[1]);
+		let ClassRef:any = this.getConstructorByName(_module, _className);
 		
 		tarObject = new ClassRef();
 		

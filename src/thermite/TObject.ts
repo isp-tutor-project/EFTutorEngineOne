@@ -117,7 +117,7 @@ export class TObject extends TRoot
 	protected _validFeature:string   = "";						//## Added Sep 28 2012 - to support dynamic features
 	protected _invalidFeature:string = "";						//## Added Sep 28 2012 - to support dynamic features	
 	
-	private _features:string;									//## Mod Aug 13 2013 - to support object unique features (used in scenegraph currently) 
+	public _features:string;									//## Mod Aug 13 2013 - to support object unique features (used in scenegraph currently) 
 	
 	// mask specific values		
 
@@ -250,12 +250,12 @@ export class TObject extends TRoot
 //*************** Dynamic object creation
 	
 	
-	public buildObject(objectClass:string, objectName:string) : TObject
+	public buildObject(hostModule:string, objectClass:string, objectName:string) : TObject
 	{
 		let newObject:TObject;
 		let maskDim:Point;
 		
-		newObject = CUtil.instantiateThermiteObject(objectClass) as TObject;
+		newObject = CUtil.instantiateThermiteObject(hostModule, objectClass) as TObject;
 		newObject.name = objectName;
 		
 		newObject.onCreate();		// perform object initialization

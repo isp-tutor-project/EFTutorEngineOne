@@ -326,7 +326,7 @@ export class CEFNavigator extends EventDispatcher
 				//
 				if(this.tutorDoc.TutAutomator[this.sceneSeq[this.sceneCurr]] == undefined)
 				{
-					this.tutorDoc.tutorContainer.instantiateScene(this.sceneName[this.sceneCurr], this.sceneClass[this.sceneCurr]);
+					this.tutorDoc.tutorContainer.instantiateScenePath(this.sceneName[this.sceneCurr], this.sceneClass[this.sceneCurr]);
 				}
 				
 				newScene = redScene;
@@ -465,7 +465,7 @@ export class CEFNavigator extends EventDispatcher
 				
 				if(this.tutorDoc.TutAutomator[this.sceneSeq[this.sceneCurr]] == undefined)
 				{
-					this.tutorDoc.tutorContainer.instantiateScene(this.sceneName[this.sceneCurr], this.sceneClass[this.sceneCurr]);
+					this.tutorDoc.tutorContainer.instantiateScenePath(this.sceneName[this.sceneCurr], this.sceneClass[this.sceneCurr]);
 				}
 				
 				newScene = redScene;

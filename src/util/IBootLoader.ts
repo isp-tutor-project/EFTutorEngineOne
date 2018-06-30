@@ -273,7 +273,7 @@ export namespace LoaderPackage {
 
         modName:string;
         debugPath?:string;
-        
+
         compID?:string;
         fonts?:string;
         mixins?:any;
@@ -290,6 +290,16 @@ export namespace LoaderPackage {
         accountMode:string;
     }
     
+    export interface ILoaderData {
+
+        modName:string;
+        filePath:String;
+
+        sourcePath:string;
+
+        onLoad:Function;
+        onComplete:Function;
+    }
     
     export interface ItutorMaps {
     

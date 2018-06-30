@@ -23,8 +23,7 @@ import { CEFNavigator } 		from "../core/CEFNavigator";
 import { CEFTimer } 			from "../core/CEFTimer";
 
 import { CEFNavEvent } 			from "../events/CEFNavEvent";
-import { CSceneGraph } 		from "../scenegraph/CSceneGraph";
-import { CTutorGraphNavigator } from "../tutorgraph/CTutorGraphNavigator";
+import { CSceneGraph } 		    from "../scenegraph/CSceneGraph";
 
 import { CEFTimerEvent } 		from "../events/CEFTimerEvent";
 import { CEFSceneCueEvent } 	from "../events/CEFSceneCueEvent";
@@ -393,7 +392,7 @@ export class TScene extends TSceneBase
 			
 			if(this.sceneGraph != null)
 			{
-				this.Saudio1 = this.bindAudio(CUtil.instantiateThermiteObject(this.sceneGraph.nextAnimation()));
+				// this.Saudio1 = this.bindAudio(CUtil.instantiateThermiteObject(this.sceneGraph.nextAnimation()));
 				this.Saudio1.stop();
 			}
 		}
@@ -437,7 +436,7 @@ export class TScene extends TSceneBase
 						
 						if(this.sceneGraph != null)
 						{
-							this.Saudio1 = this.bindAudio(CUtil.instantiateThermiteObject(this.sceneGraph.nextAnimation()));
+							// this.Saudio1 = this.bindAudio(CUtil.instantiateThermiteObject(this.sceneGraph.nextAnimation()));
 							this.Saudio1.stop();
 						}
 					}
@@ -479,7 +478,7 @@ export class TScene extends TSceneBase
 					
 					try
 					{
-						this.Saudio1 = this.bindAudio(CUtil.instantiateThermiteObject(element.type));
+						// this.Saudio1 = this.bindAudio(CUtil.instantiateThermiteObject(element.type));
 						this.Saudio1.stop();
 					}
 					catch(err)							
@@ -523,7 +522,7 @@ export class TScene extends TSceneBase
 			
 			if(nextSeq != null)
 			{
-				this.Saudio1 = this.bindAudio(CUtil.instantiateThermiteObject(nextSeq) as any);
+				// this.Saudio1 = this.bindAudio(CUtil.instantiateThermiteObject(nextSeq) as any);
 				
 				this.scenePlay();								
 			}

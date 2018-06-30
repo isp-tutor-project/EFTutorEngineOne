@@ -43,6 +43,8 @@ export class CTutorScene
 	private _title:string;
 	private _page:string;
 	private _classPath:string;
+	private _hostModule:string;
+	private _className:string;
 	private _features:string;
 	private _enqueue:boolean;
 	private _create:boolean;
@@ -61,17 +63,21 @@ export class CTutorScene
 		this.tutorDoc 		= _tutorDoc;
 		this.tutorContainer = _tutorDoc.tutorContainer;
 		this._parent	 	= parent;
-		
-		this._name		= factory.name;
-		this._classPath	= factory.classname;
-		this._title 	= factory.title;
-		this._page		= factory.page;
-		this._features	= factory.features;
-		this._enqueue	= (factory.enqueue    === "true")? true:false
-		this._create	= (factory.create     === "true")? true:false
-		this._visible	= (factory.visible    === "true")? true:false
-		this._persist	= (factory.persist    === "true")? true:false
-		this._checkpnt  = (factory.ischeckpnt === "true")? true:false				
+        
+		let namespace:Array<string> = factory.classname.toUpperCase().split(".");
+        
+		this._name		 = factory.name;
+        this._classPath	 = factory.classname;
+        this._hostModule = namespace[0];
+        this._className  = namespace[1];
+		this._title 	 = factory.title;
+		this._page		 = factory.page;
+		this._features	 = factory.features;
+		this._enqueue	 = (factory.enqueue    === "true")? true:false
+		this._create	 = (factory.create     === "true")? true:false
+		this._visible	 = (factory.visible    === "true")? true:false
+		this._persist	 = (factory.persist    === "true")? true:false
+		this._checkpnt   = (factory.ischeckpnt === "true")? true:false				
 		
 		// Handle Stocastic Features
 		
@@ -91,7 +97,7 @@ export class CTutorScene
 	
 	public instantiateScene() : any
 	{
-		this._scene = this.tutorContainer.instantiateScene(this._name, this._classPath, this._visible) as TObject;
+		this._scene = this.tutorContainer.instantiateScene(this._name, this._hostModule, this._className, this._visible) as TObject;
 		
 		// Transcribe the factory feature to the object itself
 		
