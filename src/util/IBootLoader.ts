@@ -292,13 +292,16 @@ export namespace LoaderPackage {
     
     export interface ILoaderData {
 
-        modName:string;
-        filePath:String;
+        filePath:string;
 
-        sourcePath:string;
+        fileName?:string;
+        varName?:string;
+        debugPath?:string;
+        modName?:string;
+        compID?:string;
+        sourcePath?:string;
 
-        onLoad:Function;
-        onComplete:Function;
+        onLoad?:Function;
     }
     
     export interface ItutorMaps {

@@ -10,7 +10,9 @@ export interface IEFTutorDoc {
     tutorContainer:any;			// every WOZObject must be associated with a specific tutor
     tutorNavigator:any;
 
-	
+    name:string;
+    loaderData:Array<LoaderPackage.ILoaderData>;
+
 	//************ Stage Symbols
 	
 	// These are used for log playback
@@ -134,7 +136,7 @@ export interface IEFTutorDoc {
 	TutAutomator:any;				// The location of this tutor automation object			
 
 
-	initializeTutor(_tutorDescr:LoaderPackage.IPackage ) : void;
+	initializeTutor() : void;
 
     //*************** FLEX integration 
     
@@ -221,13 +223,37 @@ export interface IEFTutorDoc {
     setButtonBehavior(behavior:string) : void
 
 
+
+//***************** TUTOR LOADER START ****************************
+
+    buildBootSet(targetTutor:string) : void;
+    buildTutorSet() : void;
+
+
+    loadFileSet(): Promise<any>[];
+
+    onLoadJson(fileLoader:LoaderPackage.ILoaderData, filedata:string) : void;
+
+    onLoadModID(fileLoader:LoaderPackage.ILoaderData, filedata:string) : void;
+
+    onLoadSceneGraphs(fileLoader:LoaderPackage.ILoaderData, filedata:string) : void;
+
+    onLoadCode(fileLoader:LoaderPackage.ILoaderData, filedata:string) : void;
+
+    onLoadFonts(fileLoader:LoaderPackage.ILoaderData, filedata:string) : void;
+
+    onLoadData(fileLoader:LoaderPackage.ILoaderData, filedata:string) : void;
+
+//***************** TUTOR LOADER END ****************************
+
+
 //***************** FEATURES ****************************
 
 	// generate the working feature set for this instance
 	//
-	setTutorDefaults(featSet:string) : void
+	setTutorDefaults(featSet:string) : void;
 
-	setTutorFeatures(featSet:string) : void
+	setTutorFeatures(featSet:string) : void;
 
 	features : string;
 

@@ -19,6 +19,8 @@
 import { IEFTutorDoc } 			from "../core/IEFTutorDoc";
 
 import { CLogManager }			from "../managers/CLogManager";
+import { CURLLoader }           from "../network/CURLLoader";
+import { CURLRequest }          from "../network/CURLRequest";
 
 import { TTutorContainer }      from "../thermite/TTutorContainer";
 
@@ -38,6 +40,7 @@ import EventDispatcher 		  = createjs.EventDispatcher;
 export class CEFTutorDoc extends EventDispatcher implements IEFTutorDoc
 {
 	public traceMode:boolean;
+    private isDebug:boolean;
 
 	// This is a special signature to avoid typescript error "because <type> has no index signature."
 	// on this[<element name>]
@@ -54,7 +57,10 @@ export class CEFTutorDoc extends EventDispatcher implements IEFTutorDoc
 
     
 	//************ Stage Symbols
-	
+    
+    public name:string;
+    public loaderData:Array<LoaderPackage.ILoaderData>;
+
 	// These are used for log playback
 	//
 	// The frameID is the actual frame in which a log entry occured
@@ -152,7 +158,7 @@ export class CEFTutorDoc extends EventDispatcher implements IEFTutorDoc
 //********
 
 	public sessionAccount:any = {};						//@@ Mod Dec 03 2013 - session Account data  
-	
+
 	public fSessionID:string;							// Unique session identifier
 	public fSessionTime:number;
 	public serverUserID:number = 0;						// Numeric user ID assigned by the logging server DB
@@ -190,7 +196,8 @@ export class CEFTutorDoc extends EventDispatcher implements IEFTutorDoc
 		
         //@@ Mod Sept 22 2014 - reset global object - only required for demo sequences - more than one demo may be loaded in a single session
         
-        this.initGlobals();									 			
+        this.initGlobals();			
+        this.isDebug = true;						 			
 
         this.sceneGraph = {};
         this.modules    = new Array<LoaderPackage.IModuleDescr>();
@@ -564,13 +571,123 @@ export class CEFTutorDoc extends EventDispatcher implements IEFTutorDoc
 
 //***************** TUTOR LOADER START ****************************
 
+    public buildBootSet(targetTutor:string) : void {
+        
+        this.loaderData = [];
 
-    public onLoadJson(index:number, filedata:string) {
+        // Loaders for the Tutorgraph and TutorConfig
+        //
+        for(let i1 = 0 ; i1 < CONST.TUTOR_VARIABLE.length ; i1++) {
+
+            this.loaderData.push( {
+                 filePath : "EFTutors/" + targetTutor + "/" + CONST.TUTOR_VARIABLE[i1],
+                 onLoad   : this.onLoadJson.bind(this),
+                 fileName : CONST.TUTOR_VARIABLE[i1],
+                 varName  : CONST.TUTOR_FACTORIES[i1]
+            });
+        }
+    }
+
+    public buildTutorSet() : void {
+
+        this.loaderData = [];
+
+        // Each module has a set of files 
+        // 
+        for(let moduleName of this.tutorConfig.dependencies) {
+
+            this.loaderData.push( {
+                filePath : moduleName + CONST.MODID_FILEPATH,
+                onLoad   : this.onLoadModID.bind(this),
+                modName  : moduleName
+            });
+
+            this.loaderData.push( {
+                filePath : moduleName + CONST.GRAPH_FILEPATH,
+                onLoad   : this.onLoadSceneGraphs.bind(this),
+                modName  : moduleName
+            });
+
+            this.loaderData.push( {
+                filePath : moduleName + CONST.EXTS_FILEPATH,
+                onLoad   : this.onLoadCode.bind(this),
+                modName  : moduleName,
+                debugPath: this.isDebug? "ISP_Tutor/EFbuild/" + moduleName + "/exts.js":null
+            });
+
+            this.loaderData.push( {
+                filePath : moduleName + CONST.MIXINS_FILEPATH,
+                onLoad   : this.onLoadCode.bind(this),
+                modName  : moduleName,
+                debugPath: this.isDebug? "ISP_Tutor/EFbuild/" + moduleName + "/mixins.js":null
+            });
+
+            this.loaderData.push( {
+                filePath : moduleName + CONST.FONTFACE_FILEPATH,
+                onLoad   : this.onLoadFonts.bind(this),
+                modName  : moduleName,
+            });
+           
+            this.loaderData.push( {
+                filePath : moduleName + CONST.DATA_FILEPATH,
+                onLoad   : this.onLoadData.bind(this),
+                modName  : moduleName,
+            });
+
+            this.loaderData.push( {
+                filePath : moduleName + CONST.SCRIPTS_FILEPATH,
+                onLoad   : this.onLoadData.bind(this),
+                modName  : moduleName,
+            });
+
+            this.loaderData.push( {
+                filePath : moduleName + CONST.SCRIPTDATA_FILEPATH,
+                onLoad   : this.onLoadData.bind(this),
+                modName  : moduleName,
+            });
+
+            this.loaderData.push( {
+                filePath : moduleName + CONST.ANMODULE_FILEPATH,
+                onLoad   : this.onLoadCode.bind(this),
+                modName  : moduleName,
+                debugPath: this.isDebug? moduleName + ".js":null
+            });
+        }
+    }
+
+
+    public loadFileSet(): Promise<any>[] {
+
+        let modulePromises:Promise<any>[];
 
         try {
-            console.log("JSON Loaded: " + CONST.TUTOR_FACTORIES[index]);
 
-            this[CONST.TUTOR_FACTORIES[index]] = JSON.parse(filedata);      
+            modulePromises = this.loaderData.map((fileLoader, index) => {
+
+                let loader = new CURLLoader();
+        
+                return loader.load(new CURLRequest(fileLoader.filePath))
+                    .then((filetext:string) => {
+        
+                       return fileLoader.onLoad(fileLoader, filetext);
+                    })                        
+            })
+        }        
+        catch(error){
+
+            console.log("Load-Set failed: " + error);
+        }
+
+        return modulePromises;
+    }
+
+
+    public onLoadJson(fileLoader:LoaderPackage.ILoaderData, filedata:string) {
+
+        try {
+            console.log("JSON Loaded: " + fileLoader.fileName);
+
+            this[fileLoader.varName] = JSON.parse(filedata);      
         }
         catch(error) {
 
@@ -579,14 +696,14 @@ export class CEFTutorDoc extends EventDispatcher implements IEFTutorDoc
     }
 
 
-    public onLoadModID(index:number, filedata:string) {
+    public onLoadModID(fileLoader:LoaderPackage.ILoaderData, filedata:string) {
 
         try {
-            console.log("MODID Loaded: " + this.modules[index].modName );
+            console.log("MODID Loaded: " + fileLoader.modName );
 
             // Extract the compID from the file into the modules IModuleDescr spec
             //
-            Object.assign(this.modules[index],JSON.parse(filedata));      
+            Object.assign(fileLoader,JSON.parse(filedata));      
         }
         catch(error) {
 
@@ -595,14 +712,14 @@ export class CEFTutorDoc extends EventDispatcher implements IEFTutorDoc
     }
 
 
-    public onLoadSceneGraphs(index:number, filedata:string) {
+    public onLoadSceneGraphs(fileLoader:LoaderPackage.ILoaderData, filedata:string) {
 
         try {
-            console.log("SceneGraph Loaded: " + this.modules[index].modName );
+            console.log("SceneGraph Loaded: " + fileLoader.modName );
 
-            // Extract the compID from the file into the modules IModuleDescr spec
+            // Add the module specific graphs to the scenegraph factory object
             //
-            this.sceneGraph[this.modules[index].modName] = JSON.parse(filedata);      
+            this.sceneGraph[fileLoader.modName] = JSON.parse(filedata);      
         }
         catch(error) {
 
@@ -611,10 +728,10 @@ export class CEFTutorDoc extends EventDispatcher implements IEFTutorDoc
     }
 
         
-    public onLoadCode(index:number, filedata:string) {
+    public onLoadCode(fileLoader:LoaderPackage.ILoaderData, filedata:string) {
 
         try {
-            console.log("ModuleExts Loaded: " + this.modules[index].modName );
+            console.log("ModuleExts Loaded: " + fileLoader.modName );
 
             // Extract the compID from the file into the modules IModuleDescr spec
             //
@@ -623,7 +740,9 @@ export class CEFTutorDoc extends EventDispatcher implements IEFTutorDoc
             //## TODO: Check if there is a problem using "head" - i.e. is it universal
 
             // Inject the script with a suffix to expose the source in the debugger listing.
-            tag.text = filedata + "\n//# sourceURL= http://127.0.0.1/"+ this.modules[index].debugPath + "/" + this.modules[index].modName + ".js";
+            //
+            if(fileLoader.debugPath)
+                tag.text = filedata + "\n//# sourceURL= http://127.0.0.1/"+ fileLoader.debugPath;
 
             // Inject the script into the page
             document.head.appendChild(tag);
@@ -635,53 +754,10 @@ export class CEFTutorDoc extends EventDispatcher implements IEFTutorDoc
     }
 
 
-    public onLoadAnCode(index:number, filedata:string) {
-
-            // Do the engine code injection for the Tutor Loader HTML5 components
-            // Generally there aren't any in the Loader project - when debugging a module
-            // however there generally are components.
-            //
-            // this.mapThermiteClasses(EFLoadManager.efLoaderLib, null, null);
+    public onLoadFonts(fileLoader:LoaderPackage.ILoaderData, filedata:string) {
 
         try {
-            let tutorDoc = this;
-
-            console.log("AnimateMod Loaded: " + this.modules[index].modName );
-
-            // Extract the compID from the file into the modules IModuleDescr spec
-            //
-            let tag = document.createElement("script");
-
-            //## TODO: Check if there is a problem using "head" - i.e. is it universal
-
-            // Inject the script with a suffix to expose the source in the debugger listing.
-            tag.text = filedata + "\n//# sourceURL= http://127.0.0.1/"+ this.modules[index].debugPath + "/" + this.modules[index].modName + ".js";
-
-            // Inject the script into the page
-            document.head.appendChild(tag);
-
-            let comp   = AdobeAn.getComposition(this.modules[index].compID);			
-            let lib    = comp.getLibrary();
-            let loader = new createjs.LoadQueue(false);
-
-            return new Promise((resolve, reject) => {
-                loader.addEventListener("complete", function(evt){tutorDoc.handleComplete(evt,comp,resolve,reject)});
-                loader.addEventListener("error", function(evt){tutorDoc.handleError(evt,comp,reject)});
-                loader.loadManifest(lib.properties.manifest);	
-            });                
-
-        }   
-        catch(error) {
-
-            console.log("Exts parse failed: " + error);
-        }
-    }
-
-
-    public onLoadFonts(index:number, filedata:string) {
-
-        try {
-            console.log("Fonts Loaded: " + this.modules[index].modName );
+            console.log("Fonts Loaded: " + fileLoader.modName );
 
             // Create a link tag to inject the @fontface style sheet
             //
@@ -701,133 +777,19 @@ export class CEFTutorDoc extends EventDispatcher implements IEFTutorDoc
     }
 
 
-    public onLoadData(index:number, filedata:string) {
+    public onLoadData(fileLoader:LoaderPackage.ILoaderData, filedata:string) {
 
         try {
-            console.log("Data Loaded: " + this.modules[index].modName );
+            console.log("Data Loaded: " + fileLoader.modName );
 
             // ****
             //
-            this.moduleData[this.modules[index].modName] = JSON.parse(filedata);      
+            this.moduleData[fileLoader.modName] = JSON.parse(filedata);      
         }
         catch(error) {
 
             console.log("Data parse failed: " + error);
         }
-    }
-
-
-	// Note that this is pulled from the Adobe HTML scripts to initialize the newly loaded module.
-	//
-	//@@ TODO: create declarations 
-	//
-	public handleComplete(evt:any,comp:any, resolve:Function, reject:Function) {
-
-		let lib:any     = comp.getLibrary();
-		let ss          = comp.getSpriteSheet();
-		let queue       = evt.target;
-		let ssMetadata  = lib.ssMetadata;
-
-        // Extract the module name and assign it as a named property of EFLoadManager.modules
-        // which is used for dynamic component creation
-        //
-        for(let compName in lib) {
-
-            let moduleName:string = compName.toUpperCase();
-            
-            if(moduleName.startsWith("EFMOD_" )) {
-
-                lib._ANmoduleName = moduleName;
-                EFLoadManager.modules[moduleName]  = lib;
-                EFLoadManager.classLib[moduleName] = {};
-                break;
-            }
-        }
-
-		for(let i = 0 ; i < ssMetadata.length ; i++) {
-
-			ss[ssMetadata[i].name] = new createjs.SpriteSheet( {"images": [queue.getResult(ssMetadata[i].name)], "frames": ssMetadata[i].frames} )
-		}
-
-        // Do the engine code injection 
-        //
-        this.mapThermiteClasses(lib, resolve, reject);
-
-        AdobeAn.compositionLoaded(lib.properties.id);        
-	}	
-	public handleError(evt:any,comp:any, reject:Function) {
-
-        reject("AnModule load Failed:");
-    }
-
-
-
-    public mapThermiteClasses(AnLib:any, resolve:Function, reject:Function) {
-        
-        let engine = this;
-        let importPromises:Array<Promise<any>> = new Array();
-        
-        for (const compName in AnLib) {
-
-            if(compName.startsWith(CONST.THERMITE_PREFIX)) {
-                
-                let varPath: Array<string> = compName.split("__");
-                let classPath:string[]     = varPath[0].split("_"); 
-                let comPath:string         = varPath[0].replace("_","/");
-
-                comPath = comPath.replace("TC/","thermite/");
-
-                importPromises.push(this.importAndMap(AnLib._ANmoduleName, AnLib[compName], comPath, classPath[classPath.length-1], varPath[1]));
-            }
-        }
-
-        Promise.all(importPromises)        
-            .then(() => {
-                
-                console.log("Thermite mapping complete");
-
-                // resolve the preloader promise
-                if(resolve)
-                    resolve();
-
-            }).catch((Error) => {
-
-                console.log("Thermite mapping failed:" + Error);
-
-                // reject the preloader promise
-                if(reject)
-                    reject();
-            });
-    }
-
-
-    public importAndMap(AnModuleName:string, AnObject:any, classPath:string, className:string, variant:string ) {
-
-        console.log("Import and Map: " + AnModuleName + " => " + classPath + " : " + variant);
-
-        return SystemJS.import(classPath).then((ClassObj:any) => {
-
-            let temp1:any = {};
-
-            temp1.constructor   = AnObject.prototype.constructor;
-            temp1.clone         = AnObject.prototype.clone;
-            temp1.nominalBounds = AnObject.prototype.nominalBounds;
-            temp1.frameBounds   = AnObject.prototype.frameBounds;
-
-            AnObject.prototype = Object.create(ClassObj[className].prototype);
-
-            AnObject.prototype.clone           = temp1.clone;
-            AnObject.prototype.nominalBounds   = temp1.nominalBounds;
-            AnObject.prototype.frameBounds     = temp1.frameBounds;
-
-            // Make the tutor document and container available to all thermite objects
-            // when they are created.
-            //
-            AnObject.prototype.tutorDoc       = this;
-            AnObject.prototype.tutorContainer = this.tutorContainer;
-
-            EFLoadManager.classLib[AnModuleName][variant.toUpperCase()] = AnObject;            
-        })
     }
 
 
