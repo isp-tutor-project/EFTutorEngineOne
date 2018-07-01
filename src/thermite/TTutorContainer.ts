@@ -210,9 +210,18 @@ export class TTutorContainer extends TRoot
 	{		
 		//System.setClipboard(sceneGraph);		
 	}
-	
-	
-	public instantiateScene(sceneName:string, classPath:string, sceneVisible:boolean=false) : any
+    
+    
+    public instantiateScenePath(sceneName:string, classPath:string, sceneVisible:boolean=false) : any
+	{
+        let namespace:Array<string> = classPath.toUpperCase().split(".");
+        
+		this.instantiateScene(sceneName, namespace[0], namespace[1], sceneVisible) 
+
+    }
+    
+
+	public instantiateScene(sceneName:string, hostModule:string, className:string, sceneVisible:boolean=false) : any
 	{			
 		let i1:number;
 		let tarScene:any;
@@ -220,9 +229,10 @@ export class TTutorContainer extends TRoot
 
 		if (this.traceMode) CUtil.trace("Creating Scene : "+ sceneName);
 
-		tarScene = CUtil.instantiateThermiteObject(classPath);
+        tarScene = CUtil.instantiateThermiteObject(hostModule, className);
+        
 		tarScene.name         = sceneName;
-		tarScene.classPath    = classPath;
+		tarScene.classPath    = className;
 		tarScene.tutorDoc     = this.tutorDoc;
 		tarScene.tutorAutoObj = this.tutorAuto;
 		tarScene.visible	  = false;				
@@ -230,9 +240,9 @@ export class TTutorContainer extends TRoot
 		// Supplimentary code has leading $ (CONST.EXT_SIG) on each identifier to be mixed in
 		// Mixin the common code first to initialize defaults
 		// Mixin the supplimentary code on the scene instance.
-		//
-		CUtil.mixinSceneSuppliments(tarScene, this.tutorDoc.tutorExt[CONST.COMMON_CODE], CONST.EXT_SIG);
-		CUtil.mixinSceneSuppliments(tarScene, this.tutorDoc.tutorExt[sceneName], CONST.EXT_SIG);
+        //
+        CUtil.mixinSceneSuppliments(tarScene, EFTut_Suppl[hostModule][CONST.COMMON_CODE], CONST.EXT_SIG);
+		CUtil.mixinSceneSuppliments(tarScene, EFTut_Suppl[hostModule][sceneName], CONST.EXT_SIG);        
 
 		this.addChild(tarScene);
 

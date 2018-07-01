@@ -36,236 +36,118 @@ import { CUtil }                from "./util/CUtil";
 
 import MovieClip     		  = createjs.MovieClip;
 import DisplayObject          = createjs.DisplayObject;
+import { IEFTutorDoc } from "./core/IEFTutorDoc";
 
 
 
 export class CEngine {
 
     public loader:CURLLoader;
-    public bootLoader:string;
+    public bootTutor:string;
 
     public tutorDescr:LoaderPackage.IPackage;
-    public tutorDoc:any;
+    public tutorDoc:IEFTutorDoc;
 
     public timerID:number;
 
-    public tutorImagePath:string[] = new Array();
-
-    public moduleSet:string;
-    public loadModules:Array<string>;
-    public anModules:any;
-
-    public supplSet:string;
-    public loadSuppls:Array<string>;
-    public supplScripts:any;
+    public sourcePath:string[];
     
-    public _sceneDescr:any;
-    public _sceneGraph:any;
-    public _tutorGraph:any;
 
+	// This is a special signature to avoid typescript error "because <type> has no index signature."
+	// on this[<element name>]
+	// 
+	[key: string]: any;
 
 
     constructor() { }
 
 
-    public start(_bootLoader:string ) : void
+    public start(_bootTutorID:string ) : void
     {
-        this.bootLoader = _bootLoader.toUpperCase();
+        this.bootTutor   = _bootTutorID;
 
-        console.log("In TutorEngineOne startup: " + _bootLoader);
+        console.log("In TutorEngineOne startup: " + _bootTutorID);
 
-        console.log("56px 'Bowlby One SC'");
-
+        // Setup the mouse tracking for CreateJS
+        // 
         var frequency = 30;
         EFLoadManager.efStage.enableMouseOver(frequency);
 
-        if(_bootLoader) {
+        if(_bootTutorID) {
 
-            // Do the engine code injection for the Tutor Loader FLX components
-            // Generally there aren't any in the Loader project - when debugging a module
-            // however there generally are components.
+            // Construct the Tutor Document object and the Tutor Container.
+            // We inject this into the prototypes of the Thermite classes.
             //
-            this.mapThermiteClasses(EFLoadManager.efLoaderLib, null, null);
+            this.tutorDoc      = new CEFTutorDoc();            //this._sceneGraph, this._tutorGraph 
+            this.tutorDoc.name = this.bootTutor;
 
-            this.getBootLoader();
+            this.loadBootImage();
         }
     }
 
 
-    public getBootLoader() {
-
-        this.loader = new CURLLoader();
-
-        this.loader.load(new CURLRequest(CONST.BOOT_LOADER))
-            .then((_data) => {
-
-                this.tutorDescr = JSON5.parse(_data);
-
-                if(this.tutorDescr.bootLoader.accountMode === CONST.LOCAL) {
+    private loadBootImage() {
         
-                    console.log("Boot-Loader");
-                    
-                    this.moduleSet   = this.tutorDescr.moduleSets[this.tutorDescr.tutors[this.bootLoader]._moduleSet]._anModules;
-                    this.loadModules = this.moduleSet.split(",").map((modName:string) => modName.trim().toUpperCase());
-                    this.anModules   = this.tutorDescr.anModules;
+        let loaderPromises: Promise<any>[] = [];
 
-                    this.supplSet    = this.tutorDescr.supplSets[this.tutorDescr.tutors[this.bootLoader]._supplSet]._supplScripts;
-                    this.loadSuppls  = this.supplSet.split(",").map((supplName:string) => supplName.trim().toUpperCase());
-                    this.supplScripts= this.tutorDescr.supplScripts;
+        this.tutorDoc.buildBootSet(this.bootTutor);
+        loaderPromises = this.tutorDoc.loadFileSet();
 
-                    this.loadBootImage();
-                }
-                else {
-                    console.log("Account Mode unsupported: " + this.tutorDescr.bootLoader.accountMode);
-                }
-            }).catch((_error) => {
+        Promise.all(loaderPromises)        
+        .then(() => {
 
-                console.log("Boot-Loader failed: " + _error);
-            });
-    }
-    
+            console.log("Tutor Boot Image Complete");
 
-    public loadBootImage() {
+            this.loadTutorImage();
+        })                
+    }    
 
-        try {
-            for(let tutorel of CONST.TUTOR_JSON_IMAGE) {
 
-                this.tutorImagePath.push("EFTutors/" + this.tutorDescr.tutors[this.bootLoader].path + "/" + tutorel);
-            }
-
-            let modulePromises = this.tutorImagePath.map((module, index) => {
-
-                let engine:any = this;
-                let loader = new CURLLoader();
+    private loadTutorImage() {
         
-                return loader.load(new CURLRequest(module))
-                    .then((tutorSpec:string) => {
+        let loaderPromises: Promise<any>[] = [];
+
+        this.tutorDoc.buildTutorSet();
+        loaderPromises = this.tutorDoc.loadFileSet();
+
+        Promise.all(loaderPromises)        
+        .then(() => {
+
+            console.log("Tutor Image Complete");
+
+            this.loadCreateJSResources();
+        })                
+    }    
+
+
+    private loadCreateJSResources() {
         
-                        engine[CONST.TUTOR_FACTORIES[index]] = JSON5.parse(tutorSpec);                        
+        let loaderPromises: Promise<any>[] = [];
+        let engine:any = this;
 
-                    })                        
-            })
+        for(let fileLoader of this.tutorDoc.loaderData) {
 
-            Promise.all(modulePromises)        
-                .then(() => {
+            if(fileLoader.compID) {
+                let comp   = AdobeAn.getComposition(fileLoader.compID);			
+                let lib    = comp.getLibrary();
+                let loader = new createjs.LoadQueue(false);
 
-                    console.log("Boot-Image Loaded");
-
-                    this.loadScriptSuppliment();
-
-                })
-        }        
-        catch(error){
-
-            console.log("Boot-Image load failed: " + error);
-        }
-    }
-
-
-    public loadScriptSuppliment() {
-        
-        let engine = this;
-        let scriptPromises = this.loadSuppls.map(script => this.injectScript(this.supplScripts[script]))
-
-        Promise.all(scriptPromises)        
-            .then(() => {
-
-                console.log("Script-Suppl load complete");
-
-                // Construct the Tutor Document object and the Tutor Container.
-                // These are required for the Thermite mapping.  We inject these into the prototypes of 
-                // the Thermite classes.
-                //
-                this.tutorDoc      = new CEFTutorDoc(this._sceneGraph, this._tutorGraph );            
-                this.tutorDoc.name = this.bootLoader;
-                    
-                this.loadAnModules();
-
-            }).catch(() => {
-
-                console.log("Script-Suppl load failed");
-            });
-    }
-
-
-    public injectScript(scriptDescr:IModuleDesc) : Promise<any> {
-
-        console.log("Loading Script: " + scriptDescr.URL);
-
-        let engine = this;
-        let loader = new CURLLoader();
-
-        return loader.load(new CURLRequest(scriptDescr.URL))
-            .then((scriptText:string) => {
-
-                let tag = document.createElement("script");
-
-                //## TODO: Check if there is a problem using "head" - i.e. is it universal
-
-                // Inject the script with a suffix to expose the source in the debugger listing.
-                tag.text = scriptText + "\n//# sourceURL= http://127.0.0.1/"+ scriptDescr.parentFldr + "/" + scriptDescr.URL;
-
-                // Inject the script into the page
-                document.head.appendChild(tag);
-                
-                scriptDescr.instance = EFLoadManager.window[scriptDescr.extNameSpace];
-                
-            }).catch((_error) => {
-
-                console.log("Script load failed: " + _error );
-            });
-    }
-
-
-    public loadAnModules() {
-        
-        let engine = this;
-        let modulePromises =this.loadModules.map(module => this.injectAnScript(this.anModules[module]))
-
-        Promise.all(modulePromises)        
-            .then(() => {
-
-                console.log("module load complete: ");
-
-               this.constructTutor();
-                
-                CUtil.preLoader(false);
-
-            }).catch((err) => {
-
-                console.log("module load failed: " + err);
-            });
-    }
-
-
-    public injectAnScript(moduleDescr:IModuleDesc) : Promise<any> {
-
-        console.log("Loading Module: " + moduleDescr.name);
-
-        let engine = this;
-        let loader = new CURLLoader();
-
-        return loader.load(new CURLRequest(moduleDescr.URL))
-            .then((scriptText:string) => {
-
-                let tag = document.createElement("script");
-
-                //## TODO: Check if there is a problem using "head" - i.e. is it universal
-
-                // Inject the script with a suffix to expose the source in the debugger listing.
-				tag.text = scriptText + "\n//# sourceURL= http://127.0.0.1/"+ moduleDescr.parentFldr + "/" + moduleDescr.URL;
-				document.head.appendChild(tag);
-
-				let comp   = AdobeAn.getComposition(moduleDescr.compID);			
-				let lib    = comp.getLibrary();
-				let loader = new createjs.LoadQueue(false);
-
-                return new Promise((resolve, reject) => {
+                loaderPromises.push(new Promise((resolve, reject) => {
                     loader.addEventListener("complete", function(evt){engine.handleComplete(evt,comp,resolve,reject)});
                     loader.addEventListener("error", function(evt){engine.handleError(evt,comp,reject)});
                     loader.loadManifest(lib.properties.manifest);	
-                });                
-            });
+                }));                
+            }
+        }
+
+        Promise.all(loaderPromises)        
+        .then(() => {
+
+            console.log("Tutor init Complete");
+
+            this.startTutor();
+        })                
+
     }
 
 
@@ -309,7 +191,7 @@ export class CEngine {
 	}	
 	public handleError(evt:any,comp:any, reject:Function) {
 
-        reject("AnModule load Failed:");
+        reject("AnimateCC Resource Load Failed:");
     }
 
 
@@ -383,13 +265,23 @@ export class CEngine {
     }
 
 
+    public startTutor() {
+        
+        console.log("module load complete: ");
+
+        this.constructTutor();
+        
+        CUtil.preLoader(false);
+    }
+
+
     public constructTutor() {
 
         // load the target application and let it run
 
         try {
 
-            this.tutorDoc.initializeTutor(this.tutorDescr );
+            this.tutorDoc.initializeTutor();
                                     
             console.log("Tutor Construction Complete");
         }
@@ -397,8 +289,6 @@ export class CEngine {
 
             console.log("Tutor Construction Failed:  " + error.toString());
         }
-
-        CUtil.preLoader(false);
     }
 
 

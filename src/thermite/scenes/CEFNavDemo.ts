@@ -46,7 +46,7 @@ export class CEFNavDemo extends TScene
 
 		if(this.traceMode) CUtil.trace("CEFNavDemo:Constructor");
 					
-		this._demoPanel = CUtil.instantiateThermiteObject("CDemoPanel") as MovieClip;	
+		this._demoPanel = CUtil.instantiateThermiteObject("unknownModule", "CDemoPanel") as MovieClip;	
 		
 		this._demoPanel.x 	   = 0;					
 		this._demoPanel.y       = 0;					

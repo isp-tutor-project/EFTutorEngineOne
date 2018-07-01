@@ -26,17 +26,10 @@ import { CUtil } 			    from "../util/CUtil";
 
 import MovieClip     	      = createjs.MovieClip;
 import Text     	          = createjs.Text;
-import Timeline     		  = createjs.Timeline;
-import DisplayObject 		  = createjs.DisplayObject;
-import DisplayObjectContainer = createjs.Container;
-
-    // let canvasElement = document.querySelector( '#editorCanvas' );
-    // canvasElement.onfocus = () => this.setFocus( true );
-    // canvasElement.onblur = () => this.setFocus( false );
 
 
 
-export class TTextInput extends TObject {
+export class TTextArea extends TObject {
 
 
 	//************ Stage Symbols
@@ -44,7 +37,7 @@ export class TTextInput extends TObject {
 	public StxtField:Text;
     public SfocusBox:TObject;
     
-    public STextInput: HTMLTextAreaElement;
+    public STextArea: HTMLDivElement;
 	
 	//************ Stage Symbols				
     
@@ -74,7 +67,7 @@ export class TTextInput extends TObject {
 /*  ###########  START CREATEJS SUBCLASS SUPPORT ##########  */
 /* ######################################################### */
 
-    public TTextInputInitialize() {
+    public TTextAreaInitialize() {
 
         this.TObjectInitialize.call(this);
         this.init3();
@@ -89,7 +82,7 @@ export class TTextInput extends TObject {
     private init3() {
         
         this.traceMode = true;
-        if(this.traceMode) CUtil.trace("TTextInput:Constructor");
+        if(this.traceMode) CUtil.trace("TTextArea:Constructor");
 
         this.on(CEFEvent.ADDED_TO_STAGE, this.onAddedToStage);
         
@@ -124,11 +117,7 @@ export class TTextInput extends TObject {
     
             visibility:"hidden"
         };
-    
-        // this.setOnKeyPress();
-
-        // this.setFont( this.createFont( 20 ) );
-        // this.textInput( "Welcome to RichTextJS\n" );
+        
     }
 
 /* ######################################################### */
@@ -144,7 +133,7 @@ export class TTextInput extends TObject {
         this.removeEventListener(TMouseEvent.WOZUP     , this.doMouseUp);			
         
         if(this.fAdded) {
-            dom_overlay_container.removeChild(this.STextInput); 
+            dom_overlay_container.removeChild(this.STextArea); 
             this.fAdded = false;
         }
 
@@ -155,15 +144,15 @@ export class TTextInput extends TObject {
 
         let stage;
 
-        console.log("TextInput On Stage");
+        console.log("TextArea On Stage");
 
         // We are added to the scene on each frame of an animation
         //
 		this._lastFrame = (this.parent as MovieClip).currentFrame;       
 
         if(!this.fAdded) {
-            this.STextInput     = document.createElement("textarea"); 
-            this.STextInput.id  = "StextInput";
+            this.STextArea     = document.createElement("div"); 
+            this.STextArea.id  = "STextArea";
 
             this.StxtField.visible = false;        
             this.SfocusBox.visible = false;        
@@ -184,7 +173,7 @@ export class TTextInput extends TObject {
             }
             this.updateStyle(true);
 
-            dom_overlay_container.appendChild(this.STextInput); 
+            dom_overlay_container.appendChild(this.STextArea); 
 
             // Set focus in the $onEnterScene override
             //
@@ -206,25 +195,6 @@ export class TTextInput extends TObject {
     }
 
 
-    public setFocus(focus:boolean) {
-        
-        if(focus)
-            this.STextInput.focus();
-        else 
-            this.STextInput.blur();
-        
-    }
-
-
-    public setEnabled(enabled:boolean) {
-        
-        if(enabled)
-            this.STextInput.disabled = false;
-        else 
-            this.STextInput.disabled = true;
-        
-    }
-    
     public fontContainsElement(attr:string, candidates:Array<string>|Array<RegExp>) : any {
 
         let result:string = null;
@@ -296,97 +266,6 @@ export class TTextInput extends TObject {
     };
 
 
-    public setOnKeyPress() {
-
-        // --- Handle text input
-        document.onkeypress = ( event:KeyboardEvent ) => {
-
-            if ( this.hasFocus() ) {
-                let code = event.keyCode;
-
-                // --- No Backspace, enter or tab
-                if ( code !== 8 && code !== 13 && code != 9 )
-                {
-                    let text = String.fromCharCode( code );
-                    this.textInput( text );
-                }
-                event.preventDefault();
-            }
-        };
-    }
-
-
-    public setOnKeyDown() {
-
-        // --- Handle key down
-        document.onkeydown = ( event ) => {
-
-            if ( this.hasFocus() ) {
-                let keyCode = event.keyCode;
-
-                let keyText = "";
-                if ( keyCode === 13 ) keyText = "Enter";
-                else if ( keyCode === 8 ) keyText = "Backspace";
-                else if ( keyCode === 37 ) keyText = "ArrowLeft";
-                else if ( keyCode === 38 ) keyText = "ArrowUp";
-                else if ( keyCode === 39 ) keyText = "ArrowRight";
-                else if ( keyCode === 40 ) keyText = "ArrowDown";
-
-                if ( keyText ) {
-                    this.keyDown( keyText );
-                    event.preventDefault();
-                }
-            }
-        };
-    }
-
-
-    public setOnCut() {
-        
-        // --- Clipboard Support
-        window.addEventListener('cut', function ( event:ClipboardEvent ) {
-            if ( event.clipboardData ) {
-                let out = this.export( "text", true );
-                if ( out ) {
-                    this.deleteSelection();
-                    event.clipboardData.setData('text/plain', out );
-                    event.preventDefault();
-                }
-            }
-        });
-    }
-
-
-    public setOnCopy() {
-            
-        window.addEventListener('copy', function ( event:ClipboardEvent ) {
-            if ( event.clipboardData ) {
-                let out = this.export( "text", true );
-                if ( out ) {
-                    event.clipboardData.setData('text/plain', out );
-                    event.preventDefault();
-                }
-            }
-        });
-    }
-
-
-    public setOnPaste() {
-            
-            window.addEventListener('paste', function ( event:ClipboardEvent ) {
-            if ( event.clipboardData ) {
-                let text = event.clipboardData.getData( 'text/plain' );
-                if ( text ) {
-                    this.deleteSelection();
-                    this.textInput( text );
-                    this.update();
-                    event.preventDefault();
-                }
-            }
-        });
-    }
-
-
     public setProperty(key:string, value:string|number, force:boolean = false) {
 
         if(force || this.cssOptions[key] != value) {
@@ -402,7 +281,7 @@ export class TTextInput extends TObject {
 
             if(force || this.cssDirty[attr]) {
                 this.cssDirty[attr] = false;
-                (this.STextInput.style as any)[attr] = this.cssOptions[attr];
+                (this.STextArea.style as any)[attr] = this.cssOptions[attr];
             }
         }    
     }
@@ -414,7 +293,7 @@ export class TTextInput extends TObject {
 
             if((this.getStage() == null || this._lastFrame != (this.parent as MovieClip).currentFrame)) {
 
-                dom_overlay_container.removeChild(this.STextInput); 
+                dom_overlay_container.removeChild(this.STextArea); 
                 this.fAdded = false;
 
                 this.stage.removeEventListener('drawstart', this._updateVisibilityCbk);
@@ -433,8 +312,6 @@ export class TTextInput extends TObject {
             let sx = tx1.scaleX; 
             let sy = tx1.scaleY;
 
-            // TODO: should this.prototype.nominalbounds be used instead?
-            
             mat.tx += this.SfocusBox.nominalBounds.x  * sx; 
             mat.ty += this.SfocusBox.nominalBounds.y  * sy; 
             let w   = this.SfocusBox.nominalBounds.width  * sx; 

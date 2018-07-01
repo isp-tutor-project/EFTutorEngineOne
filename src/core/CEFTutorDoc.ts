@@ -19,6 +19,8 @@
 import { IEFTutorDoc } 			from "../core/IEFTutorDoc";
 
 import { CLogManager }			from "../managers/CLogManager";
+import { CURLLoader }           from "../network/CURLLoader";
+import { CURLRequest }          from "../network/CURLRequest";
 
 import { TTutorContainer }      from "../thermite/TTutorContainer";
 
@@ -27,7 +29,6 @@ import { CEFEvent } 		    from "../events/CEFEvent";
 import { CTutorGraphNavigator } from "../tutorgraph/CTutorGraphNavigator";
 
 import { LoaderPackage } 		from "../util/IBootLoader";
-import { IModuleDesc } 			from "../util/IModuleDesc";
 import { CONST }                from "../util/CONST";
 import { CUtil }                from "../util/CUtil";
 
@@ -39,6 +40,12 @@ import EventDispatcher 		  = createjs.EventDispatcher;
 export class CEFTutorDoc extends EventDispatcher implements IEFTutorDoc
 {
 	public traceMode:boolean;
+    private isDebug:boolean;
+
+	// This is a special signature to avoid typescript error "because <type> has no index signature."
+	// on this[<element name>]
+	// 
+	[key: string]: any;
 
 	//************ Stage Symbols
 	
@@ -47,10 +54,13 @@ export class CEFTutorDoc extends EventDispatcher implements IEFTutorDoc
 	//************ Stage Symbols
 
     public tutorNavigator:CTutorGraphNavigator;	
-	public tutorDescr:LoaderPackage.IPackage;
-	
+
+    
 	//************ Stage Symbols
-	
+    
+    public name:string;
+    public loaderData:Array<LoaderPackage.ILoaderData>;
+
 	// These are used for log playback
 	//
 	// The frameID is the actual frame in which a log entry occured
@@ -81,26 +91,26 @@ export class CEFTutorDoc extends EventDispatcher implements IEFTutorDoc
 	public logFrameID = 0;
 	public logStateID = 0;
 
-    public state:Array<string>;
-    public scenedata:Array<string>;
-    public tutorExt:any;
-
     // knowledge tracing 
     public   ktSkills:any;							    //@@ Mod Aug 28 2013 - support for new kt structure in sceneGraph
     
-    // Flex integration - Used to indicate if Pretest is running embedded
-    private _extLoader:boolean = false;
-    private _extConnection:boolean = false;
-    
+
     //*** Tutor graph descriptions
 		
-	public sceneGraph:any;						    // The factory definition object used to create scene graphs for specified scenes
-	public tutorGraph:any;							// The factory definition object used to create the tutor Graph		
-    
+	public sceneGraph:any;						        // The factory definition object used to create scene graphs for specified scenes
+	public tutorGraph:any;						    	// The factory definition object used to create the tutor Graph		
+    public tutorConfig:LoaderPackage.ITutorConfig;
+
+    public modules:Array<LoaderPackage.IModuleDescr>;
+    public moduleData:any;
+
+    public state:Array<string>;
+    public scenedata:Array<string>;
+    public sceneExt:any;
+
     public _tutorFeatures:string = "";                  // used in Flash mode to set instance features   
     public _modulePath:string;							//@@ Mod May 07 2012 - support for relative module paths						
     public _forcedPause:boolean = false;				//@@ Mod Mar 15 2013 - FLEX support - manage pause when transitioning in and out of full screen mode 
-    
     
     public _pFeatures:any = {}; 
 	
@@ -148,7 +158,7 @@ export class CEFTutorDoc extends EventDispatcher implements IEFTutorDoc
 //********
 
 	public sessionAccount:any = {};						//@@ Mod Dec 03 2013 - session Account data  
-	
+
 	public fSessionID:string;							// Unique session identifier
 	public fSessionTime:number;
 	public serverUserID:number = 0;						// Numeric user ID assigned by the logging server DB
@@ -178,18 +188,20 @@ export class CEFTutorDoc extends EventDispatcher implements IEFTutorDoc
     
 
 
-    constructor(_sceneGraph:any, _tutorGraph:any )
+    constructor()
     {
         super();
-
-        this.sceneGraph = _sceneGraph;			
-        this.tutorGraph = _tutorGraph;						
 
         CUtil.trace("CEFTutorDoc:Constructor");
 		
         //@@ Mod Sept 22 2014 - reset global object - only required for demo sequences - more than one demo may be loaded in a single session
         
-        this.initGlobals();									 			
+        this.initGlobals();			
+        this.isDebug = true;						 			
+
+        this.sceneGraph = {};
+        this.modules    = new Array<LoaderPackage.IModuleDescr>();
+        this.moduleData = {};
 
         // Frame counter - for logging
 		// NOTE: this must be the first ENTER_FRAME event listener 
@@ -215,19 +227,17 @@ export class CEFTutorDoc extends EventDispatcher implements IEFTutorDoc
 	}
 	
 	
-	public initializeTutor(_tutorDescr:LoaderPackage.IPackage ) {
+	public initializeTutor() {
 
-		this.tutorDescr = _tutorDescr;
-		
 		// Load the scene extension code
 		// 
-		for(let suppl in this.tutorDescr.supplScripts) {
+		// for(let suppl in this.tutorDescr.supplScripts) {
 
-			if(this.tutorDescr.supplScripts[suppl].intNameSpace == CONST.SCENE_EXT) {
-				this.tutorExt = this.tutorDescr.supplScripts[suppl].instance;
-				break;
-			}
-		}
+		// 	if(this.tutorDescr.supplScripts[suppl].intNameSpace == CONST.SCENE_EXT) {
+		// 		this.tutorExt = this.tutorDescr.supplScripts[suppl].instance;
+		// 		break;
+		// 	}
+		// }
 
         // This manufactures the tutorGraph from the JSON spec file 			
         //
@@ -298,16 +308,7 @@ export class CEFTutorDoc extends EventDispatcher implements IEFTutorDoc
         this._tutorFeatures = ftrStr;
     }
     
-    public set extLoader(val:string) 
-    {
-        this._extLoader = (val == "true")? true:false;			
-    }
-    
-    public get extLoaded() : boolean
-    {
-        return this._extLoader;			
-    }
-    
+
     //@@ Mod May 07 2012 - support for relative module pathing
     
     public set extmodPath(val:string) 
@@ -566,6 +567,234 @@ export class CEFTutorDoc extends EventDispatcher implements IEFTutorDoc
 
 
 //***************** Globals ****************************
+
+
+//***************** TUTOR LOADER START ****************************
+
+    public buildBootSet(targetTutor:string) : void {
+        
+        this.loaderData = [];
+
+        // Loaders for the Tutorgraph and TutorConfig
+        //
+        for(let i1 = 0 ; i1 < CONST.TUTOR_VARIABLE.length ; i1++) {
+
+            this.loaderData.push( {
+                 filePath : "EFTutors/" + targetTutor + "/" + CONST.TUTOR_VARIABLE[i1],
+                 onLoad   : this.onLoadJson.bind(this),
+                 fileName : CONST.TUTOR_VARIABLE[i1],
+                 varName  : CONST.TUTOR_FACTORIES[i1]
+            });
+        }
+    }
+
+    public buildTutorSet() : void {
+
+        this.loaderData = [];
+
+        // Each module has a set of files 
+        // 
+        for(let moduleName of this.tutorConfig.dependencies) {
+
+            this.loaderData.push( {
+                filePath : moduleName + CONST.MODID_FILEPATH,
+                onLoad   : this.onLoadModID.bind(this),
+                modName  : moduleName
+            });
+
+            this.loaderData.push( {
+                filePath : moduleName + CONST.GRAPH_FILEPATH,
+                onLoad   : this.onLoadSceneGraphs.bind(this),
+                modName  : moduleName
+            });
+
+            this.loaderData.push( {
+                filePath : moduleName + CONST.EXTS_FILEPATH,
+                onLoad   : this.onLoadCode.bind(this),
+                modName  : moduleName,
+                debugPath: this.isDebug? "ISP_Tutor/EFbuild/" + moduleName + "/exts.js":null
+            });
+
+            this.loaderData.push( {
+                filePath : moduleName + CONST.MIXINS_FILEPATH,
+                onLoad   : this.onLoadCode.bind(this),
+                modName  : moduleName,
+                debugPath: this.isDebug? "ISP_Tutor/EFbuild/" + moduleName + "/mixins.js":null
+            });
+
+            this.loaderData.push( {
+                filePath : moduleName + CONST.FONTFACE_FILEPATH,
+                onLoad   : this.onLoadFonts.bind(this),
+                modName  : moduleName,
+            });
+           
+            this.loaderData.push( {
+                filePath : moduleName + CONST.DATA_FILEPATH,
+                onLoad   : this.onLoadData.bind(this),
+                modName  : moduleName,
+            });
+
+            this.loaderData.push( {
+                filePath : moduleName + CONST.SCRIPTS_FILEPATH,
+                onLoad   : this.onLoadData.bind(this),
+                modName  : moduleName,
+            });
+
+            this.loaderData.push( {
+                filePath : moduleName + CONST.SCRIPTDATA_FILEPATH,
+                onLoad   : this.onLoadData.bind(this),
+                modName  : moduleName,
+            });
+
+            this.loaderData.push( {
+                filePath : moduleName + CONST.ANMODULE_FILEPATH,
+                onLoad   : this.onLoadCode.bind(this),
+                modName  : moduleName,
+                debugPath: this.isDebug? moduleName + ".js":null
+            });
+        }
+    }
+
+
+    public loadFileSet(): Promise<any>[] {
+
+        let modulePromises:Promise<any>[];
+
+        try {
+
+            modulePromises = this.loaderData.map((fileLoader, index) => {
+
+                let loader = new CURLLoader();
+        
+                return loader.load(new CURLRequest(fileLoader.filePath))
+                    .then((filetext:string) => {
+        
+                       return fileLoader.onLoad(fileLoader, filetext);
+                    })                        
+            })
+        }        
+        catch(error){
+
+            console.log("Load-Set failed: " + error);
+        }
+
+        return modulePromises;
+    }
+
+
+    public onLoadJson(fileLoader:LoaderPackage.ILoaderData, filedata:string) {
+
+        try {
+            console.log("JSON Loaded: " + fileLoader.fileName);
+
+            this[fileLoader.varName] = JSON.parse(filedata);      
+        }
+        catch(error) {
+
+            console.log("JSON parse failed: " + error);
+        }
+    }
+
+
+    public onLoadModID(fileLoader:LoaderPackage.ILoaderData, filedata:string) {
+
+        try {
+            console.log("MODID Loaded: " + fileLoader.modName );
+
+            // Extract the compID from the file into the modules IModuleDescr spec
+            //
+            Object.assign(fileLoader,JSON.parse(filedata));      
+        }
+        catch(error) {
+
+            console.log("ModID parse failed: " + error);
+        }
+    }
+
+
+    public onLoadSceneGraphs(fileLoader:LoaderPackage.ILoaderData, filedata:string) {
+
+        try {
+            console.log("SceneGraph Loaded: " + fileLoader.modName );
+
+            // Add the module specific graphs to the scenegraph factory object
+            //
+            this.sceneGraph[fileLoader.modName] = JSON.parse(filedata);      
+        }
+        catch(error) {
+
+            console.log("Graph parse failed: " + error);
+        }
+    }
+
+        
+    public onLoadCode(fileLoader:LoaderPackage.ILoaderData, filedata:string) {
+
+        try {
+            console.log("ModuleExts Loaded: " + fileLoader.modName );
+
+            // Extract the compID from the file into the modules IModuleDescr spec
+            //
+            let tag = document.createElement("script");
+
+            //## TODO: Check if there is a problem using "head" - i.e. is it universal
+
+            // Inject the script with a suffix to expose the source in the debugger listing.
+            //
+            if(fileLoader.debugPath)
+                tag.text = filedata + "\n//# sourceURL= http://127.0.0.1/"+ fileLoader.debugPath;
+
+            // Inject the script into the page
+            document.head.appendChild(tag);
+        }
+        catch(error) {
+
+            console.log("Exts parse failed: " + error);
+        }
+    }
+
+
+    public onLoadFonts(fileLoader:LoaderPackage.ILoaderData, filedata:string) {
+
+        try {
+            console.log("Fonts Loaded: " + fileLoader.modName );
+
+            // Create a link tag to inject the @fontface style sheet
+            //
+            let tag = document.createElement("style");
+
+            tag.type = 'text/css';
+            tag.appendChild(document.createTextNode(filedata));
+
+            // Inject the script into the page
+            document.head.appendChild(tag);
+
+    }
+        catch(error) {
+
+            console.log("Font parse failed: " + error);
+        }
+    }
+
+
+    public onLoadData(fileLoader:LoaderPackage.ILoaderData, filedata:string) {
+
+        try {
+            console.log("Data Loaded: " + fileLoader.modName );
+
+            // ****
+            //
+            this.moduleData[fileLoader.modName] = JSON.parse(filedata);      
+        }
+        catch(error) {
+
+            console.log("Data parse failed: " + error);
+        }
+    }
+
+
+
+//***************** TUTOR LOADER END ****************************
 
 
 

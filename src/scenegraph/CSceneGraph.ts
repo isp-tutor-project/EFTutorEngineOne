@@ -27,8 +27,6 @@ import { CSceneConstraint } 	from "./CSceneConstraint";
 
 import { TRoot }				from "../thermite/TRoot";
 import { TScene }				from "../thermite/TScene";
-
-
 import { CONST }            	from "../util/CONST";
 
 

@@ -268,26 +268,55 @@ export namespace LoaderPackage {
         Modified:string;
     }
 
+
+    export interface IModuleDescr {
+
+        modName:string;
+        debugPath?:string;
+
+        compID?:string;
+        fonts?:string;
+        mixins?:any;
+        exts?:any;
+        scripts?:any;
+
+    }
+
+    export interface ITutorConfig {
+        dependencies:Array<string>;
+    }
+
+    export interface IBootdescr {
+        accountMode:string;
+    }
+    
+    export interface ILoaderData {
+
+        filePath:string;
+
+        fileName?:string;
+        varName?:string;
+        debugPath?:string;
+        modName?:string;
+        compID?:string;
+        sourcePath?:string;
+
+        onLoad?:Function;
+    }
+    
+    export interface ItutorMaps {
+    
+        // This is a special signature to avoid typescript error "because <type> has no index signature."
+        // on this[<element name>]
+        // 
+        [key: string]: any;	
+    }
+    
+    
     export interface IPackage {
-
-        bootLoader: any;
-       
-        settings: any;
-        
-        accounts: any;
-        
-        tutors: any;
-        
-        supplSets: any;
-        
-        supplScripts: any;
-        
-        moduleSets: any;
-
-        anModules: any;
-        
-        features: any;
-        
-        interfaces: any;
+    
+        bootLoader: IBootdescr;
+    
+        tutors: ItutorMaps;
     }
 }
