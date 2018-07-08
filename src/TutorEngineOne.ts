@@ -86,10 +86,12 @@ export class CEngine {
     }
 
 
+    // Load the tutor graph and dependency list
+    // 
     private loadBootImage() {
         
         let loaderPromises: Promise<any>[] = [];
-
+        
         this.tutorDoc.buildBootSet(this.bootTutor);
         loaderPromises = this.tutorDoc.loadFileSet();
 

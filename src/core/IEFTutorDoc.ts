@@ -59,7 +59,6 @@ export interface IEFTutorDoc {
 
     state:Array<string>;
     scenedata:Array<string>;
-    sceneExt:any;
 
     _tutorFeatures:string;                      // used in Flash mode to instance features   
     _forcedPause:boolean;		        		//@@ Mod Mar 15 2013 - FLEX support - manage pause when transitioning in and out of full screen mode 

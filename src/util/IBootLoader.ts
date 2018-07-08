@@ -270,16 +270,7 @@ export namespace LoaderPackage {
 
 
     export interface IModuleDescr {
-
         modName:string;
-        debugPath?:string;
-
-        compID?:string;
-        fonts?:string;
-        mixins?:any;
-        exts?:any;
-        scripts?:any;
-
     }
 
     export interface ITutorConfig {
@@ -293,7 +284,8 @@ export namespace LoaderPackage {
     export interface ILoaderData {
 
         filePath:string;
-
+        type:string;
+        
         fileName?:string;
         varName?:string;
         debugPath?:string;

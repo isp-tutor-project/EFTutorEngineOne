@@ -106,7 +106,6 @@ export class CEFTutorDoc extends EventDispatcher implements IEFTutorDoc
 
     public state:Array<string>;
     public scenedata:Array<string>;
-    public sceneExt:any;
 
     public _tutorFeatures:string = "";                  // used in Flash mode to set instance features   
     public _modulePath:string;							//@@ Mod May 07 2012 - support for relative module paths						
@@ -580,6 +579,7 @@ export class CEFTutorDoc extends EventDispatcher implements IEFTutorDoc
         for(let i1 = 0 ; i1 < CONST.TUTOR_VARIABLE.length ; i1++) {
 
             this.loaderData.push( {
+                 type: CONST.TUTOR_VARIABLE[i1],
                  filePath : "EFTutors/" + targetTutor + "/" + CONST.TUTOR_VARIABLE[i1],
                  onLoad   : this.onLoadJson.bind(this),
                  fileName : CONST.TUTOR_VARIABLE[i1],
@@ -597,18 +597,21 @@ export class CEFTutorDoc extends EventDispatcher implements IEFTutorDoc
         for(let moduleName of this.tutorConfig.dependencies) {
 
             this.loaderData.push( {
+                type     : "ModuleID",
                 filePath : moduleName + CONST.MODID_FILEPATH,
                 onLoad   : this.onLoadModID.bind(this),
                 modName  : moduleName
             });
 
             this.loaderData.push( {
+                type     : "Scene Graph",
                 filePath : moduleName + CONST.GRAPH_FILEPATH,
                 onLoad   : this.onLoadSceneGraphs.bind(this),
                 modName  : moduleName
             });
 
             this.loaderData.push( {
+                type     : "Class Extensions",
                 filePath : moduleName + CONST.EXTS_FILEPATH,
                 onLoad   : this.onLoadCode.bind(this),
                 modName  : moduleName,
@@ -616,6 +619,7 @@ export class CEFTutorDoc extends EventDispatcher implements IEFTutorDoc
             });
 
             this.loaderData.push( {
+                type     : "Scene Mixins",
                 filePath : moduleName + CONST.MIXINS_FILEPATH,
                 onLoad   : this.onLoadCode.bind(this),
                 modName  : moduleName,
@@ -623,30 +627,28 @@ export class CEFTutorDoc extends EventDispatcher implements IEFTutorDoc
             });
 
             this.loaderData.push( {
+                type     : "Fonts",
                 filePath : moduleName + CONST.FONTFACE_FILEPATH,
                 onLoad   : this.onLoadFonts.bind(this),
                 modName  : moduleName,
             });
            
             this.loaderData.push( {
+                type     : "Scene Data",
                 filePath : moduleName + CONST.DATA_FILEPATH,
                 onLoad   : this.onLoadData.bind(this),
                 modName  : moduleName,
             });
 
             this.loaderData.push( {
-                filePath : moduleName + CONST.SCRIPTS_FILEPATH,
+                type     : "Track Data",
+                filePath : moduleName + CONST.TRACKDATA_FILEPATH,
                 onLoad   : this.onLoadData.bind(this),
                 modName  : moduleName,
             });
 
             this.loaderData.push( {
-                filePath : moduleName + CONST.SCRIPTDATA_FILEPATH,
-                onLoad   : this.onLoadData.bind(this),
-                modName  : moduleName,
-            });
-
-            this.loaderData.push( {
+                type     : "AnimateCC",
                 filePath : moduleName + CONST.ANMODULE_FILEPATH,
                 onLoad   : this.onLoadCode.bind(this),
                 modName  : moduleName,
@@ -731,7 +733,7 @@ export class CEFTutorDoc extends EventDispatcher implements IEFTutorDoc
     public onLoadCode(fileLoader:LoaderPackage.ILoaderData, filedata:string) {
 
         try {
-            console.log("ModuleExts Loaded: " + fileLoader.modName );
+            console.log("Module:" + fileLoader.type + " Loaded: " + fileLoader.modName );
 
             // Extract the compID from the file into the modules IModuleDescr spec
             //
@@ -780,7 +782,7 @@ export class CEFTutorDoc extends EventDispatcher implements IEFTutorDoc
     public onLoadData(fileLoader:LoaderPackage.ILoaderData, filedata:string) {
 
         try {
-            console.log("Data Loaded: " + fileLoader.modName );
+            console.log("Data:" + fileLoader.type + " Loaded: " + fileLoader.modName );
 
             // ****
             //

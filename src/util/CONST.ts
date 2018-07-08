@@ -14,8 +14,8 @@ export class CONST {
     public static readonly MIXINS_FILEPATH:string       = "/EFbuild/mixins.js";
     public static readonly DATA_FILEPATH:string         = "/EFdata/assets.json";
     public static readonly FONTFACE_FILEPATH:string     = "/EFfonts/fontfaces.css";
-    public static readonly SCRIPTS_FILEPATH:string      = "/EFaudio/EFscripts/script.json";
-    public static readonly SCRIPTDATA_FILEPATH:string   = "/EFaudio/EFscripts/assets.json";
+    public static readonly TRACKDATA_FILEPATH:string    = "/EFaudio/EFscripts/assets.json";
+    public static readonly TRACKASSETS_FILEPATH:string  = "/EFaudio/EFassets/";
     public static readonly ANMODULE_FILEPATH:string     = ".js";
     public static readonly LOCAL:string                 = "LOCAL";
     public static readonly WAIT:number                  = 250;
@@ -25,6 +25,7 @@ export class CONST {
 
 	public static readonly THERMITE_PREFIX:string   = "TC_";
 	public static readonly MODULE_PREFIX:string     = "TM_";
+	public static readonly MODLINK_PREFIX:string    = "TL_";
 	public static readonly SCENE_EXT 				= "sceneExt";
 
 

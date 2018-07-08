@@ -1,6 +1,15 @@
 
 VSCode regex cheatsheet:
 
+Regex to find/replace line breaks of all forms
+/\r?\n|\r/
+
+Regex to find/replace SGML tags
+<[^>\r]*>
+
+Regex to find/replace Template tags
+\{\{[^\}]*\}\}
+
 Regex to insert this. before q?Check  Where ? is any character
 [^public](\s+)q(.)Ch
 $1this.q$2Ch
