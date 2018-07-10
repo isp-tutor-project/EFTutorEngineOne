@@ -20,10 +20,11 @@ import { IEFTutorDoc } 		from "../core/IEFTutorDoc";
 
 import { CSceneGraph } 		from "./CSceneGraph";
 import { CSceneChoiceSet } 	from "./CSceneChoiceSet";
+import { CONST } from "../util/CONST";
 
 
 
-export class CSceneTrack
+export class CActionTrack
 {
 	protected tutorDoc:IEFTutorDoc;		
 	private _parent:CSceneGraph;
@@ -31,7 +32,8 @@ export class CSceneTrack
 	private _type:string;
 	
 	private _choiceset:CSceneChoiceSet;		
-	private _classpath:string;
+	private _trackname:string;
+	private _actionname:string;
 	
 	private _features:string;
 
@@ -51,12 +53,18 @@ export class CSceneTrack
 			this._choiceset	= CSceneChoiceSet.factory(_tutorDoc, this._parent, factory.choiceset, this._parent._graphFactory.CChoiceSets[factory.choiceset]);
 		}
 		
-		else if(factory.classpath != undefined)
+		else if(factory.trackname != undefined)
 		{
-			this._type       = 'actiontrack';				
-			this._classpath	= factory.classpath;
+			this._type      = 'actiontrack';				
+			this._trackname	= factory.trackname;
 		}
-		
+
+		else if(factory.actionname != undefined)
+		{
+			this._type       = 'actionNode';				
+			this._actionname = CONST.ACTION_PFX + factory.actionname;
+		}
+        
 		this._features 	= factory.features;
 		
 		// Handle Stocastic Features
@@ -69,9 +77,9 @@ export class CSceneTrack
 		}
 	}
 
-	public nextAnimation() : string
+	public nextChoice() : string
 	{
-		return this._choiceset.nextAnimation();
+		return this._choiceset.nextActionTrack();
 	}
 
 	public testPFeature() : boolean
@@ -106,9 +114,13 @@ export class CSceneTrack
 		return this._features;
 	}		
 	
-	public get classpath() : string
+	public get trackName() : string
 	{
-		return this._classpath;
+		return this._trackname;
 	}		
 	
+	public get actionName() : string
+	{
+		return this._actionname;
+	}		
 }

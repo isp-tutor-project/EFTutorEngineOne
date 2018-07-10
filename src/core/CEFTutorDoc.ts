@@ -101,6 +101,7 @@ export class CEFTutorDoc extends EventDispatcher implements IEFTutorDoc
 	public tutorGraph:any;						    	// The factory definition object used to create the tutor Graph		
     public tutorConfig:LoaderPackage.ITutorConfig;
 
+    public language:string = "en";
     public modules:Array<LoaderPackage.IModuleDescr>;
     public moduleData:any;
 
@@ -596,25 +597,27 @@ export class CEFTutorDoc extends EventDispatcher implements IEFTutorDoc
         // 
         for(let moduleName of this.tutorConfig.dependencies) {
 
+            let moduleNameCS = moduleName.toUpperCase();
+
             this.loaderData.push( {
                 type     : "ModuleID",
                 filePath : moduleName + CONST.MODID_FILEPATH,
                 onLoad   : this.onLoadModID.bind(this),
-                modName  : moduleName
+                modName : moduleNameCS
             });
 
             this.loaderData.push( {
                 type     : "Scene Graph",
                 filePath : moduleName + CONST.GRAPH_FILEPATH,
                 onLoad   : this.onLoadSceneGraphs.bind(this),
-                modName  : moduleName
+                modName : moduleNameCS
             });
 
             this.loaderData.push( {
                 type     : "Class Extensions",
                 filePath : moduleName + CONST.EXTS_FILEPATH,
                 onLoad   : this.onLoadCode.bind(this),
-                modName  : moduleName,
+                modName : moduleNameCS,
                 debugPath: this.isDebug? "ISP_Tutor/EFbuild/" + moduleName + "/exts.js":null
             });
 
@@ -622,7 +625,7 @@ export class CEFTutorDoc extends EventDispatcher implements IEFTutorDoc
                 type     : "Scene Mixins",
                 filePath : moduleName + CONST.MIXINS_FILEPATH,
                 onLoad   : this.onLoadCode.bind(this),
-                modName  : moduleName,
+                modName : moduleNameCS,
                 debugPath: this.isDebug? "ISP_Tutor/EFbuild/" + moduleName + "/mixins.js":null
             });
 
@@ -630,28 +633,28 @@ export class CEFTutorDoc extends EventDispatcher implements IEFTutorDoc
                 type     : "Fonts",
                 filePath : moduleName + CONST.FONTFACE_FILEPATH,
                 onLoad   : this.onLoadFonts.bind(this),
-                modName  : moduleName,
+                modName : moduleNameCS,
             });
            
             this.loaderData.push( {
                 type     : "Scene Data",
                 filePath : moduleName + CONST.DATA_FILEPATH,
                 onLoad   : this.onLoadData.bind(this),
-                modName  : moduleName,
+                modName : moduleNameCS,
             });
 
             this.loaderData.push( {
                 type     : "Track Data",
                 filePath : moduleName + CONST.TRACKDATA_FILEPATH,
                 onLoad   : this.onLoadData.bind(this),
-                modName  : moduleName,
+                modName : moduleNameCS,
             });
 
             this.loaderData.push( {
                 type     : "AnimateCC",
                 filePath : moduleName + CONST.ANMODULE_FILEPATH,
                 onLoad   : this.onLoadCode.bind(this),
-                modName  : moduleName,
+                modName : moduleNameCS,
                 debugPath: this.isDebug? moduleName + ".js":null
             });
         }

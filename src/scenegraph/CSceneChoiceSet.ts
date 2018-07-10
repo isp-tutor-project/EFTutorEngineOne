@@ -88,7 +88,7 @@ export class CSceneChoiceSet extends CSceneNode
 	}
 	
 	
-	public nextAnimation() : string
+	public nextActionTrack() : string
 	{
 		let nextTrackClass:string 		= null; 
 		let choice:CSceneChoice;

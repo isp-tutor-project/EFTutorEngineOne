@@ -67,7 +67,7 @@ export class CSceneNode extends EventDispatcher
 		}
 	}
 	
-	public nextAnimation() : string
+	public nextActionTrack() : string
 	{
 		return null;
 	}	
@@ -79,7 +79,7 @@ export class CSceneNode extends EventDispatcher
 
 		if(this._preExit != null)
 		{
-			// D.eval(_preExit, _parent.sceneInstance);			
+			this._parent.sceneInstance.$preExitNode(this._id);			
 		}
 		
 		for (edge of this._edges)
@@ -90,7 +90,7 @@ export class CSceneNode extends EventDispatcher
 				
 				if(node != null && node._preEnter != null)
 				{
-					// D.eval(node._preEnter, node._parent.sceneInstance);
+                    node._parent.sceneInstance.$preEnterNode(node._id);	
 				}
 				
 				break;
@@ -107,12 +107,12 @@ export class CSceneNode extends EventDispatcher
 	{
 		if(this._preEnter != null)
 		{
-			// D.eval(this._preEnter, this._parent.sceneInstance);
+            this._parent.sceneInstance.$preEnterNode(this._id);	
 		}						
 	}
 	
 	
-	public seekToAnimation(seek:string) : string
+	public seekToTrack(seek:string) : string
 	{
 		return null;
 	}

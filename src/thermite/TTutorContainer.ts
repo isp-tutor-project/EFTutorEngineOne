@@ -221,28 +221,44 @@ export class TTutorContainer extends TRoot
     }
     
 
-	public instantiateScene(sceneName:string, hostModule:string, className:string, sceneVisible:boolean=false) : any
+	public instantiateScene(sceneName:string, hostModule:string, classPath:string, sceneVisible:boolean=false) : any
 	{			
 		let i1:number;
-		let tarScene:any;
+		let tarScene:TScene;
 		let subScene:any;
 
 		if (this.traceMode) CUtil.trace("Creating Scene : "+ sceneName);
 
-        tarScene = CUtil.instantiateThermiteObject(hostModule, className);
+        tarScene = CUtil.instantiateThermiteObject(hostModule, classPath) as TScene;
         
+        // Note the scene object is expected to have the name as its createJS "name"
+        //
 		tarScene.name         = sceneName;
-		tarScene.classPath    = className;
+        tarScene.sceneName    = sceneName;        
+        tarScene.hostModule   = hostModule;
+		tarScene.classPath    = classPath;
 		tarScene.tutorDoc     = this.tutorDoc;
-		tarScene.tutorAutoObj = this.tutorAuto;
+		tarScene.tutorAutoObj = this.tutorAutoObj;
 		tarScene.visible	  = false;				
+
+        tarScene.connectGraph(hostModule, sceneName);				
 
 		// Supplimentary code has leading $ (CONST.EXT_SIG) on each identifier to be mixed in
 		// Mixin the common code first to initialize defaults
 		// Mixin the supplimentary code on the scene instance.
         //
-        CUtil.mixinSceneSuppliments(tarScene, EFTut_Suppl[hostModule][CONST.COMMON_CODE], CONST.EXT_SIG);
-		CUtil.mixinSceneSuppliments(tarScene, EFTut_Suppl[hostModule][sceneName], CONST.EXT_SIG);        
+        try {
+            CUtil.mixinSceneSuppliments(tarScene, EFTut_Suppl[hostModule][CONST.COMMON_CODE], CONST.EXT_SIG);
+        }
+        catch(err) {
+            console.log("Error: missing $Common mixin");
+        }
+        try {
+            CUtil.mixinSceneSuppliments(tarScene, EFTut_Suppl[hostModule][sceneName], CONST.EXT_SIG);        
+        }
+        catch(err) {
+            console.log("Error: missing Scene mixin");
+        }
 
 		this.addChild(tarScene);
 

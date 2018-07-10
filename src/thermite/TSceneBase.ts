@@ -51,10 +51,8 @@ export class TSceneBase extends TObject
 	public sceneAttempt:number = 1;		
 	public sceneTag:string;
     
-	public _classPath:string;
-	public _hostModule:string;
-	public _className:string;
-	public _features:string;
+	public classPath:string;
+	public hostModule:string;
     
 	protected _section:string;					// Arbitrary tutor section id
 	

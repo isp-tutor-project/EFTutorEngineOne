@@ -256,7 +256,7 @@ export class CTutorGraphNavigator extends CEFNavigator
 			// protect against recurrent calls			
 			
 			if(this._inNavigation) 
-						return;
+						    return;
 			
 			this._inNavigation = true;
 			

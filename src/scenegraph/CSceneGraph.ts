@@ -41,8 +41,8 @@ export class CSceneGraph extends CSceneNode
 	private _constraints:any = {};		
 	
 	private _currNode:CSceneNode;
-	private _currAnimation:string;
-	private _prevAnimation:string;
+	private _currActionTrack:string;
+	private _prevActionTrack:string;
 	
 	private _parentScene:TScene;
 	
@@ -56,12 +56,20 @@ export class CSceneGraph extends CSceneNode
 	}				
 
 	
-	public static factory(_tutorDoc:IEFTutorDoc, parent:TScene, id:string, factoryName:string) : CSceneGraph
+	public static factory(_tutorDoc:IEFTutorDoc, parent:TScene, hostModule:string, sceneName:string) : CSceneGraph
 	{			
 		let scenegraph:CSceneGraph = new CSceneGraph(_tutorDoc);			
-	
-		scenegraph._graphFactory = _tutorDoc.sceneGraph[factoryName];
-		
+    
+        try {
+            scenegraph._graphFactory = _tutorDoc.sceneGraph[hostModule][sceneName];
+            
+            if(scenegraph._graphFactory == undefined) 
+                                        throw("missing scene");
+        }
+        catch(err) {
+            console.log("Error: Missing scene graph: " + hostModule + ":" + sceneName);
+        }
+
 		scenegraph.sceneInstance = parent;
 
 		scenegraph.parseModules();
@@ -140,7 +148,7 @@ export class CSceneGraph extends CSceneNode
 	//
 	// returns the class name of the next ActionTrack as a string
 	//
-	public nextAnimation() : string
+	public nextActionTrack() : string
 	{
 		let nextNode:CSceneNode;
 		
@@ -148,11 +156,11 @@ export class CSceneGraph extends CSceneNode
 		{
 			// Increment the animation polymorphically
 			
-			this._currAnimation = this._currNode.nextAnimation();
+			this._currActionTrack = this._currNode.nextActionTrack();
 			
 			// If the node is exhausted move to next node
 			
-			if(this._currAnimation == null)
+			if(this._currActionTrack == null)
 			{
 				this._currNode = this._currNode.nextNode();
 				
@@ -164,14 +172,14 @@ export class CSceneGraph extends CSceneNode
 				}
 			}
 			
-		}while((this._currAnimation == null) && (this._currNode != null))
+		}while((this._currActionTrack == null) && (this._currNode != null))
 		
 		// Remember a context in which to do constraint testing for graph Node transitions.
 		// i.e. the constraints are tested within the context of the last valid Animation
 		
-		this._prevAnimation = this._currAnimation;	
+		this._prevActionTrack = this._currActionTrack;	
 		
-		return this._currAnimation;				
+		return this._currActionTrack;				
 	}
 	
 	

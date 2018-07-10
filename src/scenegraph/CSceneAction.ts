@@ -73,7 +73,7 @@ export class CSceneAction extends CSceneNode
 	}
 	
 	
-	public nextAnimation() : string
+	public nextActionTrack() : string
 	{
 		return null;
 	}

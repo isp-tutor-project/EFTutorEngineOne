@@ -3,7 +3,8 @@
 export class CONST {
 
 	public static readonly TUTORCONTAINER = "STutorContainer";
-
+    
+    public static readonly ACTION_PFX   = "$nodeAction.";    
 	public static readonly COMMON_CODE  = "$Common";
 	public static readonly EXT_SIG      = "$";
 
