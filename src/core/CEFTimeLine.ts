@@ -15,7 +15,7 @@
 //*********************************************************************************
 
 
-import { IEFTutorDoc } 		from "../core/IEFTutorDoc";
+import { IEFTutorDoc } 		from "./IEFTutorDoc";
 
 import { TRoot } 			from "../thermite/TRoot";
 import { TObject }			from "../thermite/TObject";

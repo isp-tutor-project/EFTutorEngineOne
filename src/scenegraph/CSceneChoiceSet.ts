@@ -21,7 +21,7 @@ import { IEFTutorDoc } 			from "../core/IEFTutorDoc";
 
 import { CSceneNode } 			from "./CSceneNode";
 import { CSceneGraph } 			from "./CSceneGraph";
-import { CSceneChoice } 		from "./CSceneChoice";
+import { CSceneTrack } 		    from "./CSceneTrack";
 
 import EventDispatcher  = createjs.EventDispatcher;
 
@@ -77,7 +77,7 @@ export class CSceneChoiceSet extends CSceneNode
 		
 		for (let set in choices)
 		{
-			node._choices.push(new CSceneChoice(set));	
+			node._choices.push(new CSceneTrack(_tutorDoc, set, parent));	
 		}
 
 		node._replace = moduleFactory.replace;
@@ -88,10 +88,10 @@ export class CSceneChoiceSet extends CSceneNode
 	}
 	
 	
-	public nextActionTrack() : string
+	public choose() : CSceneTrack
 	{
-		let nextTrackClass:string 		= null; 
-		let choice:CSceneChoice;
+		let nextTrack:CSceneTrack; 
+		let choice:CSceneTrack;
 		let curOdds:number 				= 0;
 		let sampleSize:number;			
 		let rand:number;
@@ -131,7 +131,7 @@ export class CSceneChoiceSet extends CSceneNode
 			
 			if(rand < curOdds)
 			{
-				nextTrackClass = choice.classpath;
+				nextTrack = choice;
 				
 				if(!this._replace)
 					choice.choose();
@@ -148,6 +148,6 @@ export class CSceneChoiceSet extends CSceneNode
 			}
 		}
 					
-		return nextTrackClass;			
+		return nextTrack;			
 	}		
 }

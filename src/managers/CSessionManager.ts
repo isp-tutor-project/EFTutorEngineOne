@@ -54,7 +54,7 @@ export class CSessionManager
     private _sceneGraphXML:any;
     private _sceneDescrXML:any;
     private _sceneGraphJSON:any;
-    private _animationGraphJSON:any;
+    private _tutorGraphJSON:any;
             
     // For Browser Manager info see --- http://help.adobe.com/en_US/flex/using/WS2db454920e96a9e51e63e3d11c0bf64e50-7ff4.html
     
@@ -1813,13 +1813,13 @@ export class CSessionManager
             
             
             //**************************************************************************
-            // Add the AnimationGraph JSON spec to the LoadablePackage of files 
+            // Add the sceneGraph JSON spec to the LoadablePackage of files 
             // Note that the incoming JSON data in the loader has to be assigned to a 
-            // variable, in this case "animationGraphJSON"
+            // variable, in this case "sceneGraphJSON"
             //@@ Mod Jul 17 2013 - Separated scenegraph from scene description
             
             if(this._loader.anigraphjson != null)			
-                _loadablePackage.addModule(new CFXthis.fileLoader(), "loadFile", new Array(this._loader.graphpath + this._loader.anigraphjson), this, "_animationGraphJSON");
+                _loadablePackage.addModule(new CFXthis.fileLoader(), "loadFile", new Array(this._loader.graphpath + this._loader.anigraphjson), this, "_sceneGraphJSON");
             
             
             //**************************************************************************
@@ -2065,8 +2065,8 @@ export class CSessionManager
             this._tutorObject["extSceneGraph"] = _sceneGraphJSON; 
         
         //@@ Mod Aug 31 2013 - Separated animation graph from scene description 
-        if(this._tutorObject.hasOwnProperty("extAnimationGraph") && (_animationGraphJSON != null))		
-            this._tutorObject["extAnimationGraph"] = _animationGraphJSON; 
+        if(this._tutorObject.hasOwnProperty("extsceneGraph") && (_sceneGraphJSON != null))		
+            this._tutorObject["extsceneGraph"] = _sceneGraphJSON; 
         
         //@@ Mod May 22 2013 - support prepost back button processing 
         if(this._tutorObject.hasOwnProperty("extForceBackButton") && (this._interfaceLdr.forcebackbutton != undefined))		

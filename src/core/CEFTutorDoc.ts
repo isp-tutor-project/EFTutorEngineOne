@@ -16,7 +16,7 @@
 
 //** Imports
 
-import { IEFTutorDoc } 			from "../core/IEFTutorDoc";
+import { IEFTutorDoc } 			from "./IEFTutorDoc";
 
 import { CLogManager }			from "../managers/CLogManager";
 import { CURLLoader }           from "../network/CURLLoader";
@@ -34,6 +34,7 @@ import { CUtil }                from "../util/CUtil";
 
 
 import EventDispatcher 		  = createjs.EventDispatcher;
+import { CEFTimer } from "./CEFTimer";
 
 
 
@@ -102,6 +103,8 @@ export class CEFTutorDoc extends EventDispatcher implements IEFTutorDoc
     public tutorConfig:LoaderPackage.ITutorConfig;
 
     public language:string = "en";
+    public voice:string    = "F0";             // F0 | M0
+
     public modules:Array<LoaderPackage.IModuleDescr>;
     public moduleData:any;
 

@@ -14,7 +14,7 @@
 //
 //*********************************************************************************
 
-import { TScene } from "../../thermite/TScene";
+import { TScene } from "../TScene";
 import { CUtil } 			from "../../util/CUtil";
 
 import MovieClip     		  = createjs.MovieClip;

@@ -29,7 +29,7 @@
 //** Imports
 
 import { TRoot } 				from "../TRoot";
-import { TScene } 	from "../../thermite/TScene";
+import { TScene } 	from "../TScene";
 
 import { CONST }                from "../../util/CONST";
 import { CUtil } 				from "../../util/CUtil";

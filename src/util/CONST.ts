@@ -4,7 +4,14 @@ export class CONST {
 
 	public static readonly TUTORCONTAINER = "STutorContainer";
     
-    public static readonly ACTION_PFX   = "$nodeAction.";    
+    public static readonly ACTION_PFX       = "$nodeAction.";    
+    public static readonly SCENE_CHOICESET  = "choiceset";
+    public static readonly SCENE_TRACK      = "track";
+    public static readonly SCENE_ACTION     = "action";		
+    public static readonly TEMPLATE_VAR     = "templateVar";	
+    public static readonly NOVAR            = "__novar";	
+    
+
 	public static readonly COMMON_CODE  = "$Common";
 	public static readonly EXT_SIG      = "$";
 
@@ -17,7 +24,12 @@ export class CONST {
     public static readonly FONTFACE_FILEPATH:string     = "/EFfonts/fontfaces.css";
     public static readonly TRACKDATA_FILEPATH:string    = "/EFaudio/EFscripts/assets.json";
     public static readonly TRACKASSETS_FILEPATH:string  = "/EFaudio/EFassets/";
+    public static readonly SEGMENT_PREFIX:string        = "_s";
+    public static readonly VOICE_PREFIX:string          = "_v";
     public static readonly ANMODULE_FILEPATH:string     = ".js";
+    public static readonly TYPE_MP3                     = ".mp3";
+    public static readonly TYPE_WAV                     = ".wav";
+
     public static readonly LOCAL:string                 = "LOCAL";
     public static readonly WAIT:number                  = 250;
 
@@ -78,10 +90,10 @@ export class CONST {
 	public static readonly DLGSTAY:string	= "DLGStay";
 	public static readonly DLGNEXT:string	= "DLGNext";
 
-	public static readonly WOZREPLAY:string  = "rootreplay";
-	public static readonly WOZCANCEL:string  = "rootcancel";
-	public static readonly WOZPAUSING:string = "rootpause"; 
-	public static readonly WOZPLAYING:string = "rootplay"; 
+	public static readonly EF_REPLAY:string  = "rootreplay";
+	public static readonly EF_CANCEL:string  = "rootcancel";
+	public static readonly EF_PAUSING:string = "rootpause"; 
+	public static readonly EF_PLAYING:string = "rootplay"; 
 	
 //********
 
@@ -193,5 +205,7 @@ export class CONST {
 	public static readonly GOTONEXTSCENE:string     = "incTutorGraph";
 	public static readonly GOTONEXTANIMATION:string = "incSceneGraph";
 
+	public static readonly TIMER:string             = "timeout";
+	public static readonly TIMER_COMPLETE:string    = "timercomplete";
 }
 

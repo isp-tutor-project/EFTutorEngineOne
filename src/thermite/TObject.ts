@@ -20,7 +20,7 @@ import { TRoot } 			from "./TRoot";
 import { TObjectDyno } 		from "./TObjectDyno";
 import { TSceneBase }  		from "./TSceneBase";
 
-import { TTutorContainer } 	from "../thermite/TTutorContainer";
+import { TTutorContainer } 	from "./TTutorContainer";
 
 import { CEFNavigator } 	from "../core/CEFNavigator";
 
@@ -117,7 +117,7 @@ export class TObject extends TRoot
 	protected _validFeature:string   = "";						//## Added Sep 28 2012 - to support dynamic features
 	protected _invalidFeature:string = "";						//## Added Sep 28 2012 - to support dynamic features	
 	
-	public _features:string;									//## Mod Aug 13 2013 - to support object unique features (used in scenegraph currently) 
+	public _features:string;									//## Mod Aug 13 2013 - to support object unique features (used in tutorgraph currently) 
 	
 	// mask specific values		
 

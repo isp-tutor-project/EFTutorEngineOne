@@ -22,7 +22,7 @@ import { TButton } 			from "../TButton";
 
 import { TMouseEvent } 		from "../events/TMouseEvent";
 
-import { TScene } from "../../thermite/TScene";
+import { TScene } from "../TScene";
 import { CEFEvent } 		from "../../events/CEFEvent";
 
 import { CONST }            from "../../util/CONST";

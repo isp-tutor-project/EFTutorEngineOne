@@ -17,7 +17,7 @@
 
 import { TRoot } 			from "./TRoot";
 import { TObject } 			from "./TObject";
-import { TTutorContainer } 	from "../thermite/TTutorContainer";
+import { TTutorContainer } 	from "./TTutorContainer";
 
 import { CEFActionEvent } 	from "../events/CEFActionEvent";
 import { CEFScriptEvent } 	from "../events/CEFScriptEvent";
@@ -104,11 +104,11 @@ export class TSceneBase extends TObject
 			// Execute the create procedures for this scene instance
 			// see notes on sceneExt Code - tutor Supplimentary code
 			// 
-			this.$oncreate();
+			this.$onCreateScene();
 			
 			// Support for demo scene-initialization
 			// 
-			this.$demoinit();
+			this.$demoInitScene();
 		}		
 		catch(error) {
 
@@ -441,10 +441,67 @@ export class TSceneBase extends TObject
 	
 //****** Navigation Behaviors
 
-	public deferredEnterScene(Direction:string) : void
-	{				
-	}
+//*** REWIND PLAY Management		
 
+	/**
+	 * Initiate the action/audio sequence - 
+	 * @param	evt
+	 */
+	public sceneReplay(evt:Event) : void 
+	{
+		if(this.traceMode) CUtil.trace("sceneReplay: " + evt);
+		
+		// do XML based reset
+		
+		this.rewindScene();
+		
+		//## Mod Feb 07 2013 - added to support actionsequence replay functionality 
+		// restart the ActionTrack sequence
+		// 
+		try {
+			this.$preEnterScene();
+		}
+		catch(error) {
+			CUtil.trace("sceneReplay preenter error on scene: " + this.name + " - " + error);
+		}
+		
+		// Use the timer to do an asynchronous start of the track
+		
+        this.trackPlay();
+    }		
+
+	
+	/**
+	 * See override
+	 */
+	public trackPlay() : void 
+	{
+	}		
+
+
+	/**
+	 * polymorphic scene reset initialization
+	*/
+	public rewindScene() : void
+	{
+		// Parse the Tutor.config for create procedures for this scene 
+	
+		try {
+			// Execute the rewind procedures for this scene instance
+			// see notes on sceneExt Code - tutor Supplimentary code
+			// 
+			this.$rewindScene();
+			
+			// Support for demo scene-initialization
+			// 
+			this.$demoIinitScene();
+		}		
+		catch(error) {
+
+			CUtil.trace("Error in rewindScene script: ");
+		}
+	}
+	
 
 	// Default behavior - Set the Tutor Title and return same target scene
 	// Direction can be - "WOZNEXT" , "WOZBACK" , "WOZGOTO"
@@ -458,22 +515,11 @@ export class TSceneBase extends TObject
 		// Parse the Tutor.config for preenter procedures for this scene 
 		// 
 		try {
-			this.$preenter();
+			this.$preEnterScene();
 		}
 		catch(error) {
 			CUtil.trace("preenter error on scene: " + this.name + " - " + error);
 		}
-
-		// //@@ Mod May 22 2013 - moved to after the XML spec is executed - If the user uses the back button this should
-		// //                     override the spec based on fComplete
-		// // Update the Navigation
-		// //
-		// if(this.fComplete)
-		// 	this.updateNav();						
-		
-		// // polymorphic UI initialization - must be done after this.parseOBJ 
-		// //
-		// this.initUI();				
 			
 		return sceneLabel;
 	}
@@ -486,7 +532,7 @@ export class TSceneBase extends TObject
 		// Parse the Tutor.config for onenter procedures for this scene 
 		// 
 		try {
-			this.$onenter();
+			this.$onEnterScene();
 		}
 		catch(error) {
 			CUtil.trace("onenter error on scene: " + this.name + " - " + error);
@@ -502,7 +548,7 @@ export class TSceneBase extends TObject
 		// Parse the Tutor.config for onenter procedures for this scene 
 		// 
 		try {
-			this.$preexit();
+			this.$preExitScene();
 		}
 		catch(error) {
 			CUtil.trace("preexit error on scene: " + this.name + " - " + error);
@@ -513,11 +559,34 @@ export class TSceneBase extends TObject
 	public onExitScene() : void
 	{				
 		if (this.traceMode) CUtil.trace("Base onexit Scene Behavior:" + this.name);
-		
+        
+		// Check for Terminate Flag
+		// 
+		try {
+			if(this.$terminateScene) {
+				if(this.tutorDoc.testFeatureSet(this.$features)) {
+					this.enQueueTerminateEvent();
+				}
+				else {
+					this.enQueueTerminateEvent();
+				}
+			}
+		}
+		catch(error) {
+			CUtil.trace("enQueueTerminateEvent error on scene: " + this.name + " - " + error);
+		}
+
+		try {
+			this.$logScene();
+		}
+		catch(error) {
+			CUtil.trace("logging error on scene: " + this.name + " - " + error);
+		}
+		        
 		// Parse the Tutor.config for onenter procedures for this scene 
 		// 
 		try {
-			this.$onexit();
+			this.$onExitScene();
 		}
 		catch(error) {
 			CUtil.trace("onexit error on scene: " + this.name + " - " + error);

@@ -16,15 +16,15 @@
 
 //** Imports
 
-import { TRoot } 	    	from "../thermite/TRoot";	
-import { TObject } 	   		from "../thermite/TObject";	
-import { TScene } 			from "../thermite/TScene";
-import { TSceneBase } 		from "../thermite/TSceneBase";
-import { CEFScene0 } 		from "../thermite/scenes/CEFScene0";
-import { TCursorProxy } 	from "../thermite/TCursorProxy";	
-import { TTitleBar } 		from "../thermite/TTitleBar";
+import { TRoot } 	    	from "./TRoot";	
+import { TObject } 	   		from "./TObject";	
+import { TScene } 			from "./TScene";
+import { TSceneBase } 		from "./TSceneBase";
+import { CEFScene0 } 		from "./scenes/CEFScene0";
+import { TCursorProxy } 	from "./TCursorProxy";	
+import { TTitleBar } 		from "./TTitleBar";
 
-import { TMouseEvent } 		from "../thermite/events/TMouseEvent";
+import { TMouseEvent } 		from "./events/TMouseEvent";
 
 import { CEFNavigator } 	from "../core/CEFNavigator";	
 import { CEFTimeStamp } 	from "../core/CEFTimeStamp";	
@@ -236,12 +236,11 @@ export class TTutorContainer extends TRoot
 		tarScene.name         = sceneName;
         tarScene.sceneName    = sceneName;        
         tarScene.hostModule   = hostModule;
-		tarScene.classPath    = classPath;
+        tarScene.classPath    = classPath;
+        tarScene.navigator    = this.tutorDoc.tutorNavigator
 		tarScene.tutorDoc     = this.tutorDoc;
 		tarScene.tutorAutoObj = this.tutorAutoObj;
 		tarScene.visible	  = false;				
-
-        tarScene.connectGraph(hostModule, sceneName);				
 
 		// Supplimentary code has leading $ (CONST.EXT_SIG) on each identifier to be mixed in
 		// Mixin the common code first to initialize defaults
@@ -269,9 +268,13 @@ export class TTutorContainer extends TRoot
 		// 
 		this.initSceneTick(tarScene);
 
+        // Note that the mixins must be in place prior to the graph init.  
+        // The CSceneTrack template variables must be init'd (in the mixin)
+        // 
+        tarScene.connectSceneGraph(hostModule, sceneName);				
+
 		//enumChildren(tarScene,0);				//@@ Debug display list Test May 10 2014
-		//enumScenes();							//@@ Debug display list Test Oct 29 2012
-		
+		//enumScenes();							//@@ Debug display list Test Oct 29 2012		
 		//gTruck.add(tarScene);					//@@ Debug memory test May 27 2010
 		
 		tarScene.stop();						// TODO: COMMENTED FOR DEBUG
@@ -281,7 +284,7 @@ export class TTutorContainer extends TRoot
 		//## Mod Oct 29 2012 - add sceneVisible - once scene has been created hasOwnProperty(sceneName) will return 
 		//                                        true even if scene is destroyed - as in demo mode - in demo reentering scene 
 		//										  cause scene to appear before transitionIN
-		
+		// 
 		if(sceneVisible)
 		{
 			this[sceneName]  = tarScene;
@@ -307,7 +310,7 @@ export class TTutorContainer extends TRoot
 			subScene = tarScene.getChildAt(i1);	
 			
 			if(subScene instanceof MovieClip)
-				subScene.gotoAndStop(1);
+				subScene.gotoAndStop(0);
 		}
 		
 		return tarScene;			
@@ -377,13 +380,7 @@ export class TTutorContainer extends TRoot
 		
 		if(nameObj)									// Can't rename an object placed in Flash
 			this[sceneName].name = sceneName;
-		
-		// Attach the navigator to the scene itself - let it know what navigation object to use when NAV events occur
-
-		// TODO: check if required
-		// if(sceneObj instanceof TScene)
-		// 	sceneObj.connectNavigator(this.SnavPanel);
-		
+				
 		// Record each SCENE Object
 		//
 		this.tutorAutoObj[sceneName] = {};
@@ -507,8 +504,8 @@ export class TTutorContainer extends TRoot
 		
 		// Tell Proxies that Tutor is replaying
 		//
-		dispatchEvent(new Event(CONST.WOZCANCEL));
-		dispatchEvent(new Event(CONST.WOZREPLAY));
+		dispatchEvent(new Event(CONST.EF_CANCEL));
+		dispatchEvent(new Event(CONST.EF_REPLAY));
 	}
 
 	/**
@@ -541,7 +538,7 @@ export class TTutorContainer extends TRoot
 		
 		// Tell Proxies that Tutor is pausing
 		//
-		this.dispatchEvent(new Event(CONST.WOZPAUSING));
+		this.dispatchEvent(new Event(CONST.EF_PAUSING));
 		
 		for (let i1:number = 0 ; i1 < this.playing.length ; i1++)
 		{
@@ -562,7 +559,7 @@ export class TTutorContainer extends TRoot
 		
 		// Tell Proxies that Tutor is playing again
 		//
-		this.dispatchEvent(new Event(CONST.WOZPLAYING));			
+		this.dispatchEvent(new Event(CONST.EF_PLAYING));			
 		
 		for (let i1:number = 0 ; i1 < this.playing.length ; i1++)
 		{

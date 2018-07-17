@@ -20,8 +20,10 @@ import { IEFTutorDoc } 		from "../core/IEFTutorDoc";
 
 import { CSceneGraph } 		from "./CSceneGraph";
 import { CSceneEdge } 		from "./CSceneEdge";
+import { CSceneTrack }      from "./CSceneTrack";
 
 import EventDispatcher 	  = createjs.EventDispatcher;
+
 
 
 export class CSceneNode extends EventDispatcher
@@ -35,9 +37,6 @@ export class CSceneNode extends EventDispatcher
 	
 	protected _edges:Array<any> = new Array;
 			
-	protected _preEnter:string;
-	protected _preExit:string;
-	
 	
 	constructor(_tutorDoc:IEFTutorDoc, target:EventDispatcher=null)
 	{
@@ -45,7 +44,8 @@ export class CSceneNode extends EventDispatcher
 	
 		this.tutorDoc = _tutorDoc;
 	}
-	
+    
+    
 	protected nodeFactory(parent:CSceneGraph, id:string, nodefactory:any) : void
 	{
 		this._parent = parent;
@@ -53,34 +53,26 @@ export class CSceneNode extends EventDispatcher
 		this._id    = id;			
 		this._type  = nodefactory.type; 		
 		this._name  = nodefactory.name;			
-	
-		this._preEnter = nodefactory.preenter;
-		this._preExit  = nodefactory.preexit;
-		
-		// We don't want these to fire if there is nothing in them
-		if(this._preEnter == "") this._preEnter = null;
-		if(this._preExit == "")  this._preExit = null;
 		
 		for (let edge of nodefactory.edges)
 		{
 			this._edges.push(CSceneEdge.factory(this.tutorDoc, parent, edge));	
 		}
 	}
-	
-	public nextActionTrack() : string
+    
+    
+	public gotoNextTrack() : CSceneTrack
 	{
 		return null;
 	}	
-	
+    
+    
 	public nextNode() : CSceneNode
 	{
 		let edge:CSceneEdge;
 		let node:CSceneNode = null;		// When we run out of tracks we just want to stop
 
-		if(this._preExit != null)
-		{
-			this._parent.sceneInstance.$preExitNode(this._id);			
-		}
+        this._parent.sceneInstance.$nodePreExit(this._id);			
 		
 		for (edge of this._edges)
 		{
@@ -88,9 +80,9 @@ export class CSceneNode extends EventDispatcher
 			{
 				node = edge.followEdge();
 				
-				if(node != null && node._preEnter != null)
+				if(node != null)
 				{
-                    node._parent.sceneInstance.$preEnterNode(node._id);	
+                    node._parent.sceneInstance.$nodePreEnter(node._id);	
 				}
 				
 				break;
@@ -100,28 +92,19 @@ export class CSceneNode extends EventDispatcher
 		return node;
 	}
 	
-	
-	// Used by Animation graph to init root animation
-	
-	public preEnter() : void
-	{
-		if(this._preEnter != null)
-		{
-            this._parent.sceneInstance.$preEnterNode(this._id);	
-		}						
-	}
-	
-	
+		
 	public seekToTrack(seek:string) : string
 	{
 		return null;
 	}
-	
+    
+    
 	public applyNode() : boolean
 	{
 		return false;			
 	}		
-	
+    
+    
 	public resetNode() : void
 	{			
 	}

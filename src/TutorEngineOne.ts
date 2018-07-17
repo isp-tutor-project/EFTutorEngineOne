@@ -16,27 +16,16 @@
 
 //** Imports
 
-import { TRoot }                from "./thermite/TRoot";
-
+import { IEFTutorDoc }          from "./core/IEFTutorDoc";
 import { CEFTutorDoc }          from "./core/CEFTutorDoc";
 
 import { LoaderPackage }        from "./util/IBootLoader";
-import { IModuleDesc }          from "./util/IModuleDesc";
 
 import { CURLLoader }           from "./network/CURLLoader";
-import { CURLRequest }          from "./network/CURLRequest";
-
-import { CEFEvent }             from "./events/CEFEvent";
-import { CProgressEvent }       from "./events/CProgressEvent";
-import { CSecurityErrorEvent }  from "./events/CSecurityErrorEvent";
-import { CIOErrorEvent }        from "./events/CIOErrorEvent";
 
 import { CONST }                from "./util/CONST";
 import { CUtil }                from "./util/CUtil";
 
-import MovieClip     		  = createjs.MovieClip;
-import DisplayObject          = createjs.DisplayObject;
-import { IEFTutorDoc } from "./core/IEFTutorDoc";
 
 
 

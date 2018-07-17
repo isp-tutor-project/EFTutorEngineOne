@@ -19,7 +19,6 @@
 import { IEFTutorDoc } 			from "../core/IEFTutorDoc";
 
 import { CSceneGraph } 			from "./CSceneGraph";
-import { CSceneConstraint } 	from "./CSceneConstraint";
 import { CSceneNode } 			from "./CSceneNode";
 
 
@@ -31,12 +30,15 @@ export class CSceneEdge
 	
 	private _edgeConst:string;
 	private _edgeNode:string;
-	
+    
+    
+
 	constructor(_tutorDoc:IEFTutorDoc)
 	{
 		this.tutorDoc = _tutorDoc;
 	}			
-	
+    
+    
 	public static factory(_tutorDoc:IEFTutorDoc, parent:CSceneGraph, factory:any) : CSceneEdge
 	{
 		let edge:CSceneEdge = new CSceneEdge(_tutorDoc);			
@@ -48,19 +50,18 @@ export class CSceneEdge
 		
 		return edge;
 	}
-	
+
+    
 	public testConstraint() : boolean
 	{
 		let result:boolean = true;
-		
-		let constraint:CSceneConstraint = this._parent.findConstraintByName(this._edgeConst);			
-		
-		if(constraint != null)
-			result = constraint.execute();
+		        
+        result = this._parent.sceneInstance.$nodeConstraint(this._edgeConst);	
 		
 		return 	result;		 	
 	}
-	
+    
+    
 	public followEdge() : CSceneNode
 	{					
 		return this._parent.findNodeByName(this._edgeNode);	 	

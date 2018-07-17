@@ -21,7 +21,7 @@ import { IEFTutorDoc } 		from "../core/IEFTutorDoc";
 
 import { CSceneNode } 		from "./CSceneNode";
 import { CSceneGraph } 		from "./CSceneGraph";
-import { CActionTrack } 		from "./CActionTrack";
+import { CSceneTrack } 		from "./CSceneTrack";
 
 import { CUtil } 			from "../util/CUtil";
 
@@ -31,7 +31,7 @@ import EventDispatcher = createjs.EventDispatcher;
 
 export class CSceneModule extends CSceneNode
 {
-	private _tracks:Array<any> = new Array;	
+	private _tracks:Array<CSceneTrack> = new Array;	
 	private _ndx:number = -1;
 	private _reuse:boolean;
 	
@@ -70,21 +70,20 @@ export class CSceneModule extends CSceneNode
 		// These may represent classnames for actiontracks of choiceset references that will
 		// provide an actiontrack classname 
 		
-		let actiontracks:Object = moduleFactory.actiontracks;			
+		let actiontracks:any = moduleFactory.actiontracks;			
 		
-		for (let track in actiontracks)
+		for (let track of actiontracks)
 		{
-			node._tracks.push(new CActionTrack(_tutorDoc, track, parent));	
+			node._tracks.push(new CSceneTrack(_tutorDoc, track, parent));	
 		}
 		
 		return node;
 	}
 	
 	
-	public nextActionTrack() : string
+    public gotoNextTrack() : CSceneTrack
 	{
-		let nextTrackClass:string = null; 
-		let nextTrack:CActionTrack;
+		let nextTrack:CSceneTrack;
 		let features:string;
 		let featurePass:boolean = false;
 		
@@ -96,7 +95,6 @@ export class CSceneModule extends CSceneNode
 			this._ndx++;
 			
 			nextTrack  = this._tracks[this._ndx];				
-			nextTrackClass = null;
 			
 			if(nextTrack != null)
 			{
@@ -134,31 +132,20 @@ export class CSceneModule extends CSceneNode
 				
 				if(featurePass)
 				{
-					CUtil.trace("Track Features: " + features + " passed:" + featurePass);
-					
-					switch(nextTrack.type)
-					{
-						case "actionNode":
-							nextTrackClass = nextTrack.actionName;
-							break;
-						
-						case "actiontrack":
-							nextTrackClass = nextTrack.trackName;
-							break;
-						
-						case "choiceset":
-							nextTrackClass = nextTrack.nextChoice();
-							break;
-					}
-					
+                    CUtil.trace("Track Features: " + features + " passed:" + featurePass);		
+                    
+                    // Resolve in case the track is a choiceSet
+                    // 
+                    nextTrack = nextTrack.resolve();				
+
 					break;		// leave the loop
 				}					
 			}
 			else break;
 		}
 		
-		// If we have exhausete the node check if it can be reused - if so reinitialize it for 
-		// the next time it is called.
+        // If we have exhausted the node check whether it can be reused - 
+        // if so reinitialize it for the next time it is called.
 		
 		if(this._ndx >= this._tracks.length)
 		{
@@ -168,20 +155,20 @@ export class CSceneModule extends CSceneNode
 			}
 		}			
 		
-		return nextTrackClass;			
+		return nextTrack;			
 	}
 
 	
 	public seekToTrack(seek:string) : string
 	{
-		let track:CActionTrack = null;
+		let track:CSceneTrack = null;
 		let ndx:number = 0;
 		
 		// Move to the correct scene within the module
 		
 		for (let track of this._tracks)
 		{
-			if(seek == track.classpath)
+			if(seek == track.trackID)
 			{
 				this._ndx = ndx;
 				break;

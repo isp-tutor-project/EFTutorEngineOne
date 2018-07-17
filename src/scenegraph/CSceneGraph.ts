@@ -20,29 +20,20 @@
 import { IEFTutorDoc } 			from "../core/IEFTutorDoc";
 
 import { CSceneNode } 			from "./CSceneNode";
-import { CSceneAction } 		from "./CSceneAction";
 import { CSceneModule } 		from "./CSceneModule";
-import { CSceneChoiceSet } 		from "./CSceneChoiceSet";
-import { CSceneConstraint } 	from "./CSceneConstraint";
+import { CSceneTrack }          from "./CSceneTrack";
 
-import { TRoot }				from "../thermite/TRoot";
 import { TScene }				from "../thermite/TScene";
-import { CONST }            	from "../util/CONST";
 
 
 
 export class CSceneGraph extends CSceneNode 
 {
-	private _nodes:any       = {};		
-	private _modules:any     = {};
-	private _choicesets:any  = {};
-	private _actions:any     = {};
-	private _graphs:any      = {};
-	private _constraints:any = {};		
-	
-	private _currNode:CSceneNode;
-	private _currActionTrack:string;
-	private _prevActionTrack:string;
+	private _nodes:any              = {};			
+    private _currNode:CSceneNode;
+    
+	private _currTrack:CSceneTrack;
+	private _prevTrack:CSceneTrack;
 	
 	private _parentScene:TScene;
 	
@@ -71,17 +62,7 @@ export class CSceneGraph extends CSceneNode
         }
 
 		scenegraph.sceneInstance = parent;
-
-		scenegraph.parseModules();
-		scenegraph.parseActions();
-		scenegraph.parseChoiceSets();
-		scenegraph.parseConstraints();
-		
-		//@@ TODO - Allow for shared nodes by linking to pre-parsed SceneModules, SceneChoiceSets etc. instead of always 
-		//          creating a unique module (or action...etc) node.
-		
 		scenegraph.parseNodes();			
-	
 		scenegraph.seekRoot();
 		
 		return scenegraph;
@@ -93,12 +74,6 @@ export class CSceneGraph extends CSceneNode
 		this._currNode = this._nodes["root"];
 	}
 
-	
-	public onEnterRoot() : void
-	{
-		this._currNode.preEnter();			
-	}
-	
 	
 	public get sceneInstance() : TScene
 	{
@@ -141,14 +116,14 @@ export class CSceneGraph extends CSceneNode
 		
 		return iter;
 	}
-	
-	
+	    
+
 	// increments the curranimation polymorphically
 	// potentially called recursively if currNode is a subgraph.
 	//
 	// returns the class name of the next ActionTrack as a string
 	//
-	public nextActionTrack() : string
+	public gotoNextTrack() : CSceneTrack
 	{
 		let nextNode:CSceneNode;
 		
@@ -156,30 +131,23 @@ export class CSceneGraph extends CSceneNode
 		{
 			// Increment the animation polymorphically
 			
-			this._currActionTrack = this._currNode.nextActionTrack();
+			this._currTrack = this._currNode.gotoNextTrack();
 			
 			// If the node is exhausted move to next node
 			
-			if(this._currActionTrack == null)
+			if(this._currTrack == null)
 			{
 				this._currNode = this._currNode.nextNode();
-				
-				if(this._currNode)
-				{
-					// Apply action nodes
-					
-					this._currNode.applyNode();
-				}
 			}
 			
-		}while((this._currActionTrack == null) && (this._currNode != null))
+		}while((this._currTrack == null) && (this._currNode != null))
 		
 		// Remember a context in which to do constraint testing for graph Node transitions.
 		// i.e. the constraints are tested within the context of the last valid Animation
 		
-		this._prevActionTrack = this._currActionTrack;	
+		this._prevTrack = this._currTrack;	
 		
-		return this._currActionTrack;				
+		return this._currTrack;				
 	}
 	
 	
@@ -198,17 +166,13 @@ export class CSceneGraph extends CSceneNode
 			{
 				switch(nodeList[name].subtype)
 				{
-					case "action":					
-						this._nodes[name] = CSceneAction.factory(this.tutorDoc, this, name, nodeList[name]);
-						break;
-					
 					case "module":					
 						this._nodes[name] = CSceneModule.factory(this.tutorDoc, this, name, nodeList[name]);
-						break;
-					
-					case "choiceset":					
-						this._nodes[name] = CSceneChoiceSet.factory(this.tutorDoc, this, name, nodeList[name]);
-						break;						
+                        break;
+                        
+                    default:
+                        console.log("Error: Invalid Node Type: " + nodeList[name].subtype);
+                        break;
 				}
 			}
 		}			
@@ -216,72 +180,10 @@ export class CSceneGraph extends CSceneNode
 		return true;
 	}
 	
-	
-	private parseModules() : boolean
-	{
-		let moduleFactory = this._graphFactory.CModules;
 		
-		for(let name in moduleFactory) 
-		{
-			if(name != "COMMENT")
-				this._modules[name] = CSceneModule.factory(this.tutorDoc, this, name, moduleFactory[name]);	
-		}			
-		
-		return true;
-	}
-	
-	
-	private parseActions() : boolean
-	{
-		let actionFactory = this._graphFactory.CActions;
-		
-		for(let name in actionFactory) 
-		{
-			if(name != "COMMENT")
-				this._actions[name] = CSceneAction.factory(this.tutorDoc, this, name, actionFactory[name]);	
-		}			
-		
-		return true;
-	}
-	
-	
-	private parseChoiceSets() : boolean
-	{
-		let choicesetFactory = this._graphFactory.CChoiceSets;
-		
-		for(let name in choicesetFactory) 
-		{
-			if(name != "COMMENT")
-				this._choicesets[name] = CSceneChoiceSet.factory(this.tutorDoc, this, name, choicesetFactory[name]);	
-		}			
-		
-		return true;
-	}
-	
-	
-	private parseConstraints() : boolean
-	{
-		let constraintFactory = this._graphFactory.CConstraints;
-		
-		for(let name in constraintFactory) 
-		{
-			if(name != "COMMENT")
-				this._constraints[name] = CSceneConstraint.factory(this.tutorDoc, this, constraintFactory[name]);	
-		}			
-		
-		return true;
-	}
-			
-	
 	public findNodeByName(name:string) : CSceneNode
 	{
 		return this._nodes[name];
-	}
-	
-	
-	public findConstraintByName(name:string) : CSceneConstraint
-	{
-		return this._constraints[name];
 	}
 	
 	
@@ -289,7 +191,8 @@ export class CSceneGraph extends CSceneNode
 	{
 		return this._currNode;
 	}
-	
+
+    
 	public set node(newNode:CSceneNode) 
 	{
 		// If backtracking through a volatile history we need to reset
