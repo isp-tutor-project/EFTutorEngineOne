@@ -17,10 +17,12 @@
 //** Imports
 
 import { IEFTutorDoc } 		from "../core/IEFTutorDoc";
+import { CEFTimer }         from "../core/CEFTimer";
 
 import { segment,
          timedEvents,
-         segmentVal} 	    from "./IAudioTypes";
+         segmentVal,
+         cuePoint} 	        from "./IAudioTypes";
 
 import { CSceneGraph } 		from "./CSceneGraph";
 import { CSceneChoiceSet } 	from "./CSceneChoiceSet";
@@ -32,7 +34,7 @@ import { CONST }            from "../util/CONST";
 
 import AbstractSoundInstance  	= createjs.AbstractSoundInstance ;
 import EventDispatcher 	        = createjs.EventDispatcher;
-import { CEFTimer } from "../core/CEFTimer";
+import { CEFSceneCueEvent } from "../events/CEFSceneCueEvent";
 
 
 
@@ -87,6 +89,9 @@ export class CSceneTrack extends EventDispatcher
 
     private _asyncPlayTimer:CEFTimer;
     private _playHandler:Function;
+
+    private _asyncCueTimer:CEFTimer;
+    private _cueTimers:Array<CEFTimer>;
 
 	
 	constructor(_tutorDoc:IEFTutorDoc, factory:any, parent:CSceneGraph)
@@ -179,7 +184,7 @@ export class CSceneTrack extends EventDispatcher
 
         if(this._type === CONST.SCENE_TRACK) {
 
-            Object.assign(this, this.tutorDoc.moduleData[this.hostModule][this.sceneName].tracks[this._trackname][this.language]);
+            Object.assign(this, this.tutorDoc.moduleData[this.hostModule][CONST.TRACK_DATA][this.sceneName].tracks[this._trackname][this.language]);
 
             for(let segment of this.segments) {
 
@@ -223,6 +228,169 @@ export class CSceneTrack extends EventDispatcher
     public onTrackLoaded(event:any) {
         this.trackLoaded = true;
         console.log("Track Loaded: " + event.id + ": " + event.src);
+    }
+
+
+
+    // Behaviors
+
+    public playTrack() {
+
+        // If a stop occurs before the track loads we don't want it to start playing 
+        // until there is an explicit start request.
+        // 
+        if(this.isPlaying) {
+
+            let segment:segmentVal= this.segSequence[this.segNdx];
+
+            if(this.trackLoaded) {
+
+                if(this._asyncPlayTimer) {
+                    this._asyncPlayTimer.stop();        
+                    this._asyncPlayTimer.off(CONST.TIMER, this._playHandler);
+                    this._asyncPlayTimer = null;
+                }
+                                
+                var props = new createjs.PlayPropsConfig().set({interrupt: createjs.Sound.INTERRUPT_ANY, 
+                                                                volume: segment.volume})
+
+                this.trackAudio = createjs.Sound.play(segment.id, props); 
+
+                if(segment.trim) {
+                    this._asyncPlayTimer  = new CEFTimer(segment.duration - segment.trim);
+
+                    this._playHandler = this._asyncPlayTimer.on(CONST.TIMER, this.segmentComplete, this);
+                    this._asyncPlayTimer.start();        
+                }
+                else {
+                    this.trackAudio.on("complete", this.segmentComplete, this);
+                }
+            }
+            else {
+                // TODO: setup retry of track loading if this fails for some defined 
+                // period.
+                // 
+                if(!this._asyncPlayTimer) {
+                    this._asyncPlayTimer  = new CEFTimer(0);
+
+                    this._playHandler = this._asyncPlayTimer.on(CONST.TIMER, this.playTrack, this);
+                    this._asyncPlayTimer.start();        
+                }
+            }
+            this.setCuePoints(segment);
+        }
+    }
+
+    private setCuePoints(segment:segmentVal) {
+
+        this._cueTimers = new Array<CEFTimer>();
+
+        for (let cue of segment.cues) {
+
+            console.log("Configure cue: " + cue.name);
+            
+            this._cueTimers.push(CEFTimer.startTimer(cue.relTime, 
+                                                     this.cueHandler, 
+                                                     this,
+                                                     new CustomEvent(CEFSceneCueEvent.CUEPOINT,
+                                                         { detail:{ id:cue.name, track:this._name}})));
+        }
+    }
+
+    private cueHandler(evt:Event, _timer:CEFTimer) {
+
+        this.dispatchEvent(evt);
+        
+        _timer.stop();
+
+        let index = this._cueTimers.indexOf(_timer);
+        this._cueTimers.splice(index,1);
+    }
+
+    
+    // KEYPOINT: 
+    // This will play the next segment or if segments are exhausted 
+    // it will auto step to the next track or just stop and wait for
+    // user input.
+    private segmentComplete(event:Event) {
+
+        this.segNdx++;
+
+        if(this.segNdx < this.segSequence.length) {
+            this.playTrack();
+        }
+        else {
+            if(this._autostep) {
+                this.hostScene.nextSceneTrack();
+            }
+        }
+    }
+
+
+    public play() {
+        
+        switch(this._type) {
+            // KEYPOINT: 
+            // This will execute the named scene action it will auto step to the 
+            // next track or just stop and wait for user input.
+            case CONST.SCENE_ACTION:
+                this.hostScene.$nodeAction(this._actionname);
+
+                if(this._autostep) {
+                    this.hostScene.nextSceneTrack();
+                }
+                break;
+
+            case CONST.SCENE_TRACK:
+                if(!this.isPlaying) {
+                    if(this.hasAudio) {
+    
+                        this.isPaused  = false;
+                        this.isPlaying = true;
+                        this.playTrack();
+                    }
+                    else {
+                        console.log("something funny going on with the audio :)");
+                    }
+                }
+                break;
+                
+            case CONST.SCENE_CHOICESET:
+                // NB: this should never happen
+                break;
+        }
+    }
+
+
+    public pause() {
+
+        this.isPlaying = false;
+        this.isPaused  = true;
+
+        // createJS pause mechanism
+        this.trackAudio.paused = true;
+
+    }
+
+
+    public stop() {
+
+        this.isPlaying = false;
+
+        createjs.Sound.stop(); 
+    }
+
+
+    public gotoAndStop(time:number) {
+
+    }
+
+
+    public bindPlay(container:TTutorContainer) {
+
+		
+		if(this.tutorDoc.tutorContainer) this.tutorDoc.tutorContainer.playAddThis(this);
+		this.play();
     }
 
 
@@ -304,133 +472,6 @@ export class CSceneTrack extends EventDispatcher
 	{
 		this._chosen = true;
 	}
-
-
-    // Behaviors
-
-    public playTrack() {
-
-        // If a stop occurs before the track loads we don't want it to start playing 
-        // until there is an explicit start request.
-        // 
-        if(this.isPlaying) {
-
-            if(this.trackLoaded) {
-
-                if(this._asyncPlayTimer) {
-                    this._asyncPlayTimer.stop();        
-                    this._asyncPlayTimer.off(CONST.TIMER, this._playHandler);
-                    this._asyncPlayTimer = null;
-                }
-                
-                this.trackAudio = createjs.Sound.play(this.segSequence[this.segNdx].id);  // play using id.  Could also use full sourcepath or event.src.
-                this.trackAudio.volume = this.segSequence[this.segNdx].volume;
-
-                this.trackAudio.on("complete", this.segmentComplete, this);
-            }
-            else {
-                // TODO: setup retry of track loading if this fails for some defined 
-                // period.
-                // 
-                if(!this._asyncPlayTimer) {
-                    this._asyncPlayTimer  = new CEFTimer(0);
-
-                    this._playHandler = this._asyncPlayTimer.on(CONST.TIMER, this.playTrack, this);
-                    this._asyncPlayTimer.start();        
-                }
-            }
-        }
-    }
-
-    
-    // KEYPOINT: 
-    // This will play the next segment or if segments are exhausted 
-    // it will auto step to the next track or just stop and wait for
-    // user input.
-    private segmentComplete(event:Event) {
-
-        this.segNdx++;
-
-        if(this.segNdx < this.segSequence.length) {
-            this.playTrack();
-        }
-        else {
-            if(this._autostep) {
-                this.hostScene.nextSceneTrack();
-            }
-        }
-    }
-
-
-    public play() {
-        
-        switch(this._type) {
-            // KEYPOINT: 
-            // This will execute the named scene action it will auto step to the 
-            // next track or just stop and wait for user input.
-            case CONST.SCENE_ACTION:
-                this.hostScene.$nodeAction(this._actionname);
-
-                if(this._autostep) {
-                    this.hostScene.nextSceneTrack();
-                }
-                break;
-
-            case CONST.SCENE_TRACK:
-                if(!this.isPlaying) {
-                    if(this.hasAudio) {
-    
-                        this.isPaused  = false;
-                        this.isPlaying = true;
-                        this.playTrack();
-                    }
-                    else {
-                        console.log("something funny going on with the audio :)");
-                    }
-                }
-                break;
-                
-            case CONST.SCENE_CHOICESET:
-                // NB: this should never happen
-                break;
-        }
-    }
-
-
-    public pause() {
-
-        this.isPlaying = false;
-        this.isPaused  = true;
-
-        // createJS pause mechanism
-        this.trackAudio.paused = true;
-
-    }
-
-
-    public stop() {
-
-        this.isPlaying = false;
-
-
-    }
-
-
-    public gotoAndStop(time:number) {
-
-    }
-
-
-    public bindPlay(container:TTutorContainer) {
-
-		
-		if(this.tutorDoc.tutorContainer) this.tutorDoc.tutorContainer.playAddThis(this);
-		this.play();
-    }
-
-
-
-
 
 
 }

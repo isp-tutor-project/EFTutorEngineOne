@@ -72,6 +72,7 @@ export class CTutorGraphNavigator extends CEFNavigator
         super(_tutorDoc);		
         
         this._asyncTimer = new CEFTimer(0);
+
 	}
 	
 	
@@ -120,8 +121,12 @@ export class CTutorGraphNavigator extends CEFNavigator
 		*/
 	public static rootFactory(_tutorDoc:IEFTutorDoc, factory:any) : CTutorGraphNavigator
 	{	
-		let tutorNav 	  = new CTutorGraphNavigator(_tutorDoc);				
-		tutorNav._history = new CTutorHistory(_tutorDoc);
+        // Create the tutors navigator object and init the internal pointer 
+        // which may be used during scene initialization
+        // 
+		let tutorNav 	         = new CTutorGraphNavigator(_tutorDoc);				
+        tutorNav._history        = new CTutorHistory(_tutorDoc);
+        _tutorDoc.tutorNavigator = tutorNav;
 		
 		if(factory['history'] != null)
 		{
@@ -191,7 +196,7 @@ export class CTutorGraphNavigator extends CEFNavigator
 		*/
 	public onButtonNext(evt:TMouseEvent) : void
 	{
-		this.dispatchEvent(new Event("NEXT_CLICK",false,false));
+		// this.dispatchEvent(new Event("NEXT_CLICK",false,false));
 
 		// Do button clicks synchronously
 		

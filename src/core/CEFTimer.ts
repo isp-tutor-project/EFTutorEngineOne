@@ -24,9 +24,9 @@ import { CEFEvent }         from "../events/CEFEvent";
 import { CONST }            from "../util/CONST";
 import { CUtil } 			from "../util/CUtil";
 
-
 import Ticker 		   = createjs.Ticker;
 import EventDispatcher = createjs.EventDispatcher;
+
 
 
 
@@ -39,14 +39,20 @@ export class CEFTimer extends EventDispatcher
 {
 	private traceMode:boolean = false;
 
-	private _delay	     : number;
+    private _handler:Function;
+    private _scope:Object;
+    private _event:Object;
+
+	private _time	     : number;
     private _repeatCount : number;
 
     private count       : number;
     private repeats     : number;
     private paused      : boolean;
+    public  frameRate   : number;
+    public  frame_ms    : number;
     
-	private _tickHandler:Function;
+	private _tickHandler: Function | Object;
 	
 	// Create one EDFORGEObject through which we can listen for pause play commands
 	//
@@ -57,35 +63,44 @@ export class CEFTimer extends EventDispatcher
 	/**
 	* Creates a new CEFTimerProxy instance. 
 	*/
-	constructor(delay:number, repeatCount:number = 0)
+	constructor(time:number, repeatCount:number = 0)
 	{
 		super();
 
-		this._delay		  = delay;
+		this._time		  = time;
         this._repeatCount = repeatCount;
 
-        this.count   = 0;
-        this.repeats = 0;
-        this.paused  = true;
+        this.count     = 0;
+        this.repeats   = 0;
+        this.paused    = true;
+        this.frame_ms  = (1/Ticker.framerate) * 1000;
+        this.frameRate = Ticker.framerate;
+        this._handler  = null;
+        this._event    = null;
 	}
                 
 
     private tick(evt:Event) {
 
-        this.count += Ticker.framerate;
+        this.count += this.frame_ms;
 
-        if(!this.paused && (this.count > this._delay)) {
+        if(!this.paused && (this.count > this._time)) {
 
             this.count = 0;
-            this.dispatchEvent(new Event(CONST.TIMER));
+
+            if(this._handler) {
+                this._handler.call(this._scope, this._event, this);
+            }
+            else 
+                this.dispatchEvent(new Event(CONST.TIMER));
 
             if(this._repeatCount > 0) {                
 
                 this.repeats++;
                 if(this.repeats >= this._repeatCount) {
 
-                    Ticker.off(CEFEvent.ENTER_FRAME, this._tickHandler);
-
+                    Ticker.off(CEFEvent.ENTER_FRAME, this._tickHandler as Function);
+                    
                     this.dispatchEvent(new Event(CONST.TIMER_COMPLETE));
                 }
             }
@@ -165,6 +180,18 @@ export class CEFTimer extends EventDispatcher
 	}
     
 
+    public static startTimer(duration:number, callback:Function, scope:Object, event:Object) : CEFTimer {
+
+        let timer:CEFTimer = new CEFTimer(duration);
+
+        timer._event   = event;
+        timer._handler = callback
+        timer._scope   = scope;
+        timer.start();
+
+        return timer;
+    }
+
 
 	/**
 	 */
@@ -187,7 +214,7 @@ export class CEFTimer extends EventDispatcher
         this.disConnectFromTutor();
         
         this.paused = true;
-		Ticker.off(CEFEvent.ENTER_FRAME, this._tickHandler);
+		Ticker.off(CEFEvent.ENTER_FRAME, this._tickHandler as Function);
 	}
 	
 	/**
@@ -202,7 +229,7 @@ export class CEFTimer extends EventDispatcher
         this.repeats = 0;
         this.paused  = true;
 
-		Ticker.off(CEFEvent.ENTER_FRAME, this._tickHandler);
+		Ticker.off(CEFEvent.ENTER_FRAME, this._tickHandler as Function);
     }	
     
 

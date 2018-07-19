@@ -132,6 +132,21 @@ export class CUtil extends Object
 	}
 
 
+	public static mixinDataObject(recObj:any, donorObj:any) {
+
+		let propName:string;
+		
+		if(donorObj) {
+
+			let TObjProps:Array<string> = Object.getOwnPropertyNames(donorObj);
+			
+			for(propName of TObjProps) {
+				recObj[propName] = donorObj[propName];
+			}		
+		}			
+	}
+
+
 	public static getDefinitionByName2(name:string):any {
 
         if (!name)

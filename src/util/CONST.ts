@@ -11,18 +11,20 @@ export class CONST {
     public static readonly TEMPLATE_VAR     = "templateVar";	
     public static readonly NOVAR            = "__novar";	
     
+    public static readonly SCENE_DATA         = "SceneData";	
+    public static readonly TRACK_DATA         = "TrackData";	
 
-	public static readonly COMMON_CODE  = "$Common";
-	public static readonly EXT_SIG      = "$";
+	public static readonly COMMON_CODE        = "$Common";
+	public static readonly EXT_SIG            = "$";
 
     public static readonly ACCOUNT_LOADER:string        = "/EFTutors/accounts.json";
     public static readonly MODID_FILEPATH:string        = "/EFconfig.json";
     public static readonly GRAPH_FILEPATH:string        = "/EFgraphs/scenegraphs.json";
     public static readonly EXTS_FILEPATH:string         = "/EFbuild/exts.js";
     public static readonly MIXINS_FILEPATH:string       = "/EFbuild/mixins.js";
-    public static readonly DATA_FILEPATH:string         = "/EFdata/assets.json";
+    public static readonly DATA_FILEPATH:string         = "/EFdata/data_assets.json";
     public static readonly FONTFACE_FILEPATH:string     = "/EFfonts/fontfaces.css";
-    public static readonly TRACKDATA_FILEPATH:string    = "/EFaudio/EFscripts/assets.json";
+    public static readonly TRACKDATA_FILEPATH:string    = "/EFaudio/EFscripts/script_assets.json";
     public static readonly TRACKASSETS_FILEPATH:string  = "/EFaudio/EFassets/";
     public static readonly SEGMENT_PREFIX:string        = "_s";
     public static readonly VOICE_PREFIX:string          = "_v";

@@ -244,7 +244,7 @@ export class CEFTutorDoc extends EventDispatcher implements IEFTutorDoc
 
         // This manufactures the tutorGraph from the JSON spec file 			
         //
-        this.tutorNavigator = CTutorGraphNavigator.rootFactory(this, this.tutorGraph);
+        CTutorGraphNavigator.rootFactory(this, this.tutorGraph);
 
         //## Mod Aug 10 2012 - must wait for initializeScenes to ensure basic scenes are in place now that 
         //					   we allow dynamic creation of the navPanel etc.
@@ -640,14 +640,14 @@ export class CEFTutorDoc extends EventDispatcher implements IEFTutorDoc
             });
            
             this.loaderData.push( {
-                type     : "Scene Data",
+                type     : CONST.SCENE_DATA,
                 filePath : moduleName + CONST.DATA_FILEPATH,
                 onLoad   : this.onLoadData.bind(this),
                 modName : moduleNameCS,
             });
 
             this.loaderData.push( {
-                type     : "Track Data",
+                type     : CONST.TRACK_DATA,
                 filePath : moduleName + CONST.TRACKDATA_FILEPATH,
                 onLoad   : this.onLoadData.bind(this),
                 modName : moduleNameCS,
@@ -791,8 +791,15 @@ export class CEFTutorDoc extends EventDispatcher implements IEFTutorDoc
             console.log("Data:" + fileLoader.type + " Loaded: " + fileLoader.modName );
 
             // ****
+            // Note: Several files may integrate information into the tutor moduleData 
+            //       structure.
             //
-            this.moduleData[fileLoader.modName] = JSON.parse(filedata);      
+            let data:Object = JSON.parse(filedata);
+
+            this.moduleData[fileLoader.modName] = this.moduleData[fileLoader.modName] || {};
+            this.moduleData[fileLoader.modName][fileLoader.type] = this.moduleData[fileLoader.modName][fileLoader.type] || {};
+
+            CUtil.mixinDataObject(this.moduleData[fileLoader.modName][fileLoader.type], data);
         }
         catch(error) {
 

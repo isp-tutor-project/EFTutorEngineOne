@@ -190,7 +190,7 @@ export class TRoot extends MovieClip
 	/*
 		* 
 		*/
-	public loadXML(propVector:Object) : void
+	public deSerializeObj(objData:any) : void
 	{
 	}
 	

@@ -20,22 +20,16 @@ import { TRoot } 	    	from "./TRoot";
 import { TObject } 	   		from "./TObject";	
 import { TScene } 			from "./TScene";
 import { TSceneBase } 		from "./TSceneBase";
-import { CEFScene0 } 		from "./scenes/CEFScene0";
 import { TCursorProxy } 	from "./TCursorProxy";	
-import { TTitleBar } 		from "./TTitleBar";
 
 import { TMouseEvent } 		from "./events/TMouseEvent";
 
-import { CEFNavigator } 	from "../core/CEFNavigator";	
 import { CEFTimeStamp } 	from "../core/CEFTimeStamp";	
 
 import { CEFEvent } 		from "../events/CEFEvent";
 import { CEFNavEvent } 		from "../events/CEFNavEvent";
 
-import { CEFKTNode } 		from "../kt/CEFKTNode";
-import { CLogManagerType } 	from "../managers/CLogManagerType";
 import { CEFKeyboardEvent } from "../events/CEFKeyboardEvent";
-
 
 import { CONST }            from "../util/CONST";
 import { CUtil } 			from "../util/CUtil";
@@ -48,6 +42,8 @@ import Tween 				  = createjs.Tween;
 import CJSEvent				  = createjs.Event;
 import Rectangle     	  	  = createjs.Rectangle;
 import Shape     		  	  = createjs.Shape;
+
+
 
 
 export class TTutorContainer extends TRoot 

@@ -18,7 +18,6 @@
 
 import { TSceneBase } 			from "./TSceneBase";
 
-import { CEFNavigator } 		from "../core/CEFNavigator";
 import { CEFTimer } 			from "../core/CEFTimer";
 
 import { CEFNavEvent } 			from "../events/CEFNavEvent";
@@ -26,15 +25,11 @@ import { CEFNavEvent } 			from "../events/CEFNavEvent";
 import { CSceneTrack }          from "../scenegraph/CSceneTrack";
 import { CSceneGraph } 		    from "../scenegraph/CSceneGraph";
 
-import { CEFTimerEvent } 		from "../events/CEFTimerEvent";
 import { CEFSceneCueEvent } 	from "../events/CEFSceneCueEvent";
 import { CEFEvent } 			from "../events/CEFEvent";
 
 import { CUtil } 				from "../util/CUtil";
-
-
-import MovieClip     		  = createjs.MovieClip;
-import { CONST } from "../util/CONST";
+import { CONST }                from "../util/CONST";
 
 
 
@@ -59,7 +54,6 @@ export class TScene extends TSceneBase
 	protected _interval:Number = TScene.DEFAULT_MONITOR_INTERVAL;
 
     private cueListener:Function   = null;
-    private navListener:Function   = null;
     
 	//## Mod aug 22 2013 - KT updates are single shot per scene 
 	
@@ -145,7 +139,8 @@ export class TScene extends TSceneBase
         this._asyncPlayTimer.off(CONST.TIMER, this._playHandler);                    
 		this._asyncPlayTimer.reset();
 
-        this.STrack.play();
+        if(this.STrack)
+            this.STrack.play();
 	}		
             
     
@@ -159,7 +154,6 @@ export class TScene extends TSceneBase
 		// Listen for cue/navigation events
 		//
 		this.cueListener = track.on(CEFSceneCueEvent.CUEPOINT, this.doSceneCue, this);	
-		this.navListener = track.on(CEFNavEvent.WOZNAVINC, this.navNext, this);
 	}
 
 	/**
@@ -176,7 +170,6 @@ export class TScene extends TSceneBase
 			// Stop listening for cue/navigation events
 			//
 			track.off(CEFSceneCueEvent.CUEPOINT, this.cueListener);				
-			track.off(CEFNavEvent.WOZNAVINC, this.navListener);				
 		}
 	}
 
@@ -190,7 +183,7 @@ export class TScene extends TSceneBase
 	 * This drives the Navigation sequence - here it is audio event driven
 	 * @param	event
 	 */
-	public navNext(event:CEFNavEvent) : void 
+	public nextScene(event:CEFNavEvent) : void 
 	{
 		if(this.traceMode) CUtil.trace("navNext: " + event);
 		
@@ -205,9 +198,11 @@ export class TScene extends TSceneBase
 	 * 
 	 * @param	evt
 	 */
-	public doSceneCue(evt:CEFSceneCueEvent)
+	public doSceneCue(evt:CustomEvent)
 	{
-        if(this.traceMode) CUtil.trace("SceneCue: " + evt);
+        if(this.traceMode) CUtil.trace("SceneCue: " + evt.detail.id + " - track: " + evt.detail.track);
+
+        this.$cuePoints(evt.detail.track, evt.detail.id);
         
 	}	
 

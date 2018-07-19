@@ -49,7 +49,8 @@ export interface segmentVal {
     id:string;
     SSML: string;
     cues: Array<cuePoint>;
-    trimDuration:number;
+    duration:number;
+    trim:number;
     volume: number;
 }
 export interface cuePoint {
@@ -73,6 +74,7 @@ export interface scriptInstance {
     text:string;
     cueSet:string;
     segments:Array<segment>;
+    trim:Array<number>;
     timedSet:Array<timedEvents>;
     templates: any;
     volume:number;

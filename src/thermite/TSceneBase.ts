@@ -15,7 +15,6 @@
 //*********************************************************************************
 
 
-import { TRoot } 			from "./TRoot";
 import { TObject } 			from "./TObject";
 import { TTutorContainer } 	from "./TTutorContainer";
 
@@ -30,7 +29,6 @@ import { CONST }            from "../util/CONST";
 import { CUtil } 			from "../util/CUtil";
 
 import DisplayObject      = createjs.DisplayObject;
-import MovieClip     	  = createjs.MovieClip;
 
 
 export class TSceneBase extends TObject
@@ -101,6 +99,46 @@ export class TSceneBase extends TObject
 	public onCreate() : void
 	{
 		try {
+            let moduleData = this.tutorDoc.moduleData[this.hostModule][CONST.SCENE_DATA];
+            let sceneData  = moduleData[this.sceneName];
+            let dataElement:any;
+
+            // walk all the scene data items and find matching scene components (there should be matches for all)
+            // deserialize the data into the component.
+            // 
+            for(let element in sceneData) {
+
+                dataElement = sceneData[element];
+
+                // resolve data references to library and foreign modules.
+                // 
+                if(dataElement.$$REF) {
+                    let dataPath:Array<string> = dataElement.$$REF.split(".");
+
+                    if(dataPath[0] === "$$EFL") {
+
+                        dataElement = this.tutorDoc.moduleData[this.hostModule][CONST.SCENE_DATA]._LIBRARY[dataPath[1]][dataPath[2]];
+                    }
+                    else if(dataPath[0] === "$$EFM") {
+
+                        let forMod = dataElement = this.tutorDoc.moduleData[dataPath[1]];
+
+                        if(!forMod) {
+                            console.log("Error: Foreign module reference missing!")
+                            throw("missing module");
+                        }
+                        dataElement = forMod[CONST.SCENE_DATA]._LIBRARY[dataPath[2]][dataPath[3]];
+                    }
+                    else {
+                        console.error("Error: moduleData link error");
+                    }
+                }
+                
+                if(this[element] && this[element].deSerializeObj) {
+                    this[element].deSerializeObj(dataElement);
+                }                
+            }
+
 			// Execute the create procedures for this scene instance
 			// see notes on sceneExt Code - tutor Supplimentary code
 			// 
@@ -112,7 +150,7 @@ export class TSceneBase extends TObject
 		}		
 		catch(error) {
 
-			CUtil.trace("Error in onCreate script: " + this.onCreateScript);
+			CUtil.trace(`Error in TSceneBase onCreate: ${this.sceneName} -- ${error}`);
 		}
 	}
 

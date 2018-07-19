@@ -21,18 +21,15 @@ import { TObject } 			    from "./TObject";
 import { CEFEvent }             from "../events/CEFEvent";
 import { TMouseEvent } 		    from "../events/CEFMouseEvent";
 
-import { CONST }                from "../util/CONST";
 import { CUtil } 			    from "../util/CUtil";
 
 import MovieClip     	      = createjs.MovieClip;
 import Text     	          = createjs.Text;
-import Timeline     		  = createjs.Timeline;
-import DisplayObject 		  = createjs.DisplayObject;
-import DisplayObjectContainer = createjs.Container;
 
     // let canvasElement = document.querySelector( '#editorCanvas' );
     // canvasElement.onfocus = () => this.setFocus( true );
     // canvasElement.onblur = () => this.setFocus( false );
+
 
 
 
@@ -53,6 +50,7 @@ export class TTextInput extends TObject {
 
     private isHTMLControl:boolean;
     private HTMLmute:boolean;
+    private startText:string;
 
     private cssOptions:any;
     private cssDirty:any;
@@ -170,7 +168,7 @@ export class TTextInput extends TObject {
 
             this.decomposeFont(this.cssOptions, this.StxtField.font);
 
-            this.initText  = this.StxtField.text;
+            this.STextInput.value = this.StxtField.text;
 
             this.cssOptions.opacity   = this.StxtField.alpha     || this.cssOptions.opacity;
             this.cssOptions.color     = this.StxtField.color     || this.cssOptions.color;
@@ -466,6 +464,15 @@ export class TTextInput extends TObject {
     }
     
 
+    /*
+    * 
+    */
+    public deSerializeObj(objData:any) : void
+    {
+        console.log("deserializing: Input Custom Control");
 
+        this.STextInput.value = objData.startText || this.STextInput.value;
 
+        super.deSerializeObj(objData);				
+    }
 }

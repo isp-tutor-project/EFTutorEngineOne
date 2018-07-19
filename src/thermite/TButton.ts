@@ -318,6 +318,7 @@ export class TButton extends TObject
 	{
 		try
 		{
+            // this.dispatchEvent(new Event(CONST.MOUSE_CLICK));
 			// this.sceneExt["SButton1_Action"].call(this);
 		}
 		catch(e)
