@@ -417,6 +417,9 @@ export class TTextInput extends TObject {
 
                 this.stage.removeEventListener('drawstart', this._updateVisibilityCbk);
                 this._updateVisibilityCbk = false;
+
+                this.stage.removeEventListener('drawend', this._updateComponentCbk);
+                this._updateComponentCbk = false;
             }
         }
     }

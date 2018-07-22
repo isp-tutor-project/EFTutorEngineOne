@@ -235,7 +235,7 @@ export class TScene extends TSceneBase
     /**
     * gotoNextScene manual entry point
     */
-    public nextSceneTrack() : void
+    public nextTrack() : void
     {
         // Do automated scene increments asynchronously to allow
         // actiontrack scripts to complete prior to scene nav
@@ -316,7 +316,7 @@ export class TScene extends TSceneBase
         // Set up the root sceneTrack
         // 
         this._deferPlay = true;
-        this.nextSceneTrack();
+        this.nextTrack();
         
 		return result;
 	}

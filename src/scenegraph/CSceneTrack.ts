@@ -265,6 +265,10 @@ export class CSceneTrack extends EventDispatcher
                 else {
                     this.trackAudio.on("complete", this.segmentComplete, this);
                 }
+
+                // Fire the start cue point
+                //
+                this.hostScene.$cuePoints(this._name, CONST.START_CUEPOINT);
             }
             else {
                 // TODO: setup retry of track loading if this fails for some defined 
@@ -320,8 +324,12 @@ export class CSceneTrack extends EventDispatcher
             this.playTrack();
         }
         else {
+            // Fire the end cuepoint
+            // 
+            this.hostScene.$cuePoints(this._name, CONST.END_CUEPOINT);
+
             if(this._autostep) {
-                this.hostScene.nextSceneTrack();
+                this.hostScene.nextTrack();
             }
         }
     }
@@ -337,7 +345,7 @@ export class CSceneTrack extends EventDispatcher
                 this.hostScene.$nodeAction(this._actionname);
 
                 if(this._autostep) {
-                    this.hostScene.nextSceneTrack();
+                    this.hostScene.nextTrack();
                 }
                 break;
 

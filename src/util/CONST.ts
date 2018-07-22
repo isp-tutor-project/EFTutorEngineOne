@@ -13,6 +13,10 @@ export class CONST {
     
     public static readonly SCENE_DATA         = "SceneData";	
     public static readonly TRACK_DATA         = "TrackData";	
+    
+    public static readonly START_CUEPOINT     = "$start";	
+    public static readonly END_CUEPOINT       = "$end";	
+
 
 	public static readonly COMMON_CODE        = "$Common";
 	public static readonly EXT_SIG            = "$";
