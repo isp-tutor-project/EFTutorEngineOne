@@ -26,7 +26,8 @@ export class CONST {
     public static readonly GRAPH_FILEPATH:string        = "/EFgraphs/scenegraphs.json";
     public static readonly EXTS_FILEPATH:string         = "/EFbuild/exts.js";
     public static readonly MIXINS_FILEPATH:string       = "/EFbuild/mixins.js";
-    public static readonly DATA_FILEPATH:string         = "/EFdata/data_assets.json";
+    public static readonly DATA_FILEPATH:string         = "/EFdata/_EFSCENEDATA.json";
+    public static readonly LIBR_FILEPATH:string         = "/EFdata/_EFLIBRARY.json";
     public static readonly FONTFACE_FILEPATH:string     = "/EFfonts/fontfaces.css";
     public static readonly TRACKDATA_FILEPATH:string    = "/EFaudio/EFscripts/script_assets.json";
     public static readonly TRACKASSETS_FILEPATH:string  = "/EFaudio/EFassets/";

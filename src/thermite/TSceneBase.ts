@@ -124,7 +124,7 @@ export class TSceneBase extends TObject
                         let forMod = dataElement = this.tutorDoc.moduleData[dataPath[1]];
 
                         if(!forMod) {
-                            console.log("Error: Foreign module reference missing!")
+                            console.log("Error: module for Foreign-Reference missing!")
                             throw("missing module");
                         }
                         dataElement = forMod[CONST.SCENE_DATA]._LIBRARY[dataPath[2]][dataPath[3]];

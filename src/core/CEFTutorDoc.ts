@@ -647,6 +647,13 @@ export class CEFTutorDoc extends EventDispatcher implements IEFTutorDoc
             });
 
             this.loaderData.push( {
+                type     : CONST.SCENE_DATA,
+                filePath : moduleName + CONST.LIBR_FILEPATH,
+                onLoad   : this.onLoadData.bind(this),
+                modName : moduleNameCS,
+            });
+
+            this.loaderData.push( {
                 type     : CONST.TRACK_DATA,
                 filePath : moduleName + CONST.TRACKDATA_FILEPATH,
                 onLoad   : this.onLoadData.bind(this),

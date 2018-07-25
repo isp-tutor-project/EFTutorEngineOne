@@ -1,6 +1,9 @@
 
 VSCode regex cheatsheet:
 
+Regex to decompose HTML span elements
+(<span[\w\s=']*id='(\w*)'[\w\s=']*>)([\w\s]*)<
+
 Regex to find/replace line breaks of all forms
 /\r?\n|\r/
 

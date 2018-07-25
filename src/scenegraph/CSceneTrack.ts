@@ -201,7 +201,7 @@ export class CSceneTrack extends EventDispatcher
                         break;
                 }
 
-                // Use the value "__novar" or the resolved template value to determine the segment value to use 
+                // Use the value "__novar" or the resolved template value to determine the Value to use 
                 // for this iteration
                 // 
                 let segvalue:segmentVal = segment[template] as segmentVal;
