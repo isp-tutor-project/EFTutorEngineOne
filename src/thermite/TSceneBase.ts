@@ -52,6 +52,9 @@ export class TSceneBase extends TObject
 	public classPath:string;
 	public hostModule:string;
     
+    public moduleData:any; 
+    public sceneData :any; 
+
 	protected _section:string;					// Arbitrary tutor section id
 	
 	protected _nextButton:any = null;
@@ -99,16 +102,17 @@ export class TSceneBase extends TObject
 	public onCreate() : void
 	{
 		try {
-            let moduleData = this.tutorDoc.moduleData[this.hostModule][CONST.SCENE_DATA];
-            let sceneData  = moduleData[this.sceneName];
+            this.moduleData = this.tutorDoc.moduleData[this.hostModule][CONST.SCENE_DATA];
+            this.sceneData  = this.moduleData[this.sceneName];
+
             let dataElement:any;
 
             // walk all the scene data items and find matching scene components (there should be matches for all)
             // deserialize the data into the component.
             // 
-            for(let element in sceneData) {
+            for(let element in this.sceneData) {
 
-                dataElement = sceneData[element];
+                dataElement = this.sceneData[element];
 
                 // resolve data references to library and foreign modules.
                 // 

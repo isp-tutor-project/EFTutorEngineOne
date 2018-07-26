@@ -20,14 +20,8 @@
 import { IEFTutorDoc } 			from "../core/IEFTutorDoc";
 
 import { TSceneBase }     		from "./TSceneBase";
-
 import { TTutorContainer } 		from "./TTutorContainer";
-import { CEFNavigator } 	 	from "../core/CEFNavigator";
 
-import { ILogManager }  		from "../managers/ILogManager";
-
-
-import { CONST }        		from "../util/CONST";
 import { CUtil } 				from "../util/CUtil";
 
 
