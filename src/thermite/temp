@@ -36,7 +36,7 @@ import DisplayObjectContainer = createjs.Container;
 
 
 
-export class TTextInput extends TObject {
+export class THtmlInput extends TObject {
 
 
 	//************ Stage Symbols
@@ -74,7 +74,7 @@ export class TTextInput extends TObject {
 /*  ###########  START CREATEJS SUBCLASS SUPPORT ##########  */
 /* ######################################################### */
 
-    public TTextInputInitialize() {
+    public THtmlInputInitialize() {
 
         this.TObjectInitialize.call(this);
         this.init3();
@@ -89,7 +89,7 @@ export class TTextInput extends TObject {
     private init3() {
         
         this.traceMode = true;
-        if(this.traceMode) CUtil.trace("TTextInput:Constructor");
+        if(this.traceMode) CUtil.trace("THtmlInput:Constructor");
 
         this.on(CEFEvent.ADDED_TO_STAGE, this.onAddedToStage);
         

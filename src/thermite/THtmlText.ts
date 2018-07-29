@@ -28,7 +28,7 @@ import MovieClip     	      = createjs.MovieClip;
 
 
 
-export class TTextArea extends THtmlBase {
+export class THtmlText extends THtmlBase {
 
 
 	//************ Stage Symbols
@@ -54,7 +54,7 @@ export class TTextArea extends THtmlBase {
 /*  ###########  START CREATEJS SUBCLASS SUPPORT ##########  */
 /* ######################################################### */
 
-    public TTextAreaInitialize() {
+    public THtmlTextInitialize() {
 
         this.THtmlBaseInitialize.call(this);
         this.init4();
@@ -69,7 +69,7 @@ export class TTextArea extends THtmlBase {
     private init4() {
         
         this.traceMode = true;
-        if(this.traceMode) CUtil.trace("TTextArea:Constructor");
+        if(this.traceMode) CUtil.trace("THtmlText:Constructor");
 
         this.fontSize = 4;
 
@@ -128,9 +128,9 @@ export class TTextArea extends THtmlBase {
 
             this.outerContainer = document.createElement("div"); 
             this.outerContainer.className = "outerContainer";
+            this.outerContainer.setAttribute(this.name, "");
 
             this.controlContainer = document.createElement("div"); 
-            this.controlContainer.id        = "controlContainer";
             this.controlContainer.className = "tablecell";
 
             dom_overlay_container.appendChild(this.outerContainer); 

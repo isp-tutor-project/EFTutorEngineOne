@@ -29,7 +29,7 @@ import Text     	          = createjs.Text;
 
 
 
-export class TTextInput extends THtmlBase {
+export class THtmlInput extends THtmlBase {
 
 
 	//************ Stage Symbols
@@ -54,7 +54,7 @@ export class TTextInput extends THtmlBase {
 /*  ###########  START CREATEJS SUBCLASS SUPPORT ##########  */
 /* ######################################################### */
 
-    public TTextInputInitialize() {
+    public THtmlInputInitialize() {
 
         this.THtmlBaseInitialize.call(this);
         this.init4();
@@ -69,7 +69,7 @@ export class TTextInput extends THtmlBase {
     private init4() {
         
         this.traceMode = true;
-        if(this.traceMode) CUtil.trace("TTextInput:Constructor");
+        if(this.traceMode) CUtil.trace("THtmlInput:Constructor");
 
         this.fontSize  = 14;
         
@@ -93,8 +93,8 @@ export class TTextInput extends THtmlBase {
                 "font-Size":"20px",
                 "font-Style":"normal",
                 "font-Weight":"normal",  
+                
                 "padding":"0",
-
                 "margin":"0px",
 
                 "visibility":"hidden"
@@ -160,7 +160,8 @@ export class TTextInput extends THtmlBase {
 
             this.outerContainer = document.createElement("div"); 
             this.outerContainer.className = "outerContainer";
-            this.outerContainer.id        = "controlContainer";
+            this.outerContainer.setAttribute(this.name, "");
+
             this.controlContainer         = this.outerContainer;
 
             dom_overlay_container.appendChild(this.outerContainer); 
