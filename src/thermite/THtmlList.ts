@@ -20,9 +20,9 @@ import { TObject } 			    from "./TObject";
 import { THtmlBase }            from "./THtmlBase";
 
 import { CEFEvent }             from "../events/CEFEvent";
-import { TMouseEvent } 		    from "../events/CEFMouseEvent";
 
 import { CUtil } 			    from "../util/CUtil";
+import { CONST }                from "../util/CONST";
 
 import MovieClip     	      = createjs.MovieClip;
 
@@ -77,7 +77,9 @@ export class THtmlList extends THtmlBase {
 
             ".outerContainer" : {
                 "position":"absolute",
-                "box-sizing":"border-box"
+                "box-sizing":"border-box",
+
+                "visibility":"hidden"
             },
     
             ".tablecell" : {
@@ -128,6 +130,8 @@ export class THtmlList extends THtmlBase {
 
             this.outerContainer = document.createElement("div"); 
             this.outerContainer.className = "outerContainer";
+            
+            this.outerContainer.setAttribute(CONST.EFLISTBOX_TYPE, "");            
             this.outerContainer.setAttribute(this.name, "");
 
             this.controlContainer = document.createElement("div"); 

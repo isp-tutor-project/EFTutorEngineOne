@@ -17,6 +17,12 @@ export class CONST {
     public static readonly START_CUEPOINT     = "$start";	
     public static readonly END_CUEPOINT       = "$end";	
 
+    // custom HTML control types
+    // 
+	public static readonly EFTEXT_TYPE        = "eftext";
+	public static readonly EFINPUT_TYPE       = "efinput";
+	public static readonly EFLISTBOX_TYPE     = "eflistbox";
+	public static readonly EFTABLE_TYPE       = "eftable";
 
 	public static readonly COMMON_CODE        = "$Common";
 	public static readonly EXT_SIG            = "$";

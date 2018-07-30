@@ -25,6 +25,7 @@ import { CUtil } 			    from "../util/CUtil";
 
 import MovieClip     	      = createjs.MovieClip;
 import Text     	          = createjs.Text;
+import { CONST } from "../util/CONST";
 
 
 
@@ -75,22 +76,23 @@ export class THtmlInput extends THtmlBase {
         
         this.cssSheet = {
 
-            ".outerContainer":{
+            "[efinput].outerContainer" : {
+                
                 "position":"absolute",
                 "box-sizing":"border-box",            
     
                 "resize":"none",
-                "border":"1px solid #CCC",
+                "border":"none",
               
                 "left":"0px", 
                 "top":"0px",
-                "width":"303px",
-                "height":"19px",
+                "width":"0px",
+                "height":"0px",
 
                 "pointer-events":"all",
         
                 "font-Family":"verdana",  
-                "font-Size":"20px",
+                "font-Size":"10px",
                 "font-Style":"normal",
                 "font-Weight":"normal",  
                 
@@ -100,13 +102,11 @@ export class THtmlInput extends THtmlBase {
                 "visibility":"hidden"
             },
     
-            ".input":{
+            "[efinput] .input" : {
                 "box-sizing":"border-box",              
     
                 "resize":"inherit",
                 "border":"inherit",
-
-                "padding":"6px",
               
                 "left":"inherit", 
                 "top":"inherit",
@@ -119,16 +119,6 @@ export class THtmlInput extends THtmlBase {
                 "font-Size":"inherit",
                 "font-Style":"normal",
                 "font-Weight":"normal",                  
-            },
-
-            "textarea:focus": {
-                "outline": "none",
-                "border":"2px solid #0CC"
-            }​,  
-
-            ".input::placeholder":{
-                "color":"rgb(216, 216, 216)",
-                "font-style":"italic",            
             }
         };    
     }
@@ -160,9 +150,10 @@ export class THtmlInput extends THtmlBase {
 
             this.outerContainer = document.createElement("div"); 
             this.outerContainer.className = "outerContainer";
+            this.outerContainer.setAttribute(CONST.EFINPUT_TYPE, "");
             this.outerContainer.setAttribute(this.name, "");
 
-            this.controlContainer         = this.outerContainer;
+            this.controlContainer  = this.outerContainer;
 
             dom_overlay_container.appendChild(this.outerContainer); 
 

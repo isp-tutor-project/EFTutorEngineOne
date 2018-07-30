@@ -37,7 +37,7 @@ export class THtmlBase extends TObject {
 	
 	//************ Stage Symbols				
     
-    protected outerContainer:HTMLDivElement;    
+    protected outerContainer:HTMLElement;    
     protected dimContainer:TObject;
 
     protected fAdded:boolean;

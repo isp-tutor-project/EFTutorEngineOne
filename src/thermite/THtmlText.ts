@@ -25,6 +25,7 @@ import { TMouseEvent } 		    from "../events/CEFMouseEvent";
 import { CUtil } 			    from "../util/CUtil";
 
 import MovieClip     	      = createjs.MovieClip;
+import { CONST } from "../util/CONST";
 
 
 
@@ -75,25 +76,24 @@ export class THtmlText extends THtmlBase {
 
         this.cssSheet = {
 
-            ".outerContainer" : {
+            "[eftext].outerContainer" : {
                 "position":"absolute",
-                "box-sizing":"border-box"
+                "box-sizing":"border-box",
+
+                "visibility":"hidden"
             },
     
-            ".tablecell" : {
+            "[eftext] .tablecell" : {
                 "display":"table-cell",
                 "box-sizing":"border-box",
                 "height":"inherit",
                 "width":"inherit",
-                "vertical-align":"middle",
-                "user-select":"none"
             },
     
-            "p": {
-                "margin":"0px"
+            "[eftext] p" : {
+                "margin":"0px",
             }
-        };
-        
+        };        
     }
 
 /* ######################################################### */
@@ -128,6 +128,7 @@ export class THtmlText extends THtmlBase {
 
             this.outerContainer = document.createElement("div"); 
             this.outerContainer.className = "outerContainer";
+            this.outerContainer.setAttribute(CONST.EFTEXT_TYPE, "");
             this.outerContainer.setAttribute(this.name, "");
 
             this.controlContainer = document.createElement("div"); 

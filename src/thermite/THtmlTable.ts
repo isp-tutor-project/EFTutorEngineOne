@@ -25,6 +25,7 @@ import { TMouseEvent } 		    from "../events/CEFMouseEvent";
 import { CUtil } 			    from "../util/CUtil";
 
 import MovieClip     	      = createjs.MovieClip;
+import { CONST } from "../util/CONST";
 
 
 
@@ -38,7 +39,7 @@ export class THtmlTable extends THtmlBase {
     
     // Generated controls    
 
-    public controlContainer:HTMLDivElement;
+    public controlContainer:HTMLElement;
 
 	//************ Stage Symbols				
     
@@ -77,7 +78,9 @@ export class THtmlTable extends THtmlBase {
 
             ".outerContainer" : {
                 "position":"absolute",
-                "box-sizing":"border-box"
+                "box-sizing":"border-box",
+
+                "visibility":"hidden"
             },
     
             ".tablecell" : {
@@ -126,15 +129,15 @@ export class THtmlTable extends THtmlBase {
             this.dimContainer = this.STextContainer;
             this.STextContainer.visible = false;        
 
-            this.outerContainer = document.createElement("div"); 
+            this.outerContainer = document.createElement("table"); 
             this.outerContainer.className = "outerContainer";
+            
+            this.outerContainer.setAttribute(CONST.EFTABLE_TYPE, "");            
             this.outerContainer.setAttribute(this.name, "");
 
-            this.controlContainer = document.createElement("div"); 
-            this.controlContainer.className = "tablecell";
-
             dom_overlay_container.appendChild(this.outerContainer); 
-            this.outerContainer.appendChild(this.controlContainer); 
+
+            this.controlContainer  = this.outerContainer;
 
             // Set focus in the $onEnterScene override
             //
