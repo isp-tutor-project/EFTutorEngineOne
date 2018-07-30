@@ -136,6 +136,10 @@ export class CEngine {
 
             console.log("Tutor init Complete");
 
+            // Map any linked objects between modules.
+            // 
+            this.mapForeignClasses();
+
             this.startTutor();
         })                
 
@@ -253,6 +257,46 @@ export class CEngine {
 
             EFLoadManager.classLib[AnModuleName][variant.toUpperCase()] = AnObject;            
         })
+    }
+
+
+    // Foreign classes are encoded:
+    // TL_<moduleName-trimmed>_<classname>__<variant>
+    // This is intended as a simple means of laying out components from a foreign module
+    // while maintaining position and size.
+    // So we replace the actual component in the animate lib with a modified version of the
+    // foreign component. Where only the location and size are maintained.
+    // 
+    private mapForeignClasses() {
+
+        for(const AnLib of EFLoadManager.modules) {
+            for (const compName in AnLib) {
+
+                if(compName.startsWith(CONST.MODLINK_PREFIX)) {
+
+                    let varPath: Array<string> = compName.split("__");
+                    let modPath:string[]       = varPath[0].split("_"); 
+                    let AnModuleName:string    = CONST.EFMODULE_PREFIX + modPath[1];
+
+                    let temp1:any         = {};
+                    let foreignObject:any = EFLoadManager.classLib[AnModuleName][varPath[1].toUpperCase()];
+
+                    temp1.clone         = AnLib[compName].prototype.clone;
+                    temp1.nominalBounds = AnLib[compName].prototype.nominalBounds;
+                    temp1.frameBounds   = AnLib[compName].prototype.frameBounds;
+        
+                    let tarAnLib = EFLoadManager.modules[modPath[1]];
+
+                    let newObject = Object.create(foreignObject.prototype);
+
+                    newObject.prototype.clone           = temp1.clone;
+                    newObject.prototype.nominalBounds   = temp1.nominalBounds;
+                    newObject.prototype.frameBounds     = temp1.frameBounds;
+        
+                    AnLib[compName] = newObject;
+                }
+            }
+        }
     }
 
 

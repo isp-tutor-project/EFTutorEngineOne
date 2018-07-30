@@ -49,6 +49,7 @@ export class CONST {
 	public static readonly DONT_LAUNCH:boolean  = false;
 	public static readonly LAUNCH:boolean  		= true;
 
+    public static readonly EFMODULE_PREFIX:string   = "EFMod_";
 	public static readonly THERMITE_PREFIX:string   = "TC_";
 	public static readonly MODULE_PREFIX:string     = "TM_";
 	public static readonly MODLINK_PREFIX:string    = "TL_";
