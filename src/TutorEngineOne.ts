@@ -120,16 +120,21 @@ export class CEngine {
 
         for(let fileLoader of this.tutorDoc.loaderData) {
 
-            if(fileLoader.compID) {
-                let comp   = AdobeAn.getComposition(fileLoader.compID);			
-                let lib    = comp.getLibrary();
-                let loader = new createjs.LoadQueue(false);
+            try {
+                if(fileLoader.compID) {
+                    let comp   = AdobeAn.getComposition(fileLoader.compID);			
+                    let lib    = comp.getLibrary();
+                    let loader = new createjs.LoadQueue(false);
 
-                loaderPromises.push(new Promise((resolve, reject) => {
-                    loader.addEventListener("complete", function(evt){engine.handleComplete(evt,comp,resolve,reject)});
-                    loader.addEventListener("error", function(evt){engine.handleError(evt,comp,reject)});
-                    loader.loadManifest(lib.properties.manifest);	
-                }));                
+                    loaderPromises.push(new Promise((resolve, reject) => {
+                        loader.addEventListener("complete", function(evt){engine.handleComplete(evt,comp,resolve,reject)});
+                        loader.addEventListener("error", function(evt){engine.handleError(evt,comp,reject)});
+                        loader.loadManifest(lib.properties.manifest);	
+                    }));                
+                }
+            }
+            catch(err) {
+                console.log("Error: CompID mismatch: " + fileLoader.filePath + "  :   " + err);
             }
         }
 
