@@ -33,8 +33,7 @@ export class THtmlList extends THtmlBase {
 
 	//************ Stage Symbols
 	
-    public STextContainer:TObject;    
-    public STextArea: HTMLDivElement;
+    public SControlContainer:TObject;    
     
     // Generated controls    
 
@@ -106,7 +105,7 @@ export class THtmlList extends THtmlBase {
     {
         
         if(this.fAdded) {
-            dom_overlay_container.removeChild(this.STextArea); 
+            dom_overlay_container.removeChild(this.outerContainer); 
             this.fAdded = false;
         }
 
@@ -121,12 +120,12 @@ export class THtmlList extends THtmlBase {
      */
     public onAddedToStage(evt:CEFEvent) {
 
-        console.log("TextArea On Stage");
+        console.log("HTMLList On Stage");
 
         if(!this.fAdded) {
 
-            this.dimContainer = this.STextContainer;
-            this.STextContainer.visible = false;        
+            this.dimContainer = this.SControlContainer;
+            this.SControlContainer.visible = false;        
 
             this.outerContainer = document.createElement("div"); 
             this.outerContainer.className = "outerContainer";
@@ -139,10 +138,6 @@ export class THtmlList extends THtmlBase {
 
             dom_overlay_container.appendChild(this.outerContainer); 
             this.outerContainer.appendChild(this.controlContainer); 
-
-            // Set focus in the $onEnterScene override
-            //
-            // this.STextArea.focus();
 
             super.onAddedToStage(evt);
         }

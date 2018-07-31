@@ -34,7 +34,7 @@ export class THtmlText extends THtmlBase {
 
 	//************ Stage Symbols
 	
-    public STextContainer:TObject;    
+    public SControlContainer:TObject;    
     public STextArea: HTMLDivElement;
     
     // Generated controls    
@@ -104,7 +104,7 @@ export class THtmlText extends THtmlBase {
     {
         
         if(this.fAdded) {
-            dom_overlay_container.removeChild(this.STextArea); 
+            dom_overlay_container.removeChild(this.outerContainer); 
             this.fAdded = false;
         }
 
@@ -119,12 +119,12 @@ export class THtmlText extends THtmlBase {
      */
     public onAddedToStage(evt:CEFEvent) {
 
-        console.log("TextArea On Stage");
+        console.log("HTMLText On Stage");
 
         if(!this.fAdded) {
 
-            this.dimContainer = this.STextContainer;
-            this.STextContainer.visible = false;        
+            this.dimContainer = this.SControlContainer;
+            this.SControlContainer.visible = false;        
 
             this.outerContainer = document.createElement("div"); 
             this.outerContainer.className = "outerContainer";

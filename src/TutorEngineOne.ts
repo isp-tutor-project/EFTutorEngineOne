@@ -196,7 +196,7 @@ export class CEngine {
         let engine = this;
         let importPromises:Array<Promise<any>> = new Array();
         
-        for (const compName in AnLib) {
+        for (let compName in AnLib) {
 
             if(compName.startsWith(CONST.THERMITE_PREFIX)) {
                 
@@ -269,31 +269,37 @@ export class CEngine {
     // 
     private mapForeignClasses() {
 
-        for(const AnLib of EFLoadManager.modules) {
-            for (const compName in AnLib) {
+        let modules = EFLoadManager.modules;
+
+        for(let AnLib in modules) {
+
+            let library = modules[AnLib];
+
+            for (let compName in library) {
 
                 if(compName.startsWith(CONST.MODLINK_PREFIX)) {
 
                     let varPath: Array<string> = compName.split("__");
                     let modPath:string[]       = varPath[0].split("_"); 
-                    let AnModuleName:string    = CONST.EFMODULE_PREFIX + modPath[1];
+                    let AnModuleName:string    = (CONST.EFMODULE_PREFIX + modPath[1]).toUpperCase();
 
                     let temp1:any         = {};
                     let foreignObject:any = EFLoadManager.classLib[AnModuleName][varPath[1].toUpperCase()];
 
-                    temp1.clone         = AnLib[compName].prototype.clone;
-                    temp1.nominalBounds = AnLib[compName].prototype.nominalBounds;
-                    temp1.frameBounds   = AnLib[compName].prototype.frameBounds;
+                    temp1.clone         = library[compName].prototype.clone;
+                    temp1.nominalBounds = library[compName].prototype.nominalBounds;
+                    temp1.frameBounds   = library[compName].prototype.frameBounds;
         
-                    let tarAnLib = EFLoadManager.modules[modPath[1]];
+                    let foreignClone:any = function() {
+                    	foreignObject.call(this);
+                    }
+                    foreignClone.prototype = Object.create(foreignObject.prototype);
 
-                    let newObject = Object.create(foreignObject.prototype);
+                    foreignClone.prototype.clone           = temp1.clone;
+                    foreignClone.prototype.nominalBounds   = temp1.nominalBounds;
+                    foreignClone.prototype.frameBounds     = temp1.frameBounds;
 
-                    newObject.prototype.clone           = temp1.clone;
-                    newObject.prototype.nominalBounds   = temp1.nominalBounds;
-                    newObject.prototype.frameBounds     = temp1.frameBounds;
-        
-                    AnLib[compName] = newObject;
+                    library[compName] = foreignClone;
                 }
             }
         }

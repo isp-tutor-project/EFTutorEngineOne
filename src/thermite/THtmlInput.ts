@@ -35,13 +35,10 @@ export class THtmlInput extends THtmlBase {
 
 	//************ Stage Symbols
 	
-	public StxtField:Text;
+	public SControlContainer:Text;
     public SfocusBox:TObject;
-
-    public STextInput: HTMLTextAreaElement;
 	
 	//************ Stage Symbols				
-
 
 
 
@@ -140,12 +137,13 @@ export class THtmlInput extends THtmlBase {
 
     public onAddedToStage(evt:CEFEvent) {
 
-        console.log("TextInput On Stage");
+        console.log("HTMLInput On Stage");
 
         if(!this.fAdded) {
 
+            // TODO: make this equivalent to other HTML controls
             this.dimContainer = this.SfocusBox;
-            this.StxtField.visible = false;        
+            this.SControlContainer.visible = false;        
             this.SfocusBox.visible = false;        
 
             this.outerContainer = document.createElement("div"); 
@@ -162,10 +160,6 @@ export class THtmlInput extends THtmlBase {
             // 
             // this.decomposeFont(this.cssSheet, this.StxtField.font);
 
-            // Set focus in the $onEnterScene override
-            //
-            // this.STextArea.focus();
-
             super.onAddedToStage(evt);
         }
     }
@@ -174,9 +168,9 @@ export class THtmlInput extends THtmlBase {
     public setFocus(focus:boolean) {
         
         if(focus)
-            this.STextInput.focus();
+            this.controlContainer.focus();
         else 
-            this.STextInput.blur();
+            this.controlContainer.blur();
         
     }
 
@@ -184,9 +178,9 @@ export class THtmlInput extends THtmlBase {
     public setEnabled(enabled:boolean) {
         
         if(enabled)
-            this.STextInput.disabled = false;
+            this.controlContainer.disabled = false;
         else 
-            this.STextInput.disabled = true;
+            this.controlContainer.disabled = true;
         
     }
     
