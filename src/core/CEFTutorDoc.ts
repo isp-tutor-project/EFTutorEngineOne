@@ -232,16 +232,6 @@ export class CEFTutorDoc extends EventDispatcher implements IEFTutorDoc
 	
 	public initializeTutor() {
 
-		// Load the scene extension code
-		// 
-		// for(let suppl in this.tutorDescr.supplScripts) {
-
-		// 	if(this.tutorDescr.supplScripts[suppl].intNameSpace == CONST.SCENE_EXT) {
-		// 		this.tutorExt = this.tutorDescr.supplScripts[suppl].instance;
-		// 		break;
-		// 	}
-		// }
-
         // This manufactures the tutorGraph from the JSON spec file 			
         //
         CTutorGraphNavigator.rootFactory(this, this.tutorGraph);
@@ -588,6 +578,14 @@ export class CEFTutorDoc extends EventDispatcher implements IEFTutorDoc
                  onLoad   : this.onLoadJson.bind(this),
                  fileName : CONST.TUTOR_VARIABLE[i1],
                  varName  : CONST.TUTOR_FACTORIES[i1]
+            });
+
+            this.loaderData.push( {
+                type     : "Tutor Globals",
+                filePath : "EFTutors/" + targetTutor + CONST.GLOBALS_FILEPATH,
+                onLoad   : this.onLoadCode.bind(this),
+                modName : CONST.TUTOR_EXT,
+                debugPath: this.isDebug? "ISP_Tutor/EFbuild/TUTORGLOBALS" + CONST.GLOBALS_FILEPATH :null
             });
         }
     }

@@ -24,6 +24,8 @@ export class CONST {
 	public static readonly EFLISTBOX_TYPE     = "eflist";
 	public static readonly EFTABLE_TYPE       = "eftable";
 
+	public static readonly GLOBAL_MODULE      = "$GLOBAL";
+	public static readonly GLOBAL_CODE        = "$GLOBAL";
 	public static readonly COMMON_CODE        = "$Common";
 	public static readonly EXT_SIG            = "$";
 
@@ -37,6 +39,7 @@ export class CONST {
     public static readonly FONTFACE_FILEPATH:string     = "/EFfonts/fontfaces.css";
     public static readonly TRACKDATA_FILEPATH:string    = "/EFaudio/EFscripts/script_assets.json";
     public static readonly TRACKASSETS_FILEPATH:string  = "/EFaudio/EFassets/";
+    public static readonly GLOBALS_FILEPATH:string      = "/EFbuild/globals.js";
     public static readonly SEGMENT_PREFIX:string        = "_s";
     public static readonly VOICE_PREFIX:string          = "_v";
     public static readonly ANMODULE_FILEPATH:string     = ".js";
@@ -53,7 +56,9 @@ export class CONST {
 	public static readonly THERMITE_PREFIX:string   = "TC_";
 	public static readonly MODULE_PREFIX:string     = "TM_";
 	public static readonly MODLINK_PREFIX:string    = "TL_";
-	public static readonly SCENE_EXT 				= "sceneExt";
+    public static readonly SCENE_EXT 				= "sceneExt";
+    public static readonly TUTOR_EXT 				= "tutorExt";
+    
 
 
 	public static readonly TUTOR_VARIABLE:string[] = [
@@ -66,9 +71,6 @@ export class CONST {
 		"tutorGraph"
 	];
 	
-	public static readonly TUTOR_SUPPL_CODE:string[] = [
-		"EFTut_Suppl.js"
-	];
 
     
 

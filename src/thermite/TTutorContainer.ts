@@ -243,13 +243,13 @@ export class TTutorContainer extends TRoot
 		// Mixin the supplimentary code on the scene instance.
         //
         try {
-            CUtil.mixinSceneSuppliments(tarScene, EFTut_Suppl[hostModule][CONST.COMMON_CODE], CONST.EXT_SIG);
+            CUtil.mixinCodeSuppliments(tarScene, EFTut_Suppl[hostModule][CONST.COMMON_CODE], CONST.EXT_SIG);
         }
         catch(err) {
             console.log("Error: missing $Common mixin");
         }
         try {
-            CUtil.mixinSceneSuppliments(tarScene, EFTut_Suppl[hostModule][sceneName], CONST.EXT_SIG);        
+            CUtil.mixinCodeSuppliments(tarScene, EFTut_Suppl[hostModule][sceneName], CONST.EXT_SIG);        
         }
         catch(err) {
             console.log("Error: missing Scene mixin");

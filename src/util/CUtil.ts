@@ -104,7 +104,7 @@ export class CUtil extends Object
     }
 
 
-	public static mixinSceneSuppliments(recObj:any, donorObj:any, mixinSig:string) {
+	public static mixinCodeSuppliments(recObj:any, donorObj:any, mixinSig:string) {
 
 		let propName:string;
 		let donor:any;

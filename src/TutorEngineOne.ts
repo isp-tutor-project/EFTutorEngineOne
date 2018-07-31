@@ -89,6 +89,8 @@ export class CEngine {
 
             console.log("Tutor Boot Image Complete");
 
+            CUtil.mixinCodeSuppliments(this.tutorDoc, EFTut_Suppl[CONST.GLOBAL_MODULE][CONST.GLOBAL_CODE], CONST.EXT_SIG);
+
             this.loadTutorImage();
         })                
     }    
