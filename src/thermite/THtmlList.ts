@@ -35,10 +35,6 @@ export class THtmlList extends THtmlBase {
 	
     public SControlContainer:TObject;    
     
-    // Generated controls    
-
-    public controlContainer:HTMLDivElement;
-
 	//************ Stage Symbols				
     
 

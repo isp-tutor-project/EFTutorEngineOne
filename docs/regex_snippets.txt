@@ -1,6 +1,9 @@
 
 VSCode regex cheatsheet:
 
+Regex to locate Unicode (non-ASCII) characters
+[^\x00-\x7f]
+
 Regex to decompose HTML span elements
 (<span[\w\s=']*id='(\w*)'[\w\s=']*>)([\w\s]*)<
 

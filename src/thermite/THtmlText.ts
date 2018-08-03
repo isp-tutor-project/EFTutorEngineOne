@@ -23,9 +23,9 @@ import { CEFEvent }             from "../events/CEFEvent";
 import { TMouseEvent } 		    from "../events/CEFMouseEvent";
 
 import { CUtil } 			    from "../util/CUtil";
+import { CONST }                from "../util/CONST";
 
 import MovieClip     	      = createjs.MovieClip;
-import { CONST } from "../util/CONST";
 
 
 
@@ -35,11 +35,6 @@ export class THtmlText extends THtmlBase {
 	//************ Stage Symbols
 	
     public SControlContainer:TObject;    
-    public STextArea: HTMLDivElement;
-    
-    // Generated controls    
-
-    public controlContainer:HTMLDivElement;
 
 	//************ Stage Symbols				
     
@@ -77,8 +72,9 @@ export class THtmlText extends THtmlBase {
         this.cssSheet = {
 
             "[eftext].outerContainer" : {
+                "display": "block",
                 "position":"absolute",
-                "box-sizing":"border-box",
+                "box-sizing":"content-box",
 
                 "visibility":"hidden"
             },
@@ -136,10 +132,6 @@ export class THtmlText extends THtmlBase {
 
             dom_overlay_container.appendChild(this.outerContainer); 
             this.outerContainer.appendChild(this.controlContainer); 
-
-            // Set focus in the $onEnterScene override
-            //
-            // this.STextArea.focus();
 
             super.onAddedToStage(evt);
         }

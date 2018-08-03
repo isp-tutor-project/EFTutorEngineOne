@@ -36,10 +36,6 @@ export class THtmlTable extends THtmlBase {
 	
     public SControlContainer:TObject;    
     
-    // Generated controls    
-
-    public controlContainer:HTMLElement;
-
 	//************ Stage Symbols				
     
 

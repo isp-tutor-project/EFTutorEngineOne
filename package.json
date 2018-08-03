@@ -27,8 +27,6 @@
     "typescript": "^2.6.2"
   },
   "dependencies": {
-    "@types/json5": "0.0.29",
     "@types/systemjs": "^0.20.6",
-    "json5": "^1.0.1"
   }
 }

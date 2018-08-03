@@ -22,10 +22,10 @@ import { THtmlBase }            from "./THtmlBase";
 import { CEFEvent }             from "../events/CEFEvent";
 
 import { CUtil } 			    from "../util/CUtil";
+import { CONST }                from "../util/CONST";
 
 import MovieClip     	      = createjs.MovieClip;
 import Text     	          = createjs.Text;
-import { CONST } from "../util/CONST";
 
 
 
@@ -35,8 +35,7 @@ export class THtmlInput extends THtmlBase {
 
 	//************ Stage Symbols
 	
-	public SControlContainer:Text;
-    public SfocusBox:TObject;
+	public SControlContainer:TObject;
 	
 	//************ Stage Symbols				
 
@@ -69,8 +68,6 @@ export class THtmlInput extends THtmlBase {
         this.traceMode = true;
         if(this.traceMode) CUtil.trace("THtmlInput:Constructor");
 
-        this.fontSize  = 14;
-        
         this.cssSheet = {
 
             "[efinput].outerContainer" : {
@@ -93,7 +90,7 @@ export class THtmlInput extends THtmlBase {
                 "font-Style":"normal",
                 "font-Weight":"normal",  
                 
-                "padding":"0",
+                "padding":"0px",
                 "margin":"0px",
 
                 "visibility":"hidden"
@@ -142,9 +139,8 @@ export class THtmlInput extends THtmlBase {
         if(!this.fAdded) {
 
             // TODO: make this equivalent to other HTML controls
-            this.dimContainer = this.SfocusBox;
+            this.dimContainer = this.SControlContainer;
             this.SControlContainer.visible = false;        
-            this.SfocusBox.visible = false;        
 
             this.outerContainer = document.createElement("div"); 
             this.outerContainer.className = "outerContainer";
@@ -167,20 +163,12 @@ export class THtmlInput extends THtmlBase {
 
     public setFocus(focus:boolean) {
         
-        if(focus)
-            this.controlContainer.focus();
-        else 
-            this.controlContainer.blur();
         
     }
 
 
     public setEnabled(enabled:boolean) {
         
-        if(enabled)
-            this.controlContainer.disabled = false;
-        else 
-            this.controlContainer.disabled = true;
         
     }
     
@@ -358,7 +346,7 @@ export class THtmlInput extends THtmlBase {
     {
         console.log("deserializing: Input Custom Control");
 
-        this.outerContainer.innerHTML = objData.html;
+        this.fontSize= objData.fontSize || this.fontSize;        
 
         super.deSerializeObj(objData);				
     }

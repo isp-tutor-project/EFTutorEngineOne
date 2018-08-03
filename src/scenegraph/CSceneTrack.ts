@@ -53,6 +53,7 @@ export class CSceneTrack extends EventDispatcher
 
 	private _type:string;
 	private _autostep:boolean;
+	private _stepdelay:number;
     
 	private _odds:Array<number>;
 	private _chosen:boolean = false; 
@@ -129,7 +130,8 @@ export class CSceneTrack extends EventDispatcher
 			this._actionname = factory.actionname;
 		}
 
-        this._autostep  = factory.autostep || false;        
+        this._autostep  = factory.autostep   || false;        
+        this._stepdelay = factory._stepdelay || 0.0;        
         this._odds      = factory.odds;
 		this._features 	= factory.features || "";
 		

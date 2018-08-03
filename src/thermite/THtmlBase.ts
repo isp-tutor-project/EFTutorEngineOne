@@ -34,10 +34,13 @@ export class THtmlBase extends TObject {
 
 	//************ Stage Symbols
 	
-	
+	    // Generated controls    
+
+        protected outerContainer:HTMLElement;    
+        protected controlContainer:HTMLElement;
+
 	//************ Stage Symbols				
     
-    protected outerContainer:HTMLElement;    
     protected dimContainer:TObject;
 
     protected fAdded:boolean;
