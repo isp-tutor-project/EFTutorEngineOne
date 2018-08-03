@@ -20,7 +20,7 @@ import { TRoot } 			from "./TRoot";
 import { TObjectDyno } 		from "./TObjectDyno";
 import { TSceneBase }  		from "./TSceneBase";
 
-import { TTutorContainer } 	from "../thermite/TTutorContainer";
+import { TTutorContainer } 	from "./TTutorContainer";
 
 import { CEFNavigator } 	from "../core/CEFNavigator";
 
@@ -103,8 +103,8 @@ export class TObject extends TRoot
 
 	// Factory Object Initialization data for this object - maintains a pointer to the original data source for the object
 	
-	protected _XMLsrc:string;
-	protected _XMLSnapShot:string;
+	protected _InitData:string;
+	protected _DataSnapShot:string;
 	
 	// general logging properties 
 	
@@ -117,7 +117,7 @@ export class TObject extends TRoot
 	protected _validFeature:string   = "";						//## Added Sep 28 2012 - to support dynamic features
 	protected _invalidFeature:string = "";						//## Added Sep 28 2012 - to support dynamic features	
 	
-	public _features:string;									//## Mod Aug 13 2013 - to support object unique features (used in scenegraph currently) 
+	public _features:string;									//## Mod Aug 13 2013 - to support object unique features (used in tutorgraph currently) 
 	
 	// mask specific values		
 
@@ -1502,30 +1502,21 @@ export class TObject extends TRoot
 		/*
 		* 
 		*/
-		public loadOBJ(xmlSrc:any) : void
+		public deSerializeObj(objData:any) : void
 		{
 			// Keep a pointer to the object spec
 			
-			this._XMLsrc = xmlSrc;
+			this._InitData = objData;
 			
-			if(xmlSrc.xname != undefined)						
-				this.xname = xmlSrc.xname;			
+            this.xname = objData.xname || this.xname;	
+            					
+			this.x = objData.x || this.x;
+			this.y = objData.y || this.y;
 			
-			if(xmlSrc.x != undefined)						
-			this.x = Number(xmlSrc.x);
+			this.visible = objData.visible || this.visible;
+			this.alpha   = objData.alpha   || this.alpha;
 			
-			if(xmlSrc.y != undefined)						
-			this.y = Number(xmlSrc.y);
-
-			if(xmlSrc.visible != undefined)
-			{
-				this.visible = (xmlSrc.visible == "true")? true:false;
-			}
-			
-			if(xmlSrc.alpha != undefined)						
-			this.alpha = Number(xmlSrc.alpha);
-			
-			if(xmlSrc.mask != undefined)
+			if(objData.mask != undefined)
 			{
 				this._hasClickMask = true;
 				
@@ -1537,36 +1528,7 @@ export class TObject extends TRoot
 				// this._maskAlpha = Number(xmlSrc.mask.alpha);
 			}
 			
-			if(xmlSrc.oncreate != undefined)		
-			{
-				try
-				{
-					// Note: it is imperitive that we precompile the script -
-					//       Doing it on each invokation causes failures
-					// onCreateScript = D.parseProgram(xmlSrc.oncreate);
-				}
-				catch(err)
-				{
-					CUtil.trace("Error: onCreateScript Invalid: " + xmlSrc.oncreate);
-				}
-			}
-			
-			if(xmlSrc.onexit != undefined)		
-			{
-				try
-				{
-					// Note: it is imperitive that we precompile the script -
-					//       Doing it on each invokation causes failures
-					// onExitScript = D.parseProgram(xmlSrc.onexit);
-				}
-				catch(err)
-				{
-					CUtil.trace("Error: onExitScript Invalid: " + xmlSrc.onExitScript);
-				}
-			}			
-			
-			
-			super.loadXML(xmlSrc);				
+			super.deSerializeObj(objData);				
 		}
 
 

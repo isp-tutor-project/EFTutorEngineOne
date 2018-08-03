@@ -54,6 +54,9 @@ export interface IEFTutorDoc {
 	tutorGraph:any;						    	// The factory definition object used to create the tutor Graph		
     tutorConfig:LoaderPackage.ITutorConfig;
 
+    language:string;
+    voice:string;             // F0 | M0
+
     modules:Array<LoaderPackage.IModuleDescr>;
     moduleData:any;
 

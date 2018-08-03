@@ -17,8 +17,8 @@
 
 //** Imports
 
-import { TRoot } 				from "../../thermite/TRoot";
-import { TScene } 				from "../../thermite/TScene";
+import { TRoot } 				from "../TRoot";
+import { TScene } 				from "../TScene";
 
 import { CEFNavEvent } 			from "../../events/CEFNavEvent";
 

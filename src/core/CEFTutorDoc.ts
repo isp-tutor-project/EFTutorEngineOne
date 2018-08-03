@@ -16,7 +16,7 @@
 
 //** Imports
 
-import { IEFTutorDoc } 			from "../core/IEFTutorDoc";
+import { IEFTutorDoc } 			from "./IEFTutorDoc";
 
 import { CLogManager }			from "../managers/CLogManager";
 import { CURLLoader }           from "../network/CURLLoader";
@@ -34,6 +34,7 @@ import { CUtil }                from "../util/CUtil";
 
 
 import EventDispatcher 		  = createjs.EventDispatcher;
+import { CEFTimer } from "./CEFTimer";
 
 
 
@@ -100,6 +101,9 @@ export class CEFTutorDoc extends EventDispatcher implements IEFTutorDoc
 	public sceneGraph:any;						        // The factory definition object used to create scene graphs for specified scenes
 	public tutorGraph:any;						    	// The factory definition object used to create the tutor Graph		
     public tutorConfig:LoaderPackage.ITutorConfig;
+
+    public language:string = "en";
+    public voice:string    = "F0";             // F0 | M0
 
     public modules:Array<LoaderPackage.IModuleDescr>;
     public moduleData:any;
@@ -228,19 +232,9 @@ export class CEFTutorDoc extends EventDispatcher implements IEFTutorDoc
 	
 	public initializeTutor() {
 
-		// Load the scene extension code
-		// 
-		// for(let suppl in this.tutorDescr.supplScripts) {
-
-		// 	if(this.tutorDescr.supplScripts[suppl].intNameSpace == CONST.SCENE_EXT) {
-		// 		this.tutorExt = this.tutorDescr.supplScripts[suppl].instance;
-		// 		break;
-		// 	}
-		// }
-
         // This manufactures the tutorGraph from the JSON spec file 			
         //
-        this.tutorNavigator = CTutorGraphNavigator.rootFactory(this, this.tutorGraph);
+        CTutorGraphNavigator.rootFactory(this, this.tutorGraph);
 
         //## Mod Aug 10 2012 - must wait for initializeScenes to ensure basic scenes are in place now that 
         //					   we allow dynamic creation of the navPanel etc.
@@ -585,6 +579,14 @@ export class CEFTutorDoc extends EventDispatcher implements IEFTutorDoc
                  fileName : CONST.TUTOR_VARIABLE[i1],
                  varName  : CONST.TUTOR_FACTORIES[i1]
             });
+
+            this.loaderData.push( {
+                type     : "Tutor Globals",
+                filePath : "EFTutors/" + targetTutor + CONST.GLOBALS_FILEPATH,
+                onLoad   : this.onLoadCode.bind(this),
+                modName : CONST.TUTOR_EXT,
+                debugPath: this.isDebug? "ISP_Tutor/EFbuild/TUTORGLOBALS" + CONST.GLOBALS_FILEPATH :null
+            });
         }
     }
 
@@ -596,25 +598,27 @@ export class CEFTutorDoc extends EventDispatcher implements IEFTutorDoc
         // 
         for(let moduleName of this.tutorConfig.dependencies) {
 
+            let moduleNameCS = moduleName.toUpperCase();
+
             this.loaderData.push( {
                 type     : "ModuleID",
                 filePath : moduleName + CONST.MODID_FILEPATH,
                 onLoad   : this.onLoadModID.bind(this),
-                modName  : moduleName
+                modName : moduleNameCS
             });
 
             this.loaderData.push( {
                 type     : "Scene Graph",
                 filePath : moduleName + CONST.GRAPH_FILEPATH,
                 onLoad   : this.onLoadSceneGraphs.bind(this),
-                modName  : moduleName
+                modName : moduleNameCS
             });
 
             this.loaderData.push( {
                 type     : "Class Extensions",
                 filePath : moduleName + CONST.EXTS_FILEPATH,
                 onLoad   : this.onLoadCode.bind(this),
-                modName  : moduleName,
+                modName : moduleNameCS,
                 debugPath: this.isDebug? "ISP_Tutor/EFbuild/" + moduleName + "/exts.js":null
             });
 
@@ -622,7 +626,7 @@ export class CEFTutorDoc extends EventDispatcher implements IEFTutorDoc
                 type     : "Scene Mixins",
                 filePath : moduleName + CONST.MIXINS_FILEPATH,
                 onLoad   : this.onLoadCode.bind(this),
-                modName  : moduleName,
+                modName : moduleNameCS,
                 debugPath: this.isDebug? "ISP_Tutor/EFbuild/" + moduleName + "/mixins.js":null
             });
 
@@ -630,28 +634,35 @@ export class CEFTutorDoc extends EventDispatcher implements IEFTutorDoc
                 type     : "Fonts",
                 filePath : moduleName + CONST.FONTFACE_FILEPATH,
                 onLoad   : this.onLoadFonts.bind(this),
-                modName  : moduleName,
+                modName : moduleNameCS,
             });
            
             this.loaderData.push( {
-                type     : "Scene Data",
+                type     : CONST.SCENE_DATA,
                 filePath : moduleName + CONST.DATA_FILEPATH,
                 onLoad   : this.onLoadData.bind(this),
-                modName  : moduleName,
+                modName : moduleNameCS,
             });
 
             this.loaderData.push( {
-                type     : "Track Data",
+                type     : CONST.SCENE_DATA,
+                filePath : moduleName + CONST.LIBR_FILEPATH,
+                onLoad   : this.onLoadData.bind(this),
+                modName : moduleNameCS,
+            });
+
+            this.loaderData.push( {
+                type     : CONST.TRACK_DATA,
                 filePath : moduleName + CONST.TRACKDATA_FILEPATH,
                 onLoad   : this.onLoadData.bind(this),
-                modName  : moduleName,
+                modName : moduleNameCS,
             });
 
             this.loaderData.push( {
                 type     : "AnimateCC",
                 filePath : moduleName + CONST.ANMODULE_FILEPATH,
                 onLoad   : this.onLoadCode.bind(this),
-                modName  : moduleName,
+                modName : moduleNameCS,
                 debugPath: this.isDebug? moduleName + ".js":null
             });
         }
@@ -785,8 +796,15 @@ export class CEFTutorDoc extends EventDispatcher implements IEFTutorDoc
             console.log("Data:" + fileLoader.type + " Loaded: " + fileLoader.modName );
 
             // ****
+            // Note: Several files may integrate information into the tutor moduleData 
+            //       structure.
             //
-            this.moduleData[fileLoader.modName] = JSON.parse(filedata);      
+            let data:Object = JSON.parse(filedata);
+
+            this.moduleData[fileLoader.modName] = this.moduleData[fileLoader.modName] || {};
+            this.moduleData[fileLoader.modName][fileLoader.type] = this.moduleData[fileLoader.modName][fileLoader.type] || {};
+
+            CUtil.mixinDataObject(this.moduleData[fileLoader.modName][fileLoader.type], data);
         }
         catch(error) {
 

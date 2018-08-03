@@ -104,7 +104,7 @@ export class CUtil extends Object
     }
 
 
-	public static mixinSceneSuppliments(recObj:any, donorObj:any, mixinSig:string) {
+	public static mixinCodeSuppliments(recObj:any, donorObj:any, mixinSig:string) {
 
 		let propName:string;
 		let donor:any;
@@ -127,6 +127,21 @@ export class CUtil extends Object
 				if(mixinSig && !propName.startsWith(mixinSig))
 															continue;
 				recObj[propName] = donor[propName];
+			}		
+		}			
+	}
+
+
+	public static mixinDataObject(recObj:any, donorObj:any) {
+
+		let propName:string;
+		
+		if(donorObj) {
+
+			let TObjProps:Array<string> = Object.getOwnPropertyNames(donorObj);
+			
+			for(propName of TObjProps) {
+				recObj[propName] = donorObj[propName];
 			}		
 		}			
 	}

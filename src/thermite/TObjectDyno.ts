@@ -18,7 +18,7 @@ import { TRoot }			from "./TRoot";
 import { TObject } 			from "./TObject";
 import { TSceneBase } 		from "./TSceneBase";
 
-import { TTutorContainer } from "../thermite/TTutorContainer";
+import { TTutorContainer } from "./TTutorContainer";
 
 import { ILogManager } 	from "../managers/ILogManager";
 

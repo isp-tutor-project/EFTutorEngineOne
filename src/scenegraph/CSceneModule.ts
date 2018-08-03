@@ -23,10 +23,6 @@ import { CSceneNode } 		from "./CSceneNode";
 import { CSceneGraph } 		from "./CSceneGraph";
 import { CSceneTrack } 		from "./CSceneTrack";
 
-import { TRoot } 			from "../thermite/TRoot";
-
-
-import { CONST }            from "../util/CONST";
 import { CUtil } 			from "../util/CUtil";
 
 import EventDispatcher = createjs.EventDispatcher;
@@ -35,7 +31,7 @@ import EventDispatcher = createjs.EventDispatcher;
 
 export class CSceneModule extends CSceneNode
 {
-	private _animations:Array<any> = new Array;	
+	private _tracks:Array<CSceneTrack> = new Array;	
 	private _ndx:number = -1;
 	private _reuse:boolean;
 	
@@ -74,37 +70,35 @@ export class CSceneModule extends CSceneNode
 		// These may represent classnames for actiontracks of choiceset references that will
 		// provide an actiontrack classname 
 		
-		let actiontracks:Object = moduleFactory.actiontracks;			
+		let actiontracks:any = moduleFactory.actiontracks;			
 		
-		for (let track in actiontracks)
+		for (let track of actiontracks)
 		{
-			node._animations.push(new CSceneTrack(_tutorDoc, track, parent));	
+			node._tracks.push(new CSceneTrack(_tutorDoc, track, parent));	
 		}
 		
 		return node;
 	}
 	
 	
-	public nextAnimation() : string
+    public gotoNextTrack() : CSceneTrack
 	{
-		let nextTrackClass:string = null; 
-		let nextAnimation:CSceneTrack;
+		let nextTrack:CSceneTrack;
 		let features:string;
 		let featurePass:boolean = false;
 		
 		// If new scene has features, check that it is being used in the current tutor feature set
 		// Note: You must ensure that there is a match for the last scene in the sequence   			
 		
-		while(this._ndx < this._animations.length)
+		while(this._ndx < this._tracks.length)
 		{
 			this._ndx++;
 			
-			nextAnimation  = this._animations[this._ndx];				
-			nextTrackClass = null;
+			nextTrack  = this._tracks[this._ndx];				
 			
-			if(nextAnimation != null)
+			if(nextTrack != null)
 			{
-				features = nextAnimation.features;
+				features = nextTrack.features;
 				
 				// If this scene is not in the feature set for the tutor then check the next one.
 				
@@ -116,9 +110,9 @@ export class CSceneModule extends CSceneNode
 					{
 						// Check Probability Feature if present
 						
-						if(nextAnimation.hasPFeature)
+						if(nextTrack.hasPFeature)
 						{
-							featurePass = nextAnimation.testPFeature();
+							featurePass = nextTrack.testPFeature();
 						}											
 					}																			
 				}
@@ -129,38 +123,31 @@ export class CSceneModule extends CSceneNode
 				{
 					// Check Probability Feature if present
 					
-					if(nextAnimation.hasPFeature)
+					if(nextTrack.hasPFeature)
 					{
-						featurePass = nextAnimation.testPFeature();
+						featurePass = nextTrack.testPFeature();
 					}				
 					else featurePass = true;
 				}
 				
 				if(featurePass)
 				{
-					CUtil.trace("Animation Feature: " + features + " passed:" + featurePass);
-					
-					switch(nextAnimation.type)
-					{
-						case "actiontrack":
-							nextTrackClass = nextAnimation.classpath;
-							break;
-						
-						case "choiceset":
-							nextTrackClass = nextAnimation.nextAnimation();
-							break;
-					}
-					
+                    CUtil.trace("Track Features: " + features + " passed:" + featurePass);		
+                    
+                    // Resolve in case the track is a choiceSet
+                    // 
+                    nextTrack = nextTrack.resolve();				
+
 					break;		// leave the loop
 				}					
 			}
 			else break;
 		}
 		
-		// If we have exhausete the node check if it can be reused - if so reinitialize it for 
-		// the next time it is called.
+        // If we have exhausted the node check whether it can be reused - 
+        // if so reinitialize it for the next time it is called.
 		
-		if(this._ndx >= this._animations.length)
+		if(this._ndx >= this._tracks.length)
 		{
 			if(this._reuse)
 			{
@@ -168,20 +155,20 @@ export class CSceneModule extends CSceneNode
 			}
 		}			
 		
-		return nextTrackClass;			
+		return nextTrack;			
 	}
 
 	
-	public seekToAnimation(seek:string) : string
+	public seekToTrack(seek:string) : string
 	{
-		let animation:CSceneTrack = null;
+		let track:CSceneTrack = null;
 		let ndx:number = 0;
 		
 		// Move to the correct scene within the module
 		
-		for (let animation of this._animations)
+		for (let track of this._tracks)
 		{
-			if(seek == animation.classpath)
+			if(seek == track.trackID)
 			{
 				this._ndx = ndx;
 				break;
@@ -189,13 +176,13 @@ export class CSceneModule extends CSceneNode
 			ndx++;
 		}
 		
-		return animation.classpath;
+		return track.trackName;
 	}
 	
 	
 	public applyNode() : boolean
 	{
-		//dispatchEvent(new Event("todo"));  //return this._animations[this._ndx];
+		//dispatchEvent(new Event("todo")); 
 		
 		return false;			
 	}

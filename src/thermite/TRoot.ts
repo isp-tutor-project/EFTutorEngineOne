@@ -20,14 +20,8 @@
 import { IEFTutorDoc } 			from "../core/IEFTutorDoc";
 
 import { TSceneBase }     		from "./TSceneBase";
+import { TTutorContainer } 		from "./TTutorContainer";
 
-import { TTutorContainer } 		from "../thermite/TTutorContainer";
-import { CEFNavigator } 	 	from "../core/CEFNavigator";
-
-import { ILogManager }  		from "../managers/ILogManager";
-
-
-import { CONST }        		from "../util/CONST";
 import { CUtil } 				from "../util/CUtil";
 
 
@@ -190,7 +184,7 @@ export class TRoot extends MovieClip
 	/*
 		* 
 		*/
-	public loadXML(propVector:Object) : void
+	public deSerializeObj(objData:any) : void
 	{
 	}
 	
@@ -251,7 +245,7 @@ export class TRoot extends MovieClip
 		return iResult;
 	}
 	
-	//@@ Mod Jun 3 2013 - changed nethod to getter to support XML logging in scenegraph spec  
+	//@@ Mod Jun 3 2013 - changed nethod to getter to support XML logging in tutorgraph spec  
 	//
 	public get captureLOGString() :string
 	{		

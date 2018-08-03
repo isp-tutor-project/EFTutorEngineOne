@@ -16,7 +16,7 @@
 
 //** Imports 
 
-import { TScene } 	from "../../thermite/TScene";
+import { TScene } 	from "../TScene";
 import { CEFEvent } 			from "../../events/CEFEvent";
 import { CEFNavEvent } 			from "../../events/CEFNavEvent";
 import { CUtil } 				from "../../util/CUtil";

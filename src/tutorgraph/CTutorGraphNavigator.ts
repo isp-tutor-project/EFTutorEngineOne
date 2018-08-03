@@ -24,25 +24,20 @@ import { CTutorScene } 		from "./CTutorScene";
 import { CTutorHistory } 	from "./CTutorHistory";
 import { CTutorHistoryNode} from "./CTutorHistoryNode";
 
-import { CEFTutorDoc } 		from "../core/CEFTutorDoc";
 import { CEFNavigator } 	from "../core/CEFNavigator";
 
-import { TRoot } 			from "../thermite/TRoot";
 import { TScene } 			from "../thermite/TScene";
 
 import { TMouseEvent } 		from "../thermite/events/TMouseEvent";
 
 import { CEFEvent } 		from "../events/CEFEvent";
 
-import { MObject } 			from "../mongo/MObject";
-import { CMongo } 			from "../mongo/CMongo";
-
 import { CONST }            from "../util/CONST";
 import { CUtil } 			from "../util/CUtil";
 
 
 import Event 		  = createjs.Event;
-import Ticker 		  = createjs.Ticker;
+import { CEFTimer } from "../core/CEFTimer";
 
 
 
@@ -52,12 +47,13 @@ import Ticker 		  = createjs.Ticker;
 export class CTutorGraphNavigator extends CEFNavigator
 {		
 	private _history:CTutorHistory;				
-	private _rootGraph:CTutorGraph;
+    private _rootGraph:CTutorGraph;
+
+    private _asyncTimer:CEFTimer;
+    private _tickHandler:Function;
 
 	private _fTutorGraph:Boolean = true;
 
-	private _tutorGraph:CTutorGraph;
-	
 	private _currScene:CTutorScene;
 	private _nextScene:CTutorScene;
 	private _prevScene:CTutorScene;
@@ -66,8 +62,6 @@ export class CTutorGraphNavigator extends CEFNavigator
 	
 	private _iterations:any = {};
 
-	private _profileData:any;
-	private _tickHandler:Function;
 	
 	
 	/**
@@ -75,7 +69,10 @@ export class CTutorGraphNavigator extends CEFNavigator
 		*/
 	constructor(_tutorDoc:IEFTutorDoc)
 	{
-		super(_tutorDoc);			
+        super(_tutorDoc);		
+        
+        this._asyncTimer = new CEFTimer(0);
+
 	}
 	
 	
@@ -124,8 +121,12 @@ export class CTutorGraphNavigator extends CEFNavigator
 		*/
 	public static rootFactory(_tutorDoc:IEFTutorDoc, factory:any) : CTutorGraphNavigator
 	{	
-		let tutorNav 	  = new CTutorGraphNavigator(_tutorDoc);				
-		tutorNav._history = new CTutorHistory(_tutorDoc);
+        // Create the tutors navigator object and init the internal pointer 
+        // which may be used during scene initialization
+        // 
+		let tutorNav 	         = new CTutorGraphNavigator(_tutorDoc);				
+        tutorNav._history        = new CTutorHistory(_tutorDoc);
+        _tutorDoc.tutorNavigator = tutorNav;
 		
 		if(factory['history'] != null)
 		{
@@ -177,12 +178,12 @@ export class CTutorGraphNavigator extends CEFNavigator
 		*/
 	private enQueueTerminateEvent() : void
 	{			
-		this.on(CEFEvent.ENTER_FRAME, this._deferredTerminate);
+		this.on(CEFEvent.ENTER_FRAME, this._asyncTerminate);
 	}
 	
-	private _deferredTerminate(e:Event) : void
+	private _asyncTerminate(e:Event) : void
 	{			
-		this.off(CEFEvent.ENTER_FRAME, this._deferredTerminate);
+		this.off(CEFEvent.ENTER_FRAME, this._asyncTerminate);
 		
 		this.tutorDoc.log.logTerminateEvent();
 	}
@@ -195,7 +196,7 @@ export class CTutorGraphNavigator extends CEFNavigator
 		*/
 	public onButtonNext(evt:TMouseEvent) : void
 	{
-		this.dispatchEvent(new Event("NEXT_CLICK",false,false));
+		// this.dispatchEvent(new Event("NEXT_CLICK",false,false));
 
 		// Do button clicks synchronously
 		
@@ -230,12 +231,14 @@ export class CTutorGraphNavigator extends CEFNavigator
 		// Do automated scene increments asynchronously to allow
 		// actiontrack scripts to complete prior to scene nav
 		
-		this._tickHandler = Ticker.on(CEFEvent.ENTER_FRAME, this._deferredNextScene, this);
+        this._tickHandler = this._asyncTimer.on(CONST.TIMER, this._asyncNextScene, this);
+        this._asyncTimer.start();
 	}
 	
-	private _deferredNextScene(evt:Event) : void
+	private _asyncNextScene(evt:Event) : void
 	{			
-		Ticker.off(CEFEvent.ENTER_FRAME, this._tickHandler);
+        this._asyncTimer.stop();
+		this._asyncTimer.off(CONST.TIMER, this._tickHandler);
 					
 		this.traceGraphEdge();
 	}
@@ -256,15 +259,15 @@ export class CTutorGraphNavigator extends CEFNavigator
 			// protect against recurrent calls			
 			
 			if(this._inNavigation) 
-						return;
+						    return;
 			
 			this._inNavigation = true;
 			
 			// The next button can target either the tutorgraph or the scenegraph.
-			// i.e. You either want it to trigger the next step in the animationGraph or the tutorgraph
-			// reset _fTutorGraph if you want the next button to drive the animationGraph
+			// i.e. You either want it to trigger the next step in the sceneGraph or the tutorgraph
+			// reset _fTutorGraph if you want the next button to drive the sceneGraph
 			//      
-			if(this._fTutorGraph || scene == null || scene.nextGraphAnimation(true) == null)
+			if(this._fTutorGraph || scene == null || scene.traceGraphEdge(true) == null)
 			{
 				// If we are not at the head end of the history then use the historic 'next'.
 				// i.e. non-volatile history moves forward past the exact same sequence
@@ -575,28 +578,19 @@ export class CTutorGraphNavigator extends CEFNavigator
 			}
 			
 			// Do scene Specific Enter Scripts
-			//
-			
+			//			
 			this.tutorDoc.TutAutomator[this._currScene.scenename]._instance.onEnterScene(this._xType);
 			
 			//## DEBUG May 11 2014 - dump display list
-			
-			//_currScene.enumDisplayList();				
-			
-			//## Mod Sep 12 2013 - This is a special case to handle the first preenter event for an animationGraph. 
-			//                     The root node of the animation graph is parsed in the preEnter stage of the scene
-			//                     creation so the scene is not yet on stage. This call ensures that the scene
-			//                     associated with the animation object has been instantiated.
-			//                     
-			//	TODO: This should be rationalized with the standard preEnter when all the preEnter customizations
-			//        in CEFScene derivatives have been moved to the XML (JSON) spec. 		
-			//
-			this.tutorDoc.TutAutomator[this._currScene.scenename]._instance.deferredEnterScene(this._xType);			
-			
+            //_currScene.enumDisplayList();			
+            	
+			// Create a unique timestamp for this scene			
+			this.tutorDoc.tutorContainer.timeStamp.createLogAttr("dur_" + this._currScene.scenename, true);
+            
 			// In demo mode defer demo clicks while scene switches are in progress
 			
-			if(this.tutorDoc.fDemo)
-				this.tutorDoc.tutorContainer.dispatchEvent(new Event("deferedDemoCheck",false,false));
+			// if(this.tutorDoc.fDemo)
+			// 	this.tutorDoc.tutorContainer.dispatchEvent(new Event("deferedDemoCheck",false,false));
 			
 			//@@ Mod Sep 27 2011 - protect against recursive calls
 			
@@ -610,6 +604,5 @@ export class CTutorGraphNavigator extends CEFNavigator
 			
 			this.tutorDoc.log.logErrorEvent(logData);
 		}
-	}
-	
+	}	
 }

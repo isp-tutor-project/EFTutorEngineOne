@@ -3,30 +3,62 @@
 export class CONST {
 
 	public static readonly TUTORCONTAINER = "STutorContainer";
+    
+    public static readonly ACTION_PFX       = "$nodeAction.";    
+    public static readonly SCENE_CHOICESET  = "choiceset";
+    public static readonly SCENE_TRACK      = "track";
+    public static readonly SCENE_ACTION     = "action";		
+    public static readonly TEMPLATE_VAR     = "templateVar";	
+    public static readonly NOVAR            = "__novar";	
+    
+    public static readonly SCENE_DATA         = "SceneData";	
+    public static readonly TRACK_DATA         = "TrackData";	
+    
+    public static readonly START_CUEPOINT     = "$start";	
+    public static readonly END_CUEPOINT       = "$end";	
 
-	public static readonly COMMON_CODE  = "$Common";
-	public static readonly EXT_SIG      = "$";
+    // custom HTML control types
+    // 
+	public static readonly EFTEXT_TYPE        = "eftext";
+	public static readonly EFINPUT_TYPE       = "efinput";
+	public static readonly EFLISTBOX_TYPE     = "eflist";
+	public static readonly EFTABLE_TYPE       = "eftable";
+
+	public static readonly GLOBAL_MODULE      = "$GLOBAL";
+	public static readonly GLOBAL_CODE        = "$GLOBAL";
+	public static readonly COMMON_CODE        = "$Common";
+	public static readonly EXT_SIG            = "$";
 
     public static readonly ACCOUNT_LOADER:string        = "/EFTutors/accounts.json";
     public static readonly MODID_FILEPATH:string        = "/EFconfig.json";
     public static readonly GRAPH_FILEPATH:string        = "/EFgraphs/scenegraphs.json";
     public static readonly EXTS_FILEPATH:string         = "/EFbuild/exts.js";
     public static readonly MIXINS_FILEPATH:string       = "/EFbuild/mixins.js";
-    public static readonly DATA_FILEPATH:string         = "/EFdata/assets.json";
+    public static readonly DATA_FILEPATH:string         = "/EFdata/_EFSCENEDATA.json";
+    public static readonly LIBR_FILEPATH:string         = "/EFdata/_EFLIBRARY.json";
     public static readonly FONTFACE_FILEPATH:string     = "/EFfonts/fontfaces.css";
-    public static readonly TRACKDATA_FILEPATH:string    = "/EFaudio/EFscripts/assets.json";
+    public static readonly TRACKDATA_FILEPATH:string    = "/EFaudio/EFscripts/script_assets.json";
     public static readonly TRACKASSETS_FILEPATH:string  = "/EFaudio/EFassets/";
+    public static readonly GLOBALS_FILEPATH:string      = "/EFbuild/globals.js";
+    public static readonly SEGMENT_PREFIX:string        = "_s";
+    public static readonly VOICE_PREFIX:string          = "_v";
     public static readonly ANMODULE_FILEPATH:string     = ".js";
+    public static readonly TYPE_MP3                     = ".mp3";
+    public static readonly TYPE_WAV                     = ".wav";
+
     public static readonly LOCAL:string                 = "LOCAL";
     public static readonly WAIT:number                  = 250;
 
 	public static readonly DONT_LAUNCH:boolean  = false;
 	public static readonly LAUNCH:boolean  		= true;
 
+    public static readonly EFMODULE_PREFIX:string   = "EFMod_";
 	public static readonly THERMITE_PREFIX:string   = "TC_";
 	public static readonly MODULE_PREFIX:string     = "TM_";
 	public static readonly MODLINK_PREFIX:string    = "TL_";
-	public static readonly SCENE_EXT 				= "sceneExt";
+    public static readonly SCENE_EXT 				= "sceneExt";
+    public static readonly TUTOR_EXT 				= "tutorExt";
+    
 
 
 	public static readonly TUTOR_VARIABLE:string[] = [
@@ -39,9 +71,6 @@ export class CONST {
 		"tutorGraph"
 	];
 	
-	public static readonly TUTOR_SUPPL_CODE:string[] = [
-		"EFTut_Suppl.js"
-	];
 
     
 
@@ -77,10 +106,10 @@ export class CONST {
 	public static readonly DLGSTAY:string	= "DLGStay";
 	public static readonly DLGNEXT:string	= "DLGNext";
 
-	public static readonly WOZREPLAY:string  = "rootreplay";
-	public static readonly WOZCANCEL:string  = "rootcancel";
-	public static readonly WOZPAUSING:string = "rootpause"; 
-	public static readonly WOZPLAYING:string = "rootplay"; 
+	public static readonly EF_REPLAY:string  = "rootreplay";
+	public static readonly EF_CANCEL:string  = "rootcancel";
+	public static readonly EF_PAUSING:string = "rootpause"; 
+	public static readonly EF_PLAYING:string = "rootplay"; 
 	
 //********
 
@@ -192,5 +221,7 @@ export class CONST {
 	public static readonly GOTONEXTSCENE:string     = "incTutorGraph";
 	public static readonly GOTONEXTANIMATION:string = "incSceneGraph";
 
+	public static readonly TIMER:string             = "timeout";
+	public static readonly TIMER_COMPLETE:string    = "timercomplete";
 }
 

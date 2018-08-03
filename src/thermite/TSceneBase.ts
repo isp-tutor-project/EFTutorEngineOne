@@ -15,9 +15,8 @@
 //*********************************************************************************
 
 
-import { TRoot } 			from "./TRoot";
 import { TObject } 			from "./TObject";
-import { TTutorContainer } 	from "../thermite/TTutorContainer";
+import { TTutorContainer } 	from "./TTutorContainer";
 
 import { CEFActionEvent } 	from "../events/CEFActionEvent";
 import { CEFScriptEvent } 	from "../events/CEFScriptEvent";
@@ -30,7 +29,6 @@ import { CONST }            from "../util/CONST";
 import { CUtil } 			from "../util/CUtil";
 
 import DisplayObject      = createjs.DisplayObject;
-import MovieClip     	  = createjs.MovieClip;
 
 
 export class TSceneBase extends TObject
@@ -51,11 +49,12 @@ export class TSceneBase extends TObject
 	public sceneAttempt:number = 1;		
 	public sceneTag:string;
     
-	public _classPath:string;
-	public _hostModule:string;
-	public _className:string;
-	public _features:string;
+	public classPath:string;
+	public hostModule:string;
     
+    public moduleData:any; 
+    public sceneData :any; 
+
 	protected _section:string;					// Arbitrary tutor section id
 	
 	protected _nextButton:any = null;
@@ -103,18 +102,59 @@ export class TSceneBase extends TObject
 	public onCreate() : void
 	{
 		try {
+            this.moduleData = this.tutorDoc.moduleData[this.hostModule][CONST.SCENE_DATA];
+            this.sceneData  = this.moduleData[this.sceneName];
+
+            let dataElement:any;
+
+            // walk all the scene data items and find matching scene components (there should be matches for all)
+            // deserialize the data into the component.
+            // 
+            for(let element in this.sceneData) {
+
+                dataElement = this.sceneData[element];
+
+                // resolve data references to library and foreign modules.
+                // 
+                if(dataElement.$$REF) {
+                    let dataPath:Array<string> = dataElement.$$REF.split(".");
+
+                    if(dataPath[0] === "$$EFL") {
+
+                        dataElement = this.tutorDoc.moduleData[this.hostModule][CONST.SCENE_DATA]._LIBRARY[dataPath[1]][dataPath[2]];
+                    }
+                    else if(dataPath[0] === "$$EFM") {
+
+                        let forMod = dataElement = this.tutorDoc.moduleData[dataPath[1]];
+
+                        if(!forMod) {
+                            console.log("Error: module for Foreign-Reference missing!")
+                            throw("missing module");
+                        }
+                        dataElement = forMod[CONST.SCENE_DATA]._LIBRARY[dataPath[2]][dataPath[3]];
+                    }
+                    else {
+                        console.error("Error: moduleData link error");
+                    }
+                }
+                
+                if(this[element] && this[element].deSerializeObj) {
+                    this[element].deSerializeObj(dataElement);
+                }                
+            }
+
 			// Execute the create procedures for this scene instance
 			// see notes on sceneExt Code - tutor Supplimentary code
 			// 
-			this.$oncreate();
+			this.$onCreateScene();
 			
 			// Support for demo scene-initialization
 			// 
-			this.$demoinit();
+			this.$demoInitScene();
 		}		
 		catch(error) {
 
-			CUtil.trace("Error in onCreate script: " + this.onCreateScript);
+			CUtil.trace(`Error in TSceneBase onCreate: ${this.sceneName} -- ${error}`);
 		}
 	}
 
@@ -443,10 +483,67 @@ export class TSceneBase extends TObject
 	
 //****** Navigation Behaviors
 
-	public deferredEnterScene(Direction:string) : void
-	{				
-	}
+//*** REWIND PLAY Management		
 
+	/**
+	 * Initiate the action/audio sequence - 
+	 * @param	evt
+	 */
+	public sceneReplay(evt:Event) : void 
+	{
+		if(this.traceMode) CUtil.trace("sceneReplay: " + evt);
+		
+		// do XML based reset
+		
+		this.rewindScene();
+		
+		//## Mod Feb 07 2013 - added to support actionsequence replay functionality 
+		// restart the ActionTrack sequence
+		// 
+		try {
+			this.$preEnterScene();
+		}
+		catch(error) {
+			CUtil.trace("sceneReplay preenter error on scene: " + this.name + " - " + error);
+		}
+		
+		// Use the timer to do an asynchronous start of the track
+		
+        this.trackPlay();
+    }		
+
+	
+	/**
+	 * See override
+	 */
+	public trackPlay() : void 
+	{
+	}		
+
+
+	/**
+	 * polymorphic scene reset initialization
+	*/
+	public rewindScene() : void
+	{
+		// Parse the Tutor.config for create procedures for this scene 
+	
+		try {
+			// Execute the rewind procedures for this scene instance
+			// see notes on sceneExt Code - tutor Supplimentary code
+			// 
+			this.$rewindScene();
+			
+			// Support for demo scene-initialization
+			// 
+			this.$demoIinitScene();
+		}		
+		catch(error) {
+
+			CUtil.trace("Error in rewindScene script: ");
+		}
+	}
+	
 
 	// Default behavior - Set the Tutor Title and return same target scene
 	// Direction can be - "WOZNEXT" , "WOZBACK" , "WOZGOTO"
@@ -460,22 +557,11 @@ export class TSceneBase extends TObject
 		// Parse the Tutor.config for preenter procedures for this scene 
 		// 
 		try {
-			this.$preenter();
+			this.$preEnterScene();
 		}
 		catch(error) {
 			CUtil.trace("preenter error on scene: " + this.name + " - " + error);
 		}
-
-		// //@@ Mod May 22 2013 - moved to after the XML spec is executed - If the user uses the back button this should
-		// //                     override the spec based on fComplete
-		// // Update the Navigation
-		// //
-		// if(this.fComplete)
-		// 	this.updateNav();						
-		
-		// // polymorphic UI initialization - must be done after this.parseOBJ 
-		// //
-		// this.initUI();				
 			
 		return sceneLabel;
 	}
@@ -488,7 +574,7 @@ export class TSceneBase extends TObject
 		// Parse the Tutor.config for onenter procedures for this scene 
 		// 
 		try {
-			this.$onenter();
+			this.$onEnterScene();
 		}
 		catch(error) {
 			CUtil.trace("onenter error on scene: " + this.name + " - " + error);
@@ -504,7 +590,7 @@ export class TSceneBase extends TObject
 		// Parse the Tutor.config for onenter procedures for this scene 
 		// 
 		try {
-			this.$preexit();
+			this.$preExitScene();
 		}
 		catch(error) {
 			CUtil.trace("preexit error on scene: " + this.name + " - " + error);
@@ -515,11 +601,34 @@ export class TSceneBase extends TObject
 	public onExitScene() : void
 	{				
 		if (this.traceMode) CUtil.trace("Base onexit Scene Behavior:" + this.name);
-		
+        
+		// Check for Terminate Flag
+		// 
+		try {
+			if(this.$terminateScene) {
+				if(this.tutorDoc.testFeatureSet(this.$features)) {
+					this.enQueueTerminateEvent();
+				}
+				else {
+					this.enQueueTerminateEvent();
+				}
+			}
+		}
+		catch(error) {
+			CUtil.trace("enQueueTerminateEvent error on scene: " + this.name + " - " + error);
+		}
+
+		try {
+			this.$logScene();
+		}
+		catch(error) {
+			CUtil.trace("logging error on scene: " + this.name + " - " + error);
+		}
+		        
 		// Parse the Tutor.config for onenter procedures for this scene 
 		// 
 		try {
-			this.$onexit();
+			this.$onExitScene();
 		}
 		catch(error) {
 			CUtil.trace("onexit error on scene: " + this.name + " - " + error);

@@ -23,7 +23,7 @@ import { TObject } 			from "../thermite/TObject";
 import { TObjectMask } 		from "../thermite/TObjectMask";
 import { TTutorContainer } 	from "../thermite/TTutorContainer";
 
-import { CEFTimeLine } 		from "../core/CEFTimeLine";
+import { CEFTimeLine } 		from "./CEFTimeLine";
 import { CEFEvent } 		from "../events/CEFEvent";
 
 import { CONST }            from "../util/CONST";
@@ -47,8 +47,8 @@ export class CEFTransitions extends CEFTimeLine
 	public currScene:string = null;				// null initial scene
 	public newScene:string  = null;				// null next scene
 	
-	public rTime:number     = 1500;				// Removal Transition time
-	public tTime:number     = 1500;				// Normal Transition time
+	public rTime:number     = 1000;				// Removal Transition time
+	public tTime:number     = 1000;				// Normal Transition time
 
 	public fSingleStep:boolean = true;			// single stepping operations - debug
 

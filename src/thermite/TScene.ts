@@ -16,30 +16,20 @@
 
 //** Imports
 
-import { TRoot } 				from "../thermite/TRoot";
-import { TSceneBase } 			from "../thermite/TSceneBase";
+import { TSceneBase } 			from "./TSceneBase";
 
-import { CEFNavigator } 		from "../core/CEFNavigator";
 import { CEFTimer } 			from "../core/CEFTimer";
 
 import { CEFNavEvent } 			from "../events/CEFNavEvent";
+
+import { CSceneTrack }          from "../scenegraph/CSceneTrack";
 import { CSceneGraph } 		    from "../scenegraph/CSceneGraph";
 
-import { CEFTimerEvent } 		from "../events/CEFTimerEvent";
 import { CEFSceneCueEvent } 	from "../events/CEFSceneCueEvent";
-import { CEFCommandEvent } 		from "../events/CEFCommandEvent";
-import { CEFScriptEvent } 		from "../events/CEFScriptEvent";
-import { CEFActionEvent } 		from "../events/CEFActionEvent";
 import { CEFEvent } 			from "../events/CEFEvent";
 
-
-import { CONST }        	    from "../util/CONST";
 import { CUtil } 				from "../util/CUtil";
-
-
-import MovieClip     		  = createjs.MovieClip;
-import DisplayObject 		  = createjs.DisplayObject;
-import DisplayObjectContainer = createjs.Container;
+import { CONST }                from "../util/CONST";
 
 
 
@@ -49,27 +39,27 @@ import DisplayObjectContainer = createjs.Container;
 */
 export class TScene extends TSceneBase
 {	
-	public Saudio1:TRoot;		
-	public audioStartTimer:CEFTimer;
-	
+	private STrack:CSceneTrack;		
+    private _asyncGraphTimer:CEFTimer;
+    private _asyncPlayTimer:CEFTimer;
+
+    private _trackHandler:Function;
+    private _playHandler:Function;
+
+    private _deferPlay:boolean;
+
 	public static readonly DEFAULT_MONITOR_INTERVAL:Number = 3000;
 	
 	protected _timer:CEFTimer;
 	protected _interval:Number = TScene.DEFAULT_MONITOR_INTERVAL;
 
-	
+    private cueListener:Function   = null;
+    
 	//## Mod aug 22 2013 - KT updates are single shot per scene 
 	
 	protected ktUpdated:boolean = false;
 	
-	
-	//##Mod Jan 29 2013 - Support for actiontrack Sequences 
-	
-	private seqID:string;						
-	private seqTrack:any;						
-	private seqIndex:number;
-
-	//## MOD Aug 31 2013 - actiontrack AnimationGraph support
+	//## MOD Aug 31 2013 - actiontrack sceneGraph support
 	
 	private sceneGraph:CSceneGraph = null;		
 	
@@ -104,14 +94,10 @@ export class TScene extends TSceneBase
 
 		this.traceMode = true;
 		
-		//*************** Polymorphic Control Naming
-		//
-		this.initControlNames();
-		
-		this.audioStartTimer = new CEFTimer(10, 1);
-		this.audioStartTimer.reset();
-		this.audioStartTimer.stop();
-		// this.audioStartTimer.addEventListener("timer", this.playHandler);		//** TODO */
+        this._asyncPlayTimer  = new CEFTimer(0);
+        this._asyncGraphTimer = new CEFTimer(0);
+
+        this._deferPlay = false;
 
 		if(this.traceMode) CUtil.trace("TScene:Constructor");					
     }
@@ -123,10 +109,9 @@ export class TScene extends TSceneBase
 	
 	public Destructor() : void
 	{
-		// this.audioStartTimer.removeEventListener("timer", this.playHandler);		//** TODO */
-		this.tutorDoc.tutorContainer.removeEventListener(CONST.WOZREPLAY, this.sceneReplay);					
-		
-		this.disConnectAudio(this.Saudio1);
+		this.disConnectTrack(this.STrack);
+		this._asyncPlayTimer.off("timer", this._playHandler);			
+		this._asyncGraphTimer.off("timer", this._trackHandler);			
 		
 		super.Destructor();
 	}
@@ -134,204 +119,63 @@ export class TScene extends TSceneBase
 	
 //****** Overridable Behaviors
 
-//*** REWIND PLAY Management		
-
-	/**
-	 * polymorphic scene reset initialization
-	*/
-	public rewindScene() : void
-	{
-		// Parse the Tutor.config for create procedures for this scene 
-	
-		try {
-			// Execute the rewind procedures for this scene instance
-			// see notes on sceneExt Code - tutor Supplimentary code
-			// 
-			this.$rewind();
-			
-			// Support for demo scene-initialization
-			// 
-			this.$demoinit();
-		}		
-		catch(error) {
-
-			CUtil.trace("Error in onCreate script: " + this.onCreateScript);
-		}
-	}
-	
-	
 	/**
 	 * Initiate the action/audio sequence - 
 	 * @param	evt
 	 */
-	public sceneReplay(evt:Event) : void 
+	public trackPlay() : void 
 	{
-		if(this.traceMode) CUtil.trace("sceneReplay: " + evt);
-		
-		// do XML based reset
-		
-		this.rewindScene();
-		
-		//## Mod Feb 07 2013 - added to support actionsequence replay functionality 
-		// restart the ActionTrack sequence
-		// 
-		try {
-			this.$preenter();
-		}
-		catch(error) {
-			CUtil.trace("sceneReplay preenter error on scene: " + this.name + " - " + error);
-		}
-		
-		// Use the timer to do an asynchronous start of the actionTrack
-		
-		this.audioStartTimer.reset();			
-		this.audioStartTimer.start();	
-	}		
+        // Do automated scene increments asynchronously to allow
+        // actiontrack scripts to complete prior to scene nav
+        
+        this._playHandler = this._asyncPlayTimer.on(CONST.TIMER, this._asyncPlayTrack, this);
+        this._asyncPlayTimer.start();
 
-	
-	/**
-	 * Initiate the action/audio sequence - 
-	 * @param	evt
-	 */
-	public scenePlay() : void 
-	{
-		// Use the timer to do an asynchronous start of the actionTrack
-		
-		this.audioStartTimer.reset();			
-		this.audioStartTimer.start();	
-	}		
+    }
 
-	
-	/**
-	 * Initiate the action/audio sequence - 
-	 * @param	evt
-	 */
-	public playHandler(evt:CEFTimerEvent) : void 
-	{
-		if(this.traceMode) CUtil.trace("TScene timerHandler: " + evt);
-		
-		this.audioStartTimer.stop();
-		this.audioStartTimer.reset();
+    private _asyncPlayTrack(evt:Event) : void
+    {			
+        this._asyncPlayTimer.stop();
+        this._asyncPlayTimer.off(CONST.TIMER, this._playHandler);                    
+		this._asyncPlayTimer.reset();
 
-		// Saudio 1 can become null if the demo menu button is clicked during scene transitions
-		// and there is an immediate scene switch after the transition
-		
-		if(this.Saudio1 != null)
-		{
-			this.Saudio1.gotoAndStop(1);
-			this.Saudio1.bindPlay(this.tutorDoc.tutorContainer);
-		}
+        if(this.STrack)
+            this.STrack.play();
 	}		
-			
-	/**
-	 * Attach to the SubSequence Navigation object
-	 * @param	Navigator
-	*/
-	public connectNavigator(Navigator:CEFNavigator) : void 
-	{
-		this.navigator = Navigator;
-	}		
-	
+            
+    
 	/**
 	 * polymorphic audio track initialization
 	*/
-	public connectAudio(audioClip:MovieClip ) :void 
+	public connectTrack(track:CSceneTrack ) :void 
 	{
 		if(this.traceMode) CUtil.trace("Connect Audio Behavior");		
 		
-		//@@ Debug memory test May 27 2010
-		
-		// Note that the ActionTrack timeline does not need to be on stage to play and work
-		
-		//addChild(audioClip);	
-		audioClip.stop();
-		
 		// Listen for cue/navigation events
 		//
-		audioClip.addEventListener(CEFSceneCueEvent.CUEPOINT, this.doSceneCue);	
-		audioClip.addEventListener(CEFCommandEvent.OBJCMD, this.doActionXML);				
-		audioClip.addEventListener(CEFNavEvent.WOZNAVINC, this.navNext);
-		audioClip.addEventListener(CEFActionEvent.EFFECT, this.effectHandler);
-		audioClip.addEventListener(CEFScriptEvent.SCRIPT, this.scriptHandler);
+		this.cueListener = track.on(CEFSceneCueEvent.CUEPOINT, this.doSceneCue, this);	
 	}
 
 	/**
 	 * polymorphic audio track termination
 	*/
-	public disConnectAudio(audioClip:MovieClip ) :void 
+	public disConnectTrack(track:CSceneTrack ) :void 
 	{
 		if(this.traceMode) CUtil.trace("disConnectAudio Audio Behavior");		
 		
-		if(audioClip)
+		if(track)
 		{
-			audioClip.stop();
+			track.stop();
 			
 			// Stop listening for cue/navigation events
 			//
-			audioClip.removeEventListener(CEFSceneCueEvent.CUEPOINT, this.doSceneCue);				
-			audioClip.removeEventListener(CEFCommandEvent.OBJCMD, this.doActionXML);				
-			audioClip.removeEventListener(CEFNavEvent.WOZNAVINC, this.navNext);				
-			audioClip.removeEventListener(CEFActionEvent.EFFECT, this.effectHandler);
-			audioClip.removeEventListener(CEFScriptEvent.SCRIPT, this.scriptHandler);
-		
-			// Note that the action timeline does not need to be on stage to play and work
-			
-			//if(contains(audioClip))
-			//	removeChild(audioClip);			
+			track.off(CEFSceneCueEvent.CUEPOINT, this.cueListener);				
 		}
 	}
 
-	/**
-	 * polymorphic audio track initialization
-	*/
-	public bindAudio(audio:any ) : TRoot 
-	{
-		if(this.traceMode) CUtil.trace("bindAudio Behavior");		
-			
-		if (audio)
-			this.connectAudio(audio);
-			
-		return audio;
-	}		
 	
 //*** REWIND PLAY Management		
 	
-	/**
-	 * Polymorphic Audio Creation - must 
-	*/
-	public createAudio() : void
-	{
-	}
-
-	/**
-	 * polymorphic audio track initialization
-	*/
-	public initAudio() :void 
-	{
-		if(this.traceMode) CUtil.trace("Default Audio Behavior");		
-		
-		this.createAudio();
-
-		if (this.Saudio1)
-			this.connectAudio(this.Saudio1);
-	}
-	
-	/**
-	 * Polymorphic Control Naming
-	*/
-	public initControlNames() : void 
-	{		
-		//*************** name unique instances
-		
-		//*************** name unique instances
-	}		
-	
-	/**
-	 * Polymorphic Prompt Initialization
-	*/
-	public initPrompts() : void 
-	{		
-	}		
 	
 //*************** SubSequence Navigation
 
@@ -339,7 +183,7 @@ export class TScene extends TSceneBase
 	 * This drives the Navigation sequence - here it is audio event driven
 	 * @param	event
 	 */
-	public navNext(event:CEFNavEvent) : void 
+	public nextScene(event:CEFNavEvent) : void 
 	{
 		if(this.traceMode) CUtil.trace("navNext: " + event);
 		
@@ -354,282 +198,103 @@ export class TScene extends TSceneBase
 	 * 
 	 * @param	evt
 	 */
-	public doSceneCue(evt:CEFSceneCueEvent)
+	public doSceneCue(evt:CustomEvent)
 	{
-		if(this.traceMode) CUtil.trace("SceneCue: " + evt);
+        if(this.traceMode) CUtil.trace("SceneCue: " + evt.detail.id + " - track: " + evt.detail.track);
 
-		this.disConnectAudio(this.Saudio1 );			
-	}
-	
-	/**
-	 * 
-	 * @param	evt
-	 */
-	public doActionXML(evt:CEFCommandEvent) : void
-	{	
-		if(this.traceMode) CUtil.trace("doActionXML: " + evt.objCmd);
-	
-		this.parseOBJ(this, evt.objCmd.children(), "xmlCmd");
-	}					
-
+        this.$cuePoints(evt.detail.track, evt.detail.id);
+        
+	}	
 
 //*************** Audio Cue Points
 
 			
 //****** Navigation Behaviors
 
-	public connectGraph(name:string, features:string) {
 
-		if(features)
-		{
-			if(!this.tutorDoc.testFeatureSet(features))
-													return;
-		}
-		
+    /**
+     * Called during TScene instantiation in the tutorcontainer 
+     * this is where a scene is connected to its scene graph.
+     * 
+     * @param hostModule 
+     * @param sceneName 
+     */
+	public connectSceneGraph(hostModule:string, sceneName:string ) {
+
 		try
 		{
-			this.sceneGraph = CSceneGraph.factory(this.tutorDoc, this, "root", name);
-			
-			if(this.sceneGraph != null)
-			{
-				// this.Saudio1 = this.bindAudio(CUtil.instantiateThermiteObject(this.sceneGraph.nextAnimation()));
-				this.Saudio1.stop();
-			}
+			this.sceneGraph = CSceneGraph.factory(this.tutorDoc, this, hostModule, sceneName);			 
 		}
 		catch(err)							
 		{
-			CUtil.trace("scenegraph load Failed" + err);
+			CUtil.trace("Error: scenegraph connect Failed: " + err);
 		}
 	}
 
-	/**
-	 * deprecated - replaced with connectGraph ...
-	 * 
-	 * @param	tarObj
-	 * @param	tarOBJ
-	 */
-	public parseOBJ(tarObj:DisplayObject, tarOBJ:any, xType:string) : void
-	{
-		let element:any;
-		
-		if(this.traceMode) CUtil.trace("doActionXML: " + tarOBJ);
-		
-		for (element of tarOBJ)	
-		{
-			switch(element)
-			{
-				case "scenegraph":
-					
-					if(element['features'] != undefined)
-					{
-						// Each element of the fFeature vector contains an id for a feature of the tutor.
-						// This permits the tutor to have multiple independently managed features.
-						// All identifiers of all the feature sets must be globally unique.
-						
-						if(!this.tutorDoc.testFeatureSet(String(element['features'])))
-							break;
-					}
-					
-					try
-					{
-						this.sceneGraph = CSceneGraph.factory(this.tutorDoc, this, "root", element.name);
-						
-						if(this.sceneGraph != null)
-						{
-							// this.Saudio1 = this.bindAudio(CUtil.instantiateThermiteObject(this.sceneGraph.nextAnimation()));
-							this.Saudio1.stop();
-						}
-					}
-					catch(err)							
-					{
-						CUtil.trace("scenegraph JSON Spec Failed" + err);
-					}
-					break;
-					
-				case "actionsequence":
-					
-					if(element['features'] != undefined)
-					{
-						// Each element of the fFeature vector contains an id for a feature of the tutor.
-						// This permits the tutor to have multiple independently managed features.
-						// All identifiers of all the feature sets must be globally unique.
-						
-						if(!this.tutorDoc.testFeatureSet(String(element['features'])))
-							break;
-					}
-					
-					// start parsing the actiontrack sequence
-					
-					this.nextActionTrack(element.selection);
-					
-					break;
-				
-				case "actiontrack":
-					
-					if(element['features'] != undefined)
-					{
-						// Each element of the fFeature vector contains an id for a feature of the tutor.
-						// This permits the tutor to have multiple independently managed features.
-						// All identifiers of all the feature sets must be globally unique.
-						
-						if(!this.tutorDoc.tutorContainer.testFeatureSet(String(element['features'])))
-																			break;
-					}
-					
-					try
-					{
-						// this.Saudio1 = this.bindAudio(CUtil.instantiateThermiteObject(element.type));
-						this.Saudio1.stop();
-					}
-					catch(err)							
-					{
-						CUtil.trace("TScene:parseOBJ: " + err);
-					}
-					break;
-			}
-		}
-		
-		// process parent
-		
-		if(tarObj)
-			super.parseOBJ(tarObj, tarOBJ, xType);
-	}
-	
-	
+
+    /**
+    * gotoNextScene manual entry point
+    */
+    public nextTrack() : void
+    {
+        // Do automated scene increments asynchronously to allow
+        // actiontrack scripts to complete prior to scene nav
+        
+        this._trackHandler = this._asyncGraphTimer.on(CONST.TIMER, this._asyncNextTrack, this);
+        this._asyncGraphTimer.start();
+    }
+
+    private _asyncNextTrack(evt:Event) : void
+    {			
+        this._asyncGraphTimer.stop();
+        this._asyncGraphTimer.off(CONST.TIMER, this._trackHandler);
+                    
+        this.traceGraphEdge();
+    }
+
+
 	/**
 	 *##Mod Sep 01 2013 - Support for Animation Graphs 
-		* 
-		* If this is called from scenegraphnavigator don't inc scene when scenegraph exhausted
-		* let the scenegraph handle it
-		*/
-	public nextGraphAnimation(bNavigating:boolean = false) : string
+    * 
+    * TODO: note that we now require graphs so actiontrack exlusive scenes are not allowed
+    * 
+    * If this is called from scenegraphnavigator don't inc scene when scenegraph exhausted
+    * let the tutorgraph handle it
+    */
+	public traceGraphEdge(bNavigating:boolean = false) : CSceneTrack
 	{
-		let nextSeq:string;
+		let nextTrack:CSceneTrack;
 		
 		// If this scene has an animation graph
 		// This may be called as a result of scene increment on scenes that just have actiontracks
 		
 		if(this.sceneGraph != null)
 		{				
-			if(this.Saudio1)
+			if(this.STrack)
 			{
-				this.disConnectAudio(this.Saudio1);
-				
-				this.Saudio1 = null;
+				this.disConnectTrack(this.STrack);				
+				this.STrack = null;
 			}
 						
-			nextSeq = this.sceneGraph.nextAnimation();
+			nextTrack = this.sceneGraph.gotoNextTrack();
 			
-			if(nextSeq != null)
+			if(nextTrack != null)
 			{
-				// this.Saudio1 = this.bindAudio(CUtil.instantiateThermiteObject(nextSeq) as any);
-				
-				this.scenePlay();								
+                this.STrack = nextTrack;
+                this.connectTrack(nextTrack);	
+                
+                if(!this._deferPlay)
+                    this.STrack.play();			
 			}
 			
-			// If we run out of actionTracks then move to the next scene node
+			// If we run out of tracks then move to the next scene node
 			else if(!bNavigating)
 			{
 				this.navigator.gotoNextScene();				
 			}
 		}
 		
-		return nextSeq;
-	}
-	
-	
-	/**
-	 *##Mod Jan 29 2013 - Support for actiontrack Sequences 
-		*/
-	public nextActionTrack(tarXML:any = null) : void
-	{
-		if(tarXML != null)
-		{
-			this.seqTrack  = tarXML;
-			this.seqIndex  = 0;
-		}
-
-		//@@ Mod Aug 29 2013 - release this.Saudio1 - use it to track success in finding next track in sequence
-		
-		if(this.Saudio1)
-		{
-			this.disConnectAudio(this.Saudio1);
-			
-			this.Saudio1 = null;
-		}
-		
-		while(this.seqTrack[this.seqIndex] != null)
-		{
-			this.parseOBJ(null, this.seqTrack[this.seqIndex].actiontrack, "");
-	
-			// remember the current sequence track id				
-			this.seqID = this.seqTrack[this.seqIndex].id;
-			
-			// Autoplay subsequent tracks
-			if(tarXML == null)
-			this.scenePlay();
-				
-			this.seqIndex++;
-			
-			//@@ Mod Aug 29 2013 - use this.Saudio1 to track success in finding next track in sequence
-			// If we sucessfully found a track then continue otherwise check the next set
-			
-			if(this.Saudio1)
-					break;
-		}			
-	}
-	
-	
-	/**
-	 *##Mod Aug 31 2013 - Support for playing specific actiontrack Sequences by ID
-		* 
-		* @@TODO manage non-existent id's 
-		*/
-	public gotoActionTrackId(id:string = null) : void
-	{
-		// replay current track if non specified
-		if(id == null || id == "")
-							id = this.seqID;			
-		if(this.Saudio1)
-		{
-			this.disConnectAudio(this.Saudio1);
-			
-			this.Saudio1 = null;
-		}
-		
-		this.seqIndex = 0;
-		
-		for (let track of this.seqTrack)
-		{				
-			this.seqIndex++;
-			
-			if(track.id == id)
-			{					
-				this.parseOBJ(null, track.actiontrack, "");
-			
-				// remember the current sequence track id				
-				this.seqID = id;
-				
-				this.scenePlay();					
-			}			
-		}			
-	}
-	
-	
-	public deferredEnterScene(Direction:string) : void
-	{				
-		if((Direction == "WOZNEXT") ||
-			(Direction == "WOZGOTO"))
-		{
-			if(this.sceneGraph != null)
-			{					
-				this.sceneGraph.onEnterRoot();
-			}
-			
-			// Create a unique timestamp for this scene
-			
-			this.tutorDoc.tutorContainer.timeStamp.createLogAttr("dur_"+name, true);
-		}			
+		return nextTrack;
 	}
 	
 	
@@ -647,20 +312,12 @@ export class TScene extends TSceneBase
 		//*********** Call super to run scene config first
 		
 		result = super.preEnterScene(lTutor, sceneLabel, sceneTitle, scenePage, Direction );
-		
-		//*************** Polymorphic Prompt Initialization
-		
-		this.initPrompts();
 
-		// polymorphic actiontrack initialization - must be after "super" call - XMLParse of sceneConfig
-
-		this.initAudio();				
-		
-		// Placing this in the preEnter phase causes a second call on enter scene - don't know why???
-		
-		//if(this.Saudio1)
-			//this.audioStartTimer.start(gTutor);						
-			
+        // Set up the root sceneTrack
+        // 
+        this._deferPlay = true;
+        this.nextTrack();
+        
 		return result;
 	}
 
@@ -668,48 +325,36 @@ export class TScene extends TSceneBase
 	public onEnterScene(Direction:string) : void
 	{				
 		if(this.traceMode) CUtil.trace("TScene onenter Scene Behavior:" + this.name);		
-		
-		if((Direction == "WOZNEXT") ||
-			(Direction == "WOZGOTO"))
-		{
-			if(this.Saudio1)
-				this.audioStartTimer.start();								
-		}
-		
-		// only listen for replay events while the scene instance in playing
-		
-		this.tutorDoc.tutorContainer.addEventListener(CONST.WOZREPLAY, this.sceneReplay);					
-		
+
+        this._deferPlay = false;
+        this.trackPlay();
+        
 		super.onEnterScene(Direction);
 	}
 
 	
-	public onExitScene() : void
+	// Direction can be - "NEXT" , "BACK" , "GOTO"
+	// 
+	public preExitScene(Direction:string, sceneCurr:number ) : string
+	{
+		return(super.preExitScene(Direction, sceneCurr));
+	}
+
+
+    public onExitScene() : void
 	{				
 		if(this.traceMode) CUtil.trace("TScene onexit Behavior:" + this.name);		
 		
 		//***** Kill the ActionTrack
-		
-		this.disConnectAudio(this.Saudio1);
-		
-		this.Saudio1 = null;
-		
-		// only listen for replay events while the scene instance in playing
 		// 
-		this.tutorDoc.tutorContainer.removeEventListener(CONST.WOZREPLAY, this.sceneReplay);					
+		this.disConnectTrack(this.STrack);
 		
+		this.STrack = null;
 		
 		//@@ Emit State Log Packet for this scene			
 		// Parse the scenedescr.xml for logging procedures for this scene
 		
 		this.tutorDoc._sceneData = {};			
-		
-		try {
-			this.$logging();
-		}
-		catch(error) {
-			CUtil.trace("logging error on scene: " + this.name + " - " + error);
-		}
 		
 		// TODO: implement
 		// Always log the scene duration data
@@ -719,24 +364,7 @@ export class TScene extends TSceneBase
 		// this.tutorDoc._sceneData['duration']  = this.tutorDoc.tutorContainer.timeStamp.createLogAttr("dur_"+name);
 		
 		// this.tutorDoc.log.logStateEvent(this.tutorDoc._sceneData);
-		
-		
-		// Check for Terminate Flag
-		// 
-		try {
-			if(this.$logterm) {
-				if(this.tutorDoc.testFeatureSet(this.$features)) {
-					this.enQueueTerminateEvent();
-				}
-				else {
-					this.enQueueTerminateEvent();
-				}
-			}
-		}
-		catch(error) {
-			CUtil.trace("enQueueTerminateEvent error on scene: " + this.name + " - " + error);
-		}
-		
+				
 		//## Mod aug 22 2013 - Update KT beliefs 
 		
 		this.updateKT();
@@ -753,12 +381,12 @@ export class TScene extends TSceneBase
 	 */
 	public enQueueTerminateEvent() : void
 	{			
-		addEventListener(CEFEvent.ENTER_FRAME, this._deferredTerminate);
+		addEventListener(CEFEvent.ENTER_FRAME, this._asyncTerminate);
 	}
 	
-	private _deferredTerminate(e:Event) : void
+	private _asyncTerminate(e:Event) : void
 	{			
-		removeEventListener(CEFEvent.ENTER_FRAME, this._deferredTerminate);
+		removeEventListener(CEFEvent.ENTER_FRAME, this._asyncTerminate);
 		
 		this.tutorDoc.log.logTerminateEvent();
 	}

@@ -16,27 +16,16 @@
 
 //** Imports
 
-import { TRoot }                from "./thermite/TRoot";
-
+import { IEFTutorDoc }          from "./core/IEFTutorDoc";
 import { CEFTutorDoc }          from "./core/CEFTutorDoc";
 
 import { LoaderPackage }        from "./util/IBootLoader";
-import { IModuleDesc }          from "./util/IModuleDesc";
 
 import { CURLLoader }           from "./network/CURLLoader";
-import { CURLRequest }          from "./network/CURLRequest";
-
-import { CEFEvent }             from "./events/CEFEvent";
-import { CProgressEvent }       from "./events/CProgressEvent";
-import { CSecurityErrorEvent }  from "./events/CSecurityErrorEvent";
-import { CIOErrorEvent }        from "./events/CIOErrorEvent";
 
 import { CONST }                from "./util/CONST";
 import { CUtil }                from "./util/CUtil";
 
-import MovieClip     		  = createjs.MovieClip;
-import DisplayObject          = createjs.DisplayObject;
-import { IEFTutorDoc } from "./core/IEFTutorDoc";
 
 
 
@@ -100,6 +89,8 @@ export class CEngine {
 
             console.log("Tutor Boot Image Complete");
 
+            CUtil.mixinCodeSuppliments(this.tutorDoc, EFTut_Suppl[CONST.GLOBAL_MODULE][CONST.GLOBAL_CODE], CONST.EXT_SIG);
+
             this.loadTutorImage();
         })                
     }    
@@ -129,16 +120,21 @@ export class CEngine {
 
         for(let fileLoader of this.tutorDoc.loaderData) {
 
-            if(fileLoader.compID) {
-                let comp   = AdobeAn.getComposition(fileLoader.compID);			
-                let lib    = comp.getLibrary();
-                let loader = new createjs.LoadQueue(false);
+            try {
+                if(fileLoader.compID) {
+                    let comp   = AdobeAn.getComposition(fileLoader.compID);			
+                    let lib    = comp.getLibrary();
+                    let loader = new createjs.LoadQueue(false);
 
-                loaderPromises.push(new Promise((resolve, reject) => {
-                    loader.addEventListener("complete", function(evt){engine.handleComplete(evt,comp,resolve,reject)});
-                    loader.addEventListener("error", function(evt){engine.handleError(evt,comp,reject)});
-                    loader.loadManifest(lib.properties.manifest);	
-                }));                
+                    loaderPromises.push(new Promise((resolve, reject) => {
+                        loader.addEventListener("complete", function(evt){engine.handleComplete(evt,comp,resolve,reject)});
+                        loader.addEventListener("error", function(evt){engine.handleError(evt,comp,reject)});
+                        loader.loadManifest(lib.properties.manifest);	
+                    }));                
+                }
+            }
+            catch(err) {
+                console.log("Error: CompID mismatch: " + fileLoader.filePath + "  :   " + err);
             }
         }
 
@@ -146,6 +142,10 @@ export class CEngine {
         .then(() => {
 
             console.log("Tutor init Complete");
+
+            // Map any linked objects between modules.
+            // 
+            this.mapForeignClasses();
 
             this.startTutor();
         })                
@@ -203,7 +203,7 @@ export class CEngine {
         let engine = this;
         let importPromises:Array<Promise<any>> = new Array();
         
-        for (const compName in AnLib) {
+        for (let compName in AnLib) {
 
             if(compName.startsWith(CONST.THERMITE_PREFIX)) {
                 
@@ -264,6 +264,52 @@ export class CEngine {
 
             EFLoadManager.classLib[AnModuleName][variant.toUpperCase()] = AnObject;            
         })
+    }
+
+
+    // Foreign classes are encoded:
+    // TL_<moduleName-trimmed>_<classname>__<variant>
+    // This is intended as a simple means of laying out components from a foreign module
+    // while maintaining position and size.
+    // So we replace the actual component in the animate lib with a modified version of the
+    // foreign component. Where only the location and size are maintained.
+    // 
+    private mapForeignClasses() {
+
+        let modules = EFLoadManager.modules;
+
+        for(let AnLib in modules) {
+
+            let library = modules[AnLib];
+
+            for (let compName in library) {
+
+                if(compName.startsWith(CONST.MODLINK_PREFIX)) {
+
+                    let varPath: Array<string> = compName.split("__");
+                    let modPath:string[]       = varPath[0].split("_"); 
+                    let AnModuleName:string    = (CONST.EFMODULE_PREFIX + modPath[1]).toUpperCase();
+
+                    let temp1:any         = {};
+                    let foreignObject:any = EFLoadManager.classLib[AnModuleName][varPath[1].toUpperCase()];
+
+                    temp1.clone         = library[compName].prototype.clone;
+                    temp1.nominalBounds = library[compName].prototype.nominalBounds;
+                    temp1.frameBounds   = library[compName].prototype.frameBounds;
+        
+                    let foreignClone:any = function() {
+                    	foreignObject.call(this);
+                    }
+                    foreignClone.prototype = Object.create(foreignObject.prototype);
+
+                    foreignClone.prototype.clone           = temp1.clone;
+                    foreignClone.prototype.nominalBounds   = temp1.nominalBounds;
+                    foreignClone.prototype.frameBounds     = temp1.frameBounds;
+
+                    library[compName] = foreignClone;
+                }
+            }
+        }
     }
 
 

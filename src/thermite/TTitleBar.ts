@@ -19,7 +19,7 @@ import { TObject } 			from "./TObject";
 import { TSceneBase } 			from "./TSceneBase";
 import { TButton } 			from "./TButton";
 
-import { TTutorContainer } 	from "../thermite/TTutorContainer";
+import { TTutorContainer } 	from "./TTutorContainer";
 
 import { TMouseEvent } 		from "../events/CEFMouseEvent";
 import { CEFNavEvent } 		from "../events/CEFNavEvent";

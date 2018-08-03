@@ -16,26 +16,20 @@
 
 //** Imports
 
-import { TRoot } 	    	from "../thermite/TRoot";	
-import { TObject } 	   		from "../thermite/TObject";	
-import { TScene } 			from "../thermite/TScene";
-import { TSceneBase } 		from "../thermite/TSceneBase";
-import { CEFScene0 } 		from "../thermite/scenes/CEFScene0";
-import { TCursorProxy } 	from "../thermite/TCursorProxy";	
-import { TTitleBar } 		from "../thermite/TTitleBar";
+import { TRoot } 	    	from "./TRoot";	
+import { TObject } 	   		from "./TObject";	
+import { TScene } 			from "./TScene";
+import { TSceneBase } 		from "./TSceneBase";
+import { TCursorProxy } 	from "./TCursorProxy";	
 
-import { TMouseEvent } 		from "../thermite/events/TMouseEvent";
+import { TMouseEvent } 		from "./events/TMouseEvent";
 
-import { CEFNavigator } 	from "../core/CEFNavigator";	
 import { CEFTimeStamp } 	from "../core/CEFTimeStamp";	
 
 import { CEFEvent } 		from "../events/CEFEvent";
 import { CEFNavEvent } 		from "../events/CEFNavEvent";
 
-import { CEFKTNode } 		from "../kt/CEFKTNode";
-import { CLogManagerType } 	from "../managers/CLogManagerType";
 import { CEFKeyboardEvent } from "../events/CEFKeyboardEvent";
-
 
 import { CONST }            from "../util/CONST";
 import { CUtil } 			from "../util/CUtil";
@@ -48,6 +42,8 @@ import Tween 				  = createjs.Tween;
 import CJSEvent				  = createjs.Event;
 import Rectangle     	  	  = createjs.Rectangle;
 import Shape     		  	  = createjs.Shape;
+
+
 
 
 export class TTutorContainer extends TRoot 
@@ -221,28 +217,43 @@ export class TTutorContainer extends TRoot
     }
     
 
-	public instantiateScene(sceneName:string, hostModule:string, className:string, sceneVisible:boolean=false) : any
+	public instantiateScene(sceneName:string, hostModule:string, classPath:string, sceneVisible:boolean=false) : any
 	{			
 		let i1:number;
-		let tarScene:any;
+		let tarScene:TScene;
 		let subScene:any;
 
 		if (this.traceMode) CUtil.trace("Creating Scene : "+ sceneName);
 
-        tarScene = CUtil.instantiateThermiteObject(hostModule, className);
+        tarScene = CUtil.instantiateThermiteObject(hostModule, classPath) as TScene;
         
+        // Note the scene object is expected to have the name as its createJS "name"
+        //
 		tarScene.name         = sceneName;
-		tarScene.classPath    = className;
+        tarScene.sceneName    = sceneName;        
+        tarScene.hostModule   = hostModule;
+        tarScene.classPath    = classPath;
+        tarScene.navigator    = this.tutorDoc.tutorNavigator
 		tarScene.tutorDoc     = this.tutorDoc;
-		tarScene.tutorAutoObj = this.tutorAuto;
+		tarScene.tutorAutoObj = this.tutorAutoObj;
 		tarScene.visible	  = false;				
 
 		// Supplimentary code has leading $ (CONST.EXT_SIG) on each identifier to be mixed in
 		// Mixin the common code first to initialize defaults
 		// Mixin the supplimentary code on the scene instance.
         //
-        CUtil.mixinSceneSuppliments(tarScene, EFTut_Suppl[hostModule][CONST.COMMON_CODE], CONST.EXT_SIG);
-		CUtil.mixinSceneSuppliments(tarScene, EFTut_Suppl[hostModule][sceneName], CONST.EXT_SIG);        
+        try {
+            CUtil.mixinCodeSuppliments(tarScene, EFTut_Suppl[hostModule][CONST.COMMON_CODE], CONST.EXT_SIG);
+        }
+        catch(err) {
+            console.log("Error: missing $Common mixin");
+        }
+        try {
+            CUtil.mixinCodeSuppliments(tarScene, EFTut_Suppl[hostModule][sceneName], CONST.EXT_SIG);        
+        }
+        catch(err) {
+            console.log("Error: missing Scene mixin");
+        }
 
 		this.addChild(tarScene);
 
@@ -253,9 +264,13 @@ export class TTutorContainer extends TRoot
 		// 
 		this.initSceneTick(tarScene);
 
+        // Note that the mixins must be in place prior to the graph init.  
+        // The CSceneTrack template variables must be init'd (in the mixin)
+        // 
+        tarScene.connectSceneGraph(hostModule, sceneName);				
+
 		//enumChildren(tarScene,0);				//@@ Debug display list Test May 10 2014
-		//enumScenes();							//@@ Debug display list Test Oct 29 2012
-		
+		//enumScenes();							//@@ Debug display list Test Oct 29 2012		
 		//gTruck.add(tarScene);					//@@ Debug memory test May 27 2010
 		
 		tarScene.stop();						// TODO: COMMENTED FOR DEBUG
@@ -265,7 +280,7 @@ export class TTutorContainer extends TRoot
 		//## Mod Oct 29 2012 - add sceneVisible - once scene has been created hasOwnProperty(sceneName) will return 
 		//                                        true even if scene is destroyed - as in demo mode - in demo reentering scene 
 		//										  cause scene to appear before transitionIN
-		
+		// 
 		if(sceneVisible)
 		{
 			this[sceneName]  = tarScene;
@@ -291,7 +306,7 @@ export class TTutorContainer extends TRoot
 			subScene = tarScene.getChildAt(i1);	
 			
 			if(subScene instanceof MovieClip)
-				subScene.gotoAndStop(1);
+				subScene.gotoAndStop(0);
 		}
 		
 		return tarScene;			
@@ -361,13 +376,7 @@ export class TTutorContainer extends TRoot
 		
 		if(nameObj)									// Can't rename an object placed in Flash
 			this[sceneName].name = sceneName;
-		
-		// Attach the navigator to the scene itself - let it know what navigation object to use when NAV events occur
-
-		// TODO: check if required
-		// if(sceneObj instanceof TScene)
-		// 	sceneObj.connectNavigator(this.SnavPanel);
-		
+				
 		// Record each SCENE Object
 		//
 		this.tutorAutoObj[sceneName] = {};
@@ -491,8 +500,8 @@ export class TTutorContainer extends TRoot
 		
 		// Tell Proxies that Tutor is replaying
 		//
-		dispatchEvent(new Event(CONST.WOZCANCEL));
-		dispatchEvent(new Event(CONST.WOZREPLAY));
+		dispatchEvent(new Event(CONST.EF_CANCEL));
+		dispatchEvent(new Event(CONST.EF_REPLAY));
 	}
 
 	/**
@@ -525,7 +534,7 @@ export class TTutorContainer extends TRoot
 		
 		// Tell Proxies that Tutor is pausing
 		//
-		this.dispatchEvent(new Event(CONST.WOZPAUSING));
+		this.dispatchEvent(new Event(CONST.EF_PAUSING));
 		
 		for (let i1:number = 0 ; i1 < this.playing.length ; i1++)
 		{
@@ -546,7 +555,7 @@ export class TTutorContainer extends TRoot
 		
 		// Tell Proxies that Tutor is playing again
 		//
-		this.dispatchEvent(new Event(CONST.WOZPLAYING));			
+		this.dispatchEvent(new Event(CONST.EF_PLAYING));			
 		
 		for (let i1:number = 0 ; i1 < this.playing.length ; i1++)
 		{

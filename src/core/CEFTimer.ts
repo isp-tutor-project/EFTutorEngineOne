@@ -17,109 +17,96 @@
 
 //** Imports
 
-import { TRoot } 	   		from "../thermite/TRoot";
-import { CEFTimerEvent } 	from "../events/CEFTimerEvent";
+import { IEFTutorDoc }      from "./IEFTutorDoc";
 
+import { CEFEvent }         from "../events/CEFEvent";
 
 import { CONST }            from "../util/CONST";
 import { CUtil } 			from "../util/CUtil";
 
+import Ticker 		   = createjs.Ticker;
 import EventDispatcher = createjs.EventDispatcher;
 
 
 
+
 /**
-* Provides support for pausing all Timers in the entire tutor
+*  Think of this as a framerate timer which may be paused.
+* 
+*  Provides support for pausing all Timers in the entire tutor
 */
 export class CEFTimer extends EventDispatcher
 {
 	private traceMode:boolean = false;
 
-	protected _delay	   : number;
-	protected _repeatCount : number;
+    private _handler:Function;
+    private _scope:Object;
+    private _event:Object;
+
+	private _time	     : number;
+    private _repeatCount : number;
+
+    private count       : number;
+    private repeats     : number;
+    private paused      : boolean;
+    public  frameRate   : number;
+    public  frame_ms    : number;
+    
+	private _tickHandler: Function | Object;
 	
-	// Create one wozObject through which we can listen for pause play commands
+	// Create one EDFORGEObject through which we can listen for pause play commands
 	//
 	private static activeTimers:Array<CEFTimer> = new Array();
+	private static tutorDoc:IEFTutorDoc;
 
 	
 	/**
 	* Creates a new CEFTimerProxy instance. 
 	*/
-	constructor(delay:number, repeatCount:number = 0)
+	constructor(time:number, repeatCount:number = 0)
 	{
 		super();
 
-		this._delay		  = delay;
-		this._repeatCount = repeatCount;
-	}
-				
-	/**
-	 * Proxy WOZ replay handler for FLVtimerBack control
-	 * @param	evt
-	 */
-	public cancelTimers(evt:Event) : void
-	{
-		if(this.traceMode) CUtil.trace(" cancelTimers : " + CEFTimer.activeTimers.length);		
-		
-		var tCount:number = CEFTimer.activeTimers.length;
-		
-		// Stop the flash timers themselves (i.e. super)
-		for (var i1:number = 0 ; i1 < tCount ; i1++)
-		{
-			CEFTimer.activeTimers[0].stop();
-			CEFTimer.activeTimers.pop();				
-		}
-	}
-	
-	/**
-	 * Proxy WOZ pause handler for FLVtimerBack control
-	 * @param	evt
-	 */
-	public pauseTimers(evt:Event) : void
-	{
-		if(this.traceMode) CUtil.trace(" pauseTimers : " + CEFTimer.activeTimers.length);		
-		
-		// Stop the flash timers themselves (i.e. super)
-		for (var i1:number = 0 ; i1 < CEFTimer.activeTimers.length ; i1++)
-		{
-			CEFTimer.activeTimers[i1].stop();
-		}
-	}
-	
-	/**
-	 * Proxy WOZ play handler for FLVPlayBack control
-	 * @param	evt
-	 */
-	public playTimers(evt:Event) : void
-	{
-		if(this.traceMode) CUtil.trace(" playTimers : " + CEFTimer.activeTimers.length);		
-		
-		// Start the flash timers themselves (i.e. super)
-		for (var i1:number = 0 ; i1 < CEFTimer.activeTimers.length ; i1++)
-		{
-			CEFTimer.activeTimers[i1].start();
-		}
-	}
+		this._time		  = time;
+        this._repeatCount = repeatCount;
 
-	
-	/**
-	 * Manage the array of Timers
-	 *  
-	 */
-	public timerRemoveThis():void 
-	{
-		if(this.traceMode) CUtil.trace(" timerRemoveThis : ");		
-		
-		for (var i1:number = 0 ; i1 < CEFTimer.activeTimers.length ; i1++)
-		{
-			if (CEFTimer.activeTimers[i1] == this)
-			{
-				CEFTimer.activeTimers.splice(i1, 1);
-				break;
-			}
-		}
+        this.count     = 0;
+        this.repeats   = 0;
+        this.paused    = true;
+        this.frame_ms  = (1/Ticker.framerate) * 1000;
+        this.frameRate = Ticker.framerate;
+        this._handler  = null;
+        this._event    = null;
 	}
+                
+
+    private tick(evt:Event) {
+
+        this.count += this.frame_ms;
+
+        if(!this.paused && (this.count > this._time)) {
+
+            this.count = 0;
+
+            if(this._handler) {
+                this._handler.call(this._scope, this._event, this);
+            }
+            else 
+                this.dispatchEvent(new Event(CONST.TIMER));
+
+            if(this._repeatCount > 0) {                
+
+                this.repeats++;
+                if(this.repeats >= this._repeatCount) {
+
+                    Ticker.off(CEFEvent.ENTER_FRAME, this._tickHandler as Function);
+                    
+                    this.dispatchEvent(new Event(CONST.TIMER_COMPLETE));
+                }
+            }
+        }
+    }
+
 
 	/**
 	 * Manage the array of CEFTimer.activeTimers movieclips
@@ -144,39 +131,78 @@ export class CEFTimer extends EventDispatcher
 			CEFTimer.activeTimers.push(this);
 	}
 
+
+	/**
+	 * Manage the array of Timers
+	 *  
+	 */
+	public timerRemoveThis():void 
+	{
+		if(this.traceMode) CUtil.trace(" timerRemoveThis : ");		
+		
+		for (var i1:number = 0 ; i1 < CEFTimer.activeTimers.length ; i1++)
+		{
+			if (CEFTimer.activeTimers[i1] == this)
+			{
+				CEFTimer.activeTimers.splice(i1, 1);
+				break;
+			}
+		}
+	}
+
+    
 	/**
 	 */
-	public reset():void
+	public connectToTutor():void
 	{
-		if(this.traceMode) CUtil.trace(" is resetting");
-		
-		this.timerRemoveThis();
-	}	
-	
+		if(CEFTimer.tutorDoc)
+		{
+			CEFTimer.tutorDoc.tutorContainer.on(CONST.EF_CANCEL,  this.cancelTimers, this);
+			CEFTimer.tutorDoc.tutorContainer.on(CONST.EF_PAUSING, this.pauseTimers, this);
+			CEFTimer.tutorDoc.tutorContainer.on(CONST.EF_PLAYING, this.playTimers, this);
+			
+			this.timerAddThis();			
+        }        
+	}
+
+	/**
+	 */
+	public disConnectFromTutor():void
+	{
+		if(CEFTimer.tutorDoc)
+		{
+			CEFTimer.tutorDoc.tutorContainer.off(CONST.EF_CANCEL,  this.cancelTimers, this);
+			CEFTimer.tutorDoc.tutorContainer.off(CONST.EF_PAUSING, this.pauseTimers, this);
+			CEFTimer.tutorDoc.tutorContainer.off(CONST.EF_PLAYING, this.playTimers, this);
+			
+			this.timerRemoveThis();			
+        }        
+	}
+    
+
+    public static startTimer(duration:number, callback:Function, scope:Object, event:Object) : CEFTimer {
+
+        let timer:CEFTimer = new CEFTimer(duration);
+
+        timer._event   = event;
+        timer._handler = callback
+        timer._scope   = scope;
+        timer.start();
+
+        return timer;
+    }
+
+
 	/**
 	 */
 	public start():void
 	{
 		if(this.traceMode) CUtil.trace(" Timer is starting");
 		
-		// if(this.tutorDoc.STutor)
-		// {
-		// 	this.tutorDoc.tutorContainer.addEventListener(CONST.WOZCANCEL,  this.cancelTimers);
-		// 	this.tutorDoc.tutorContainer.addEventListener(CONST.WOZPAUSING, this.pauseTimers);
-		// 	this.tutorDoc.tutorContainer.addEventListener(CONST.WOZPLAYING, this.playTimers);
-			
-		// 	this.timerAddThis();
-			
-		// 	this.addEventListener(CEFTimerEvent.TIMER_COMPLETE, this.timerFinished);
-		// }
-	}
-	
-	/**
-	 */
-	public timerFinished(evt:CEFTimerEvent) : void
-	{
-		this.timerRemoveThis();
-		this.removeEventListener(CEFTimerEvent.TIMER_COMPLETE, this.timerFinished);
+        this.connectToTutor();
+
+        this.paused = false;
+		this._tickHandler = Ticker.on(CEFEvent.ENTER_FRAME, this.tick, this);
 	}
 	
 	/**
@@ -185,17 +211,74 @@ export class CEFTimer extends EventDispatcher
 	{
 		if(this.traceMode) CUtil.trace(" Timer is stopping");
 		
-		// if (this.tutorDoc.tutorContainer)
-		// {
-		// 	this.tutorDoc.tutorContainer.removeEventListener(CONST.WOZCANCEL,  this.cancelTimers);
-		// 	this.tutorDoc.tutorContainer.removeEventListener(CONST.WOZPAUSING, this.pauseTimers);
-		// 	this.tutorDoc.tutorContainer.removeEventListener(CONST.WOZPLAYING, this.playTimers);
-			
-		// 	this.timerRemoveThis();
-			
-		// 	this.removeEventListener(CEFTimerEvent.TIMER_COMPLETE, this.timerFinished);
-		// }
+        this.disConnectFromTutor();
+        
+        this.paused = true;
+		Ticker.off(CEFEvent.ENTER_FRAME, this._tickHandler as Function);
 	}
 	
+	/**
+	 */
+	public reset():void
+	{
+		if(this.traceMode) CUtil.trace("Timer is resetting");
+        
+        this.disConnectFromTutor();
+        
+        this.count   = 0;
+        this.repeats = 0;
+        this.paused  = true;
+
+		Ticker.off(CEFEvent.ENTER_FRAME, this._tickHandler as Function);
+    }	
+    
+
+
+    /**
+	 * Proxy EDFORGE replay handler for FLVtimerBack control
+	 * @param	evt
+	 */
+	public cancelTimers(evt:Event) : void
+	{
+		if(this.traceMode) CUtil.trace(" cancelTimers : " + CEFTimer.activeTimers.length);		
+		
+		var tCount:number = CEFTimer.activeTimers.length;
+		
+		// Stop the flash timers themselves (i.e. super)
+		for (var i1:number = 0 ; i1 < tCount ; i1++)
+		{
+			CEFTimer.activeTimers[0].stop();
+			CEFTimer.activeTimers.pop();				
+		}
+	}
 	
+	/**
+	 * Proxy EDFORGE pause handler for FLVtimerBack control
+	 * @param	evt
+	 */
+	public pauseTimers(evt:Event) : void
+	{
+		if(this.traceMode) CUtil.trace(" pauseTimers : " + CEFTimer.activeTimers.length);		
+		
+		// Stop the flash timers themselves (i.e. super)
+		for (var i1:number = 0 ; i1 < CEFTimer.activeTimers.length ; i1++)
+		{
+			CEFTimer.activeTimers[i1].stop();
+		}
+	}
+	
+	/**
+	 * Proxy EDFORGE play handler for FLVPlayBack control
+	 * @param	evt
+	 */
+	public playTimers(evt:Event) : void
+	{
+		if(this.traceMode) CUtil.trace(" playTimers : " + CEFTimer.activeTimers.length);		
+		
+		// Start the flash timers themselves (i.e. super)
+		for (var i1:number = 0 ; i1 < CEFTimer.activeTimers.length ; i1++)
+		{
+			CEFTimer.activeTimers[i1].start();
+		}
+	}
 }
