@@ -59,6 +59,9 @@ export class THtmlBase extends TObject {
     protected _updateComponentCbk:any;
     protected _lastFrame:number;
 
+    protected _objDataArray:Array<any>;
+    protected _currObjNdx:number;
+
 
 
     constructor() {
@@ -273,6 +276,47 @@ export class THtmlBase extends TObject {
         }
     }
 
+    
+    public initObjById(objId:string) {
+
+        for(let i1 = 0; i1 < this._objDataArray.length ; i1++) {
+
+            if(this._objDataArray[i1].Id === objId) {
+                this._currObjNdx = i1;
+                this.this.initObjfromData(this._objDataArray[i1]);
+                break;
+            }
+        }
+    }
+
+
+    public initObjNext() {
+
+        this._currObjNdx = (this._currObjNdx + 1) % this._objDataArray.length;
+        this.this.initObjfromData(this._objDataArray[this._currObjNdx]);
+    }
+
+
+    public initObjByIndex(objNdx:number) {
+
+        try {
+            this._currObjNdx = objNdx;
+            this.initObjfromData(this._objDataArray[objNdx]);
+        }
+        catch(err) {
+
+        }
+    }
+
+
+    private initObjfromData(objData:any) {
+
+        this.controlContainer.innerHTML = objData.html;
+
+        this.addCustomStyles(objData.style, this.cssSheet );
+        this.addCSSRules(this.styleElement, this.cssSheet );
+    }
+
 
     /*
     * 
@@ -281,10 +325,24 @@ export class THtmlBase extends TObject {
     {
         console.log("deserializing: HTMLBase Custom Control");
 
-        this.controlContainer.innerHTML = objData.html;
+        if(Array.isArray(objData)) {
 
-        this.addCustomStyles(objData.style, this.cssSheet );
-        this.addCSSRules(this.styleElement, this.cssSheet );
+            this._objDataArray = objData;
+
+            for(let i1 = 0; i1 < objData.length ; i1++) {
+
+                if(objData[i1].default) {
+                    this._currObjNdx = i1;
+                    this.initObjfromData(objData[i1]);
+                    break;
+                }
+            }
+
+        }
+        else {
+            this._objDataArray = null;            
+            this.initObjfromData(objData);
+        }
 
         super.deSerializeObj(objData);				
     }
