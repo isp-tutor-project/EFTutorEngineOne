@@ -140,7 +140,10 @@ export class TSceneBase extends TObject
                 
                 if(this[element] && this[element].deSerializeObj) {
                     this[element].deSerializeObj(dataElement);
-                }                
+                }       
+                else {
+                    console.log(`Error: ObjData mismatch: Module-${this.hostModule}  Scene-${this.sceneName}  Element-${element}`);
+                }         
             }
 
 			// Execute the create procedures for this scene instance
