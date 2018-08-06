@@ -222,7 +222,7 @@ export interface IEFTutorDoc {
 
     gNavigator : any 
 
-    setButtonBehavior(behavior:string) : void
+    setNavButtonBehavior(behavior:string) : void
 
 
 

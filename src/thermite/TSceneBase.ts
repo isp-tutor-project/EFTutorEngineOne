@@ -56,7 +56,9 @@ export class TSceneBase extends TObject
     public sceneData :any; 
 
 	protected _section:string;					// Arbitrary tutor section id
-	
+    
+    protected tutorNavigator:any;
+    
 	protected _nextButton:any = null;
 	protected _prevButton:any = null;
 
@@ -102,8 +104,9 @@ export class TSceneBase extends TObject
 	public onCreate() : void
 	{
 		try {
-            this.moduleData = this.tutorDoc.moduleData[this.hostModule][CONST.SCENE_DATA];
-            this.sceneData  = this.moduleData[this.sceneName];
+            this.moduleData     = this.tutorDoc.moduleData[this.hostModule][CONST.SCENE_DATA];
+            this.sceneData      = this.moduleData[this.sceneName];
+            this.tutorNavigator = this.tutorDoc.tutorNavigator;
 
             let dataElement:any;
 
@@ -177,15 +180,24 @@ export class TSceneBase extends TObject
 
 		switch(type) {
 			case CONST.NEXTSCENE:
-				this._nextButton = this[butComp].on(CONST.MOUSE_CLICK, this.tutorDoc.tutorNavigator.onButtonNext, this.tutorDoc.tutorNavigator);
+				this._nextButton = this[butComp].on(CONST.MOUSE_CLICK, this.tutorNavigator.onButtonNext, this.tutorNavigator);
 				break;
 
 			case CONST.PREVSCENE:
-				this._prevButton = this[butComp].on(CONST.MOUSE_CLICK, this.tutorDoc.tutorNavigator.onButtonPrev, this.tutorDoc.tutorNavigator);
+				this._prevButton = this[butComp].on(CONST.MOUSE_CLICK, this.tutorNavigator.onButtonPrev, this.tutorNavigator);
 				break;				
 		}
 	}
 
+
+    public setNavigationTarget(behavior:string) {
+
+        if(behavior.toUpperCase() === "TUTOR")
+            this.tutorNavigator.buttonBehavior = CONST.GOTONEXTSCENE;
+        else				
+            this.tutorNavigator.buttonBehavior = CONST.GOTONEXTTRACK;
+
+    }
 
 	public disConnectNavButton(type:string, butComp:string ) {
 

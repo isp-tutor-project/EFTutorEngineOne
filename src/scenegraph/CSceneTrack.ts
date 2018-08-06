@@ -24,6 +24,8 @@ import { segment,
          segmentVal,
          cuePoint} 	        from "./IAudioTypes";
 
+import { CEFSceneCueEvent } from "../events/CEFSceneCueEvent";
+
 import { CSceneGraph } 		from "./CSceneGraph";
 import { CSceneChoiceSet } 	from "./CSceneChoiceSet";
 
@@ -34,7 +36,6 @@ import { CONST }            from "../util/CONST";
 
 import AbstractSoundInstance  	= createjs.AbstractSoundInstance ;
 import EventDispatcher 	        = createjs.EventDispatcher;
-import { CEFSceneCueEvent } from "../events/CEFSceneCueEvent";
 
 
 
@@ -53,8 +54,10 @@ export class CSceneTrack extends EventDispatcher
 
 	private _type:string;
 	private _autostep:boolean;
-	private _stepdelay:number;
-    
+    private _stepdelay:number;
+    private _autoPlayTimer:CEFTimer;
+    private _autoPlayHandler:Function;
+
 	private _odds:Array<number>;
 	private _chosen:boolean = false; 
     
@@ -130,10 +133,10 @@ export class CSceneTrack extends EventDispatcher
 			this._actionname = factory.actionname;
 		}
 
-        this._autostep  = factory.autostep   || false;        
-        this._stepdelay = factory._stepdelay || 0.0;        
+        this._autostep  = factory.autostep  || false;        
+        this._stepdelay = factory.stepdelay || 0.0;        
         this._odds      = factory.odds;
-		this._features 	= factory.features || "";
+		this._features 	= factory.features  || "";
 		
 		// Handle Stocastic Features
 		
@@ -326,29 +329,60 @@ export class CSceneTrack extends EventDispatcher
             this.playTrack();
         }
         else {
-            // Fire the end cuepoint
+            // Fire the end cuepoint - test for autoplay 
             // 
             this.hostScene.$cuePoints(this._name, CONST.END_CUEPOINT);
-
-            if(this._autostep) {
-                this.hostScene.nextTrack();
-            }
+            this.autoPlay();
         }
     }
 
 
+    // Play next track or just wait for user input
+    // 
+    public autoPlay() {
+
+        if(this._autostep) {
+
+            if(this._stepdelay && this._stepdelay > 0) {
+
+                this._autoPlayTimer   = new CEFTimer(this._stepdelay); 
+                this._autoPlayHandler = this._autoPlayTimer.on(CONST.TIMER, this._asyncAutoPlay, this);
+                this._autoPlayTimer.start();
+            }
+            else this.hostScene.nextTrack();
+        }
+    }
+    private _asyncAutoPlay(evt:Event) : void
+	{			
+		this.killAutoPlayTimer();	
+        this.hostScene.nextTrack();
+	}
+	private killAutoPlayTimer() {
+
+		if(this._autoPlayTimer) {
+			this._autoPlayTimer.stop();
+			this._autoPlayTimer.off(CONST.TIMER, this._autoPlayHandler);
+			this._autoPlayTimer = null;
+		}
+	}
+
+
     public play() {
-        
+
+		// Ensure any autoplays are dead 
+		// 		
+		this.killAutoPlayTimer();
+
         switch(this._type) {
+
             // KEYPOINT: 
             // This will execute the named scene action it will auto step to the 
             // next track or just stop and wait for user input.
+            // 
             case CONST.SCENE_ACTION:
-                this.hostScene.$nodeAction(this._actionname);
 
-                if(this._autostep) {
-                    this.hostScene.nextTrack();
-                }
+                this.hostScene.$nodeAction(this._actionname);
+                this.autoPlay();
                 break;
 
             case CONST.SCENE_TRACK:
@@ -388,6 +422,10 @@ export class CSceneTrack extends EventDispatcher
         this.isPlaying = false;
 
         createjs.Sound.stop(); 
+
+        // Ensure any autoplays are dead 
+		// 		
+        this.killAutoPlayTimer();                
     }
 
 

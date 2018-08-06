@@ -22,9 +22,14 @@ import { CEFEvent }             from "../events/CEFEvent";
 import { TMouseEvent } 		    from "../events/CEFMouseEvent";
 
 import { CUtil } 			    from "../util/CUtil";
+import { CONST }                from "../util/CONST";
 
 import MovieClip     	      = createjs.MovieClip;
+import Tween    		  	  = createjs.Tween;
+import Event    		  	  = createjs.Event;
 import Text     	          = createjs.Text;
+import Ease			  	      = createjs.Ease;
+import { CEFTimeLine } from "../core/CEFTimeLine";
 
 
 
@@ -42,6 +47,7 @@ export class THtmlBase extends TObject {
 	//************ Stage Symbols				
     
     protected dimContainer:TObject;
+    protected scaleCompensation:number;
 
     protected fAdded:boolean;
 
@@ -121,6 +127,25 @@ export class THtmlBase extends TObject {
         super.Destructor();
     }
 
+    // Invert the initial scaling on the object itself - 
+    // i.e. distortion due to the resize of the controlcontainer in AnimateCC layout
+    // 
+    invertScale() {
+
+        // let mat = this.dimContainer.getConcatenatedDisplayProps(this.dimContainer._props).matrix;
+        // this.scaleCompensation = 1/mat.decompose().scaleY; 
+        // console.log(this.scaleCompensation);
+
+        let style = window.getComputedStyle(this.controlContainer);
+        console.log(style.height);        
+
+        this.scaleCompensation = CONST.CONTROLCONTAINER_DESIGNHEIGHT/parseFloat(style.height); 
+
+        console.log(this.scaleCompensation);
+
+    }
+
+
     public onAddedToStage(evt:CEFEvent) {
 
         let stage;
@@ -130,6 +155,9 @@ export class THtmlBase extends TObject {
 		this._lastFrame = (this.parent as MovieClip).currentFrame;       
 
         if(!this.fAdded) {
+
+            this.effectTimeLine = new CEFTimeLine(null, null, {"useTicks":false, "loop":false, "paused":true }, this.tutorDoc);
+            this.effectTweens   = new Array<Tween>();
 
             this.styleElement       = document.createElement('style');
             this.styleElement.type  = 'text/css';
@@ -252,14 +280,140 @@ export class THtmlBase extends TObject {
 
             this.setProperty("visibility", this.visible? "visible":"hidden");
             this.setProperty("opacity", this.alpha);
-            this.setProperty("font-size", this.fontSize * sx + "px");        // TODO: investigate use of 'vw' units to auto scale
+
+            this.setProperty("font-size", this.fontSize * sy  * this.scaleCompensation + "px");        // TODO: investigate use of 'vw' units to auto scale
+
             this.setProperty('transform', tx);
             this.setProperty('width', w + "px");
             this.setProperty('height', h + "px");
             this.updateStyle(false);
         }
     }
-    
+
+    public hideSpan(spanID:string) {
+
+        let span = document.getElementById(spanID);
+
+        span.style.visibility = "hidden";
+    }
+
+
+    public showSpan(spanID:string) {
+
+        let span = document.getElementById(spanID);
+
+        span.style.visibility = "visible";
+    }
+
+
+    public setContentById(objId:string, effectType:string = CONST.EFFECT_FADE, effectDur:number = 500) {
+
+        for(let i1 = 0; i1 < this._objDataArray.length ; i1++) {
+
+            if(this._objDataArray[i1].Id === objId) {
+                this.effectNewIndex = i1;
+                this.performTransition(this.effectNewIndex, effectType, effectDur);
+                break;
+            }
+        }
+    }
+
+
+    public setContentNext(effectType:string = CONST.EFFECT_FADE, effectDur:number = 500) {
+
+        this.effectNewIndex = (this._currObjNdx + 1) % this._objDataArray.length;
+
+        this.performTransition(this.effectNewIndex, effectType, effectDur);
+    }
+
+
+    /**
+     * 
+     */	
+    public setContentByIndex(newIndex:number, effectType:string = CONST.EFFECT_FADE, effectDur:number = 500) : void
+    {
+        let zeroBase:number = newIndex - 1;
+
+        this.performTransition(zeroBase, effectType, effectDur);
+    }
+
+    /**
+     * 
+     */	
+    private performTransition(effectNewIndex:number, effectType:string, effectDur:number = 500) : void
+    {
+
+        if(this._currObjNdx !== effectNewIndex) {
+
+            this.effectNewIndex = effectNewIndex;
+            this.effectType     = effectType;
+            this.effectTimeMS   = effectDur;
+
+            switch(effectType) {
+
+                case CONST.EFFECT_FADE:
+
+                    this.effectAlpha    = this.alpha;
+
+                    this.effectTweens.push(new Tween(this).to({alpha:0}, effectDur/2, Ease.cubicInOut));
+
+                    // push the tween on to the run stack
+                    //
+                    this.effectTimeLine.addTween(...this.effectTweens);	
+                    this.effectTimeLine.startTransition(this.swapContent, this);								
+                    break;
+
+                case CONST.EFFECT_SWAP:
+
+                    this.swapContent();
+                    break;
+            }
+        }
+    }
+
+    private swapContent() {
+
+        this.effectTimeLine.removeTween(...this.effectTweens);
+
+        try {
+            this._currObjNdx = this.effectNewIndex;
+            this.initObjfromData(this._objDataArray[this.effectNewIndex]);
+        }
+        catch(err) {
+
+        }
+
+        switch(this.effectType) {
+
+            case CONST.EFFECT_FADE:
+
+            
+                // Note that we restore it to its previous alpha value not necessarily 1
+                // 
+                this.effectTweens.push(new Tween(this).to({alpha:this.effectAlpha}, this.effectTimeMS/2, Ease.cubicInOut));
+
+                // push the tween on to the run stack
+                //
+                this.effectTimeLine.addTween(...this.effectTweens);	
+                this.effectTimeLine.startTransition(this.effectFinished, this);								
+                break;
+
+            case CONST.EFFECT_SWAP:
+                break;
+        }
+    }
+
+    /**
+	 * Object specific finalization behaviors - invoked through  reference in xnFinished
+	 */
+	private effectFinished() : void
+	{			
+        this.effectTimeLine.removeTween(...this.effectTweens);
+
+		this.dispatchEvent(new Event(CEFEvent.COMPLETE,false,false));
+	}				
+
+
 
     private addCustomStyles(srcStyle:any, tarStyle:any) {
 
@@ -277,44 +431,15 @@ export class THtmlBase extends TObject {
     }
 
     
-    public initObjById(objId:string) {
-
-        for(let i1 = 0; i1 < this._objDataArray.length ; i1++) {
-
-            if(this._objDataArray[i1].Id === objId) {
-                this._currObjNdx = i1;
-                this.this.initObjfromData(this._objDataArray[i1]);
-                break;
-            }
-        }
-    }
-
-
-    public initObjNext() {
-
-        this._currObjNdx = (this._currObjNdx + 1) % this._objDataArray.length;
-        this.this.initObjfromData(this._objDataArray[this._currObjNdx]);
-    }
-
-
-    public initObjByIndex(objNdx:number) {
-
-        try {
-            this._currObjNdx = objNdx;
-            this.initObjfromData(this._objDataArray[objNdx]);
-        }
-        catch(err) {
-
-        }
-    }
-
-
     private initObjfromData(objData:any) {
 
         this.controlContainer.innerHTML = objData.html;
 
         this.addCustomStyles(objData.style, this.cssSheet );
         this.addCSSRules(this.styleElement, this.cssSheet );
+
+        this.invertScale();
+
     }
 
 

@@ -80,6 +80,19 @@ export class CEFTimer extends EventDispatcher
 	}
                 
 
+    public static startTimer(duration:number, callback:Function, scope:Object, event:Object) : CEFTimer {
+
+        let timer:CEFTimer = new CEFTimer(duration);
+
+        timer._event   = event;
+        timer._handler = callback
+        timer._scope   = scope;
+        timer.start();
+
+        return timer;
+    }
+
+
     private tick(evt:Event) {
 
         this.count += this.frame_ms;
@@ -179,19 +192,6 @@ export class CEFTimer extends EventDispatcher
         }        
 	}
     
-
-    public static startTimer(duration:number, callback:Function, scope:Object, event:Object) : CEFTimer {
-
-        let timer:CEFTimer = new CEFTimer(duration);
-
-        timer._event   = event;
-        timer._handler = callback
-        timer._scope   = scope;
-        timer.start();
-
-        return timer;
-    }
-
 
 	/**
 	 */

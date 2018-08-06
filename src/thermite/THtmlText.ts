@@ -67,7 +67,7 @@ export class THtmlText extends THtmlBase {
         this.traceMode = true;
         if(this.traceMode) CUtil.trace("THtmlText:Constructor");
 
-        this.fontSize = 4;
+        this.fontSize = 40;
 
         this.cssSheet = {
 

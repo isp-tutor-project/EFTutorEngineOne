@@ -51,7 +51,10 @@ export class CEFTimeLine extends Timeline
 	
 	public targets:Array<any>;				
 	public xnFinalize:Function;
-	
+	public xnScope:any;
+
+    
+
 	/**
 	 * Abstract base class providing object animation features
 	 */
@@ -67,23 +70,22 @@ export class CEFTimeLine extends Timeline
 		this.targets = new Array();
 	}
 			
-	public addTween(tween:Tween) {
+	public addTween(...tween:Tween[]) {
 
-		super.addTween(tween);
+		super.addTween(...tween);
 
-		this.targets.push(tween.target);
+		tween.forEach( tween => this.targets.push(tween.target));
 	}
 
 	/**
 	 * 
 	 */
-	public startTransition(xnF:Function = null) : void
+	public startTransition(xnF:Function = null, scope:any) : void
 	{			
 		if(this.traceMode) CUtil.trace("startTransition : ");
 	
-		let i1:number;
-
-		this.xnFinalize = xnF;
+        this.xnFinalize = xnF;
+        this.xnScope    = scope;
 		
 		// Setup the running array for the transition
 		//
@@ -129,15 +131,15 @@ export class CEFTimeLine extends Timeline
 		//
 		for(let tar of this.targets) {
 
-			if(tar.alpha == 0)
-				tar.visible = false;			
+			// if(tar.alpha == 0)
+			// 	tar.visible = false;			
 		}		
 		this.targets = new Array();
 		
 		// invoke the Xition specific finalization 
 		//
 		if(this.xnFinalize != null)
-			this.xnFinalize.call(this);
+			this.xnFinalize.call(this.xnScope);
 		
 		// the interface is now in a new state - 
 		

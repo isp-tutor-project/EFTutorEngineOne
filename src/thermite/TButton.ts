@@ -16,7 +16,6 @@
 
 //** Imports
 
-import { TRoot }		from "./TRoot";
 import { TObject }     	from "./TObject";
 
 import { CEFEvent } 	from "../events/CEFEvent";
@@ -27,8 +26,6 @@ import { CUtil } 		from "../util/CUtil";
 
 import MovieClip     		  = createjs.MovieClip;
 import Timeline     		  = createjs.Timeline;
-import DisplayObject 		  = createjs.DisplayObject;
-import DisplayObjectContainer = createjs.Container;
 
 
 
@@ -43,10 +40,16 @@ export class TButton extends TObject
 	
 	//************ Stage Symbols
 	
-	public curState:string   = CONST.STATE_UP;
+	public curState:string   = "unknown";
 	public fPressed:boolean  = false;
 	public fEnabled:boolean  = true;
-	public fOver:boolean     = false;
+    public fOver:boolean     = false;
+    
+    public STATE_UP:string;      
+    public STATE_OVER:string;
+    public STATE_DOWN:string;
+    public STATE_DISABLED:string;
+
 
 	private onClickScript:TObject = null;
 	
@@ -109,13 +112,30 @@ export class TButton extends TObject
 		//
 		this.timeline      = new Timeline(null,null,null);
 
-		this.addChild(this[CONST.STATE_UP]);
-		this.addChild(this[CONST.STATE_OVER]);
-		this.addChild(this[CONST.STATE_DOWN]);
-		this.addChild(this[CONST.STATE_DISABLED]);
+        this.decomposeButton();
+
+		this.addChild(this[this.STATE_UP]);
+		this.addChild(this[this.STATE_OVER]);
+		this.addChild(this[this.STATE_DOWN]);
+		this.addChild(this[this.STATE_DISABLED]);
 
 		this.resetState();
 	}
+
+
+    // Animate buttons can be composed of either shape objects or instance objects
+    // TODO: Look at simplifying this by explicitly naming the button components
+    // 
+    public decomposeButton() {
+        
+        this.STATE_UP       = this[CONST.INSTANCE_UP]? CONST.INSTANCE_UP:CONST.SHAPE_UP;
+        this.STATE_OVER     = this[CONST.INSTANCE_OVER]? CONST.INSTANCE_OVER:CONST.SHAPE_OVER;
+        this.STATE_DOWN     = this[CONST.INSTANCE_DOWN]? CONST.INSTANCE_DOWN:CONST.SHAPE_DOWN;
+        this.STATE_DISABLED = this[CONST.INSTANCE_DISABLED]? CONST.INSTANCE_DISABLED:CONST.SHAPE_DISABLED;
+
+        this.curState = this.STATE_UP;
+    }
+
 
 	// Walk the WOZ Objects to capture their default state
 	//
@@ -169,10 +189,10 @@ export class TButton extends TObject
 
 	public resetState() : void 
 	{											
-		this[CONST.STATE_UP].visible 	   = true;
-		this[CONST.STATE_OVER].visible 	   = false;
-		this[CONST.STATE_DOWN].visible 	   = false;		
-		this[CONST.STATE_DISABLED].visible = false;		
+		this[this.STATE_UP].visible 	   = true;
+		this[this.STATE_OVER].visible 	   = false;
+		this[this.STATE_DOWN].visible 	   = false;		
+		this[this.STATE_DISABLED].visible = false;		
 	}
 
 
@@ -185,34 +205,34 @@ export class TButton extends TObject
 
 		switch(sState) {
 
-			case CONST.STATE_DOWN:
-				this[CONST.STATE_DOWN].visible = true;
+			case this.STATE_DOWN:
+				this[this.STATE_DOWN].visible = true;
 				this.fPressed = true;
 				
 				break;
 							
-			case CONST.STATE_UP:
+			case this.STATE_UP:
 				if(this.fOver)
-					this[CONST.STATE_OVER].visible = true;
+					this[this.STATE_OVER].visible = true;
 				else
-					this[CONST.STATE_UP].visible = true;
+					this[this.STATE_UP].visible = true;
 					
 				this.fPressed = false;
 				
 				break;
 			
-			case CONST.STATE_OVER:
+			case this.STATE_OVER:
 				if(!this.fPressed)
-					this[CONST.STATE_OVER].visible = true;
+					this[this.STATE_OVER].visible = true;
 				else
-					this[CONST.STATE_DOWN].visible = true;											
+					this[this.STATE_DOWN].visible = true;											
 					
 					this.fOver = true;					
 				break;
 
 			case CONST.STATE_OUT:
 
-				this[CONST.STATE_UP].visible   = true;								
+				this[this.STATE_UP].visible   = true;								
 				this.fOver    = false;					
 				this.fPressed = false;
 				break;
@@ -221,8 +241,8 @@ export class TButton extends TObject
 		if(!this.fEnabled) {
 
 			this.resetState();
-			this[CONST.STATE_UP].visible 	   = false;
-			this[CONST.STATE_DISABLED].visible = true;
+			this[this.STATE_UP].visible 	   = false;
+			this[this.STATE_DISABLED].visible = true;
 		}
 		
 
@@ -309,7 +329,7 @@ export class TButton extends TObject
 			//@@ Action Logging						
 		}
 
-		this.gotoState(CONST.STATE_UP);
+		this.gotoState(this.STATE_UP);
 		
 	}					
 
@@ -329,7 +349,7 @@ export class TButton extends TObject
 	
 	public doMouseOver(evt:TMouseEvent) : void 
 	{											
-		this.gotoState(CONST.STATE_OVER);		
+		this.gotoState(this.STATE_OVER);		
 	}					
 
 	public doMouseOut(evt:TMouseEvent) : void 
@@ -339,12 +359,12 @@ export class TButton extends TObject
 
 	public doMouseDown(evt:TMouseEvent) : void 
 	{											
-		this.gotoState(CONST.STATE_DOWN);
+		this.gotoState(this.STATE_DOWN);
 	}					
 
 	public doMouseUp(evt:TMouseEvent) : void 
 	{					
-		this.gotoState(CONST.STATE_UP);
+		this.gotoState(this.STATE_UP);
 	}	
 	
 	public showButton(fShow:boolean) : void 

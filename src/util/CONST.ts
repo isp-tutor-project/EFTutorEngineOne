@@ -50,7 +50,11 @@ export class CONST {
     public static readonly WAIT:number                  = 250;
 
 	public static readonly DONT_LAUNCH:boolean  = false;
-	public static readonly LAUNCH:boolean  		= true;
+    public static readonly LAUNCH:boolean  		= true;
+    
+    // This is the AnimateCC controlContainer unscaled height
+    // 
+    public static readonly CONTROLCONTAINER_DESIGNHEIGHT:number = 100;
 
     public static readonly EFMODULE_PREFIX:string   = "EFMod_";
 	public static readonly THERMITE_PREFIX:string   = "TC_";
@@ -72,15 +76,32 @@ export class CONST {
 	];
 	
 
+    //** Transition constants */
+	public static readonly EFFECT_FADE   	= "fade";
+	public static readonly EFFECT_SWAP 		= "swap";
+
     
 
 	//**  Button States - must match AnimateCC code conventions : see Adobe generated JS code */
 
-	public static readonly STATE_UP   		= "shape";
-	public static readonly STATE_OVER 		= "shape_1";
-	public static readonly STATE_DOWN		= "shape_2";
-	public static readonly STATE_DISABLED	= "shape_3";	// Note that we have a dual interpretation of the AnimateCC HIT state
-	public static readonly STATE_HIT 		= "shape_3";
+	public static STATE_UP   		= "";
+	public static STATE_OVER 		= "";
+	public static STATE_DOWN		= "";
+	public static STATE_DISABLED	= "";	                    // Note that we have a dual interpretation of the AnimateCC HIT state
+	public static STATE_HIT 		= "";
+
+	public static readonly SHAPE_UP   		    = "shape";
+	public static readonly SHAPE_OVER 		    = "shape_1";
+	public static readonly SHAPE_DOWN		    = "shape_2";
+	public static readonly SHAPE_DISABLED	    = "shape_3";	// Note that we have a dual interpretation of the AnimateCC HIT state
+	public static readonly SHAPE_HIT 		    = "shape_3";
+
+	public static readonly INSTANCE_UP   		= "instance";
+	public static readonly INSTANCE_OVER 		= "instance_1";
+	public static readonly INSTANCE_DOWN		= "instance_2";
+	public static readonly INSTANCE_DISABLED	= "instance_3";	// Note that we have a dual interpretation of the AnimateCC HIT state
+	public static readonly INSTANCE_HIT 		= "instance_3";
+
 
 	public static readonly STATE_OUT   		= "state_out";	// this represents a transition not a display object
 
@@ -218,8 +239,8 @@ export class CONST {
 	public static readonly _INPROGRESS:string = "IN PROGRESS";
 	public static readonly _COMPLETE:string   = "COMPLETE";
 
-	public static readonly GOTONEXTSCENE:string     = "incTutorGraph";
-	public static readonly GOTONEXTANIMATION:string = "incSceneGraph";
+	public static readonly GOTONEXTSCENE:string = "incTutorGraph";
+	public static readonly GOTONEXTTRACK:string = "incSceneGraph";
 
 	public static readonly TIMER:string             = "timeout";
 	public static readonly TIMER_COMPLETE:string    = "timercomplete";

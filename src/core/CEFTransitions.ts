@@ -135,7 +135,7 @@ export class CEFTransitions extends CEFTimeLine
 			this.setTransitionOUT();	
 			
 			if(this.targets.length)
-				this.startTransition(this.outFinished);				
+				this.startTransition(this.outFinished, this);				
 				
 			else 
 			{
@@ -145,7 +145,7 @@ export class CEFTransitions extends CEFTimeLine
 				// Catch special case where there are no tweens
 				// 
 				if(this._tweens.length > 0) {
-					this.startTransition(this.inFinished);					
+					this.startTransition(this.inFinished, this);					
 				}
 				else
 					this.inFinished();
@@ -155,7 +155,7 @@ export class CEFTransitions extends CEFTimeLine
 		{
 			this.setTransitionIN(this.tutorAutoObj, this.newScene);	
 			this.changeScene();
-			this.startTransition(this.inFinished);				
+			this.startTransition(this.inFinished, this);				
 		}
 	}				
 	
@@ -586,7 +586,7 @@ export class CEFTransitions extends CEFTimeLine
 				}
 				
 				this.changeScene();
-				this.startTransition(this.inFinished);			// start it up
+				this.startTransition(this.inFinished, this);			// start it up
 			}
 		}
 		else

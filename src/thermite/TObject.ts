@@ -23,6 +23,7 @@ import { TSceneBase }  		from "./TSceneBase";
 import { TTutorContainer } 	from "./TTutorContainer";
 
 import { CEFNavigator } 	from "../core/CEFNavigator";
+import { CEFTimeLine }      from "../core/CEFTimeLine";
 
 import { CEFEvent }     	from "../events/CEFEvent";
 
@@ -61,6 +62,9 @@ export class TObject extends TRoot
 	public sAuto:string       = "UNKNOWN";						// Is the control in automation mode ?
 	
 	public objID:string;										// Automation ID - unique ID 
+
+    public effectTimeLine:CEFTimeLine;
+    public effectTweens:Array<Tween>;
 
 	public tweenID:number;
 	public bTweenable:boolean;  								// Objects with the same name will tween together. This flag indicates if the object participates in tweening

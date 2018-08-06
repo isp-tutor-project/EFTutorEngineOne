@@ -548,14 +548,14 @@ export class CEFTutorDoc extends EventDispatcher implements IEFTutorDoc
 
 
     /**
-     * 
+     * Deprecated: use setNavigationTarget in TSceneBase
      */
-    public setButtonBehavior(behavior:string) : void
+    public setNavButtonBehavior(behavior:string) : void
     {
         if(behavior == "incrScene")
             this.tutorNavigator.buttonBehavior = CONST.GOTONEXTSCENE;
         else				
-            this.tutorNavigator.buttonBehavior = CONST.GOTONEXTANIMATION;
+            this.tutorNavigator.buttonBehavior = CONST.GOTONEXTTRACK;
     }
 
 
@@ -614,11 +614,14 @@ export class CEFTutorDoc extends EventDispatcher implements IEFTutorDoc
                 modName : moduleNameCS
             });
 
+            // TODO: This cannot be path specific for debugging - e.g. ISP_TUTOR...
+            // 
             this.loaderData.push( {
                 type     : "Class Extensions",
                 filePath : moduleName + CONST.EXTS_FILEPATH,
                 onLoad   : this.onLoadCode.bind(this),
                 modName : moduleNameCS,
+                // debugPath: this.isDebug? "ISP_Tutor/EFbuild/" + moduleName + "/code_exts/src":null
                 debugPath: this.isDebug? "ISP_Tutor/EFbuild/" + moduleName + "/exts.js":null
             });
 
