@@ -24,6 +24,8 @@ import { CEFNavEvent } 			from "../events/CEFNavEvent";
 
 import { CSceneTrack }          from "../scenegraph/CSceneTrack";
 import { CSceneGraph } 		    from "../scenegraph/CSceneGraph";
+import { CSceneHistory }        from "../scenegraph/CSceneHistory";
+import { CSceneHistoryNode }    from "../scenegraph/CSceneHistoryNode";
 
 import { CEFSceneCueEvent } 	from "../events/CEFSceneCueEvent";
 import { CEFEvent } 			from "../events/CEFEvent";
@@ -40,6 +42,7 @@ import { CONST }                from "../util/CONST";
 export class TScene extends TSceneBase
 {	
 	private STrack:CSceneTrack;		
+	private _history:CSceneHistory;				
     private _asyncGraphTimer:CEFTimer;
     private _asyncPlayTimer:CEFTimer;
 
@@ -96,6 +99,8 @@ export class TScene extends TSceneBase
 		
         this._asyncPlayTimer  = new CEFTimer(0);
         this._asyncGraphTimer = new CEFTimer(0);
+
+        this._history         = new CSceneHistory(this.tutorDoc);
 
         this._deferPlay = false;
 
@@ -263,6 +268,7 @@ export class TScene extends TSceneBase
     */
 	public traceGraphEdge(bNavigating:boolean = false) : CSceneTrack
 	{
+		let historyNode:CSceneHistoryNode;
 		let nextTrack:CSceneTrack;
 		
 		// If this scene has an animation graph
@@ -275,9 +281,34 @@ export class TScene extends TSceneBase
 				this.disConnectTrack(this.STrack);				
 				this.STrack = null;
 			}
-						
-			nextTrack = this.sceneGraph.gotoNextTrack();
-			
+                        
+            // If we are not at the head end of the history then use the historic 'next'.
+            // i.e. non-volatile history moves forward past the exact same sequence
+            // we back tracked through
+            
+            historyNode = this._history.next();
+            
+            // If we are at the HEAD of the history step through the scenegraph normally
+            // 
+            if(historyNode == null)
+            {
+                nextTrack = this.sceneGraph.gotoNextTrack();
+                
+                if(nextTrack != null)
+                {
+                    this._history.push(this.sceneGraph.node, nextTrack);
+                }
+            }
+            
+            // if the history is non-volatile we go forward the same way we went back
+            // 
+            else
+            {
+                // Seek the scene graph to the historic module/track 
+                // 
+                nextTrack = this.sceneGraph.seekToTrack(historyNode);
+            }
+							
 			if(nextTrack != null)
 			{
                 this.STrack = nextTrack;
@@ -296,7 +327,66 @@ export class TScene extends TSceneBase
 		
 		return nextTrack;
 	}
-	
+    
+
+    public traceHistory() : CSceneHistoryNode {
+
+		let historyNode:CSceneHistoryNode;
+        let features:string;
+
+        if(this.STrack)
+        {
+            this.disConnectTrack(this.STrack);				
+            this.STrack = null;
+        }
+
+        // If we are not at the end of the history then step back.
+        // Note we support historic scenes no longer being visitable.
+        // i.e. We can set a feature so a scene will only be visited once.			
+        do
+        {
+            historyNode = this._history.back();
+            
+            // If we are at the root of the history - stop
+            
+            if(historyNode != null)
+            {					
+                features = historyNode.track.features;
+                
+                // If scene no longer matches the feature set skip it
+                
+                if(features != "")
+                {
+                    if(!this.tutorDoc.testFeatureSet(features))
+                    {
+                        continue;
+                    }
+                }
+                
+                // Seek the scene graph to the historic module/track 
+                // 
+                this.STrack = this.sceneGraph.seekToTrack(historyNode);
+                this.connectTrack(historyNode.track);	
+                
+                if(!this._deferPlay)
+                    this.STrack.play();			
+                    
+                break;					
+            }
+            
+        }while(historyNode != null)					
+
+        // We init this to permit the TutorNavigator to simply restart the root track
+        // should we be in the root scene. i.e. no more nav-backs 
+        // 
+        if(!historyNode)
+        {
+            this.STrack = this.sceneGraph.rootTrack;
+        }
+
+        return historyNode;
+    }   
+
 	
 	// Default behavior - Set the Tutor Title and return same target scene
 	// Direction can be - "WOZNEXT" , "WOZBACK" , "WOZGOTO"

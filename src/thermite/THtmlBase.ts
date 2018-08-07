@@ -129,19 +129,28 @@ export class THtmlBase extends TObject {
 
     // Invert the initial scaling on the object itself - 
     // i.e. distortion due to the resize of the controlcontainer in AnimateCC layout
+    //  TODO: Adobe's approach to scaling is not entirely sound - 
     // 
     invertScale() {
+
+        let mat = this.getMatrix();
+
+        let tx1 = mat.decompose(); 
+        let sx = tx1.scaleX; 
+        let sy = tx1.scaleY;
+
+        let w   = this.dimContainer.nominalBounds.width  * sx; 
+        let h   = this.dimContainer.nominalBounds.height * sy;
 
         // let mat = this.dimContainer.getConcatenatedDisplayProps(this.dimContainer._props).matrix;
         // this.scaleCompensation = 1/mat.decompose().scaleY; 
         // console.log(this.scaleCompensation);
+        // let style              = window.getComputedStyle(this.controlContainer);
 
-        let style = window.getComputedStyle(this.controlContainer);
-        console.log(style.height);        
-
-        this.scaleCompensation = CONST.CONTROLCONTAINER_DESIGNHEIGHT/parseFloat(style.height); 
-
-        console.log(this.scaleCompensation);
+        this.scaleCompensation = CONST.CONTROLCONTAINER_DESIGNHEIGHT/h; 
+        
+        console.log("Scaled Height: " + h);
+        console.log("Scaled Compensation: " + this.scaleCompensation);
 
     }
 
@@ -167,6 +176,10 @@ export class THtmlBase extends TObject {
             // page.
             // 
             document.head.appendChild(this.styleElement);                        
+
+            // TODO: Make this reactive to the initial css tranparency setting
+            // 
+            this.effectAlpha    = 1;  //this.alpha;
 
             this.fAdded = true;
 
@@ -352,8 +365,6 @@ export class THtmlBase extends TObject {
             switch(effectType) {
 
                 case CONST.EFFECT_FADE:
-
-                    this.effectAlpha    = this.alpha;
 
                     this.effectTweens.push(new Tween(this).to({alpha:0}, effectDur/2, Ease.cubicInOut));
 

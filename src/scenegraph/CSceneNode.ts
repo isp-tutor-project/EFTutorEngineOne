@@ -18,6 +18,8 @@
 
 import { IEFTutorDoc } 		from "../core/IEFTutorDoc";
 
+import { CSceneHistoryNode } from "./CSceneHistoryNode";
+
 import { CSceneGraph } 		from "./CSceneGraph";
 import { CSceneEdge } 		from "./CSceneEdge";
 import { CSceneTrack }      from "./CSceneTrack";
@@ -93,12 +95,15 @@ export class CSceneNode extends EventDispatcher
 	}
 	
 		
-	public seekToTrack(seek:string) : string
+	public seekToTrack(historyNode:CSceneHistoryNode) :any
 	{
-		return null;
+		
 	}
     
-    
+    public get index() {
+        return -1;
+    }
+
 	public applyNode() : boolean
 	{
 		return false;			

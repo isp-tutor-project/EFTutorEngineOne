@@ -22,6 +22,7 @@ import { IEFTutorDoc } 			from "../core/IEFTutorDoc";
 import { CSceneNode } 			from "./CSceneNode";
 import { CSceneModule } 		from "./CSceneModule";
 import { CSceneTrack }          from "./CSceneTrack";
+import { CSceneHistoryNode }    from "./CSceneHistoryNode";
 
 import { TScene }				from "../thermite/TScene";
 
@@ -32,6 +33,7 @@ export class CSceneGraph extends CSceneNode
 	private _nodes:any              = {};			
     private _currNode:CSceneNode;
     
+	private _rootTrack:CSceneTrack;
 	private _currTrack:CSceneTrack;
 	private _prevTrack:CSceneTrack;
 	
@@ -129,9 +131,10 @@ export class CSceneGraph extends CSceneNode
 		
 		if(this._currNode) do 
 		{
-			// Increment the animation polymorphically
+			// Increment the animation polymorphically - remember the root track
 			
-			this._currTrack = this._currNode.gotoNextTrack();
+            this._currTrack = this._currNode.gotoNextTrack();            
+            this._rootTrack = this._rootTrack || this._currTrack;
 			
 			// If the node is exhausted move to next node
 			
@@ -150,7 +153,16 @@ export class CSceneGraph extends CSceneNode
 		return this._currTrack;				
 	}
 	
-	
+    
+    public seekToTrack(historyNode:CSceneHistoryNode) : any {
+
+        this._currNode  = historyNode.node;
+        this._currTrack = historyNode.track;   
+
+        return this._currNode.seekToTrack(historyNode);
+    }
+
+
 	//***** Private
 	
 	
@@ -190,6 +202,11 @@ export class CSceneGraph extends CSceneNode
 	public get node() : CSceneNode
 	{
 		return this._currNode;
+	}
+
+	public get rootTrack() : CSceneTrack
+	{
+		return this._rootTrack;
 	}
 
     

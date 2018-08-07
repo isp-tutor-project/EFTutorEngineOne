@@ -17,13 +17,14 @@
 
 //## imports
 
-import { IEFTutorDoc } 		from "../core/IEFTutorDoc";
+import { IEFTutorDoc } 		    from "../core/IEFTutorDoc";
 
-import { CSceneNode } 		from "./CSceneNode";
-import { CSceneGraph } 		from "./CSceneGraph";
-import { CSceneTrack } 		from "./CSceneTrack";
+import { CSceneNode } 		    from "./CSceneNode";
+import { CSceneGraph } 		    from "./CSceneGraph";
+import { CSceneTrack } 		    from "./CSceneTrack";
+import { CSceneHistoryNode }    from "./CSceneHistoryNode";
 
-import { CUtil } 			from "../util/CUtil";
+import { CUtil } 			    from "../util/CUtil";
 
 import EventDispatcher = createjs.EventDispatcher;
 
@@ -158,27 +159,26 @@ export class CSceneModule extends CSceneNode
 		return nextTrack;			
 	}
 
-	
-	public seekToTrack(seek:string) : string
-	{
-		let track:CSceneTrack = null;
-		let ndx:number = 0;
-		
-		// Move to the correct scene within the module
-		
-		for (let track of this._tracks)
-		{
-			if(seek == track.trackID)
-			{
-				this._ndx = ndx;
-				break;
-			}			
-			ndx++;
-		}
-		
-		return track.trackName;
+    
+    // Note this is required for history traversals
+    // 
+	public seekToTrack(historyNode:CSceneHistoryNode) : any {
+
+        let seekTrack:CSceneTrack;
+
+        this._ndx = historyNode.trackNdx;		
+
+        seekTrack  = this._tracks[this._ndx];				
+        seekTrack = seekTrack.resolve();	
+
+        return seekTrack;
 	}
-	
+    
+
+    public get index() {
+        return this._ndx;
+    }
+
 	
 	public applyNode() : boolean
 	{

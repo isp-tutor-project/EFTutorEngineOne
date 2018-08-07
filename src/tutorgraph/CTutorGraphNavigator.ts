@@ -323,6 +323,10 @@ export class CTutorGraphNavigator extends CEFNavigator
 		}
 		catch(err)
 		{
+            // Ensure this is reset or navigation will freeze
+            // 
+            this._inNavigation = false;
+
 			CUtil.trace("CONST.traceGraphEdge: " + err.toString());
 			
 			let logData:Object = {'location':'traceGraphEdge', 'message':err.toString()};
@@ -340,6 +344,7 @@ export class CTutorGraphNavigator extends CEFNavigator
 	{			
 		let historyNode:CTutorHistoryNode;
 		let features:string;
+		let scene:TScene = this._rootGraph.sceneInstance() as TScene;
 
 		try
 		{
@@ -350,64 +355,75 @@ export class CTutorGraphNavigator extends CEFNavigator
 				return;
 			
 				this._inNavigation = true;
-			
-			// If we are not at the end of the history then step back.
-			// Note we support historic scenes no longer being visitable.
-			// i.e. We can set a feature so a scene will only be visited once.
-			
-			do
+            
+                
+			// The next button can target either the tutorgraph or the scenegraph.
+			// i.e. You either want it to trigger the next step in the sceneGraph or the tutorgraph
+			// reset _fTutorGraph if you want the next button to drive the sceneGraph
+			//      
+			if(this._fTutorGraph || scene.traceHistory() == null)
 			{
-				historyNode = this._history.back();
-				
-				// If we are at the root of the history - stop
-				
-				if(historyNode != null)
-				{					
-					features = historyNode.scene.features;
-					
-					// If scene no longer matches the feature set skip it
-					
-					if(features != "")
-					{
-						if(!this.tutorDoc.testFeatureSet(features))
-						{
-							continue;
-						}
-					}
-					
-					// if the history is volatile we need to update the node and scene that
-					// the tutorgraph is working with since when we start moving forward again 
-					// we may not visit the same scenes/nodes
-					//
-					// If it is non-volatile we go whereever the history takes us.
-					
-					if(this._history.isVolatile)
-					{
-						// Seek the scene graph to the historic node/scene because we may take 
-						// a different path when going forward again
-						
-						this._rootGraph.node  = historyNode.node;
-						this._rootGraph.scene = historyNode.scene;
-					}
-					
-					// Do the scene Transition 
-					
-					this._xType = "WOZBACK";
-					
-					this.seekToScene(historyNode.scene);
-					
-					break;					
-				}
-				
-				// We aren't going to be navigating so reset the flag to allow 
-				// future attempts.
-				
-				else
-				{
-					this._inNavigation = false;
-				}
-				
-			}while(historyNode != null)					
+                // If we are not at the end of the history then step back.
+                // Note we support historic scenes no longer being visitable.
+                // i.e. We can set a feature so a scene will only be visited once.			
+                do
+                {
+                    historyNode = this._history.back();
+                    
+                    // If we are at the root of the history - stop
+                    
+                    if(historyNode != null)
+                    {					
+                        features = historyNode.scene.features;
+                        
+                        // If scene no longer matches the feature set skip it
+                        
+                        if(features != "")
+                        {
+                            if(!this.tutorDoc.testFeatureSet(features))
+                            {
+                                continue;
+                            }
+                        }
+                        
+                        // if the history is volatile we need to update the node and scene that
+                        // the tutorgraph is working with since when we start moving forward again 
+                        // we may not visit the same scenes/nodes
+                        //
+                        // If it is non-volatile we go whereever the history takes us.
+                        
+                        if(this._history.isVolatile)
+                        {
+                            // Seek the tutor graph to the historic node/scene because we may take 
+                            // a different path when going forward again
+                            
+                            this._rootGraph.node  = historyNode.node;
+                            this._rootGraph.scene = historyNode.scene;
+                        }
+                        
+                        // Do the scene Transition 
+                        
+                        this._xType = "WOZBACK";
+                        
+                        this.seekToScene(historyNode.scene);
+                        
+                        break;					
+                    }
+                    
+                    // We aren't going to be navigating so reset the flag to allow 
+                    // future attempts.
+                    
+                    else
+                    {
+                        this._inNavigation = false;
+                        this.doEnterScene(new Event("test",true,false));
+                    }
+                    
+                }while(historyNode != null)					
+            }
+            else {
+				this._inNavigation = false;
+			}
 		}
 		catch(err)
 		{

@@ -110,7 +110,6 @@ export class CSceneTrack extends EventDispatcher
         this.hostModule  = this.hostScene.hostModule;
         this.language    = this.tutorDoc.language;
         this.voice       = this.tutorDoc.voice;
-        this.segSequence = [];
 		
 		if(factory.choiceset != undefined)
 		{
@@ -186,6 +185,8 @@ export class CSceneTrack extends EventDispatcher
  
         let assetPath = [this.hostModule] + CONST.TRACKASSETS_FILEPATH + this.language + "/" + this.sceneName + "/";
         let sounds = [];
+
+        this.segSequence = [];
 
         if(this._type === CONST.SCENE_TRACK) {
 
@@ -329,8 +330,10 @@ export class CSceneTrack extends EventDispatcher
             this.playTrack();
         }
         else {
-            // Fire the end cuepoint - test for autoplay 
+            // Fire the end cuepoint - test for autoplay - rewind the segment index for reuse
             // 
+            this.segNdx = 0;
+
             this.hostScene.$cuePoints(this._name, CONST.END_CUEPOINT);
             this.autoPlay();
         }
