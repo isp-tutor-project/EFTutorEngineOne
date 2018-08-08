@@ -64,7 +64,7 @@ export class CTutorScene
 		this.tutorContainer = _tutorDoc.tutorContainer;
 		this._parent	 	= parent;
         
-		let namespace:Array<string> = factory.classname.toUpperCase().split(".");
+		let namespace:Array<string> = factory.classname.split(".");
         
 		this._name		 = factory.name;
         this._classPath	 = factory.classname;

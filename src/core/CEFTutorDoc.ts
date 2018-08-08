@@ -598,7 +598,7 @@ export class CEFTutorDoc extends EventDispatcher implements IEFTutorDoc
         // 
         for(let moduleName of this.tutorConfig.dependencies) {
 
-            let moduleNameCS = moduleName.toUpperCase();
+            let moduleNameCS = moduleName;
 
             this.loaderData.push( {
                 type     : "ModuleID",

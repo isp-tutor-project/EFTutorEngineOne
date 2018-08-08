@@ -18,6 +18,8 @@
 
 import { TObject } 			    from "./TObject";
 
+import { CEFTimeLine }          from "../core/CEFTimeLine";
+
 import { CEFEvent }             from "../events/CEFEvent";
 import { TMouseEvent } 		    from "../events/CEFMouseEvent";
 
@@ -29,7 +31,6 @@ import Tween    		  	  = createjs.Tween;
 import Event    		  	  = createjs.Event;
 import Text     	          = createjs.Text;
 import Ease			  	      = createjs.Ease;
-import { CEFTimeLine } from "../core/CEFTimeLine";
 
 
 

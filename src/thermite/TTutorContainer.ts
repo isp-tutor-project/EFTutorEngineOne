@@ -210,7 +210,7 @@ export class TTutorContainer extends TRoot
     
     public instantiateScenePath(sceneName:string, classPath:string, sceneVisible:boolean=false) : any
 	{
-        let namespace:Array<string> = classPath.toUpperCase().split(".");
+        let namespace:Array<string> = classPath.split(".");
         
 		this.instantiateScene(sceneName, namespace[0], namespace[1], sceneVisible) 
 

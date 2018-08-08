@@ -169,9 +169,9 @@ export class CEngine {
         //
         for(let compName in lib) {
 
-            let moduleName:string = compName.toUpperCase();
+            let moduleName:string = compName;
             
-            if(moduleName.startsWith("EFMOD_" )) {
+            if(moduleName.startsWith("EFMod_" )) {
 
                 lib._ANmoduleName = moduleName;
                 EFLoadManager.modules[moduleName]  = lib;
@@ -262,7 +262,7 @@ export class CEngine {
             AnObject.prototype.tutorDoc       = this.tutorDoc;
             AnObject.prototype.tutorContainer = this.tutorDoc.tutorContainer;
 
-            EFLoadManager.classLib[AnModuleName][variant.toUpperCase()] = AnObject;            
+            EFLoadManager.classLib[AnModuleName][variant] = AnObject;            
         })
     }
 
@@ -288,10 +288,10 @@ export class CEngine {
 
                     let varPath: Array<string> = compName.split("__");
                     let modPath:string[]       = varPath[0].split("_"); 
-                    let AnModuleName:string    = (CONST.EFMODULE_PREFIX + modPath[1]).toUpperCase();
+                    let AnModuleName:string    = (CONST.EFMODULE_PREFIX + modPath[1]);
 
                     let temp1:any         = {};
-                    let foreignObject:any = EFLoadManager.classLib[AnModuleName][varPath[1].toUpperCase()];
+                    let foreignObject:any = EFLoadManager.classLib[AnModuleName][varPath[1]];
 
                     temp1.clone         = library[compName].prototype.clone;
                     temp1.nominalBounds = library[compName].prototype.nominalBounds;
