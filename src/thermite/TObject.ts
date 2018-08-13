@@ -1501,7 +1501,47 @@ export class TObject extends TRoot
 				}					
 			}
 		}
-		
+        
+        
+        private resolveReferences(...dataElement:any[]) {
+
+            let objData:any;
+
+            dataElement.forEach(element => {
+    
+                let dataPath:Array<string> = element.$$REF.split(".");
+    
+                // resolve Library references
+                // 
+                if(dataPath[0] === "$$EFL") {
+        
+                    objData = this.tutorDoc.moduleData[this.hostModule][CONST.SCENE_DATA]._LIBRARY[dataPath[1]][dataPath[2]];
+                }
+
+                // resolve Foreign Module references
+                // 
+                else if(dataPath[0] === "$$EFM") {
+        
+                    let forMod = objData = this.tutorDoc.moduleData[dataPath[1]];
+        
+                    if(!forMod) {
+                        console.log("Error: module for Foreign-Reference missing!")
+                        throw("missing module");
+                    }
+                    objData = forMod[CONST.SCENE_DATA]._LIBRARY[dataPath[2]][dataPath[3]];
+                }
+
+                else {
+                    console.error("Error: moduleData link error");
+                    throw("Error: moduleData link error");
+                }
+        
+                // Recursively deserialize the reference
+                // 
+                this.deSerializeObj(objData);
+            });
+        }
+    
 		
 		/*
 		* 
@@ -1509,9 +1549,21 @@ export class TObject extends TRoot
 		public deSerializeObj(objData:any) : void
 		{
 			// Keep a pointer to the object spec
-			
-			this._InitData = objData;
-			
+			// 
+			this._InitData = this._InitData || objData;
+            
+            // resolve data references to library and foreign modules.
+            // 
+            if(objData.$$REF) {
+                // If it is an array of references - break it up into discrete arguments
+                // 
+                if(Array.isArray(objData.$$REF)) {
+                    this.resolveReferences.apply(this, objData);
+                }
+                else 
+                    this.resolveReferences(objData);
+            }
+
             this.xname = objData.xname || this.xname;	
             					
 			this.x = objData.x || this.x;

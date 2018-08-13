@@ -107,6 +107,7 @@ export class CEFTutorDoc extends EventDispatcher implements IEFTutorDoc
 
     public modules:Array<LoaderPackage.IModuleDescr>;
     public moduleData:any;
+    public globalData:any;
 
     public state:Array<string>;
     public scenedata:Array<string>;
@@ -205,6 +206,7 @@ export class CEFTutorDoc extends EventDispatcher implements IEFTutorDoc
         this.sceneGraph = {};
         this.modules    = new Array<LoaderPackage.IModuleDescr>();
         this.moduleData = {};
+        this.globalData = {};
 
         // Frame counter - for logging
 		// NOTE: this must be the first ENTER_FRAME event listener 
@@ -574,20 +576,28 @@ export class CEFTutorDoc extends EventDispatcher implements IEFTutorDoc
 
             this.loaderData.push( {
                  type: CONST.TUTOR_VARIABLE[i1],
-                 filePath : "EFTutors/" + targetTutor + "/" + CONST.TUTOR_VARIABLE[i1],
+                 filePath : CONST.TUTOR_COMMONPATH + targetTutor + "/" + CONST.TUTOR_VARIABLE[i1],
                  onLoad   : this.onLoadJson.bind(this),
                  fileName : CONST.TUTOR_VARIABLE[i1],
                  varName  : CONST.TUTOR_FACTORIES[i1]
             });
-
-            this.loaderData.push( {
-                type     : "Tutor Globals",
-                filePath : "EFTutors/" + targetTutor + CONST.GLOBALS_FILEPATH,
-                onLoad   : this.onLoadCode.bind(this),
-                modName : CONST.TUTOR_EXT,
-                debugPath: this.isDebug? "ISP_Tutor/EFbuild/TUTORGLOBALS" + CONST.GLOBALS_FILEPATH :null
-            });
         }
+
+        this.loaderData.push( {
+            type     : CONST.TUTOR_GLOBALCODE,
+            filePath : CONST.TUTOR_COMMONPATH + targetTutor + CONST.GLOBALS_FILEPATH,
+            onLoad   : this.onLoadCode.bind(this),
+            modName : CONST.TUTOR_EXT,
+            debugPath: this.isDebug? "ISP_Tutor/EFbuild/TUTORCODE" + CONST.GLOBALS_FILEPATH :null
+        });
+
+        this.loaderData.push( {
+            type     : CONST.TUTOR_GLOBALDATA,
+            filePath : CONST.TUTOR_COMMONPATH + targetTutor + CONST.GLOBALS_DATAPATH,
+            onLoad   : this.onLoadData.bind(this),
+            modName : CONST.TUTOR_GLOBALDATA,
+            debugPath: this.isDebug? "ISP_Tutor/EFbuild/TUTORDATA" + CONST.GLOBALS_DATAPATH :null
+        });
     }
 
     public buildTutorSet() : void {

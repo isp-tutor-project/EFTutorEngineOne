@@ -29,6 +29,8 @@ export class CONST {
 	public static readonly COMMON_CODE        = "$Common";
 	public static readonly EXT_SIG            = "$";
 
+    public static readonly TUTOR_COMMONPATH:string      = "EFTutors/";
+
     public static readonly ACCOUNT_LOADER:string        = "/EFTutors/accounts.json";
     public static readonly MODID_FILEPATH:string        = "/EFconfig.json";
     public static readonly GRAPH_FILEPATH:string        = "/EFgraphs/scenegraphs.json";
@@ -40,11 +42,15 @@ export class CONST {
     public static readonly TRACKDATA_FILEPATH:string    = "/EFaudio/EFscripts/script_assets.json";
     public static readonly TRACKASSETS_FILEPATH:string  = "/EFaudio/EFassets/";
     public static readonly GLOBALS_FILEPATH:string      = "/EFbuild/globals.js";
+    public static readonly GLOBALS_DATAPATH:string      = "/EFTutorData/_EFTUTORDATA.json";
     public static readonly SEGMENT_PREFIX:string        = "_s";
     public static readonly VOICE_PREFIX:string          = "_v";
     public static readonly ANMODULE_FILEPATH:string     = ".js";
     public static readonly TYPE_MP3                     = ".mp3";
     public static readonly TYPE_WAV                     = ".wav";
+
+    public static readonly TUTOR_GLOBALCODE            = "TutorGlobalCode";
+    public static readonly TUTOR_GLOBALDATA            = "TutorGlobalData";
 
     public static readonly LOCAL:string                 = "LOCAL";
     public static readonly WAIT:number                  = 250;
@@ -79,10 +85,7 @@ export class CONST {
     //** Transition constants */
 	public static readonly EFFECT_FADE   	= "fade";
 	public static readonly EFFECT_SWAP 		= "swap";
-
-    
-
-	//**  Button States - must match AnimateCC code conventions : see Adobe generated JS code */
+    	//**  Button States - must match AnimateCCData conventions : see Adobe generated JS code */
 
 	public static STATE_UP   		= "";
 	public static STATE_OVER 		= "";

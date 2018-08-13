@@ -59,6 +59,7 @@ export interface IEFTutorDoc {
 
     modules:Array<LoaderPackage.IModuleDescr>;
     moduleData:any;
+    globalData:any;
 
     state:Array<string>;
     scenedata:Array<string>;
