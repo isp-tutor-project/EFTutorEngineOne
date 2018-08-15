@@ -34,7 +34,6 @@ import { CUtil }                from "../util/CUtil";
 
 
 import EventDispatcher 		  = createjs.EventDispatcher;
-import { CEFTimer } from "./CEFTimer";
 
 
 
@@ -593,11 +592,20 @@ export class CEFTutorDoc extends EventDispatcher implements IEFTutorDoc
 
         this.loaderData.push( {
             type     : CONST.TUTOR_GLOBALDATA,
-            filePath : CONST.TUTOR_COMMONPATH + targetTutor + CONST.GLOBALS_DATAPATH,
+            filePath : CONST.TUTOR_COMMONPATH + targetTutor + CONST.GDATA_FILEPATH,
             onLoad   : this.onLoadData.bind(this),
             modName : CONST.TUTOR_GLOBALDATA,
-            debugPath: this.isDebug? "ISP_Tutor/EFbuild/TUTORDATA" + CONST.GLOBALS_DATAPATH :null
+            debugPath: this.isDebug? "ISP_Tutor/EFbuild/TUTORDATA" + CONST.GDATA_FILEPATH :null
         });
+
+        this.loaderData.push( {
+            type     : CONST.TUTOR_GLOBALDATA,
+            filePath : CONST.TUTOR_COMMONPATH + targetTutor + CONST.GLIBR_FILEPATH,
+            onLoad   : this.onLoadData.bind(this),
+            modName : CONST.TUTOR_GLOBALDATA,
+            debugPath: this.isDebug? "ISP_Tutor/EFbuild/TUTORDATA" + CONST.GLIBR_FILEPATH :null
+        });
+
     }
 
     public buildTutorSet() : void {
@@ -814,10 +822,18 @@ export class CEFTutorDoc extends EventDispatcher implements IEFTutorDoc
             //
             let data:Object = JSON.parse(filedata);
 
-            this.moduleData[fileLoader.modName] = this.moduleData[fileLoader.modName] || {};
-            this.moduleData[fileLoader.modName][fileLoader.type] = this.moduleData[fileLoader.modName][fileLoader.type] || {};
+            if(fileLoader.type === CONST.TUTOR_GLOBALDATA) {
+                this.globalData = this.globalData || {};
 
-            CUtil.mixinDataObject(this.moduleData[fileLoader.modName][fileLoader.type], data);
+                CUtil.mixinDataObject(this.globalData, data);
+            }
+            else {
+                this.moduleData[fileLoader.modName] = this.moduleData[fileLoader.modName] || {};
+                this.moduleData[fileLoader.modName][fileLoader.type] = this.moduleData[fileLoader.modName][fileLoader.type] || {};
+
+                CUtil.mixinDataObject(this.moduleData[fileLoader.modName][fileLoader.type], data);
+            }
+
         }
         catch(error) {
 

@@ -308,7 +308,7 @@ export class THtmlBase extends TObject {
 
         let span = document.getElementById(spanID);
 
-        span.style.visibility = "hidden";
+        // span.style.visibility = "hidden";
     }
 
 
@@ -316,7 +316,7 @@ export class THtmlBase extends TObject {
 
         let span = document.getElementById(spanID);
 
-        span.style.visibility = "visible";
+        // span.style.visibility = "visible";
     }
 
 
@@ -445,13 +445,13 @@ export class THtmlBase extends TObject {
     
     private initObjfromData(objData:any) {
 
-        this.controlContainer.innerHTML = objData.html;
+        if(objData.html)
+            this.controlContainer.innerHTML = objData.html;
 
-        this.addCustomStyles(objData.style, this.cssSheet );
-        this.addCSSRules(this.styleElement, this.cssSheet );
-
-        this.invertScale();
-
+        if(objData.style) {
+            this.addCustomStyles(objData.style, this.cssSheet );
+            this.addCSSRules(this.styleElement, this.cssSheet );
+        }
     }
 
 
@@ -460,6 +460,8 @@ export class THtmlBase extends TObject {
     */
     public deSerializeObj(objData:any) : void
     {
+        super.deSerializeObj(objData);				
+
         console.log("deserializing: HTMLBase Custom Control");
 
         if(Array.isArray(objData)) {
@@ -477,10 +479,9 @@ export class THtmlBase extends TObject {
 
         }
         else {
-            this._objDataArray = null;            
             this.initObjfromData(objData);
         }
 
-        super.deSerializeObj(objData);				
+        this.invertScale();
     }
 }

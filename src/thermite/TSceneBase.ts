@@ -116,32 +116,10 @@ export class TSceneBase extends TObject
             for(let element in this.sceneData) {
 
                 dataElement = this.sceneData[element];
-
-                // resolve data references to library and foreign modules.
-                // 
-                if(dataElement.$$REF) {
-                    let dataPath:Array<string> = dataElement.$$REF.split(".");
-
-                    if(dataPath[0] === "$$EFL") {
-
-                        dataElement = this.tutorDoc.moduleData[this.hostModule][CONST.SCENE_DATA]._LIBRARY[dataPath[1]][dataPath[2]];
-                    }
-                    else if(dataPath[0] === "$$EFM") {
-
-                        let forMod = dataElement = this.tutorDoc.moduleData[dataPath[1]];
-
-                        if(!forMod) {
-                            console.log("Error: module for Foreign-Reference missing!")
-                            throw("missing module");
-                        }
-                        dataElement = forMod[CONST.SCENE_DATA]._LIBRARY[dataPath[2]][dataPath[3]];
-                    }
-                    else {
-                        console.error("Error: moduleData link error");
-                    }
-                }
                 
                 if(this[element] && this[element].deSerializeObj) {
+
+                    this[element].hostModule = this.hostModule;
                     this[element].deSerializeObj(dataElement);
                 }       
                 else {

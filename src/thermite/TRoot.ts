@@ -22,6 +22,7 @@ import { IEFTutorDoc } 			from "../core/IEFTutorDoc";
 import { TSceneBase }     		from "./TSceneBase";
 import { TTutorContainer } 		from "./TTutorContainer";
 
+import { CONST }                from "../util/CONST";
 import { CUtil } 				from "../util/CUtil";
 
 
@@ -38,6 +39,11 @@ export class TRoot extends MovieClip
 	
 	public xname:string;
 	public static xInstID:number = 1;		
+
+	public hostModule:string;
+
+    protected _InitData:string;
+	protected _DataSnapShot:string;
 
 	public tutorDoc:IEFTutorDoc;
 	public tutorAutoObj:any;		// This allows us to automate non-EF objects - They have no code behind and therefore no local variables to store initial state
@@ -180,14 +186,8 @@ export class TRoot extends MovieClip
 	public resetXML() : void
 	{
 	}		
-	
-	/*
-		* 
-		*/
-	public deSerializeObj(objData:any) : void
-	{
-	}
-	
+    
+    
 	/*
 		* 
 		*/
@@ -462,5 +462,73 @@ export class TRoot extends MovieClip
 	}
 			
 //***************** Debug *******************************		
-	
+
+
+//*************** Serialization
+
+    private resolveReferences(...dataElement:any[]) {
+
+        let objData:any;
+
+        dataElement.forEach(element => {
+
+            let dataPath:Array<string> = element.$$REF.split(".");
+
+            // resolve Library references
+            // 
+            if(dataPath[0] === "$$EFL") {
+
+                objData = this.tutorDoc.moduleData[this.hostModule][CONST.SCENE_DATA]._LIBRARY[dataPath[1]][dataPath[2]];
+            }
+
+            // resolve Foreign Module references
+            // 
+            else if(dataPath[0] === "$$EFM") {
+
+                let forMod = objData = this.tutorDoc.moduleData[dataPath[1]];
+
+                if(!forMod) {
+                    console.log("Error: module for Foreign-Reference missing!")
+                    throw("missing module");
+                }
+                objData = forMod[CONST.SCENE_DATA]._LIBRARY[dataPath[2]][dataPath[3]];
+            }
+
+            else {
+                console.error("Error: moduleData link error");
+                throw("Error: moduleData link error");
+            }
+
+            // Recursively deserialize the reference
+            // 
+            this.deSerializeObj(objData);
+        });
+    }
+
+
+	/*
+    * 
+    */
+    public deSerializeObj(objData:any) : void
+    {
+        // Keep a pointer to the object spec
+        // 
+        this._InitData = this._InitData || Object.assign({}, objData);
+        
+        // resolve data references to library and foreign modules.
+        // 
+        if(objData.$$REF) {
+            // If it is an array of references - break it up into discrete arguments
+            // 
+            if(Array.isArray(objData.$$REF)) {
+                this.resolveReferences.apply(this, objData);
+            }
+            else 
+                this.resolveReferences(objData);
+        }
+    }
+    
+//*************** Serialization
+    
 }
+
