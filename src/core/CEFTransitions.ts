@@ -271,15 +271,19 @@ export class CEFTransitions extends CEFTimeLine
 				// Use the namedObj to disinguish unique instances
 				//
 				if(targObj._instance instanceof TObject)
-				{
+				{                    
 					if(!targObj._instance.isTweenable())
 												continue;
 				}	
 				// use the xname to identify unique instances
 				
 				xname = targObj._instance.xname;
-				
-				
+                
+                // Don't show hidden objects
+                // 
+                if(targObj._instance.hidden)
+                                        continue;
+                
 				// If matching object has been onscreen before copy its properties
 				// Note that all unique objects in a movie must have a unique name even across scenes(CEFScenes)
 				//

@@ -22,7 +22,8 @@ export class CONST {
 	public static readonly EFTEXT_TYPE        = "eftext";
 	public static readonly EFINPUT_TYPE       = "efinput";
 	public static readonly EFLISTBOX_TYPE     = "eflist";
-	public static readonly EFTABLE_TYPE       = "eftable";
+    public static readonly EFTABLE_TYPE       = "eftable";
+    public static readonly EFDATA_TYPE        = "efdata";
 
 	public static readonly GLOBAL_MODULE      = "$GLOBAL";
 	public static readonly GLOBAL_CODE        = "$GLOBAL";

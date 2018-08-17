@@ -389,7 +389,7 @@ export class THtmlBase extends TObject {
 
         try {
             this._currObjNdx = this.effectNewIndex;
-            this.initObjfromData(this._objDataArray[this.effectNewIndex]);
+            this.initObjfromData(this._objDataArray[this.effectNewIndex].htmlData);
         }
         catch(err) {
 
@@ -426,6 +426,8 @@ export class THtmlBase extends TObject {
 	}				
 
 
+    
+//*************** Serialization
 
     private addCustomStyles(srcStyle:any, tarStyle:any) {
 
@@ -470,18 +472,27 @@ export class THtmlBase extends TObject {
 
             for(let i1 = 0; i1 < objData.length ; i1++) {
 
+                // Ignore non-initializer packets
+                // 
+                if(!objData[i1].htmlData)
+                                    break;
+
                 if(objData[i1].default) {
                     this._currObjNdx = i1;
-                    this.initObjfromData(objData[i1]);
+                    this.initObjfromData(objData[i1].htmlData);
+                    this.invertScale();
                     break;
                 }
             }
 
         }
-        else {
-            this.initObjfromData(objData);
+        // Ignore non-initializer packets
+        // 
+        else if(objData.htmlData){
+            this.initObjfromData(objData.htmlData);
+            this.invertScale();
         }
-
-        this.invertScale();
     }
+
+//*************** Serialization    
 }

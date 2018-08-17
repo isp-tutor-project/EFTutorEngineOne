@@ -19,12 +19,12 @@
 
 import { IEFTutorDoc } 			from "../core/IEFTutorDoc";
 
+import { TScene }               from "./TScene";
 import { TSceneBase }     		from "./TSceneBase";
 import { TTutorContainer } 		from "./TTutorContainer";
 
 import { CONST }                from "../util/CONST";
 import { CUtil } 				from "../util/CUtil";
-
 
 import MovieClip     		  = createjs.MovieClip;
 import DisplayObject 		  = createjs.DisplayObject;
@@ -41,7 +41,9 @@ export class TRoot extends MovieClip
 	public static xInstID:number = 1;		
 
 	public hostModule:string;
+	public hostScene:TScene;
 
+    protected _OntologyFtr:Array<string>;
     protected _InitData:string;
 	protected _DataSnapShot:string;
 
@@ -472,7 +474,7 @@ export class TRoot extends MovieClip
 
         dataElement.forEach(element => {
 
-            let dataPath:Array<string> = element.$$REF.split(".");
+            let dataPath:Array<string> = element.split(".");
 
             // resolve Library references
             // 
@@ -516,15 +518,16 @@ export class TRoot extends MovieClip
         this._InitData = this._InitData || Object.assign({}, objData);
         
         // resolve data references to library and foreign modules.
+        // TODO: Look at deprecating $$REF arrays 
         // 
         if(objData.$$REF) {
             // If it is an array of references - break it up into discrete arguments
             // 
             if(Array.isArray(objData.$$REF)) {
-                this.resolveReferences.apply(this, objData);
+                this.resolveReferences.apply(this, objData.$$REF);
             }
             else 
-                this.resolveReferences(objData);
+                this.resolveReferences(objData.$$REF);
         }
     }
     

@@ -100,10 +100,12 @@ export class TVirtual extends TObject
 
 		console.log("Button On Stage");
 
-        // TODO: Look at better way to hide this - it may be autoshown by transitions
+        this.mouseChildren = false;
 
-		this.mouseChildren = false;
-		this.alpha   = 0;
+        // "hidden" inhibits the Tranition manager from showing the object.
+        // 
+		this.hidden  = true;
+		this.visible = false;
     }
 
 

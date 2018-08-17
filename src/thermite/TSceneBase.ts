@@ -50,7 +50,6 @@ export class TSceneBase extends TObject
 	public sceneTag:string;
     
 	public classPath:string;
-	public hostModule:string;
     
     public moduleData:any; 
     public sceneData :any; 
@@ -61,6 +60,9 @@ export class TSceneBase extends TObject
     
 	protected _nextButton:any = null;
 	protected _prevButton:any = null;
+
+    private RX_TEMPLATE:RegExp;
+    private RX_ONTQUERY:RegExp;
 
 
 
@@ -92,7 +94,11 @@ export class TSceneBase extends TObject
 	private init3() {
 		
 		this.traceMode = true;
-		if(this.traceMode) CUtil.trace("TSceneBase:Constructor");			
+        if(this.traceMode) CUtil.trace("TSceneBase:Constructor");			
+        
+        this.RX_TEMPLATE = /{{[\$\w\.\?_\|]*}}/;
+        this.RX_ONTQUERY = /{{\$EFO_([\w\.\?]*\|\w*)}}/;
+    
 	}
 
 /* ######################################################### */
@@ -120,6 +126,7 @@ export class TSceneBase extends TObject
                 if(this[element] && this[element].deSerializeObj) {
 
                     this[element].hostModule = this.hostModule;
+                    this[element].hostScene  = this;
                     this[element].deSerializeObj(dataElement);
                 }       
                 else {
@@ -150,6 +157,35 @@ export class TSceneBase extends TObject
 	{
 		
 	}
+
+
+    public resolveTemplate(templatestr:string, ontologyFtr:Array<string>) : any {
+
+        let result:any = templatestr;
+        let rootQ:any  = this.tutorDoc.globalData;
+
+        let template:Array<string> = this.RX_TEMPLATE.exec(templatestr);
+        
+        if(template) {
+            let OQuery:Array<string> = this.RX_ONTQUERY.exec(templatestr);
+
+            if(OQuery) {
+                rootQ = rootQ.ONTOLOGY;
+
+                let vArray:Array<string> = OQuery[1].split("|");
+                let qArray:Array<string> = vArray[0].split("_");
+
+                for(let index = 0 ; index < qArray.length ; index++) {
+                    
+                    rootQ = rootQ[qArray[index].includes("?")? ontologyFtr[index]: qArray[index]];
+                }
+                
+                result = rootQ[vArray[1]];
+            }
+        }
+
+        return result;
+    }
 
 	
 	public connectNavButton(type:string, butComp:string, _once:boolean = true) {
