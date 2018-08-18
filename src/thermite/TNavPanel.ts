@@ -29,6 +29,7 @@ import { CEFEvent } 			from "../events/CEFEvent";
 import { CUtil } 				from "../util/CUtil";
 import { CONST }                from "../util/CONST";
 import { TScene } from "./TScene";
+import { TObject } from "./TObject";
 
 
 
@@ -39,6 +40,17 @@ import { TScene } from "./TScene";
 export class TNavPanel extends TScene
 {	
 
+	//************ Stage Symbols
+    
+    protected Sbackground:TObject;
+    protected Sback:TObject;
+    protected SbackMask:TObject;
+    protected Snext:TObject;
+	
+	// non-interactive elements
+	
+	
+	//************ Stage Symbols				
     
 	/**
 	 * 
@@ -53,7 +65,7 @@ export class TNavPanel extends TScene
 	/*  ###########  START CREATEJS SUBCLASS SUPPORT ##########  */
 	/* ######################################################### */
 
-	public TSceneInitialize() {
+	public TNavPanelInitialize() {
 
         this.TSceneInitialize.call(this);
         this.init5();
@@ -69,7 +81,7 @@ export class TNavPanel extends TScene
 
 		this.traceMode = true;
 		
-		if(this.traceMode) CUtil.trace("TScene:Constructor");					
+        if(this.traceMode) CUtil.trace("TNavPanel:Constructor");					
     }
 
 	/* ######################################################### */
@@ -84,9 +96,61 @@ export class TNavPanel extends TScene
 	}
     
     
+	public onCreate() : void
+	{
+        super.onCreate();
 
-    
-	
-	
+        this.Sback.hidden     = true;
+        this.SbackMask.hidden = true;        
+        this.Snext.enableButton(false);
+	}
+
+
+	public connectNavButton(type:string, butComp:string, _once:boolean = true) {
+
+		this.disConnectNavButton(type, butComp );
+
+		switch(type) {
+			case CONST.NEXTSCENE:
+				this._nextButton = this[butComp].on(CONST.MOUSE_CLICK, this.tutorNavigator.onButtonNext, this.tutorNavigator);
+				break;
+
+			case CONST.PREVSCENE:
+				this._prevButton = this[butComp].on(CONST.MOUSE_CLICK, this.tutorNavigator.onButtonPrev, this.tutorNavigator);
+				break;				
+		}
+	}
+
+
+	public disConnectNavButton(type:string, butComp:string ) {
+
+		switch(type) {
+			case CONST.NEXTSCENE:
+				if(this._nextButton) {
+
+					this[butComp].off(this._nextButton);
+					this._nextButton = null;
+				}
+				break;
+
+			case CONST.PREVSCENE:
+				if(this._prevButton) {
+
+					this[butComp].off(this._prevButton);
+					this._prevButton = null;
+				}
+				break;				
+		}
+	}
+
+
+    public setNavigationTarget(behavior:string) {
+
+        if(behavior.toUpperCase() === "TUTOR")
+            this.tutorNavigator.buttonBehavior = CONST.GOTONEXTSCENE;
+        else				
+            this.tutorNavigator.buttonBehavior = CONST.GOTONEXTTRACK;
+
+    }
 }
 	

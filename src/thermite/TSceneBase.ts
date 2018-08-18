@@ -188,55 +188,6 @@ export class TSceneBase extends TObject
     }
 
 	
-	public connectNavButton(type:string, butComp:string, _once:boolean = true) {
-
-		this.disConnectNavButton(type, butComp );
-
-		switch(type) {
-			case CONST.NEXTSCENE:
-				this._nextButton = this[butComp].on(CONST.MOUSE_CLICK, this.tutorNavigator.onButtonNext, this.tutorNavigator);
-				break;
-
-			case CONST.PREVSCENE:
-				this._prevButton = this[butComp].on(CONST.MOUSE_CLICK, this.tutorNavigator.onButtonPrev, this.tutorNavigator);
-				break;				
-		}
-	}
-
-
-    public setNavigationTarget(behavior:string) {
-
-        if(behavior.toUpperCase() === "TUTOR")
-            this.tutorNavigator.buttonBehavior = CONST.GOTONEXTSCENE;
-        else				
-            this.tutorNavigator.buttonBehavior = CONST.GOTONEXTTRACK;
-
-    }
-
-	public disConnectNavButton(type:string, butComp:string ) {
-
-		switch(type) {
-			case CONST.NEXTSCENE:
-				if(this._nextButton) {
-
-					this[butComp].off(this._nextButton);
-					this._nextButton = null;
-				}
-				break;
-
-			case CONST.PREVSCENE:
-				if(this._prevButton) {
-
-					this[butComp].off(this._prevButton);
-					this._prevButton = null;
-				}
-				break;				
-		}
-	}
-
-
-
-
 //*************** Effect management - from Audio Stream
 	
 	/**

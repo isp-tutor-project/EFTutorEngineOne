@@ -1,6 +1,10 @@
 
 VSCode regex cheatsheet:
 
+Regex to convert style specifications to Json representation - watch for excessive matching
+([\w-]*)\s*:\s*([\w-\s#%\(\),\.]*);
+"$1":"$2",
+
 Regex to locate Unicode (non-ASCII) characters
 [^\x00-\x7f]
 

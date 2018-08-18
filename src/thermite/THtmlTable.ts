@@ -245,8 +245,8 @@ export class THtmlTable extends THtmlBase {
 
     private initFromDataSource(data:any) {
 
-        if(data.rowdata)
-            data.rowdata.forEach( (coldata:any, rowindex:number) => {
+        if(data.tabledata.rowdata)
+            data.tabledata.rowdata.forEach( (coldata:any, rowindex:number) => {
             
                 coldata.forEach( (element:any, colindex:number) => {
 

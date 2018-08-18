@@ -139,26 +139,34 @@ export class TButton extends TObject
 
 	// Walk the WOZ Objects to capture their default state
 	//
-	public captureDefState(TutScene:TObject ) : void 
+	public captureDefState(thisObj:TObject ) : void 
 	{
-		super.captureDefState(TutScene );
+        super.captureDefState(thisObj );
+        
+        thisObj.defState = {
+            "curState":this.curState,
+            "fPressed":this.fPressed,
+            "fEnabled":this.fEnabled,
+            "fOver"   :this.fOver    
+        }
+
 	}
 	
 	
 	// Walk the WOZ Objects to restore their default state
 	//
-	public restoreDefState(TutScene:TObject ) : void 
+	public restoreDefState(thisObj:TObject ) : void 
 	{
 		if(this.traceMode) CUtil.trace("Button Reseting: " + this.name);
 		
-		this.curState = "unknown";
-		this.fPressed = false;
-		this.fEnabled = true;
-		this.fOver    = false;
+		this.curState = thisObj.curState;
+		this.fPressed = thisObj.fPressed;
+		this.fEnabled = thisObj.fEnabled;
+		this.fOver    = thisObj.fOver;   
 					
-		this.enableButton(true);
+		this.enableButton(this.fEnabled);
 		
-		super.restoreDefState(TutScene );
+		super.restoreDefState(thisObj );
 	}
 	
 
