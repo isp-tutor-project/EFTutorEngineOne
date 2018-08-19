@@ -41,6 +41,15 @@ export class THtmlList1 extends THtmlBase {
     private efListBox:HTMLElement;
     private efList:Array<HTMLElement>;
 
+    private ARROWNORMAL:string;
+    private ARROWACTIVE:string;
+
+    public optionName:string;
+    public optionValue:string;
+    public listData:any;
+
+
+
     constructor() {
 
         super();
@@ -71,6 +80,9 @@ export class THtmlList1 extends THtmlBase {
         this.fontSize   = 14;
         this.arrowScale = 4.5;
 
+        this.ARROWNORMAL = "[eflist] .listbox::after";
+        this.ARROWACTIVE = "[eflist] .listbox.active::after";        
+
         this.cssSheet = {
 
             "[eflist].outerContainer" : {
@@ -84,6 +96,7 @@ export class THtmlList1 extends THtmlBase {
         
                 "font-family":"Arial",
                 "font-size":"14px",
+                "pointer-events":"all"
             },
         
             /*hide original SELECT element:*/
@@ -95,7 +108,7 @@ export class THtmlList1 extends THtmlBase {
         
             "[eflist] .listbox": {
                 "display": "table-cell",
-                "height": "40px",
+                "height": "inherit",
                 "width": "inherit",
                 "box-sizing": "border-box",
                 "vertical-align": "middle",
@@ -195,58 +208,137 @@ export class THtmlList1 extends THtmlBase {
 
             /* create a new DIV that will act as the selected item:*/
             this.efListBox = document.createElement("DIV");
-            this.efListBox.setAttribute("class", "listbox color");
-            this.controlContainer.appendChild(this.efListBox);
+            this.efListBox.setAttribute("class", "listbox color");            
+            this.outerContainer.appendChild(this.efListBox);
 
-            /* create a new DIV that will contain the option list:*/
+            let host = this;
+            this.efListBox.addEventListener("click", function (e) {
+
+                // when the select box is clicked, close any other select boxes,
+                // and open/close the current select box:
+
+                e.stopPropagation();
+                host.closeAllSelect(this);
+                host.efListBox.nextElementSibling.classList.toggle("hideoptions");
+                host.efListBox.classList.toggle("active");
+            });        
+        
+            // create a new DIV that will contain the option list:
+            //
             this.efListOptions = document.createElement("DIV");
             this.efListOptions.setAttribute("class", "listoptions color hideoptions");
             this.efList = new Array<HTMLElement>();
 
             dom_overlay_container.appendChild(this.outerContainer); 
-            this.controlContainer = this.outerContainer;            
+            this.controlContainer = this.outerContainer;          
+            this.controlContainer.appendChild(this.efListOptions);
+  
+            super.onAddedToStage(evt);
+
+            // if the user clicks anywhere outside the select box
+            // then close all select boxes:
+            // 
+            document.addEventListener("click", function (e) {
+                host.closeAllSelect(null);
+            });        
+
 
             // update the arrow icon based on the box height
             // the arrow size is based on the height of the outerContainer
             // It is generated using the way border joints are painted. i.e. beveled ends
             // 
-            var hBox = parseInt(window.getComputedStyle(this.efListBox).height);
-            var hArrow = hBox / this.arrowScale;
+            // var hBox = parseInt(window.getComputedStyle(this.efListBox).height);
+            // var hArrow = hBox / this.arrowScale;
 
-            var topNormal = (hBox - hArrow) / 2;
-            var topActive = topNormal - hArrow;
+            // var topNormal = (hBox - hArrow) / 2;
+            // var topActive = topNormal - hArrow;
 
-            this.arrowNormal.styles.top = topNormal + "px";
-            this.arrowNormal.styles.right = this.arrowNormal.styles.top;
-            this.arrowNormal.styles.border = hArrow + "px " + this.arrowNormal.styles.border;
+            // let arrowNormal = this.cssSheet[this.ARROWNORMAL];
+            // let arrowActive = this.cssSheet[this.ARROWACTIVE];
 
-            this.arrowActive.styles.top = topActive + "px";
+            // arrowNormal.styles.top = topNormal + "px";
+            // arrowNormal.styles.right = arrowNormal.styles.top;
+            // arrowNormal.styles.border = hArrow + "px " + arrowNormal.styles.border;
 
-            this.addRule(this.arrowNormal.selector, this.arrowNormal.styles);
-            this.addRule(this.arrowActive.selector, this.arrowActive.styles);
+            // arrowActive.styles.top = topActive + "px";
 
-            super.onAddedToStage(evt);
+            // this.addRule(arrowNormal.selector, arrowNormal.styles);
+            // this.addRule(arrowActive.selector, arrowActive.styles);
+
+
         }
     }
 
 
 //*************** Serialization
 
-    private onClick(evt:Event) {
+    private selectOption(tar:HTMLElement) {
 
+        this.optionName  = tar.innerHTML;
+        this.optionValue = this.getOptionValueByName(this.optionName);
+
+        this.hostScene.onSelect(this.name);
     }
 
 
-    private resolveOptionElements(options:Array<string>) : string {
+    private onOptionClick(evt:Event, tar:HTMLElement) {
 
-        let optionStr:string = "";
+        // when an item is clicked, update the original select box,
+        // and the selected item:
+        // 
+        var currSel;
 
-        options.forEach((selector:string )=> {
+        this.selectOption(tar);
+        
+        this.efListBox.innerHTML = tar.innerHTML;
+        currSel = this.efListOptions.getElementsByClassName("isselected");
 
-            optionStr += `<option value="">${this.hostScene.resolveTemplate(selector, this._OntologyFtr)}</option>`;            
-        });
+        for (let k = 0; k < currSel.length; k++) {
+            currSel[k].removeAttribute("class");
+        }
+        tar.setAttribute("class", "isselected");
+    }
 
-        return optionStr;
+
+    private getOptionValueByName(itemName:string) : any {
+
+        let result:any;
+        let options:any[] = this.listData.options;
+
+        for(let i1 = 0 ; i1 < options.length ; i1++) {
+        
+            if(itemName ===  this.hostScene.resolveTemplate(options[i1].name, this._OntologyFtr)) {
+                result = options[i1].value;
+                break;
+            }
+        }
+
+        return result;
+    }
+
+
+    private closeAllSelect(tar:HTMLElement) {
+
+        // function that will close all select boxes in the document,
+        // except the current select box:
+
+        let x, y, i, arrNo = [];
+
+        x = document.getElementsByClassName("listoptions");
+        y = document.getElementsByClassName("listbox");
+
+        for (i = 0; i < y.length; i++) {
+            if (tar == y[i]) {
+                arrNo.push(i)
+            } else {
+                y[i].classList.remove("active");
+            }
+        }
+        for (i = 0; i < x.length; i++) {
+            if (arrNo.indexOf(i)) {
+                x[i].classList.add("hideoptions");
+            }
+        }
     }
 
 
@@ -256,9 +348,9 @@ export class THtmlList1 extends THtmlBase {
         // create a new DIV that will act as an option item:
         let efOption = document.createElement("DIV");
         
-        let value = this.hostScene.resolveTemplate(element.name, this._OntologyFtr);        
+        let name = this.hostScene.resolveTemplate(element.name, this._OntologyFtr);        
 
-        efOption.innerHTML = `<div>${value}</div>`; 
+        efOption.innerHTML = name; 
 
         // Mirror any initial selection
         // 
@@ -268,7 +360,7 @@ export class THtmlList1 extends THtmlBase {
 
         let host = this;
         efOption.addEventListener("click", function (evt) {
-            host.onClick.call(host, evt);
+            host.onOptionClick.call(host, evt, this);
         });
 
         this.efListOptions.appendChild(efOption);
@@ -289,13 +381,29 @@ export class THtmlList1 extends THtmlBase {
     }
 
 
-    private initFromDataSource(data:any) {
+    private initFromDataSource(datasource:any) {
 
-        if(data.listdata)
+        let data:any = this.resolveDataSource(datasource);
+
+        if(data.listdata) {
+            this.listData = data.listdata;
+
             data.listdata.options.forEach((element:any) => {
             
                 this.initListFromData(element);
             });
+
+            this.efListBox.innerHTML = this.hostScene.resolveTemplate(data.listdata.placeHolder, this._OntologyFtr);  
+        }
+    }
+
+
+    protected initObjfromData(objData:any) {
+
+        if(objData.style) {
+            this.addCustomStyles(objData.style, this.cssSheet );
+            this.addCSSRules(this.styleElement, this.cssSheet );
+        }
     }
 
 
@@ -308,7 +416,7 @@ export class THtmlList1 extends THtmlBase {
        this.datasource = objData.datasource || this.datasource;
 
        if(objData.datasource) {
-           this.initFromDataSource(this.resolveDataSource(objData.datasource));
+           this.initFromDataSource(objData.datasource);
        }
    }
 

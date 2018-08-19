@@ -53,6 +53,7 @@ export class TSceneBase extends TObject
     
     public moduleData:any; 
     public sceneData :any; 
+    private sceneState:any;
 
 	protected _section:string;					// Arbitrary tutor section id
     
@@ -96,6 +97,8 @@ export class TSceneBase extends TObject
 		this.traceMode = true;
         if(this.traceMode) CUtil.trace("TSceneBase:Constructor");			
         
+        this.sceneState = {};
+
         this.RX_TEMPLATE = /{{[\$\w\.\?_\|]*}}/;
         this.RX_ONTQUERY = /{{\$EFO_([\w\.\?]*\|\w*)}}/;
     
@@ -417,51 +420,31 @@ export class TSceneBase extends TObject
 
 //****** Overridable Behaviors
 
-	/**
-	 * Polymorphic Navigation enabling
-	*/
-	public updateNav() : void 
-	{
-		if(this.traceMode) CUtil.trace("UpdateNavigation: ", name, this.fComplete);
-		
-		// Update the Navigation
-		//
-		if(!this.fComplete)
-			this.tutorDoc.tutorContainer.enableNext(false);		
-		else	
-			this.tutorDoc.tutorContainer.enableNext(true);		
-			
-		if(this.tutorDoc.gForceBackButton)
-			this.tutorDoc.tutorContainer.enableBack(this.tutorDoc.fEnableBack);																		
-	}
-
-	/**
-	 * Polymorphic question complete criteria
-	*/
-	public questionFinished(evt:Event) : void 
-	{
-		// User selection has been made
-		//
-		this.fComplete = true;
-		
-		// Update the Navigation
-		//
-		this.updateNav();
-	}
-
-	
-	/**
-	 * Polymorphic question complete criteria
-	 */
-	public questionComplete() : boolean 
-	{
-		// User selection has been made
-		//
-		return this.fComplete;
-	}
-
 	
 //****** Navigation Behaviors
+
+
+//****** Component Behaviors Start
+
+	/**
+	 */
+	public onSelect(target:string) : void {
+		// User selection has been made
+		//
+		this.$onSelect(target);
+	}
+
+	/**
+	 */
+	public onClick(target:string) : void {
+		// User selection has been made
+		//
+		this.$onSelect(target);
+	}
+
+
+//****** Component Behaviors End
+
 
 //*** REWIND PLAY Management		
 

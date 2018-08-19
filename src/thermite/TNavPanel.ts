@@ -106,6 +106,16 @@ export class TNavPanel extends TScene
 	}
 
 
+    public enableNext(enable:boolean) {
+        this.Snext.enableButton(enable);
+    }
+
+
+    public enablePrev(enable:boolean) {
+        this.Sback.enableButton(enable);
+    }
+
+
 	public connectNavButton(type:string, butComp:string, _once:boolean = true) {
 
 		this.disConnectNavButton(type, butComp );

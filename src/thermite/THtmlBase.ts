@@ -171,7 +171,7 @@ export class THtmlBase extends TObject {
 
             this.styleElement       = document.createElement('style');
             this.styleElement.type  = 'text/css';
-            this.styleElement.id    = 'scene1Input1';
+            this.styleElement.id    = this.name.toLowerCase();
 
             // Note that the sheet property is null until the element is added to the 
             // page.
@@ -429,7 +429,7 @@ export class THtmlBase extends TObject {
     
 //*************** Serialization
 
-    private addCustomStyles(srcStyle:any, tarStyle:any) {
+    protected addCustomStyles(srcStyle:any, tarStyle:any) {
 
         for(let ruleSet in srcStyle) {
             
@@ -445,7 +445,7 @@ export class THtmlBase extends TObject {
     }
 
     
-    private initObjfromData(objData:any) {
+    protected initObjfromData(objData:any) {
 
         if(objData.html)
             this.controlContainer.innerHTML = objData.html;
