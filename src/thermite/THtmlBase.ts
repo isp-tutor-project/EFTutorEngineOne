@@ -308,7 +308,7 @@ export class THtmlBase extends TObject {
 
         let span = document.getElementById(spanID);
 
-        // span.style.visibility = "hidden";
+        span.style.visibility = "hidden";
     }
 
 
@@ -316,7 +316,7 @@ export class THtmlBase extends TObject {
 
         let span = document.getElementById(spanID);
 
-        // span.style.visibility = "visible";
+        span.style.visibility = "visible";
     }
 
 
@@ -389,7 +389,7 @@ export class THtmlBase extends TObject {
 
         try {
             this._currObjNdx = this.effectNewIndex;
-            this.initObjfromData(this._objDataArray[this.effectNewIndex].htmlData);
+            this.deSerializeObj(this._objDataArray[this.effectNewIndex]);
         }
         catch(err) {
 
@@ -444,6 +444,12 @@ export class THtmlBase extends TObject {
         }
     }
 
+
+    protected initFromDataSource(datasource:any) {
+
+        console.error("initFromDataSource not implemented!");
+    }
+
     
     protected initObjfromData(objData:any) {
 
@@ -457,9 +463,19 @@ export class THtmlBase extends TObject {
     }
 
 
-    /*
-    * 
-    */
+    protected resolveDataSource(datasource:string) : any {
+
+        let result:any;
+        let dataPath:Array<string> = datasource.split(".");
+
+        if(dataPath[0] === "$EFL") {
+            result = this.tutorDoc.moduleData[this.hostModule][CONST.SCENE_DATA]._LIBRARY[CONST.EFDATA_TYPE][dataPath[1]];
+        }
+
+        return result;
+    }
+
+
     public deSerializeObj(objData:any) : void
     {
         super.deSerializeObj(objData);				
@@ -481,6 +497,7 @@ export class THtmlBase extends TObject {
                     this._currObjNdx = i1;
                     this.initObjfromData(objData[i1].htmlData);
                     this.invertScale();
+                    this.datasource = objData[i1].datasource;
                     break;
                 }
             }
@@ -491,7 +508,13 @@ export class THtmlBase extends TObject {
         else if(objData.htmlData){
             this.initObjfromData(objData.htmlData);
             this.invertScale();
+            this.datasource = objData.datasource;
         }
+
+        if(this.datasource) {
+            this.initFromDataSource(this.datasource);
+        }
+
     }
 
 //*************** Serialization    

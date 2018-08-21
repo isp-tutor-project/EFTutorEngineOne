@@ -29,6 +29,7 @@ import { CONST }            from "../util/CONST";
 import { CUtil } 			from "../util/CUtil";
 
 import DisplayObject      = createjs.DisplayObject;
+import { findArray } from "../scenegraph/IAudioTypes";
 
 
 export class TSceneBase extends TObject
@@ -62,10 +63,11 @@ export class TSceneBase extends TObject
 	protected _nextButton:any = null;
 	protected _prevButton:any = null;
 
+    private RX_SELECTOR:RegExp;
+    private RX_TEMPLTAGS:RegExp;
+    private RX_TEMPLATES:RegExp;
     private RX_TEMPLATE:RegExp;
     private RX_ONTQUERY:RegExp;
-
-
 
 	/**
 	 * Scene Constructor
@@ -99,8 +101,11 @@ export class TSceneBase extends TObject
         
         this.sceneState = {};
 
-        this.RX_TEMPLATE = /{{[\$\w\.\?_\|]*}}/;
-        this.RX_ONTQUERY = /{{\$EFO_([\w\.\?]*\|\w*)}}/;
+        this.RX_SELECTOR  = /(\$EF\w*?_)(.*)/;            // regex to decompose selectors - $EFO_<xxx>  $EFTR_<xxx> etc.  returns SelectorSig $1 and Selector $2
+        this.RX_TEMPLATES = /\{\{[^\}]*\}\}/g;
+        this.RX_TEMPLTAGS = /\{\{|\}\}/g;
+        this.RX_TEMPLATE  = /{{[\$\w\.\?_\|]*}}/;
+        this.RX_ONTQUERY  = /{{\$EFO_([\w\.\?]*\|\w*)}}/;
     
 	}
 
@@ -118,6 +123,11 @@ export class TSceneBase extends TObject
             this.tutorNavigator = this.tutorDoc.tutorNavigator;
 
             let dataElement:any;
+
+			// Execute the create procedures for this scene instance
+			// see notes on sceneExt Code - tutor Supplimentary code
+			// 
+			this.$preCreateScene();
 
             // walk all the scene data items and find matching scene components (there should be matches for all)
             // deserialize the data into the component.
@@ -162,7 +172,166 @@ export class TSceneBase extends TObject
 	}
 
 
-    public resolveTemplate(templatestr:string, ontologyFtr:Array<string>) : any {
+    public setTutorState(property:string, value:any) {
+
+        this.tutorDoc.tutorState[property] = value;
+    }
+
+
+    public getTutorState(property:string) {
+
+        return this.tutorDoc.tutorState[property];
+    }
+
+
+    public resolveTemplates(templateStr:string, ontologyFtr:Array<string>) : string {
+
+        let result:string = "";
+
+        let templArray:Array<findArray>;
+
+        templArray = this.enumerateTemplates(this.RX_TEMPLATES, templateStr);
+
+        for(let item of templArray) {
+            item[1] = item[0].replace(this.RX_TEMPLTAGS,"");
+        }
+
+        this.composeScript(templateStr, templArray, ontologyFtr);
+
+        return result;
+    }
+
+
+    private enumerateTemplates(regex:RegExp, text:string) : Array<findArray> {
+
+        let templArray:Array<findArray> = [];
+        let templ:findArray;
+    
+        while((templ = regex.exec(text)) !== null) {
+    
+            templArray.push(templ);
+            templ.endIndex = regex.lastIndex;
+            // console.log(`Found ${templ[0]} at: ${templ.index} Next starts at ${regex.lastIndex}.`);
+        }
+    
+        return templArray;
+    }
+    
+    
+    private composeScript(inst:string, templArray:Array<findArray>, ontologyFtr:Array<string>) : string {
+
+        let start:number = 0;
+        let end:number   = inst.length;
+        let composition:string = "";
+    
+        if(templArray.length) {
+            start    = 0;
+    
+            // enumerate the templates to segment the text for TTS synthesis and playback
+            // 
+            for(let templ of templArray) {
+    
+                // First add the text before the template if there is any
+                // 
+                end = templ.index;            
+                if(start < end) {    
+                    composition += inst.substring(start, end);
+                }
+    
+                // then add the template itself
+                start = templ.index;
+                end   = templ.endIndex;
+    
+                composition += this.resolveSelector(templ[1], ontologyFtr);
+    
+                start = end;
+            }
+        }
+    
+        // Finally add the text after the last template if there is any
+        // 
+        end = inst.length;            
+        if(start < end) {
+            composition += inst.substring(start, end);
+        }
+
+        return composition;
+    }
+    
+	
+    public resolveSelector(selector:string, ontologyFtr:Array<string>) : any{
+
+        let result:any = null;
+
+        let selectorVal = this.RX_SELECTOR.exec(selector);
+
+        switch(selectorVal[1]) {
+
+            case CONST.ONTOLOGY_SELECTOR:                
+
+                result = this.resolveOntologySelector(selectorVal[2], ontologyFtr) 
+                break;   
+
+            case CONST.TRACK_SELECTOR:
+
+                if(this[selectorVal[2]])
+                    result = this[selectorVal[2]];
+                break;
+
+            case CONST.SCENESTATE_SELECTOR:
+
+                break;
+
+            case CONST.TUTORSTATE_SELECTOR:
+
+            break;
+               
+            case CONST.FOREIGNMODULE_SELECTOR:
+
+                let dataPath:Array<string> = selectorVal[2].split(".");
+
+                let forMod = this.tutorDoc.moduleData[dataPath[1]];
+
+                if(!forMod) {
+                    console.log("Error: module for Foreign-Reference missing!")
+                    throw("missing module");
+                }
+                result = forMod[CONST.SCENE_DATA]._LIBRARY[dataPath[2]][dataPath[3]];
+                break;
+
+            case CONST.MODULELIBRARY_SELECTOR:
+
+                result = this.resolveObject(this.tutorDoc.moduleData[this.hostModule][CONST.SCENE_DATA]._LIBRARY, selectorVal[2]);
+                break;
+               
+            case CONST.GLOBALLIBRARY_SELECTOR:
+
+            break;
+        }
+
+        return result;
+    }
+
+
+    private resolveObject(baseObj:any, objPath:string ) : any {
+
+        let dataPath:Array<string> = objPath.split(".");
+
+        try {
+            dataPath.forEach((element:string) => {
+
+                baseObj = baseObj[element];
+            });
+        }
+        catch(err) {
+            console.log("Object Resolution Error: " + err);
+        }
+
+        return baseObj;
+    }
+
+
+    private resolveOntologySelector(templatestr:string, ontologyFtr:Array<string>) : any {
 
         let result:any = templatestr;
         let rootQ:any  = this.tutorDoc.globalData;
@@ -190,7 +359,7 @@ export class TSceneBase extends TObject
         return result;
     }
 
-	
+
 //*************** Effect management - from Audio Stream
 	
 	/**

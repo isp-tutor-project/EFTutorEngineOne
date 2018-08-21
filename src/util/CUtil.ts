@@ -26,7 +26,6 @@ import DisplayObject          = createjs.DisplayObject;
 
 
 
-
 export class CUtil extends Object
 {
 	// Use the performance sytem timer if available.

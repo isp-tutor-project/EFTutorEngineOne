@@ -159,10 +159,10 @@ export class TButton extends TObject
 	{
 		if(this.traceMode) CUtil.trace("Button Reseting: " + this.name);
 		
-		this.curState = thisObj.curState;
-		this.fPressed = thisObj.fPressed;
-		this.fEnabled = thisObj.fEnabled;
-		this.fOver    = thisObj.fOver;   
+		this.curState = thisObj.defState.curState;
+		this.fPressed = thisObj.defState.fPressed;
+		this.fEnabled = thisObj.defState.fEnabled;
+		this.fOver    = thisObj.defState.fOver;   
 					
 		this.enableButton(this.fEnabled);
 		

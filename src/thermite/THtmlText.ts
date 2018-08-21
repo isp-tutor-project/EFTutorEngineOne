@@ -107,6 +107,8 @@ export class THtmlText extends THtmlBase {
         super.Destructor();
     }
 
+//*************** Serialization
+
     /**
      * Note that this is called during the forced CreateJS tick to initialize 
      * the createJS controls - so onCreate will not have been called yet.
@@ -137,14 +139,23 @@ export class THtmlText extends THtmlBase {
         }
     }
 
-    /*
-    * 
-    */
+    
+    protected initFromDataSource(datasource:any) {
+
+        let data:any = this.hostScene.resolveSelector(datasource, this._OntologyFtr);
+
+        if(data.textdata) {
+            this.initObjfromData(data.textdata);
+        }
+    }
+
+
    public deSerializeObj(objData:any) : void
    {
-       console.log("deserializing: Input Custom Control");
+       console.log("deserializing: Text Control");
 
        super.deSerializeObj(objData);				
    }
 
+//*************** Serialization
 }

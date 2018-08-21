@@ -130,8 +130,6 @@ export class THtmlTable extends THtmlBase {
                 "font-size":"inherit"
             }
         };
-        
-        this.setOntology("S_A1_T1");
     }
 
 /* ######################################################### */
@@ -180,19 +178,12 @@ export class THtmlTable extends THtmlBase {
     }
 
 
-    public setOntology(oFeature:string) {
-
-        this._OntologyFtr = oFeature.split("_");
-    }
-
-
-
 //*************** Serialization
 
 
     private resolvePlaceHolderElement(selector:string) : string {
 
-        return `<option hidden>${this.hostScene.resolveTemplate(selector, this._OntologyFtr)}</option>`;
+        return `<option hidden>${this.hostScene.resolveTemplates(selector, this._OntologyFtr)}</option>`;
     }
 
 
@@ -202,7 +193,7 @@ export class THtmlTable extends THtmlBase {
 
         options.forEach((selector:string )=> {
 
-            optionStr += `<option value="">${this.hostScene.resolveTemplate(selector, this._OntologyFtr)}</option>`;            
+            optionStr += `<option value="">${this.hostScene.resolveTemplates(selector, this._OntologyFtr)}</option>`;            
         });
 
         return optionStr;
@@ -213,7 +204,7 @@ export class THtmlTable extends THtmlBase {
 
         let cell = this.table.rows[rowindex].cells.item(colindex);
 
-        let value = this.hostScene.resolveTemplate(element.value, this._OntologyFtr);        
+        let value = this.hostScene.resolveTemplates(element.value, this._OntologyFtr);        
 
         switch(value) {
             case "$LIST": 
@@ -230,20 +221,9 @@ export class THtmlTable extends THtmlBase {
     }
 
 
-    private resolveDataSource(datasource:string) : any {
+    protected initFromDataSource(datasource:any) {
 
-        let result:any;
-        let dataPath:Array<string> = datasource.split(".");
-
-        if(dataPath[0] === "$$EFL") {
-            result = this.tutorDoc.moduleData[this.hostModule][CONST.SCENE_DATA]._LIBRARY[CONST.EFDATA_TYPE][dataPath[1]];
-        }
-
-        return result;
-    }
-
-
-    private initFromDataSource(data:any) {
+        let data:any = this.resolveDataSource(datasource);
 
         if(data.tabledata.rowdata)
             data.tabledata.rowdata.forEach( (coldata:any, rowindex:number) => {
@@ -261,15 +241,9 @@ export class THtmlTable extends THtmlBase {
     */
    public deSerializeObj(objData:any) : void
    {
-        console.log("deserializing: Input Custom Control");
+        console.log("deserializing: Table Control");
 
         super.deSerializeObj(objData);			
-
-        this.datasource = objData.datasource || this.datasource;
-
-        if(objData.datasource) {
-            this.initFromDataSource(this.resolveDataSource(objData.datasource));
-        }
    }
 
 

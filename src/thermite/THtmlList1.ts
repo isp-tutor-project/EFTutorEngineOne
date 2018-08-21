@@ -44,8 +44,7 @@ export class THtmlList1 extends THtmlBase {
     private ARROWNORMAL:string;
     private ARROWACTIVE:string;
 
-    public optionName:string;
-    public optionValue:string;
+    public selected:any;
     public listData:any;
 
 
@@ -79,6 +78,7 @@ export class THtmlList1 extends THtmlBase {
 
         this.fontSize   = 14;
         this.arrowScale = 4.5;
+        this.selected   = {};
 
         this.ARROWNORMAL = "[eflist] .listbox::after";
         this.ARROWACTIVE = "[eflist] .listbox.active::after";        
@@ -274,10 +274,28 @@ export class THtmlList1 extends THtmlBase {
 
     private selectOption(tar:HTMLElement) {
 
-        this.optionName  = tar.innerHTML;
-        this.optionValue = this.getOptionValueByName(this.optionName);
-
+        this.selected.name  = tar.innerHTML;
+        this.selected.data  = this.getSelectionByName(this.selected.name);      
+        this.selected.value = this.resolveDataSource(this.selected.data.value);
+        
         this.hostScene.onSelect(this.name);
+    }
+
+
+    private getSelectionByName(itemName:string) : any {
+
+        let result:any;
+        let options:any[] = this.listData.options;
+
+        for(let i1 = 0 ; i1 < options.length ; i1++) {
+        
+            if(itemName ===  this.hostScene.resolveTemplates(options[i1].name, this._OntologyFtr)) {
+                result = options[i1];
+                break;
+            }
+        }
+
+        return result;
     }
 
 
@@ -297,23 +315,6 @@ export class THtmlList1 extends THtmlBase {
             currSel[k].removeAttribute("class");
         }
         tar.setAttribute("class", "isselected");
-    }
-
-
-    private getOptionValueByName(itemName:string) : any {
-
-        let result:any;
-        let options:any[] = this.listData.options;
-
-        for(let i1 = 0 ; i1 < options.length ; i1++) {
-        
-            if(itemName ===  this.hostScene.resolveTemplate(options[i1].name, this._OntologyFtr)) {
-                result = options[i1].value;
-                break;
-            }
-        }
-
-        return result;
     }
 
 
@@ -342,13 +343,23 @@ export class THtmlList1 extends THtmlBase {
     }
 
 
-    private initListFromData(element:any) : void {
+    private clearOptionList() {
 
+        this.efList.forEach((option:any)=> {
+            this.efListOptions.removeChild(option);
+        });
+        
+        this.efList = new Array<HTMLElement>();
+    }
+
+
+    private initListFromData(element:any) : void {
+        
         // for each option in the original select element,
         // create a new DIV that will act as an option item:
         let efOption = document.createElement("DIV");
         
-        let name = this.hostScene.resolveTemplate(element.name, this._OntologyFtr);        
+        let name = this.hostScene.resolveTemplates(element.name, this._OntologyFtr);        
 
         efOption.innerHTML = name; 
 
@@ -368,32 +379,20 @@ export class THtmlList1 extends THtmlBase {
     }
 
 
-    private resolveDataSource(datasource:string) : any {
-
-        let result:any;
-        let dataPath:Array<string> = datasource.split(".");
-
-        if(dataPath[0] === "$$EFL") {
-            result = this.tutorDoc.moduleData[this.hostModule][CONST.SCENE_DATA]._LIBRARY[CONST.EFDATA_TYPE][dataPath[1]];
-        }
-
-        return result;
-    }
-
-
-    private initFromDataSource(datasource:any) {
+    protected initFromDataSource(datasource:any) {
 
         let data:any = this.resolveDataSource(datasource);
 
-        if(data.listdata) {
+        if(data && data.listdata) {
             this.listData = data.listdata;
+            this.clearOptionList();
 
             data.listdata.options.forEach((element:any) => {
-            
+
                 this.initListFromData(element);
             });
 
-            this.efListBox.innerHTML = this.hostScene.resolveTemplate(data.listdata.placeHolder, this._OntologyFtr);  
+            this.efListBox.innerHTML = this.hostScene.resolveTemplates(data.listdata.placeHolder, this._OntologyFtr);  
         }
     }
 
@@ -414,10 +413,6 @@ export class THtmlList1 extends THtmlBase {
        super.deSerializeObj(objData);				
 
        this.datasource = objData.datasource || this.datasource;
-
-       if(objData.datasource) {
-           this.initFromDataSource(objData.datasource);
-       }
    }
 
 //*************** Serialization

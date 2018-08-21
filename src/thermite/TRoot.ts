@@ -43,7 +43,6 @@ export class TRoot extends MovieClip
 	public hostModule:string;
 	public hostScene:TScene;
 
-    protected _OntologyFtr:Array<string>;
     protected _InitData:string;
 	protected _DataSnapShot:string;
 
@@ -468,38 +467,14 @@ export class TRoot extends MovieClip
 
 //*************** Serialization
 
+
     private resolveReferences(...dataElement:any[]) {
 
         let objData:any;
 
-        dataElement.forEach(element => {
+        dataElement.forEach(datasource => {
 
-            let dataPath:Array<string> = element.split(".");
-
-            // resolve Library references
-            // 
-            if(dataPath[0] === "$$EFL") {
-
-                objData = this.tutorDoc.moduleData[this.hostModule][CONST.SCENE_DATA]._LIBRARY[dataPath[1]][dataPath[2]];
-            }
-
-            // resolve Foreign Module references
-            // 
-            else if(dataPath[0] === "$$EFM") {
-
-                let forMod = objData = this.tutorDoc.moduleData[dataPath[1]];
-
-                if(!forMod) {
-                    console.log("Error: module for Foreign-Reference missing!")
-                    throw("missing module");
-                }
-                objData = forMod[CONST.SCENE_DATA]._LIBRARY[dataPath[2]][dataPath[3]];
-            }
-
-            else {
-                console.error("Error: moduleData link error");
-                throw("Error: moduleData link error");
-            }
+            objData = this.hostScene.resolveSelector(datasource, this._OntologyFtr);
 
             // Recursively deserialize the reference
             // 
@@ -508,9 +483,6 @@ export class TRoot extends MovieClip
     }
 
 
-	/*
-    * 
-    */
     public deSerializeObj(objData:any) : void
     {
         // Keep a pointer to the object spec

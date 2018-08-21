@@ -98,11 +98,9 @@ export class TNavPanel extends TScene
     
 	public onCreate() : void
 	{
+        // Allow scene to override settings
+        // 
         super.onCreate();
-
-        this.Sback.hidden     = true;
-        this.SbackMask.hidden = true;        
-        this.Snext.enableButton(false);
 	}
 
 
@@ -122,12 +120,16 @@ export class TNavPanel extends TScene
 
 		switch(type) {
 			case CONST.NEXTSCENE:
-				this._nextButton = this[butComp].on(CONST.MOUSE_CLICK, this.tutorNavigator.onButtonNext, this.tutorNavigator);
+                this._nextButton  = this[butComp].on(CONST.MOUSE_CLICK, this.tutorNavigator.onButtonNext, this.tutorNavigator);
+                this.Snext.hidden = false;        
+                this.Snext.enableButton(true);
 				break;
 
 			case CONST.PREVSCENE:
-				this._prevButton = this[butComp].on(CONST.MOUSE_CLICK, this.tutorNavigator.onButtonPrev, this.tutorNavigator);
-				break;				
+				this._prevButton  = this[butComp].on(CONST.MOUSE_CLICK, this.tutorNavigator.onButtonPrev, this.tutorNavigator);
+                this.Sback.hidden = false;
+                this.Sback.enableButton(true);
+                break;				
 		}
 	}
 
@@ -150,6 +152,22 @@ export class TNavPanel extends TScene
 					this._prevButton = null;
 				}
 				break;				
+		}
+	}
+
+
+	public showHideNavButton(type:string, show:boolean) {
+
+		switch(type) {
+			case CONST.NEXTSCENE:
+                this.Snext.hidden = !show;        
+                this.Snext.enableButton(show);
+				break;
+
+			case CONST.PREVSCENE:
+                this.Sback.hidden = !show;
+                this.Sback.enableButton(show);
+                break;				
 		}
 	}
 

@@ -169,7 +169,7 @@ export class CEFTutorDoc extends EventDispatcher implements IEFTutorDoc
 	public fPlaybackMode:boolean = false;
 		
 	public _log:any;							  		// ILogManager - Logging service connection
-    public SceneData:string = "";	            		// Root Tutor data cache				
+    public tutorState:any = {};	                  		// Root Tutor data cache				
 	
     
 	//*************** Automation Shadow Display List
@@ -491,15 +491,15 @@ export class CEFTutorDoc extends EventDispatcher implements IEFTutorDoc
 
 //***************** Globals ****************************
 
-
+    // deprecated - was XML data repository
     public get gData():string
     {
-        return this.SceneData;
+        return "";
     }
 
+    // deprecated
     public set gData(dataXML:string) 
     {			
-        this.SceneData = dataXML;
     }
 
     public get gPhase():string

@@ -87,6 +87,8 @@ export class CSceneTrack extends EventDispatcher
     private text:string;
     private cueSet:string;
 
+    private ontologyFtr:Array<string>;
+
     private segments:Array<segment>;    
     private timedSet:Array<timedEvents>;
     private templates: any;    
@@ -194,23 +196,25 @@ export class CSceneTrack extends EventDispatcher
 
             for(let segment of this.segments) {
 
-                let template:string = segment.templateVar;
+                let selector:string     = segment.templateVar;
+                // TODO: make selector type context sensitive
+                let selectorType:string = CONST.TRACK_SELECTOR;
                 
-                switch(template) {
+                switch(selector) {
 
                     case CONST.NOVAR:
                         // NOOP - we use the template  __novar value itself - i.e. the segment is not a template
                         break;
 
                     default:
-                        template = this.hostScene.$resolveTemplate(template);
+                        selector = this.hostScene.resolveSelector(selector, this.ontologyFtr);
                         break;
                 }
 
                 // Use the value "__novar" or the resolved template value to determine the Value to use 
                 // for this iteration
                 // 
-                let segvalue:segmentVal = segment[template] as segmentVal;
+                let segvalue:segmentVal = segment[selector] as segmentVal;
 
                 console.log("Processing segment: " + segvalue.id + " =>" + segvalue.SSML);
 

@@ -123,7 +123,7 @@ export interface IEFTutorDoc {
 	fPlaybackMode:boolean;
 	
 	_log:any;							        // ILogManager - Logging service connection
-    SceneData:string;	       		     		// Root Tutor data cache				
+    tutorState:any;	       		     		// Root Tutor data cache				
 	
 	
     // CSceneGraphNavigator

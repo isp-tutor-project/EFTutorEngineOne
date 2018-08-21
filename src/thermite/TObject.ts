@@ -104,6 +104,9 @@ export class TObject extends TRoot
 	private glowTarget:string;
 	
 	private _tarObj:string;
+    
+    protected _OntologyFtr:Array<string>;
+    protected datasource:any;
 
 	// Factory Object Initialization data for this object - maintains a pointer to the original data source for the object
 	
@@ -248,7 +251,18 @@ export class TObject extends TRoot
 		this._features = updatedFTRset;
 	}
 	
-	
+    
+    public setOntology(oFeature:string) {
+
+        this._OntologyFtr = oFeature.split("_");
+
+        // Remove the EFO ignature if present
+        // 
+        if(this._OntologyFtr[0].includes("$EFO")) {
+            this._OntologyFtr.splice(0,1);
+        }
+    }
+    
 //*************** Dynamic object creation
 	
 	
