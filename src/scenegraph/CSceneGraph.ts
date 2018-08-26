@@ -37,7 +37,7 @@ export class CSceneGraph extends CSceneNode
 	private _currTrack:CSceneTrack;
 	private _prevTrack:CSceneTrack;
 	
-	private _parentScene:TScene;
+	public  _parentScene:TScene;
 	
 	public  _graphFactory:any;
 
@@ -73,7 +73,8 @@ export class CSceneGraph extends CSceneNode
 	
 	public seekRoot() : void
 	{
-		this._currNode = this._nodes["root"];
+        this._currNode = this._nodes["root"];
+        this._parentScene.graphState = "root";
 	}
 
 	
@@ -140,7 +141,7 @@ export class CSceneGraph extends CSceneNode
 			
 			if(this._currTrack == null)
 			{
-				this._currNode = this._currNode.nextNode();
+                this._currNode = this._currNode.nextNode();
 			}
 			
 		}while((this._currTrack == null) && (this._currNode != null))
@@ -178,8 +179,13 @@ export class CSceneGraph extends CSceneNode
 			{
 				switch(nodeList[name].subtype)
 				{
-					case "module":					
-						this._nodes[name] = CSceneModule.factory(this.tutorDoc, this, name, nodeList[name]);
+                    case "module":					
+                        try {
+                            this._nodes[name] = CSceneModule.factory(this.tutorDoc, this, name, nodeList[name]);
+                        }
+                        catch(err) {
+                            console.error("ERROR: invalid module specification in sceneGraph:" + name);
+                        }
                         break;
                         
                     default:

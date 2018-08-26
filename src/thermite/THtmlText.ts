@@ -142,7 +142,7 @@ export class THtmlText extends THtmlBase {
     
     protected initFromDataSource(datasource:any) {
 
-        let data:any = this.hostScene.resolveSelector(datasource, this._OntologyFtr);
+        let data:any = this.hostScene.resolveSelector(datasource, this._ontologyKey);
 
         if(data.textdata) {
             this.initObjfromData(data.textdata);

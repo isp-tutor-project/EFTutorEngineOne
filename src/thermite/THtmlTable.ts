@@ -38,7 +38,9 @@ export class THtmlTable extends THtmlBase {
     //************ Stage Symbols	
     
     private table:HTMLTableElement;
-    
+    private cellData:Array<Array<any>>;    
+
+    private RX_CELLID:RegExp;
 
 
     constructor() {
@@ -67,8 +69,9 @@ export class THtmlTable extends THtmlBase {
         
         this.traceMode = true;
         if(this.traceMode) CUtil.trace("THtmlTable:Constructor");
-
-        this.fontSize = 20;
+    
+        this.RX_CELLID = /(\d*)\.(\d*)\.(.*)/;
+        this.fontSize  = 20;
 
         this.cssSheet = {
 
@@ -83,6 +86,8 @@ export class THtmlTable extends THtmlBase {
 
                 "font-family":"arial",
                 "font-size":"12px",
+
+                "pointer-events": "all",
 
                 "width": "500px",
                 "height": "300px",
@@ -177,13 +182,63 @@ export class THtmlTable extends THtmlBase {
         }
     }
 
+//*************** Table Methods
+
+    protected clickListener(e:Event) {        
+        e.stopPropagation();
+
+        let selectorVal = this.RX_CELLID.exec((e.currentTarget as any).dataset.data);
+
+        this.hostScene.handleEvent();
+    }        
+
+
+    public listenToCells(type:string, left:number, top:number, right:number, bottom:number) {
+
+        let host = this;
+
+        for(let row=top; row <= bottom ; row++) {
+            for(let col=left ; col <= right ; col++ ) {
+
+                let cell = this.cellData[row][col];
+
+                this.addListener(cell, type);
+            }
+        }
+    }
+    
+    public clearListeners(type:string) {
+
+        for(let row=0; row < this.cellData.length ; row++) {
+            for(let col=0 ; col < this.cellData[row].length ; col++ ) {
+
+                let cell = this.cellData[row][col];
+
+                this.removeListener(cell, type);
+            }
+        }
+    }
+
+    public highlightCells(bodycolor:number, bordercolor:number, flashCount:number, flashRate:number, left:number, top:number, right:number, bottom:number) {
+
+
+    }
+
+    public highlightCellBorders(color:number, flashCount:number, flashRate:number, left:number, top:number, right:number, bottom:number) {
+
+    }
+
+    public highlightCellBodies(color:number, flashCount:number, flashRate:number, left:number, top:number, right:number, bottom:number) {
+
+    }
+
 
 //*************** Serialization
 
 
     private resolvePlaceHolderElement(selector:string) : string {
 
-        return `<option hidden>${this.hostScene.resolveTemplates(selector, this._OntologyFtr)}</option>`;
+        return `<option hidden>${this.hostScene.resolveTemplates(selector, this._ontologyKey)}</option>`;
     }
 
 
@@ -193,7 +248,7 @@ export class THtmlTable extends THtmlBase {
 
         options.forEach((selector:string )=> {
 
-            optionStr += `<option value="">${this.hostScene.resolveTemplates(selector, this._OntologyFtr)}</option>`;            
+            optionStr += `<option value="">${this.hostScene.resolveTemplates(selector, this._ontologyKey)}</option>`;            
         });
 
         return optionStr;
@@ -204,7 +259,7 @@ export class THtmlTable extends THtmlBase {
 
         let cell = this.table.rows[rowindex].cells.item(colindex);
 
-        let value = this.hostScene.resolveTemplates(element.value, this._OntologyFtr);        
+        let value = this.hostScene.resolveTemplates(element.value, this._ontologyKey);        
 
         switch(value) {
             case "$LIST": 
@@ -218,16 +273,22 @@ export class THtmlTable extends THtmlBase {
                 cell.innerHTML = `<div>${value}</div>`;
                 break;
         }
-    }
+        cell.dataset.data = `${rowindex}.${colindex}.${value}`;
 
+        this.cellData[rowindex][colindex] = cell;
+    }
 
     protected initFromDataSource(datasource:any) {
 
-        let data:any = this.resolveDataSource(datasource);
+        let data:any = this.hostScene.resolveSelector(datasource, this._ontologyKey);
+
+        this.cellData = [];
 
         if(data.tabledata.rowdata)
             data.tabledata.rowdata.forEach( (coldata:any, rowindex:number) => {
             
+                this.cellData.push([]);
+
                 coldata.forEach( (element:any, colindex:number) => {
 
                     this.initElementFromData(rowindex, colindex, element);

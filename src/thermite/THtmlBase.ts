@@ -454,25 +454,12 @@ export class THtmlBase extends TObject {
     protected initObjfromData(objData:any) {
 
         if(objData.html)
-            this.controlContainer.innerHTML = objData.html;
+            this.controlContainer.innerHTML = this.hostScene.resolveTemplates(objData.html, this._ontologyKey);
 
         if(objData.style) {
             this.addCustomStyles(objData.style, this.cssSheet );
             this.addCSSRules(this.styleElement, this.cssSheet );
         }
-    }
-
-
-    protected resolveDataSource(datasource:string) : any {
-
-        let result:any;
-        let dataPath:Array<string> = datasource.split(".");
-
-        if(dataPath[0] === "$EFL") {
-            result = this.tutorDoc.moduleData[this.hostModule][CONST.SCENE_DATA]._LIBRARY[CONST.EFDATA_TYPE][dataPath[1]];
-        }
-
-        return result;
     }
 
 

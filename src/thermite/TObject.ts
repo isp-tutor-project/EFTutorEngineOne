@@ -105,7 +105,8 @@ export class TObject extends TRoot
 	
 	private _tarObj:string;
     
-    protected _OntologyFtr:Array<string>;
+    protected _ontologyKey:Array<string>;
+    protected _ontologyRef:string;
     protected datasource:any;
 
 	// Factory Object Initialization data for this object - maintains a pointer to the original data source for the object
@@ -252,14 +253,25 @@ export class TObject extends TRoot
 	}
 	
     
-    public setOntology(oFeature:string) {
+    public resolveOntologyKey(ontologyRef:string) {
 
-        this._OntologyFtr = oFeature.split("_");
+        let ontologyKey:string = this.hostScene.resolveRawSelector(ontologyRef, null);
 
-        // Remove the EFO ignature if present
-        // 
-        if(this._OntologyFtr[0].includes("$EFO")) {
-            this._OntologyFtr.splice(0,1);
+        if(ontologyKey) {
+            this._ontologyKey = ontologyKey.split("_");
+
+            // Remove the EFO ignature if present
+            // 
+            if(this._ontologyKey[0].includes("$EFO")) {
+                this._ontologyKey.splice(0,1);
+            }
+
+            // Create the reference used to identify Track segments
+            // 
+            this._ontologyRef = this._ontologyKey.join("");
+        }
+        else {
+            console.error("Error: invalid Ontology Reference: " + ontologyRef );
         }
     }
     
@@ -1524,8 +1536,11 @@ export class TObject extends TRoot
 		{
 			super.deSerializeObj(objData);				
 
+            if(objData.ontologyKey)
+                this.resolveOntologyKey(objData.ontologyKey);
+
             this.xname = objData.xname || this.xname;	
-            					
+            
 			this.x = objData.x || this.x;
 			this.y = objData.y || this.y;
 			

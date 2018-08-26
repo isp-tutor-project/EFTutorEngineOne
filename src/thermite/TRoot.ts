@@ -36,7 +36,9 @@ import DisplayObjectContainer = createjs.Container;
 export class TRoot extends MovieClip
 {				
 	public traceMode:boolean;
-	
+    
+    private clickBoundListener:Function;
+    
 	public xname:string;
 	public static xInstID:number = 1;		
 
@@ -97,11 +99,49 @@ export class TRoot extends MovieClip
 		// Sub-classes can modify xname to have objects persist through 
 		// scene transitions (CEFTransitions)
 		//
-		this.xname = this.nextXname();
+        this.xname = this.nextXname();
+        
+        this.clickBoundListener = this.clickListener.bind(this);
+
     }
 
 	/* ######################################################### */
 	/*  ###########  END CREATEJS SUBCLASS SUPPORT ###########   */
+
+
+    public addListener(target:any, type:string) {
+
+        let listener:Function;
+
+        switch(type) {
+            case "click":
+            listener = this.clickBoundListener;
+            break;
+        }
+
+        target.addEventListener(type, listener);
+    }
+
+
+    public removeListener(target:any, type:string) {
+
+        let listener:Function;
+
+        switch(type) {
+            case "click":
+            listener = this.clickBoundListener;
+            break;
+        }
+
+        target.removeEventListener(type, listener);
+    }
+
+    
+    // always overridden to provide instance functionality
+    // 
+    protected clickListener(e:Event) {        
+    }        
+
 
 	public nextXname() : string {
 
@@ -474,12 +514,18 @@ export class TRoot extends MovieClip
 
         dataElement.forEach(datasource => {
 
-            objData = this.hostScene.resolveSelector(datasource, this._OntologyFtr);
+            objData = this.hostScene.resolveSelector(datasource, this._ontologyKey);
 
             // Recursively deserialize the reference
             // 
             this.deSerializeObj(objData);
         });
+    }
+
+    public resetInitState() {
+
+        if(this._InitData)
+            this.deSerializeObj(this._InitData);
     }
 
 

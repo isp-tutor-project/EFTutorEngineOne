@@ -40,7 +40,8 @@ export class TSceneBase extends TObject
 	[key: string]: any;
 
 	public fComplete:boolean = false;			// scene Complete Flag
-	
+    public graphState:string;
+    
 	// For scenes with Timelines, these arrays are used to fire the appropriate code events 
 	// as the user seeks the play head.
 	//
@@ -122,6 +123,16 @@ export class TSceneBase extends TObject
             this.sceneData      = this.moduleData[this.sceneName];
             this.tutorNavigator = this.tutorDoc.tutorNavigator;
 
+            // Init the tutor state variables - maintain any that are extant
+            // 
+            this.tutorDoc.sceneState[this.name]         = {};
+            this.tutorDoc.moduleState[this.hostModule]  = this.tutorDoc.moduleState[this.hostModule] || {};
+            this.tutorDoc.tutorState                    = this.tutorDoc.tutorState || {};
+
+            this.tutorDoc.sceneChange[this.sceneName]   = {};
+            this.tutorDoc.moduleChange[this.hostModule] = this.tutorDoc.moduleChange[this.hostModule] || {};
+            this.tutorDoc.tutorChange                   = this.tutorDoc.tutorChange                   || {};            
+
             let dataElement:any;
 
 			// Execute the create procedures for this scene instance
@@ -172,32 +183,198 @@ export class TSceneBase extends TObject
 	}
 
 
-    public setTutorState(property:string, value:any) {
+    public getStateValid(property:string[], target:string = CONST.MODULESTATE) {
 
-        this.tutorDoc.tutorState[property] = value;
+        let valid:any = null;
+
+        for(let i1 = 0 ; i1 < property.length ; i1++) {
+
+            switch(target) {
+
+                case CONST.SCENESTATE:
+                    valid = this.tutorDoc.sceneState[this.name][property[i1]];
+                    break;
+
+                case CONST.MODULESTATE:
+                    valid = this.tutorDoc.moduleState[this.hostModule][property[i1]]
+                    break;
+
+                case CONST.TUTORSTATE:
+                    valid = this.tutorDoc.tutorState[property[i1]];
+                    break;
+            }        
+
+            if(!valid) break;
+        }
+
+        return valid? true:false;
     }
 
 
-    public getTutorState(property:string) {
+    public setStateValue(property:string, value:any, target:string = CONST.MODULESTATE) {
 
-        return this.tutorDoc.tutorState[property];
+        switch(target) {
+
+            case CONST.SCENESTATE:
+                this.tutorDoc.sceneState[this.name][property]  = value;
+                this.tutorDoc.sceneChange[this.name][property] = true;
+                break;
+
+            case CONST.MODULESTATE:
+                this.tutorDoc.moduleState[this.hostModule][property]  = value;
+                this.tutorDoc.moduleChange[this.hostModule][property] = true;
+                break;
+
+            case CONST.TUTORSTATE:
+                this.tutorDoc.tutorState[property]  = value;
+                this.tutorDoc.tutorChange[property] = true;
+                break;
+        }        
+    }
+
+    public getStateValue(property:string, target:string = CONST.MODULESTATE) {
+
+        let result:any;
+
+        switch(target) {
+
+            case CONST.SCENESTATE:
+                result = this.tutorDoc.sceneState[this.name][property];
+                break;
+
+            case CONST.MODULESTATE:
+                result = this.tutorDoc.moduleState[this.hostModule][property];
+                break;
+
+            case CONST.TUTORSTATE:
+                result = this.tutorDoc.tutorState[property];
+                break;
+        }        
+
+        result = this.resolveTemplates(result, null);
+
+        return result;
     }
 
 
-    public resolveTemplates(templateStr:string, ontologyFtr:Array<string>) : string {
+    public getRawStateValue(property:string, target:string = CONST.MODULESTATE) {
 
-        let result:string = "";
+        let result:any;
+
+        switch(target) {
+
+            case CONST.SCENESTATE:
+                result = this.tutorDoc.sceneState[this.name][property];
+                break;
+
+            case CONST.MODULESTATE:
+                result = this.tutorDoc.moduleState[this.hostModule][property];
+                break;
+
+            case CONST.TUTORSTATE:
+                result = this.tutorDoc.tutorState[property];
+                break;
+        }        
+
+        return result;
+    }
+
+
+    public queryValueChanged(property:string, target:string = CONST.MODULESTATE) {
+
+        let result:any;
+
+        switch(target) {
+
+            case CONST.SCENESTATE:
+                result = this.tutorDoc.sceneChange[this.name][property];
+                break;
+
+            case CONST.MODULESTATE:
+                result = this.tutorDoc.moduleChange[this.hostModule][property];
+                break;
+
+            case CONST.TUTORSTATE:
+                result = this.tutorDoc.tutorChange[property];
+                break;
+        }        
+
+        return result;
+    }
+
+
+    public clearValueChanged(property:string, target:string = CONST.MODULESTATE) {
+
+        switch(target) {
+
+            case CONST.SCENESTATE:
+                if(property === null)
+                    this.tutorDoc.sceneChange[this.name] = {};
+                else   
+                    this.tutorDoc.sceneChange[this.name][property] = null;
+                break;
+
+            case CONST.MODULESTATE:
+                if(property === null)
+                    this.tutorDoc.moduleChange[this.hostModule] = {};
+                else
+                    this.tutorDoc.moduleChange[this.hostModule][property] = null;
+                break;
+
+            case CONST.TUTORSTATE:
+                if(property === null)
+                    this.tutorDoc.tutorChange = {};
+                else
+                    this.tutorDoc.tutorChange[property] = null;
+                break;
+        }        
+    }
+
+    public testStateValue(property:string, value:any, target:string = CONST.MODULESTATE) {
+
+        let result:boolean = false;
+
+        switch(target) {
+
+            case CONST.SCENESTATE:
+                result = this.tutorDoc.sceneState[this.name][property] === value;
+                break;
+
+            case CONST.MODULESTATE:
+                result = this.tutorDoc.moduleState[this.hostModule][property] === value;
+                break;
+
+            case CONST.TUTORSTATE:
+                result = this.tutorDoc.tutorState[property] === value;
+                break;
+        }        
+
+        return result;
+    }
+
+
+
+
+
+    public resolveTemplates(sourceStr:string, ontologyKey:Array<string>) : string {
+
+        let result:string = sourceStr;  // Don't change non-templates
 
         let templArray:Array<findArray>;
 
-        templArray = this.enumerateTemplates(this.RX_TEMPLATES, templateStr);
+        templArray = this.enumerateTemplates(this.RX_TEMPLATES, sourceStr);
 
-        for(let item of templArray) {
-            item[1] = item[0].replace(this.RX_TEMPLTAGS,"");
+        if(templArray.length > 0) {
+
+            for(let item of templArray) {
+                item[1] = item[0].replace(this.RX_TEMPLTAGS,"");
+            }
+
+            result = this.composeScript(sourceStr, templArray, ontologyKey);
         }
-
-        this.composeScript(templateStr, templArray, ontologyFtr);
-
+        else {
+            result = this.resolveSelector(sourceStr, ontologyKey) || sourceStr;
+        }
         return result;
     }
 
@@ -218,7 +395,7 @@ export class TSceneBase extends TObject
     }
     
     
-    private composeScript(inst:string, templArray:Array<findArray>, ontologyFtr:Array<string>) : string {
+    private composeScript(inst:string, templArray:Array<findArray>, ontologyKey:Array<string>) : string {
 
         let start:number = 0;
         let end:number   = inst.length;
@@ -231,18 +408,24 @@ export class TSceneBase extends TObject
             // 
             for(let templ of templArray) {
     
-                // First add the text before the template if there is any
+                // First add the text before or between template(s) if there is any
                 // 
                 end = templ.index;            
-                if(start < end) {    
+                if(start < end) {  
+                    if(start > 0)
+                        composition += " ";  
+
                     composition += inst.substring(start, end);
                 }
     
                 // then add the template itself
                 start = templ.index;
                 end   = templ.endIndex;
-    
-                composition += this.resolveSelector(templ[1], ontologyFtr);
+
+                if(start > 0)
+                    composition += " ";  
+
+                composition += this.resolveSelector(templ[1], ontologyKey);
     
                 start = end;
             }
@@ -252,61 +435,106 @@ export class TSceneBase extends TObject
         // 
         end = inst.length;            
         if(start < end) {
+
+            if(start > 0)
+                composition += " ";  
+
             composition += inst.substring(start, end);
         }
 
         return composition;
     }
     
-	
-    public resolveSelector(selector:string, ontologyFtr:Array<string>) : any{
+    
+    public resolveSelector(selector:string, ontologyKey:Array<string>, targetThis:any = null) : any{
 
         let result:any = null;
 
         let selectorVal = this.RX_SELECTOR.exec(selector);
 
-        switch(selectorVal[1]) {
+        if(selectorVal) {
 
-            case CONST.ONTOLOGY_SELECTOR:                
+            result = this.resolveRawSelector(selector, ontologyKey, targetThis);
 
-                result = this.resolveOntologySelector(selectorVal[2], ontologyFtr) 
-                break;   
+            //  recursively resolve references for specific selector types
+            // 
+            switch(selectorVal[1]) {
 
-            case CONST.TRACK_SELECTOR:
+                case CONST.SCENESTATE_SELECTOR:
+                case CONST.MODULESTATE_SELECTOR:
+                case CONST.TUTORSTATE_SELECTOR:
 
-                if(this[selectorVal[2]])
-                    result = this[selectorVal[2]];
+                    if(selector !== result)
+                        result = this.resolveSelector(result, null);
+                    break;                
+            }
+        }
+
+        return result;
+    }    
+
+    public resolveRawSelector(selector:string, ontologyKey:Array<string>, targetThis:any = null) : any{
+
+        let dataPath:Array<string>;
+        let result:any = null;
+
+        let selectorVal = this.RX_SELECTOR.exec(selector);
+
+        if(selectorVal) {
+            switch(selectorVal[1]) {
+
+                case CONST.MODULEONTOLOGY_SELECTOR:                
+
+                    result = this.resolveOntologyObject(selectorVal[2], this.tutorDoc.moduleData[this.hostModule][CONST.SCENE_DATA]._ONTOLOGY, ontologyKey) 
+                    break;   
+
+                case CONST.GLOBALONTOLOGY_SELECTOR:                
+
+                    result = this.resolveOntologyObject(selectorVal[2], this.tutorDoc.globalData._ONTOLOGY, ontologyKey) 
+                    break;   
+
+                case CONST.TRACK_SELECTOR:
+
+                    result = targetThis[selectorVal[2]];
+                    break;
+
+                case CONST.SCENESTATE_SELECTOR:
+
+                    result = this.resolveObject(this.tutorDoc.sceneState[this.name], selectorVal[2]);
+                    break;
+
+                case CONST.MODULESTATE_SELECTOR:
+
+                    result = this.resolveObject(this.tutorDoc.moduleState[this.hostModule], selectorVal[2]);
+                    break;
+                
+                case CONST.TUTORSTATE_SELECTOR:
+
+                    result = this.resolveObject(this.tutorDoc.tutorState, selectorVal[2]);
+                    break;
+                
+                case CONST.FOREIGNMODULE_SELECTOR:
+
+                    dataPath = selectorVal[2].split(".");
+
+                    let forMod = this.tutorDoc.moduleData[dataPath[1]];
+
+                    if(!forMod) {
+                        console.log("Error: module for Foreign-Reference missing!")
+                        throw("missing module");
+                    }
+                    result = forMod[CONST.SCENE_DATA]._LIBRARY[dataPath[2]][dataPath[3]];
+                    break;
+
+                case CONST.MODULELIBRARY_SELECTOR:
+
+                    result = this.resolveObject(this.tutorDoc.moduleData[this.hostModule][CONST.SCENE_DATA]._LIBRARY, selectorVal[2]);
+                    break;
+                
+                case CONST.GLOBALLIBRARY_SELECTOR:
+
                 break;
-
-            case CONST.SCENESTATE_SELECTOR:
-
-                break;
-
-            case CONST.TUTORSTATE_SELECTOR:
-
-            break;
-               
-            case CONST.FOREIGNMODULE_SELECTOR:
-
-                let dataPath:Array<string> = selectorVal[2].split(".");
-
-                let forMod = this.tutorDoc.moduleData[dataPath[1]];
-
-                if(!forMod) {
-                    console.log("Error: module for Foreign-Reference missing!")
-                    throw("missing module");
-                }
-                result = forMod[CONST.SCENE_DATA]._LIBRARY[dataPath[2]][dataPath[3]];
-                break;
-
-            case CONST.MODULELIBRARY_SELECTOR:
-
-                result = this.resolveObject(this.tutorDoc.moduleData[this.hostModule][CONST.SCENE_DATA]._LIBRARY, selectorVal[2]);
-                break;
-               
-            case CONST.GLOBALLIBRARY_SELECTOR:
-
-            break;
+            }
         }
 
         return result;
@@ -331,29 +559,23 @@ export class TSceneBase extends TObject
     }
 
 
-    private resolveOntologySelector(templatestr:string, ontologyFtr:Array<string>) : any {
+    private resolveOntologyObject(oSelector:string, ontologyRoot:any, ontologyKey:Array<string>) : any {
 
-        let result:any = templatestr;
-        let rootQ:any  = this.tutorDoc.globalData;
+        let result:any = oSelector;
 
-        let template:Array<string> = this.RX_TEMPLATE.exec(templatestr);
-        
-        if(template) {
-            let OQuery:Array<string> = this.RX_ONTQUERY.exec(templatestr);
+        if(oSelector) {
 
-            if(OQuery) {
-                rootQ = rootQ.ONTOLOGY;
+            let vArray:Array<string> = oSelector.split("|");
+            let qArray:Array<string> = vArray[0].split("_");
 
-                let vArray:Array<string> = OQuery[1].split("|");
-                let qArray:Array<string> = vArray[0].split("_");
-
-                for(let index = 0 ; index < qArray.length ; index++) {
-                    
-                    rootQ = rootQ[qArray[index].includes("?")? ontologyFtr[index]: qArray[index]];
-                }
+            for(let index = 0 ; index < qArray.length ; index++) {
                 
-                result = rootQ[vArray[1]];
+                ontologyRoot = ontologyRoot[qArray[index].includes("?")? ontologyKey[index]: qArray[index]];
             }
+            
+            // May resolve property of object or the object itself
+            // 
+            result = vArray[1]? ontologyRoot[vArray[1]] : ontologyRoot;
         }
 
         return result;
@@ -595,6 +817,13 @@ export class TSceneBase extends TObject
 
 //****** Component Behaviors Start
 
+    public handleEvent() {
+
+        // User selection has been made
+		//
+		this.$handleEvent();
+    }
+
 	/**
 	 */
 	public onSelect(target:string) : void {
@@ -608,7 +837,7 @@ export class TSceneBase extends TObject
 	public onClick(target:string) : void {
 		// User selection has been made
 		//
-		this.$onSelect(target);
+		this.$onClick(target);
 	}
 
 

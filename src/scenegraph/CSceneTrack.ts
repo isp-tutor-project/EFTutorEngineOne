@@ -87,7 +87,9 @@ export class CSceneTrack extends EventDispatcher
     private text:string;
     private cueSet:string;
 
-    private ontologyFtr:Array<string>;
+    private templateRef:any;
+    private _ontologyKey:Array<string>;
+    private _ontologyRef:string;
 
     private segments:Array<segment>;    
     private timedSet:Array<timedEvents>;
@@ -207,7 +209,14 @@ export class CSceneTrack extends EventDispatcher
                         break;
 
                     default:
-                        selector = this.hostScene.resolveSelector(selector, this.ontologyFtr);
+                        // Resolve the ontologyKey defined for the track segment - i.e. deref the variable that contains the
+                        // ontology key for this track segment.
+                        // 
+                        // NOTE: we call the resolver in the context of this scenetrack - so it's ontologyKey is set not the hostScene
+                        // 
+                        this.hostScene.resolveOntologyKey.call(this, this.templateRef[selector]);
+
+                        selector = this._ontologyRef;
                         break;
                 }
 
@@ -216,9 +225,9 @@ export class CSceneTrack extends EventDispatcher
                 // 
                 let segvalue:segmentVal = segment[selector] as segmentVal;
 
-                console.log("Processing segment: " + segvalue.id + " =>" + segvalue.SSML);
+                console.log("Processing segment: " + segvalue.fileid + " =>" + segvalue.SSML);
 
-                sounds.push({src: this._trackname + CONST.SEGMENT_PREFIX + segvalue.id + CONST.VOICE_PREFIX + this.voice + CONST.TYPE_MP3 , id: segvalue.id})
+                sounds.push({src: this._trackname + CONST.SEGMENT_PREFIX + segvalue.fileid + CONST.VOICE_PREFIX + this.voice + CONST.TYPE_MP3 , id: segvalue.fileid})
 
                 this.segSequence.push(segvalue);                
             }
@@ -264,7 +273,7 @@ export class CSceneTrack extends EventDispatcher
                 var props = new createjs.PlayPropsConfig().set({interrupt: createjs.Sound.INTERRUPT_ANY, 
                                                                 volume: segment.volume})
 
-                this.trackAudio = createjs.Sound.play(segment.id, props); 
+                this.trackAudio = createjs.Sound.play(segment.fileid, props); 
 
                 if(segment.trim) {
                     this._asyncPlayTimer  = new CEFTimer(segment.duration - segment.trim);

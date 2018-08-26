@@ -168,8 +168,15 @@ export class CEFTutorDoc extends EventDispatcher implements IEFTutorDoc
 	
 	public fPlaybackMode:boolean = false;
 		
-	public _log:any;							  		// ILogManager - Logging service connection
-    public tutorState:any = {};	                  		// Root Tutor data cache				
+    public _log:any;							  		// ILogManager - Logging service connection
+    
+    public sceneState:any  = {};	 	       	    	     						
+    public moduleState:any = {};	 	       		     						    
+    public tutorState:any  = {};	 	       		         						
+	
+    public sceneChange:any  = {};	        	    	     						
+    public moduleChange:any = {};	 	       		     						    
+    public tutorChange:any  = {};	        		         						
 	
     
 	//*************** Automation Shadow Display List

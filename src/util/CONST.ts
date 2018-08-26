@@ -76,14 +76,20 @@ export class CONST {
     public static readonly SCENE_EXT 				= "sceneExt";
     public static readonly TUTOR_EXT 				= "tutorExt";
     
-    public static readonly ONTOLOGY_SELECTOR        = "$EFO_";
+    public static readonly GLOBALONTOLOGY_SELECTOR  = "$EFGO_";
+    public static readonly MODULEONTOLOGY_SELECTOR  = "$EFO_";
     public static readonly TRACK_SELECTOR           = "$EFTR_";
     public static readonly SCENESTATE_SELECTOR      = "$EFS_";
+    public static readonly MODULESTATE_SELECTOR     = "$EFM_";
     public static readonly TUTORSTATE_SELECTOR      = "$EFT_";
     public static readonly MODULELIBRARY_SELECTOR   = "$EFL_";
     public static readonly GLOBALLIBRARY_SELECTOR   = "$EFG_";
     public static readonly FOREIGNMODULE_SELECTOR   = "$EFFM_";
     
+    public static readonly SCENESTATE    = "SCN";
+    public static readonly MODULESTATE   = "MDL";    
+    public static readonly TUTORSTATE    = "TUT";
+
 
 	public static readonly TUTOR_VARIABLE:string[] = [
         "tutorconfig.json",

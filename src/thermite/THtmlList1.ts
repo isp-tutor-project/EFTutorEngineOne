@@ -272,13 +272,13 @@ export class THtmlList1 extends THtmlBase {
 
 //*************** Serialization
 
-    private selectOption(tar:HTMLElement) {
+    private selectObjectByElement(tar:HTMLElement) {
 
-        this.selected.name  = tar.innerHTML;
-        this.selected.data  = this.getSelectionByName(this.selected.name);      
-        this.selected.value = this.resolveDataSource(this.selected.data.value);
+        let selOption = this.getSelectionByName(tar.innerHTML); 
+
+        this.selected = Object.assign({},selOption);
         
-        this.hostScene.onSelect(this.name);
+        this.hostScene.onSelect(this.name); // Pass control name        
     }
 
 
@@ -289,7 +289,7 @@ export class THtmlList1 extends THtmlBase {
 
         for(let i1 = 0 ; i1 < options.length ; i1++) {
         
-            if(itemName ===  this.hostScene.resolveTemplates(options[i1].name, this._OntologyFtr)) {
+            if(itemName ===  this.hostScene.resolveTemplates(options[i1].name, this._ontologyKey)) {
                 result = options[i1];
                 break;
             }
@@ -306,7 +306,7 @@ export class THtmlList1 extends THtmlBase {
         // 
         var currSel;
 
-        this.selectOption(tar);
+        this.selectObjectByElement(tar);
         
         this.efListBox.innerHTML = tar.innerHTML;
         currSel = this.efListOptions.getElementsByClassName("isselected");
@@ -359,7 +359,7 @@ export class THtmlList1 extends THtmlBase {
         // create a new DIV that will act as an option item:
         let efOption = document.createElement("DIV");
         
-        let name = this.hostScene.resolveTemplates(element.name, this._OntologyFtr);        
+        let name = this.hostScene.resolveTemplates(element.name, this._ontologyKey);        
 
         efOption.innerHTML = name; 
 
@@ -381,7 +381,7 @@ export class THtmlList1 extends THtmlBase {
 
     protected initFromDataSource(datasource:any) {
 
-        let data:any = this.resolveDataSource(datasource);
+        let data:any = this.hostScene.resolveSelector(datasource, this._ontologyKey);
 
         if(data && data.listdata) {
             this.listData = data.listdata;
@@ -392,7 +392,7 @@ export class THtmlList1 extends THtmlBase {
                 this.initListFromData(element);
             });
 
-            this.efListBox.innerHTML = this.hostScene.resolveTemplates(data.listdata.placeHolder, this._OntologyFtr);  
+            this.efListBox.innerHTML = this.hostScene.resolveTemplates(data.listdata.placeHolder, this._ontologyKey);  
         }
     }
 
@@ -406,14 +406,14 @@ export class THtmlList1 extends THtmlBase {
     }
 
 
-   public deSerializeObj(objData:any) : void
-   {
-       console.log("deserializing: Input Custom Control");
+    public deSerializeObj(objData:any) : void
+    {
+        console.log("deserializing: Input Custom Control");
 
-       super.deSerializeObj(objData);				
+        super.deSerializeObj(objData);				
 
-       this.datasource = objData.datasource || this.datasource;
-   }
+        this.datasource = objData.datasource || this.datasource;
+    }
 
 //*************** Serialization
 }
