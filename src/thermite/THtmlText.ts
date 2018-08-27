@@ -144,8 +144,8 @@ export class THtmlText extends THtmlBase {
 
         let data:any = this.hostScene.resolveSelector(datasource, this._ontologyKey);
 
-        if(data.textdata) {
-            this.initObjfromData(data.textdata);
+        if(data) {
+            this.initObjfromData(data);
         }
     }
 

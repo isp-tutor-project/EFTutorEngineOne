@@ -214,7 +214,7 @@ export class CSceneTrack extends EventDispatcher
                         // 
                         // NOTE: we call the resolver in the context of this scenetrack - so it's ontologyKey is set not the hostScene
                         // 
-                        this.hostScene.resolveOntologyKey.call(this, this.templateRef[selector]);
+                        this.hostScene.resolveOntologyKey.call(this, selector, this.templateRef);
 
                         selector = this._ontologyRef;
                         break;

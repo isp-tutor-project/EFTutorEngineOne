@@ -238,7 +238,7 @@ export class THtmlTable extends THtmlBase {
 
     private resolvePlaceHolderElement(selector:string) : string {
 
-        return `<option hidden>${this.hostScene.resolveTemplates(selector, this._ontologyKey)}</option>`;
+        return `<option hidden>${this.hostScene.resolveTemplates(selector, this._templateRef)}</option>`;
     }
 
 
@@ -248,7 +248,7 @@ export class THtmlTable extends THtmlBase {
 
         options.forEach((selector:string )=> {
 
-            optionStr += `<option value="">${this.hostScene.resolveTemplates(selector, this._ontologyKey)}</option>`;            
+            optionStr += `<option value="">${this.hostScene.resolveTemplates(selector, this._templateRef)}</option>`;            
         });
 
         return optionStr;
@@ -259,7 +259,7 @@ export class THtmlTable extends THtmlBase {
 
         let cell = this.table.rows[rowindex].cells.item(colindex);
 
-        let value = this.hostScene.resolveTemplates(element.value, this._ontologyKey);        
+        let value = this.hostScene.resolveTemplates(element.value, this._templateRef);        
 
         switch(value) {
             case "$LIST": 
@@ -278,9 +278,10 @@ export class THtmlTable extends THtmlBase {
         this.cellData[rowindex][colindex] = cell;
     }
 
-    protected initFromDataSource(datasource:any) {
 
-        let data:any = this.hostScene.resolveSelector(datasource, this._ontologyKey);
+    protected initObjfromData(data:any) {
+
+        this._templateRef = data.templateRef;
 
         this.cellData = [];
 
@@ -294,6 +295,16 @@ export class THtmlTable extends THtmlBase {
                     this.initElementFromData(rowindex, colindex, element);
                 });            
             });
+    }
+
+
+    protected initFromDataSource(datasource:any) {
+
+        let data:any = this.hostScene.resolveSelector(datasource, null);
+
+        if(data) {
+            this.initObjfromData(data);
+        }
     }
 
 

@@ -177,7 +177,9 @@ export class CSceneGraph extends CSceneNode
 		{
 			if(name != "COMMENT")		
 			{
-				switch(nodeList[name].subtype)
+                let nodeType:string = nodeList[name].subtype || nodeList[name].type;
+
+				switch(nodeType)
 				{
                     case "module":					
                         try {
@@ -189,7 +191,7 @@ export class CSceneGraph extends CSceneNode
                         break;
                         
                     default:
-                        console.log("Error: Invalid Node Type: " + nodeList[name].subtype);
+                        console.log("Error: Invalid Node Type: " + nodeType);
                         break;
 				}
 			}

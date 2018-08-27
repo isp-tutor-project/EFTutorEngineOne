@@ -289,7 +289,7 @@ export class THtmlList1 extends THtmlBase {
 
         for(let i1 = 0 ; i1 < options.length ; i1++) {
         
-            if(itemName ===  this.hostScene.resolveTemplates(options[i1].name, this._ontologyKey)) {
+            if(itemName ===  this.hostScene.resolveTemplates(options[i1].name, this._templateRef)) {
                 result = options[i1];
                 break;
             }
@@ -359,7 +359,7 @@ export class THtmlList1 extends THtmlBase {
         // create a new DIV that will act as an option item:
         let efOption = document.createElement("DIV");
         
-        let name = this.hostScene.resolveTemplates(element.name, this._ontologyKey);        
+        let name = this.hostScene.resolveTemplates(element.name, this._templateRef);        
 
         efOption.innerHTML = name; 
 
@@ -392,7 +392,7 @@ export class THtmlList1 extends THtmlBase {
                 this.initListFromData(element);
             });
 
-            this.efListBox.innerHTML = this.hostScene.resolveTemplates(data.listdata.placeHolder, this._ontologyKey);  
+            this.efListBox.innerHTML = this.hostScene.resolveTemplates(data.listdata.placeHolder, this._templateRef);  
         }
     }
 

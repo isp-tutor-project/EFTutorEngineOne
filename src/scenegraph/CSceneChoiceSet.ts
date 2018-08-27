@@ -61,7 +61,7 @@ export class CSceneChoiceSet extends CSceneNode
 		
 		// If this is a CNode spec then extract the CNode info - e.g. edges etc. 
 		
-		if(moduleFactory.type == "node")
+		if(moduleFactory.type == "moduleRef")
 		{
 			node.nodeFactory(parent, nodeName, moduleFactory);
 			

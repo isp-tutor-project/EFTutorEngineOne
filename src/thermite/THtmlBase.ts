@@ -453,8 +453,10 @@ export class THtmlBase extends TObject {
     
     protected initObjfromData(objData:any) {
 
+        this._templateRef = objData.templateRef;
+
         if(objData.html)
-            this.controlContainer.innerHTML = this.hostScene.resolveTemplates(objData.html, this._ontologyKey);
+            this.controlContainer.innerHTML = this.hostScene.resolveTemplates(objData.html, this._templateRef);
 
         if(objData.style) {
             this.addCustomStyles(objData.style, this.cssSheet );

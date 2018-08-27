@@ -356,7 +356,7 @@ export class TSceneBase extends TObject
 
 
 
-    public resolveTemplates(sourceStr:string, ontologyKey:Array<string>) : string {
+    public resolveTemplates(sourceStr:string, templateRef:any) : string {
 
         let result:string = sourceStr;  // Don't change non-templates
 
@@ -370,10 +370,10 @@ export class TSceneBase extends TObject
                 item[1] = item[0].replace(this.RX_TEMPLTAGS,"");
             }
 
-            result = this.composeScript(sourceStr, templArray, ontologyKey);
+            result = this.composeScript(sourceStr, templArray, templateRef);
         }
         else {
-            result = this.resolveSelector(sourceStr, ontologyKey) || sourceStr;
+            result = this.resolveSelector(sourceStr, templateRef) || sourceStr;
         }
         return result;
     }
@@ -395,7 +395,7 @@ export class TSceneBase extends TObject
     }
     
     
-    private composeScript(inst:string, templArray:Array<findArray>, ontologyKey:Array<string>) : string {
+    private composeScript(inst:string, templArray:Array<findArray>, templateRef:any) : string {
 
         let start:number = 0;
         let end:number   = inst.length;
@@ -425,7 +425,7 @@ export class TSceneBase extends TObject
                 if(start > 0)
                     composition += " ";  
 
-                composition += this.resolveSelector(templ[1], ontologyKey);
+                composition += this.resolveSelector(templ[1], templateRef);
     
                 start = end;
             }
@@ -446,7 +446,7 @@ export class TSceneBase extends TObject
     }
     
     
-    public resolveSelector(selector:string, ontologyKey:Array<string>, targetThis:any = null) : any{
+    public resolveSelector(selector:string, templateRef:any, targetThis:any = null) : any{
 
         let result:any = null;
 
@@ -454,7 +454,7 @@ export class TSceneBase extends TObject
 
         if(selectorVal) {
 
-            result = this.resolveRawSelector(selector, ontologyKey, targetThis);
+            result = this.resolveRawSelector(selector, templateRef, targetThis);
 
             //  recursively resolve references for specific selector types
             // 
@@ -473,7 +473,7 @@ export class TSceneBase extends TObject
         return result;
     }    
 
-    public resolveRawSelector(selector:string, ontologyKey:Array<string>, targetThis:any = null) : any{
+    public resolveRawSelector(selector:string, templateRef:any, targetThis:any = null) : any{
 
         let dataPath:Array<string>;
         let result:any = null;
@@ -485,12 +485,12 @@ export class TSceneBase extends TObject
 
                 case CONST.MODULEONTOLOGY_SELECTOR:                
 
-                    result = this.resolveOntologyObject(selectorVal[2], this.tutorDoc.moduleData[this.hostModule][CONST.SCENE_DATA]._ONTOLOGY, ontologyKey) 
+                    result = this.resolveOntologyObject(selectorVal[2], this.tutorDoc.moduleData[this.hostModule][CONST.SCENE_DATA]._ONTOLOGY, templateRef) 
                     break;   
 
                 case CONST.GLOBALONTOLOGY_SELECTOR:                
 
-                    result = this.resolveOntologyObject(selectorVal[2], this.tutorDoc.globalData._ONTOLOGY, ontologyKey) 
+                    result = this.resolveOntologyObject(selectorVal[2], this.tutorDoc.globalData._ONTOLOGY, templateRef) 
                     break;   
 
                 case CONST.TRACK_SELECTOR:
@@ -559,18 +559,20 @@ export class TSceneBase extends TObject
     }
 
 
-    private resolveOntologyObject(oSelector:string, ontologyRoot:any, ontologyKey:Array<string>) : any {
+    private resolveOntologyObject(oSelector:string, ontologyRoot:any, templateRef:any) : any {
 
         let result:any = oSelector;
 
         if(oSelector) {
+
+            this.resolveOntologyKey(oSelector, templateRef);
 
             let vArray:Array<string> = oSelector.split("|");
             let qArray:Array<string> = vArray[0].split("_");
 
             for(let index = 0 ; index < qArray.length ; index++) {
                 
-                ontologyRoot = ontologyRoot[qArray[index].includes("?")? ontologyKey[index]: qArray[index]];
+                ontologyRoot = ontologyRoot[qArray[index].includes("?")? this.ontologyKey[index]: qArray[index]];
             }
             
             // May resolve property of object or the object itself
