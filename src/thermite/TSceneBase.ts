@@ -24,12 +24,14 @@ import { CEFSeekEvent }		from "../events/CEFSeekEvent";
 
 import { ILogManager }  	from "../managers/ILogManager";
 
+import { findArray }        from "../scenegraph/IAudioTypes";
 
 import { CONST }            from "../util/CONST";
 import { CUtil } 			from "../util/CUtil";
 
 import DisplayObject      = createjs.DisplayObject;
-import { findArray } from "../scenegraph/IAudioTypes";
+
+
 
 
 export class TSceneBase extends TObject
@@ -70,6 +72,17 @@ export class TSceneBase extends TObject
     private RX_TEMPLATE:RegExp;
     private RX_ONTQUERY:RegExp;
 
+    private RX_GENSELECTOR:RegExp;     // Can decompose all selector types
+    private RX_GENTEMPLATE:RegExp;     // Can decompose only Ontology selectors
+    
+    private NDX_RAWTEMPLATE:number  = 0;      // e.g. "{{$EFO_S_A?|name}}"    | "{{$EFM_selectedArea.ontologyKey}}"
+    private NDX_RAWSELECTOR:number  = 1;      // e.g. "$EFO_S_A?|name"        | "$EFM_selectedArea.ontologyKey"
+    private NDX_SELECTORSIG:number  = 2;      // e.g. "$EFO_"                 | "$EFM_"
+    private NDX_SELECTOR:number     = 3;      // e.g. "S_A?|name"             | "selectedArea.ontologyKey"
+    private NDX_OBJSELECTOR:number  = 4;      // e.g. "S_A?"                  | "selectedArea.ontologyKey"
+    private NDX_PROPSELECTOR:number = 5;      // e.g. "name"                  | ""
+    
+
 	/**
 	 * Scene Constructor
 	 */
@@ -107,7 +120,18 @@ export class TSceneBase extends TObject
         this.RX_TEMPLTAGS = /\{\{|\}\}/g;
         this.RX_TEMPLATE  = /{{[\$\w\.\?_\|]*}}/;
         this.RX_ONTQUERY  = /{{\$EFO_([\w\.\?]*\|\w*)}}/;
+
+        this.RX_GENSELECTOR = /\{\{((\$EF\w*?_)(([\w_\.\?]*)\|?([\w_\?]*)))\}\}/g;
+        this.RX_GENTEMPLATE = /\{\{((\$EF\w*?_)(([\w_\?]*)\|([\w_\?]*)))\}\}/g;
     
+        this.NDX_RAWTEMPLATE  = 0; 
+        this.NDX_RAWSELECTOR  = 1; 
+        this.NDX_SELECTORSIG  = 2; 
+        this.NDX_SELECTOR     = 3; 
+        this.NDX_OBJSELECTOR  = 4; 
+        this.NDX_PROPSELECTOR = 5; 
+
+
 	}
 
 /* ######################################################### */
@@ -362,13 +386,9 @@ export class TSceneBase extends TObject
 
         let templArray:Array<findArray>;
 
-        templArray = this.enumerateTemplates(this.RX_TEMPLATES, sourceStr);
+        templArray = this.enumerateTemplates(this.RX_GENSELECTOR, sourceStr);
 
         if(templArray.length > 0) {
-
-            for(let item of templArray) {
-                item[1] = item[0].replace(this.RX_TEMPLTAGS,"");
-            }
 
             result = this.composeScript(sourceStr, templArray, templateRef);
         }
@@ -388,7 +408,7 @@ export class TSceneBase extends TObject
     
             templArray.push(templ);
             templ.endIndex = regex.lastIndex;
-            // console.log(`Found ${templ[0]} at: ${templ.index} Next starts at ${regex.lastIndex}.`);
+            // console.log(`Found ${templ[NDX_RAWTEMPLATE]} at: ${templ.index} Next starts at ${regex.lastIndex}.`);
         }
     
         return templArray;
@@ -425,7 +445,7 @@ export class TSceneBase extends TObject
                 if(start > 0)
                     composition += " ";  
 
-                composition += this.resolveSelector(templ[1], templateRef);
+                composition += this.resolveSelector(templ[this.NDX_RAWSELECTOR], templateRef);
     
                 start = end;
             }
@@ -572,7 +592,7 @@ export class TSceneBase extends TObject
 
             for(let index = 0 ; index < qArray.length ; index++) {
                 
-                ontologyRoot = ontologyRoot[qArray[index].includes("?")? this.ontologyKey[index]: qArray[index]];
+                ontologyRoot = ontologyRoot[qArray[index].includes("?")? this._ontologyKey[index]: qArray[index]];
             }
             
             // May resolve property of object or the object itself

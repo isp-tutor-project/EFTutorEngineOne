@@ -53,6 +53,7 @@ export class CONST {
     public static readonly SEGMENT_PREFIX:string        = "_s";
     public static readonly VOICE_PREFIX:string          = "_v";
     public static readonly ANMODULE_FILEPATH:string     = ".js";
+    public static readonly COMMONAUDIO:string           = "common/";
     public static readonly TYPE_MP3                     = ".mp3";
     public static readonly TYPE_WAV                     = ".wav";
 

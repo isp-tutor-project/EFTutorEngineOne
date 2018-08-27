@@ -256,23 +256,32 @@ export class TObject extends TRoot
     
     public resolveOntologyKey(selector:string, templateRef:any) {
 
-        //  Use the prescribed selector or the default if present
-        // 
-        let ontologyRef:string = templateRef[selector] || templateRef["*"];
+        if(templateRef) {
 
-        this._ontologyRef = this.hostScene.resolveRawSelector(ontologyRef, null);
-
-        if(this._ontologyRef) {
-            this._ontologyKey = this._ontologyRef.split("_");
-
-            // Remove the EFO ignature if present
+            //  Use the prescribed selector or the default if present
             // 
-            if(this._ontologyKey[0].includes("$EFO")) {
-                this._ontologyKey.splice(0,1);
+            let ontologyRef:string = templateRef[selector] || templateRef["*"];
+
+            if(!ontologyRef) {
+                console.error("ERROR: missing Template Reference for:" + selector);
             }
-        }
-        else {
-            console.error("Error: invalid Ontology Reference: " + ontologyRef );
+
+            this._ontologyRef = this.resolveRawSelector(ontologyRef, null);
+
+            if(this._ontologyRef) {
+
+                let objSelector   = this._ontologyRef.split("|");
+                this._ontologyKey = objSelector[0].split("_");
+
+                // Remove the EFO ignature if present
+                // 
+                // if(this._ontologyKey[0].includes("$EFO")) {
+                //     this._ontologyKey.splice(0,1);
+                // }
+            }
+            else {
+                console.error("Error: invalid Ontology Reference: " + ontologyRef );
+            }
         }
     }
     

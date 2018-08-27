@@ -453,7 +453,7 @@ export class THtmlBase extends TObject {
     
     protected initObjfromData(objData:any) {
 
-        this._templateRef = objData.templateRef;
+        this._templateRef = this._templateRef || objData.templateRef;
 
         if(objData.html)
             this.controlContainer.innerHTML = this.hostScene.resolveTemplates(objData.html, this._templateRef);
@@ -492,16 +492,19 @@ export class THtmlBase extends TObject {
             }
 
         }
-        // Ignore non-initializer packets
+
+        // Note we may use both html data and data sources to initialize
+        // components
         // 
         else if(objData.htmlData){
             this.initObjfromData(objData.htmlData);
             this.invertScale();
-            this.datasource = objData.datasource;
         }
 
-        if(this.datasource) {
-            this.initFromDataSource(this.datasource);
+        // Use datasource to initialize
+        // 
+        if(objData.datasource) {
+            this.initFromDataSource(objData.datasource);
         }
 
     }

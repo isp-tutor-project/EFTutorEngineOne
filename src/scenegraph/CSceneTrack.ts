@@ -101,7 +101,10 @@ export class CSceneTrack extends EventDispatcher
     private _asyncCueTimer:CEFTimer;
     private _cueTimers:Array<CEFTimer>;
 
-	
+    private RX_DELIMITERS:RegExp = /[_|]/g;
+
+
+    
 	constructor(_tutorDoc:IEFTutorDoc, factory:any, parent:CSceneGraph)
 	{			
         super();
@@ -179,6 +182,32 @@ export class CSceneTrack extends EventDispatcher
     }
     
 
+    public resolveOntologyKey(selector:string, templateRef:any) {
+
+        if(templateRef) {
+
+            //  Use the prescribed selector or the default if present
+            // 
+            let ontologyRef:string = templateRef[selector] || templateRef["*"];
+
+            if(!ontologyRef) {
+                console.error("ERROR: missing Template Reference for:" + selector);
+            }
+            
+            this._ontologyRef = this.hostScene.resolveRawSelector(ontologyRef, null);
+
+            if(this._ontologyRef) {
+
+                let objSelector   = this._ontologyRef.split("|");
+                this._ontologyKey = objSelector[0].split("_");
+            }
+            else {
+                console.error("Error: invalid Ontology Reference: " + ontologyRef );
+            }
+        }
+    }
+
+
     /**
      * Attach the moduleData track declaration to this object.
      * 
@@ -187,8 +216,10 @@ export class CSceneTrack extends EventDispatcher
      */
     public registerTrack() {
  
-        let assetPath = [this.hostModule] + CONST.TRACKASSETS_FILEPATH + this.language + "/" + this.sceneName + "/";
+        let assetPath = [this.hostModule] + CONST.TRACKASSETS_FILEPATH + this.language + "/";
         let sounds = [];
+        let filename:string;
+        let segvalue:segmentVal;
 
         this.segSequence = [];
 
@@ -205,7 +236,12 @@ export class CSceneTrack extends EventDispatcher
                 switch(selector) {
 
                     case CONST.NOVAR:
-                        // NOOP - we use the template  __novar value itself - i.e. the segment is not a template
+                        // Use the value "__novar" or the resolved template value to determine the Value to use 
+                        // for this iteration
+                        // 
+                        segvalue = segment[selector] as segmentVal;
+
+                        filename = this.sceneName + "/" + this._trackname + CONST.SEGMENT_PREFIX + segvalue.fileid + CONST.VOICE_PREFIX + this.voice + CONST.TYPE_MP3;
                         break;
 
                     default:
@@ -214,20 +250,24 @@ export class CSceneTrack extends EventDispatcher
                         // 
                         // NOTE: we call the resolver in the context of this scenetrack - so it's ontologyKey is set not the hostScene
                         // 
-                        this.hostScene.resolveOntologyKey.call(this, selector, this.templateRef);
+                        this.resolveOntologyKey(selector, this.templateRef);
+                        
+                        let selectorreg = this._ontologyRef.replace(this.RX_DELIMITERS, "");
 
-                        selector = this._ontologyRef;
+                        // Use the delimiter-stripped Selector reference to determine the Value to use 
+                        // for this iteration. This is to mirror how the audio builder generates template
+                        // segment names
+                        // 
+                        segvalue = segment[selectorreg] as segmentVal;
+
+                        filename = CONST.COMMONAUDIO + selectorreg + CONST.VOICE_PREFIX + this.voice + CONST.TYPE_MP3;
                         break;
                 }
 
-                // Use the value "__novar" or the resolved template value to determine the Value to use 
-                // for this iteration
-                // 
-                let segvalue:segmentVal = segment[selector] as segmentVal;
 
                 console.log("Processing segment: " + segvalue.fileid + " =>" + segvalue.SSML);
 
-                sounds.push({src: this._trackname + CONST.SEGMENT_PREFIX + segvalue.fileid + CONST.VOICE_PREFIX + this.voice + CONST.TYPE_MP3 , id: segvalue.fileid})
+                sounds.push({src:filename, id: segvalue.fileid})
 
                 this.segSequence.push(segvalue);                
             }

@@ -192,6 +192,9 @@ export class THtmlTable extends THtmlBase {
         this.hostScene.handleEvent();
     }        
 
+    public hideCells(left:number, top:number, right:number, bottom:number) {
+    }
+    
 
     public listenToCells(type:string, left:number, top:number, right:number, bottom:number) {
 
@@ -281,11 +284,11 @@ export class THtmlTable extends THtmlBase {
 
     protected initObjfromData(data:any) {
 
-        this._templateRef = data.templateRef;
+        super.initObjfromData(data);
 
-        this.cellData = [];
+        if(data.tabledata) {
+            this.cellData = [];
 
-        if(data.tabledata.rowdata)
             data.tabledata.rowdata.forEach( (coldata:any, rowindex:number) => {
             
                 this.cellData.push([]);
@@ -295,6 +298,7 @@ export class THtmlTable extends THtmlBase {
                     this.initElementFromData(rowindex, colindex, element);
                 });            
             });
+        }
     }
 
 
