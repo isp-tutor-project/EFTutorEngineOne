@@ -171,7 +171,7 @@ export class THtmlBase extends TObject {
 
             this.styleElement       = document.createElement('style');
             this.styleElement.type  = 'text/css';
-            this.styleElement.id    = 'scene1Input1';
+            this.styleElement.id    = this.name.toLowerCase();
 
             // Note that the sheet property is null until the element is added to the 
             // page.
@@ -389,7 +389,7 @@ export class THtmlBase extends TObject {
 
         try {
             this._currObjNdx = this.effectNewIndex;
-            this.initObjfromData(this._objDataArray[this.effectNewIndex]);
+            this.deSerializeObj(this._objDataArray[this.effectNewIndex]);
         }
         catch(err) {
 
@@ -426,8 +426,10 @@ export class THtmlBase extends TObject {
 	}				
 
 
+    
+//*************** Serialization
 
-    private addCustomStyles(srcStyle:any, tarStyle:any) {
+    protected addCustomStyles(srcStyle:any, tarStyle:any) {
 
         for(let ruleSet in srcStyle) {
             
@@ -442,25 +444,29 @@ export class THtmlBase extends TObject {
         }
     }
 
-    
-    private initObjfromData(objData:any) {
 
-        this.controlContainer.innerHTML = objData.html;
+    protected initObjfromHtmlData(objData:any) {
 
-        this.addCustomStyles(objData.style, this.cssSheet );
-        this.addCSSRules(this.styleElement, this.cssSheet );
+        if(objData.htmlData) {
+            
+            if(objData.htmlData.html)
+                this.controlContainer.innerHTML = this.hostScene.resolveTemplates(objData.htmlData.html, this._templateRef);
 
-        this.invertScale();
+            if(objData.htmlData.style) {
+                this.addCustomStyles(objData.htmlData.style, this.cssSheet );
+                this.addCSSRules(this.styleElement, this.cssSheet );
+            }
 
+            this.invertScale();
+        }
     }
 
 
-    /*
-    * 
-    */
     public deSerializeObj(objData:any) : void
     {
         console.log("deserializing: HTMLBase Custom Control");
+
+        super.deSerializeObj(objData);
 
         if(Array.isArray(objData)) {
 
@@ -468,19 +474,19 @@ export class THtmlBase extends TObject {
 
             for(let i1 = 0; i1 < objData.length ; i1++) {
 
+                // Ignore non-initializer packets
+                // 
+                if(!objData[i1])
+                                    break;
+
                 if(objData[i1].default) {
                     this._currObjNdx = i1;
-                    this.initObjfromData(objData[i1]);
+                    this.initObjfromHtmlData(objData[i1]);
                     break;
                 }
             }
-
         }
-        else {
-            this._objDataArray = null;            
-            this.initObjfromData(objData);
-        }
-
-        super.deSerializeObj(objData);				
     }
+
+//*************** Serialization    
 }

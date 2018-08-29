@@ -232,7 +232,7 @@ export class TScene extends TSceneBase
 		}
 		catch(err)							
 		{
-			CUtil.trace("Error: scenegraph connect Failed: " + err);
+			console.error("Error: scenegraph connect Failed: " + err);
 		}
 	}
 

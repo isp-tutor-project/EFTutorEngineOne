@@ -25,6 +25,7 @@ import { CSceneEdge } 		from "./CSceneEdge";
 import { CSceneTrack }      from "./CSceneTrack";
 
 import EventDispatcher 	  = createjs.EventDispatcher;
+import { TScene } from "../thermite/TScene";
 
 
 
@@ -32,7 +33,8 @@ export class CSceneNode extends EventDispatcher
 {
 	protected tutorDoc:IEFTutorDoc;		
 	protected _parent:CSceneGraph;
-	
+    protected _parentScene:TScene;
+
 	protected _id:string;
 	protected _name:string;
 	protected _type:string;
@@ -50,7 +52,8 @@ export class CSceneNode extends EventDispatcher
     
 	protected nodeFactory(parent:CSceneGraph, id:string, nodefactory:any) : void
 	{
-		this._parent = parent;
+        this._parent = parent;
+        this._parentScene = parent._parentScene;        
 		
 		this._id    = id;			
 		this._type  = nodefactory.type; 		
@@ -84,6 +87,11 @@ export class CSceneNode extends EventDispatcher
 				
 				if(node != null)
 				{
+                    // Keep a copy of the scene state ID for use in scene mixins so
+                    // they can tell what state the scene is in.
+                    //  
+                    this._parentScene.graphState = node._id;
+
                     node._parent.sceneInstance.$nodePreEnter(node._id);	
 				}
 				

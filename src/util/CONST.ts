@@ -22,29 +22,43 @@ export class CONST {
 	public static readonly EFTEXT_TYPE        = "eftext";
 	public static readonly EFINPUT_TYPE       = "efinput";
 	public static readonly EFLISTBOX_TYPE     = "eflist";
-	public static readonly EFTABLE_TYPE       = "eftable";
+    public static readonly EFTABLE_TYPE       = "eftable";
+    public static readonly EFDATA_TYPE        = "efdata";
 
 	public static readonly GLOBAL_MODULE      = "$GLOBAL";
 	public static readonly GLOBAL_CODE        = "$GLOBAL";
 	public static readonly COMMON_CODE        = "$Common";
 	public static readonly EXT_SIG            = "$";
 
+    // Webroot relative paths    
+    public static readonly TUTOR_COMMONPATH:string      = "EFTutors/";
     public static readonly ACCOUNT_LOADER:string        = "/EFTutors/accounts.json";
+    
+    // EFMod<ule> relative paths
     public static readonly MODID_FILEPATH:string        = "/EFconfig.json";
     public static readonly GRAPH_FILEPATH:string        = "/EFgraphs/scenegraphs.json";
     public static readonly EXTS_FILEPATH:string         = "/EFbuild/exts.js";
     public static readonly MIXINS_FILEPATH:string       = "/EFbuild/mixins.js";
-    public static readonly DATA_FILEPATH:string         = "/EFdata/_EFSCENEDATA.json";
-    public static readonly LIBR_FILEPATH:string         = "/EFdata/_EFLIBRARY.json";
+    public static readonly DATA_FILEPATH:string         = "/EFbuild/_EFTUTORDATA.json";
+    public static readonly LIBR_FILEPATH:string         = "/EFbuild/_EFLIBRARYDATA.json";
     public static readonly FONTFACE_FILEPATH:string     = "/EFfonts/fontfaces.css";
     public static readonly TRACKDATA_FILEPATH:string    = "/EFaudio/EFscripts/script_assets.json";
     public static readonly TRACKASSETS_FILEPATH:string  = "/EFaudio/EFassets/";
+
+    // EFTutors relative paths
     public static readonly GLOBALS_FILEPATH:string      = "/EFbuild/globals.js";
+    public static readonly GDATA_FILEPATH:string        = "/EFbuild/_EFTUTORDATA.json";
+    public static readonly GLIBR_FILEPATH:string        = "/EFbuild/_EFLIBRARYDATA.json";
+
     public static readonly SEGMENT_PREFIX:string        = "_s";
     public static readonly VOICE_PREFIX:string          = "_v";
     public static readonly ANMODULE_FILEPATH:string     = ".js";
+    public static readonly COMMONAUDIO:string           = "common/";
     public static readonly TYPE_MP3                     = ".mp3";
     public static readonly TYPE_WAV                     = ".wav";
+
+    public static readonly TUTOR_GLOBALCODE            = "TutorGlobalCode";
+    public static readonly TUTOR_GLOBALDATA            = "TutorGlobalData";
 
     public static readonly LOCAL:string                 = "LOCAL";
     public static readonly WAIT:number                  = 250;
@@ -63,6 +77,19 @@ export class CONST {
     public static readonly SCENE_EXT 				= "sceneExt";
     public static readonly TUTOR_EXT 				= "tutorExt";
     
+    public static readonly GLOBALONTOLOGY_SELECTOR  = "$EFGO_";
+    public static readonly MODULEONTOLOGY_SELECTOR  = "$EFO_";
+    public static readonly TRACK_SELECTOR           = "$EFTR_";
+    public static readonly SCENESTATE_SELECTOR      = "$EFS_";
+    public static readonly MODULESTATE_SELECTOR     = "$EFM_";
+    public static readonly TUTORSTATE_SELECTOR      = "$EFT_";
+    public static readonly MODULELIBRARY_SELECTOR   = "$EFL_";
+    public static readonly GLOBALLIBRARY_SELECTOR   = "$EFG_";
+    public static readonly FOREIGNMODULE_SELECTOR   = "$EFFM_";
+    
+    public static readonly SCENESTATE    = "SCN";
+    public static readonly MODULESTATE   = "MDL";    
+    public static readonly TUTORSTATE    = "TUT";
 
 
 	public static readonly TUTOR_VARIABLE:string[] = [
@@ -79,10 +106,7 @@ export class CONST {
     //** Transition constants */
 	public static readonly EFFECT_FADE   	= "fade";
 	public static readonly EFFECT_SWAP 		= "swap";
-
-    
-
-	//**  Button States - must match AnimateCC code conventions : see Adobe generated JS code */
+    	//**  Button States - must match AnimateCCData conventions : see Adobe generated JS code */
 
 	public static STATE_UP   		= "";
 	public static STATE_OVER 		= "";

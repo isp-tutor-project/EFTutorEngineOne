@@ -59,6 +59,7 @@ export interface IEFTutorDoc {
 
     modules:Array<LoaderPackage.IModuleDescr>;
     moduleData:any;
+    globalData:any;
 
     state:Array<string>;
     scenedata:Array<string>;
@@ -121,9 +122,15 @@ export interface IEFTutorDoc {
 	
 	fPlaybackMode:boolean;
 	
-	_log:any;							        // ILogManager - Logging service connection
-    SceneData:string;	       		     		// Root Tutor data cache				
+    _log:any;							        // ILogManager - Logging service connection
+    
+    sceneState:any;	       	    	     						
+    moduleState:any;	       		     						    
+    tutorState:any;	       		         						
 	
+    sceneChange:any;	       	    	     						
+    moduleChange:any;	       		     						    
+    tutorChange:any;	       		         						
 	
     // CSceneGraphNavigator
     //

@@ -19,11 +19,12 @@
 
 import { IEFTutorDoc } 			from "../core/IEFTutorDoc";
 
+import { TScene }               from "./TScene";
 import { TSceneBase }     		from "./TSceneBase";
 import { TTutorContainer } 		from "./TTutorContainer";
 
+import { CONST }                from "../util/CONST";
 import { CUtil } 				from "../util/CUtil";
-
 
 import MovieClip     		  = createjs.MovieClip;
 import DisplayObject 		  = createjs.DisplayObject;
@@ -35,9 +36,18 @@ import DisplayObjectContainer = createjs.Container;
 export class TRoot extends MovieClip
 {				
 	public traceMode:boolean;
-	
+    
+    private clickBoundListener:Function;
+    private changeBoundListener:Function;
+    
 	public xname:string;
 	public static xInstID:number = 1;		
+
+	public hostModule:string;
+	public hostScene:TScene;
+
+    protected _InitData:string;
+	protected _DataSnapShot:string;
 
 	public tutorDoc:IEFTutorDoc;
 	public tutorAutoObj:any;		// This allows us to automate non-EF objects - They have no code behind and therefore no local variables to store initial state
@@ -90,11 +100,58 @@ export class TRoot extends MovieClip
 		// Sub-classes can modify xname to have objects persist through 
 		// scene transitions (CEFTransitions)
 		//
-		this.xname = this.nextXname();
+        this.xname = this.nextXname();
+        
+        this.clickBoundListener  = this.clickListener.bind(this);
+        this.changeBoundListener = this.changeListener.bind(this);
+
     }
 
 	/* ######################################################### */
 	/*  ###########  END CREATEJS SUBCLASS SUPPORT ###########   */
+
+
+    public addListener(target:any, type:string) {
+
+        let listener:Function;
+
+        switch(type) {
+            case "click":
+            listener = this.clickBoundListener;
+            break;
+            case "change":
+            listener = this.changeBoundListener;
+            break;
+        }
+
+        target.addEventListener(type, listener);
+    }
+
+
+    public removeListener(target:any, type:string) {
+
+        let listener:Function;
+
+        switch(type) {
+            case "click":
+            listener = this.clickBoundListener;
+            break;
+            case "change":
+            listener = this.changeBoundListener;
+            break;
+        }
+
+        target.removeEventListener(type, listener);
+    }
+
+    
+    // always overridden to provide instance functionality
+    // 
+    protected clickListener(e:Event) {        
+    }        
+    protected changeListener(e:Event) {        
+    }        
+
 
 	public nextXname() : string {
 
@@ -180,14 +237,8 @@ export class TRoot extends MovieClip
 	public resetXML() : void
 	{
 	}		
-	
-	/*
-		* 
-		*/
-	public deSerializeObj(objData:any) : void
-	{
-	}
-	
+    
+    
 	/*
 		* 
 		*/
@@ -462,5 +513,73 @@ export class TRoot extends MovieClip
 	}
 			
 //***************** Debug *******************************		
-	
+
+
+//*************** Serialization
+
+
+    protected initObjfromHtmlData(objData:any) {
+    }
+
+
+    private resolveReferences(...dataElement:any[]) {
+
+        let objData:any;
+
+        dataElement.forEach(datasource => {
+
+            objData = this.hostScene.resolveSelector(datasource, this._ontologyKey);
+
+            // Recursively deserialize the reference
+            // 
+            this.deSerializeObj(objData);
+        });
+    }
+
+    public resetInitState() {
+
+        if(this._InitData)
+            this.deSerializeObj(this._InitData);
+    }
+
+
+    private initFromDataSource(datasource:any) {
+
+        let data:any = this.hostScene.resolveSelector(datasource, this._ontologyKey);
+
+        this.deSerializeObj(data);
+    }
+
+
+    public deSerializeObj(objData:any) : void
+    {
+        // Keep a pointer to the object spec
+        // 
+        this._InitData    = this._InitData    || Object.assign({}, objData);        
+        this._templateRef = this._templateRef || objData.templateRef;
+
+        // resolve layout datareferences
+        // 
+        if(objData.layoutsource) {
+            this.resolveReferences(objData.layoutsource);
+        }
+
+        // Note we may use both html data and data sources to initialize
+        // components
+        // 
+        if(objData.htmlData){
+            this.initObjfromHtmlData(objData);
+        }
+
+        // Use datasource to initialize
+        // 
+        if(objData.datasource) {
+            this.initFromDataSource(objData.datasource);
+        }        				
+
+    }
+    
+//*************** Serialization
+    
 }
+

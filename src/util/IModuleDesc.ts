@@ -13,4 +13,3 @@ export interface IModuleDesc {
     URL:string;
     instance:any;
 }
-

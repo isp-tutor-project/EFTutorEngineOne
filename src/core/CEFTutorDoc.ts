@@ -34,7 +34,6 @@ import { CUtil }                from "../util/CUtil";
 
 
 import EventDispatcher 		  = createjs.EventDispatcher;
-import { CEFTimer } from "./CEFTimer";
 
 
 
@@ -107,6 +106,7 @@ export class CEFTutorDoc extends EventDispatcher implements IEFTutorDoc
 
     public modules:Array<LoaderPackage.IModuleDescr>;
     public moduleData:any;
+    public globalData:any;
 
     public state:Array<string>;
     public scenedata:Array<string>;
@@ -168,8 +168,15 @@ export class CEFTutorDoc extends EventDispatcher implements IEFTutorDoc
 	
 	public fPlaybackMode:boolean = false;
 		
-	public _log:any;							  		// ILogManager - Logging service connection
-    public SceneData:string = "";	            		// Root Tutor data cache				
+    public _log:any;							  		// ILogManager - Logging service connection
+    
+    public sceneState:any  = {};	 	       	    	     						
+    public moduleState:any = {};	 	       		     						    
+    public tutorState:any  = {};	 	       		         						
+	
+    public sceneChange:any  = {};	        	    	     						
+    public moduleChange:any = {};	 	       		     						    
+    public tutorChange:any  = {};	        		         						
 	
     
 	//*************** Automation Shadow Display List
@@ -205,6 +212,7 @@ export class CEFTutorDoc extends EventDispatcher implements IEFTutorDoc
         this.sceneGraph = {};
         this.modules    = new Array<LoaderPackage.IModuleDescr>();
         this.moduleData = {};
+        this.globalData = {};
 
         // Frame counter - for logging
 		// NOTE: this must be the first ENTER_FRAME event listener 
@@ -490,15 +498,15 @@ export class CEFTutorDoc extends EventDispatcher implements IEFTutorDoc
 
 //***************** Globals ****************************
 
-
+    // deprecated - was XML data repository
     public get gData():string
     {
-        return this.SceneData;
+        return "";
     }
 
+    // deprecated
     public set gData(dataXML:string) 
     {			
-        this.SceneData = dataXML;
     }
 
     public get gPhase():string
@@ -574,20 +582,37 @@ export class CEFTutorDoc extends EventDispatcher implements IEFTutorDoc
 
             this.loaderData.push( {
                  type: CONST.TUTOR_VARIABLE[i1],
-                 filePath : "EFTutors/" + targetTutor + "/" + CONST.TUTOR_VARIABLE[i1],
+                 filePath : CONST.TUTOR_COMMONPATH + targetTutor + "/" + CONST.TUTOR_VARIABLE[i1],
                  onLoad   : this.onLoadJson.bind(this),
                  fileName : CONST.TUTOR_VARIABLE[i1],
                  varName  : CONST.TUTOR_FACTORIES[i1]
             });
-
-            this.loaderData.push( {
-                type     : "Tutor Globals",
-                filePath : "EFTutors/" + targetTutor + CONST.GLOBALS_FILEPATH,
-                onLoad   : this.onLoadCode.bind(this),
-                modName : CONST.TUTOR_EXT,
-                debugPath: this.isDebug? "ISP_Tutor/EFbuild/TUTORGLOBALS" + CONST.GLOBALS_FILEPATH :null
-            });
         }
+
+        this.loaderData.push( {
+            type     : CONST.TUTOR_GLOBALCODE,
+            filePath : CONST.TUTOR_COMMONPATH + targetTutor + CONST.GLOBALS_FILEPATH,
+            onLoad   : this.onLoadCode.bind(this),
+            modName : CONST.TUTOR_EXT,
+            debugPath: this.isDebug? "ISP_Tutor/EFbuild/TUTORCODE" + CONST.GLOBALS_FILEPATH :null
+        });
+
+        this.loaderData.push( {
+            type     : CONST.TUTOR_GLOBALDATA,
+            filePath : CONST.TUTOR_COMMONPATH + targetTutor + CONST.GDATA_FILEPATH,
+            onLoad   : this.onLoadData.bind(this),
+            modName : CONST.TUTOR_GLOBALDATA,
+            debugPath: this.isDebug? "ISP_Tutor/EFbuild/TUTORDATA" + CONST.GDATA_FILEPATH :null
+        });
+
+        this.loaderData.push( {
+            type     : CONST.TUTOR_GLOBALDATA,
+            filePath : CONST.TUTOR_COMMONPATH + targetTutor + CONST.GLIBR_FILEPATH,
+            onLoad   : this.onLoadData.bind(this),
+            modName : CONST.TUTOR_GLOBALDATA,
+            debugPath: this.isDebug? "ISP_Tutor/EFbuild/TUTORDATA" + CONST.GLIBR_FILEPATH :null
+        });
+
     }
 
     public buildTutorSet() : void {
@@ -804,10 +829,18 @@ export class CEFTutorDoc extends EventDispatcher implements IEFTutorDoc
             //
             let data:Object = JSON.parse(filedata);
 
-            this.moduleData[fileLoader.modName] = this.moduleData[fileLoader.modName] || {};
-            this.moduleData[fileLoader.modName][fileLoader.type] = this.moduleData[fileLoader.modName][fileLoader.type] || {};
+            if(fileLoader.type === CONST.TUTOR_GLOBALDATA) {
+                this.globalData = this.globalData || {};
 
-            CUtil.mixinDataObject(this.moduleData[fileLoader.modName][fileLoader.type], data);
+                CUtil.mixinDataObject(this.globalData, data);
+            }
+            else {
+                this.moduleData[fileLoader.modName] = this.moduleData[fileLoader.modName] || {};
+                this.moduleData[fileLoader.modName][fileLoader.type] = this.moduleData[fileLoader.modName][fileLoader.type] || {};
+
+                CUtil.mixinDataObject(this.moduleData[fileLoader.modName][fileLoader.type], data);
+            }
+
         }
         catch(error) {
 
@@ -942,14 +975,14 @@ export class CEFTutorDoc extends EventDispatcher implements IEFTutorDoc
 		// Check all disjunctive featuresets - one in each element of disjFeat
 		// As long as one is true we pass
 		
-		for (let feature of disjFeat)
+		for (feature of disjFeat)
 		{
 			conjFeat = feature.split(",");
 			
 			// Check that all conjunctive features are set in fFeatures 
 			
-			if(conjFeat.every(this.testFeature))
-									return true;
+			if(conjFeat.every(this.testFeature, this))
+									        return true;
 		}			
 		return false;
 	}				
