@@ -975,14 +975,14 @@ export class CEFTutorDoc extends EventDispatcher implements IEFTutorDoc
 		// Check all disjunctive featuresets - one in each element of disjFeat
 		// As long as one is true we pass
 		
-		for (let feature of disjFeat)
+		for (feature of disjFeat)
 		{
 			conjFeat = feature.split(",");
 			
 			// Check that all conjunctive features are set in fFeatures 
 			
-			if(conjFeat.every(this.testFeature))
-									return true;
+			if(conjFeat.every(this.testFeature, this))
+									        return true;
 		}			
 		return false;
 	}				

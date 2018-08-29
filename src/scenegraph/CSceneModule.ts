@@ -54,14 +54,14 @@ export class CSceneModule extends CSceneNode
 	{
 		let node:CSceneModule = new CSceneModule(_tutorDoc);			
 		
-		// If this is a CNode spec then extract the CNode info - e.g. edges etc. 
-		
-		if(moduleFactory.type == "moduleRef")
-		{
-			node.nodeFactory(parent, nodeName, moduleFactory);
+		// Extract the CNode info - e.g. edges etc. 
+        
+        node.nodeFactory(parent, nodeName, moduleFactory);
 
-			// change the factory to the module referenced by the node
-			
+        // Change the factory for module references
+        // 
+        if(moduleFactory.type == "moduleRef")
+		{			
 			moduleFactory = parent._graphFactory.CModules[node._name];
 		}
 		

@@ -44,7 +44,6 @@ export class THtmlList1 extends THtmlBase {
     private ARROWNORMAL:string;
     private ARROWACTIVE:string;
 
-    public selected:any;
     public listData:any;
 
 
@@ -379,29 +378,16 @@ export class THtmlList1 extends THtmlBase {
     }
 
 
-    protected initFromDataSource(datasource:any) {
+    protected initObjfromHtmlData(objData:any) {
 
-        let data:any = this.hostScene.resolveSelector(datasource, this._ontologyKey);
+        if(objData.htmlData) {
+            
+            // Note: this custom control does not use html source it creates it dynamically
 
-        if(data && data.listdata) {
-            this.listData = data.listdata;
-            this.clearOptionList();
-
-            data.listdata.options.forEach((element:any) => {
-
-                this.initListFromData(element);
-            });
-
-            this.efListBox.innerHTML = this.hostScene.resolveTemplates(data.listdata.placeHolder, this._templateRef);  
-        }
-    }
-
-
-    protected initObjfromData(objData:any) {
-
-        if(objData.style) {
-            this.addCustomStyles(objData.style, this.cssSheet );
-            this.addCSSRules(this.styleElement, this.cssSheet );
+            if(objData.htmlData.style) {
+                this.addCustomStyles(objData.htmlData.style, this.cssSheet );
+                this.addCSSRules(this.styleElement, this.cssSheet );
+            }
         }
     }
 
@@ -412,7 +398,17 @@ export class THtmlList1 extends THtmlBase {
 
         super.deSerializeObj(objData);				
 
-        this.datasource = objData.datasource || this.datasource;
+        if(objData.listdata) {
+            this.listData = objData.listdata;
+            this.clearOptionList();
+
+            objData.listdata.options.forEach((element:any) => {
+
+                this.initListFromData(element);
+            });
+
+            this.efListBox.innerHTML = this.hostScene.resolveTemplates(objData.listdata.placeHolder, this._templateRef);  
+        }
     }
 
 //*************** Serialization

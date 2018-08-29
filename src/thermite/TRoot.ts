@@ -38,6 +38,7 @@ export class TRoot extends MovieClip
 	public traceMode:boolean;
     
     private clickBoundListener:Function;
+    private changeBoundListener:Function;
     
 	public xname:string;
 	public static xInstID:number = 1;		
@@ -101,7 +102,8 @@ export class TRoot extends MovieClip
 		//
         this.xname = this.nextXname();
         
-        this.clickBoundListener = this.clickListener.bind(this);
+        this.clickBoundListener  = this.clickListener.bind(this);
+        this.changeBoundListener = this.changeListener.bind(this);
 
     }
 
@@ -117,6 +119,9 @@ export class TRoot extends MovieClip
             case "click":
             listener = this.clickBoundListener;
             break;
+            case "change":
+            listener = this.changeBoundListener;
+            break;
         }
 
         target.addEventListener(type, listener);
@@ -131,6 +136,9 @@ export class TRoot extends MovieClip
             case "click":
             listener = this.clickBoundListener;
             break;
+            case "change":
+            listener = this.changeBoundListener;
+            break;
         }
 
         target.removeEventListener(type, listener);
@@ -140,6 +148,8 @@ export class TRoot extends MovieClip
     // always overridden to provide instance functionality
     // 
     protected clickListener(e:Event) {        
+    }        
+    protected changeListener(e:Event) {        
     }        
 
 
@@ -508,6 +518,10 @@ export class TRoot extends MovieClip
 //*************** Serialization
 
 
+    protected initObjfromHtmlData(objData:any) {
+    }
+
+
     private resolveReferences(...dataElement:any[]) {
 
         let objData:any;
@@ -529,24 +543,40 @@ export class TRoot extends MovieClip
     }
 
 
+    private initFromDataSource(datasource:any) {
+
+        let data:any = this.hostScene.resolveSelector(datasource, this._ontologyKey);
+
+        this.deSerializeObj(data);
+    }
+
+
     public deSerializeObj(objData:any) : void
     {
         // Keep a pointer to the object spec
         // 
-        this._InitData = this._InitData || Object.assign({}, objData);
-        
-        // resolve data references to library and foreign modules.
-        // TODO: Look at deprecating $$REF arrays 
+        this._InitData    = this._InitData    || Object.assign({}, objData);        
+        this._templateRef = this._templateRef || objData.templateRef;
+
+        // resolve layout datareferences
         // 
-        if(objData.$$REF) {
-            // If it is an array of references - break it up into discrete arguments
-            // 
-            if(Array.isArray(objData.$$REF)) {
-                this.resolveReferences.apply(this, objData.$$REF);
-            }
-            else 
-                this.resolveReferences(objData.$$REF);
+        if(objData.layoutsource) {
+            this.resolveReferences(objData.layoutsource);
         }
+
+        // Note we may use both html data and data sources to initialize
+        // components
+        // 
+        if(objData.htmlData){
+            this.initObjfromHtmlData(objData);
+        }
+
+        // Use datasource to initialize
+        // 
+        if(objData.datasource) {
+            this.initFromDataSource(objData.datasource);
+        }        				
+
     }
     
 //*************** Serialization

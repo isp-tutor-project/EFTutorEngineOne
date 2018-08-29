@@ -316,7 +316,7 @@ export class CSceneTrack extends EventDispatcher
                 this.trackAudio = createjs.Sound.play(segment.fileid, props); 
 
                 if(segment.trim) {
-                    this._asyncPlayTimer  = new CEFTimer(segment.duration - segment.trim);
+                    this._asyncPlayTimer  = new CEFTimer(segment.duration + segment.trim);
 
                     this._playHandler = this._asyncPlayTimer.on(CONST.TIMER, this.segmentComplete, this);
                     this._asyncPlayTimer.start();        

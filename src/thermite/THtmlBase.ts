@@ -445,31 +445,28 @@ export class THtmlBase extends TObject {
     }
 
 
-    protected initFromDataSource(datasource:any) {
+    protected initObjfromHtmlData(objData:any) {
 
-        console.error("initFromDataSource not implemented!");
-    }
+        if(objData.htmlData) {
+            
+            if(objData.htmlData.html)
+                this.controlContainer.innerHTML = this.hostScene.resolveTemplates(objData.htmlData.html, this._templateRef);
 
-    
-    protected initObjfromData(objData:any) {
+            if(objData.htmlData.style) {
+                this.addCustomStyles(objData.htmlData.style, this.cssSheet );
+                this.addCSSRules(this.styleElement, this.cssSheet );
+            }
 
-        this._templateRef = this._templateRef || objData.templateRef;
-
-        if(objData.html)
-            this.controlContainer.innerHTML = this.hostScene.resolveTemplates(objData.html, this._templateRef);
-
-        if(objData.style) {
-            this.addCustomStyles(objData.style, this.cssSheet );
-            this.addCSSRules(this.styleElement, this.cssSheet );
+            this.invertScale();
         }
     }
 
 
     public deSerializeObj(objData:any) : void
     {
-        super.deSerializeObj(objData);				
-
         console.log("deserializing: HTMLBase Custom Control");
+
+        super.deSerializeObj(objData);
 
         if(Array.isArray(objData)) {
 
@@ -479,34 +476,16 @@ export class THtmlBase extends TObject {
 
                 // Ignore non-initializer packets
                 // 
-                if(!objData[i1].htmlData)
+                if(!objData[i1])
                                     break;
 
                 if(objData[i1].default) {
                     this._currObjNdx = i1;
-                    this.initObjfromData(objData[i1].htmlData);
-                    this.invertScale();
-                    this.datasource = objData[i1].datasource;
+                    this.initObjfromHtmlData(objData[i1]);
                     break;
                 }
             }
-
         }
-
-        // Note we may use both html data and data sources to initialize
-        // components
-        // 
-        else if(objData.htmlData){
-            this.initObjfromData(objData.htmlData);
-            this.invertScale();
-        }
-
-        // Use datasource to initialize
-        // 
-        if(objData.datasource) {
-            this.initFromDataSource(objData.datasource);
-        }
-
     }
 
 //*************** Serialization    

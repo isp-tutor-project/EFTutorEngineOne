@@ -18,7 +18,7 @@
 
 import { TObject } 			    from "./TObject";
 import { THtmlBase }            from "./THtmlBase";
-
+import { cellData }             from "./IThermiteTypes";
 import { CEFEvent }             from "../events/CEFEvent";
 
 import { CUtil } 			    from "../util/CUtil";
@@ -39,6 +39,9 @@ export class THtmlTable extends THtmlBase {
     
     private table:HTMLTableElement;
     private cellData:Array<Array<any>>;    
+    private cellContent:Array<Array<any>>;    
+
+    public selectedCell:cellData; 
 
     private RX_CELLID:RegExp;
 
@@ -95,7 +98,6 @@ export class THtmlTable extends THtmlBase {
                 "user-select": "none",
                 "background-color": "white",
                 "box-shadow": "6px 6px 4px 4px #3a2c2c66",
-
                 "visibility":"hidden"
             },
         
@@ -105,6 +107,7 @@ export class THtmlTable extends THtmlBase {
                 "border-right": "2px solid rgba(128, 128, 128, 0.486)",
                 "border-bottom": "2px solid rgba(128, 128, 128, 0.486)",
                 "text-align": "center",
+                "transition": "color 300ms"
             },
         
             "[eftable] th:last-child, [eftable] td:last-child" : {
@@ -184,27 +187,143 @@ export class THtmlTable extends THtmlBase {
 
 //*************** Table Methods
 
+    public getCell(row:number, col:number) : any {
+
+        return this.cellData[row][col];
+    }
+
+    public getRows() : number {
+
+        return this.cellData.length;
+    }
+
+    public getCols() : number {
+
+        return this.cellData[0].length;
+    }
+
+    private findCell(cell:any) : void {
+
+        loop1:
+        for(let row=0 ; row < this.cellData.length ; row++) {
+
+            for(let col=0 ; col < this.cellData[row].length ; col++ ) {
+
+                if(this.cellData[row][col].cell === cell) {
+
+                    this.selectedCell = this.cellData[row][col];
+                    break loop1;
+                }
+            }
+        }
+    }
+
     protected clickListener(e:Event) {        
         e.stopPropagation();
 
-        let selectorVal = this.RX_CELLID.exec((e.currentTarget as any).dataset.data);
-
-        this.hostScene.handleEvent();
+        this.findCell(e.currentTarget);
+        
+        this.hostScene.onSelect(this.name); // Pass control name     
     }        
 
+    private getParentCell(control:HTMLElement) : HTMLElement {
+
+        let found:boolean = false;
+
+        do {
+            switch(control.tagName.toLowerCase()) {
+                case "td":
+                case "th":
+                    found = true;
+                    break;
+            }
+            if(found) break;
+
+            control = control.parentElement;
+
+        }while(1);
+
+        return control;
+    }
+
+    protected changeListener(e:Event) {        
+        e.stopPropagation();
+
+        let select:HTMLSelectElement = e.currentTarget as HTMLSelectElement;
+
+        this.findCell(this.getParentCell(select));
+        
+        this.selectedCell.selectedIndex = select.selectedIndex;
+        this.selectedCell.selectedValue = select.options[select.selectedIndex].text;
+
+        this.hostScene.onSelect(this.name); // Pass control name     
+    }        
+
+    private captureContent() {
+
+        this.cellContent = new Array(this.cellData.length);
+
+        for(let row=0 ; row < this.cellData.length ; row++) {
+
+            this.cellContent[row] = new Array(this.cellData[row].length);
+
+            for(let col=0 ; col < this.cellData[row].length ; col++ ) {
+
+                let content = this.cellData[row][col].cell.innerHTML;
+
+                this.cellContent[row][col] = content !== ""? content:null;
+            }
+        }
+    }
+
+    public showCells(left:number, top:number, right:number, bottom:number) {
+
+        for(let row=top; row <= bottom ; row++) {
+            for(let col=left ; col <= right ; col++ ) {
+
+                let cell    = this.cellData[row][col].cell;
+                let content = this.cellContent[row][col];
+
+                if(content !== "") {
+                    cell.innerHTML = content;
+                }
+            }
+        }
+    }
+
     public hideCells(left:number, top:number, right:number, bottom:number) {
+
+        this.captureContent();
+
+        for(let row=top; row <= bottom ; row++) {
+            for(let col=left ; col <= right ; col++ ) {
+
+                let cell = this.cellData[row][col].cell;
+
+                // Note: innerHTML cannot be null
+                // 
+                cell.innerHTML = "";
+            }
+        }
+    }
+
+    private getInnerComponent(cell:HTMLElement) {
+
+        let result:HTMLElement;
+
+        result = cell.getElementsByTagName("select")[0];
+
+        return result? result:cell;
     }
     
 
     public listenToCells(type:string, left:number, top:number, right:number, bottom:number) {
 
-        let host = this;
-
         for(let row=top; row <= bottom ; row++) {
             for(let col=left ; col <= right ; col++ ) {
 
-                let cell = this.cellData[row][col];
-
+                let cell = this.getInnerComponent(this.cellData[row][col].cell);
+                
                 this.addListener(cell, type);
             }
         }
@@ -215,43 +334,96 @@ export class THtmlTable extends THtmlBase {
         for(let row=0; row < this.cellData.length ; row++) {
             for(let col=0 ; col < this.cellData[row].length ; col++ ) {
 
-                let cell = this.cellData[row][col];
+                let cell = this.getInnerComponent(this.cellData[row][col].cell);
 
                 this.removeListener(cell, type);
             }
         }
     }
 
-    public highlightCells(bodycolor:number, bordercolor:number, flashCount:number, flashRate:number, left:number, top:number, right:number, bottom:number) {
 
+    setCellValue(row:number, col:number, value:string) {
 
+        this.cellData[row][col].cell.innerHTML = value;
     }
 
-    public highlightCellBorders(color:number, flashCount:number, flashRate:number, left:number, top:number, right:number, bottom:number) {
 
+    public highlightNone() {
+
+        for(let row=0 ; row < this.cellData.length ; row++) {
+
+            for(let col=0 ; col < this.cellData[row].length ; col++ ) {
+
+                this.cellData[row][col].cell.style.backgroundColor = "";
+            }
+        }
     }
 
-    public highlightCellBodies(color:number, flashCount:number, flashRate:number, left:number, top:number, right:number, bottom:number) {
+    public highlightSelected(bgcolor:string) {
 
+        let row = this.selectedCell.row;
+        let col = this.selectedCell.col;
+
+        this.highlightCells(bgcolor, col, row, col, row);
     }
 
+
+    highlightRow(bgcolor:string, row:number, flashCount:number = 0, flashRate:number = 0) {
+
+       this.highlightCells(bgcolor, 0, row, this.getCols()-1, row);
+    }
+
+
+    public highlightCells(bgcolor:string, left:number, top:number, right:number, bottom:number, flashCount:number = 0, flashRate:number = 0) {
+
+        for(let row=top; row <= bottom ; row++) {
+            for(let col=left ; col <= right ; col++ ) {
+
+                let cell = this.cellData[row][col].cell;
+
+                cell.style.backgroundColor = bgcolor;
+            }
+        }
+    }
+
+    public highlightCellBorders(color:string, flashCount:number, flashRate:number, left:number, top:number, right:number, bottom:number) {
+
+
+        for(let row=top; row <= bottom ; row++) {
+
+            this.cellData[row][left].cell.style.borderLeftColor  = color;            
+            this.cellData[row][right].cell.style.borderLeftColor = color;            
+        }
+        for(let col=left; col <= right ; col++) {
+
+            this.cellData[top][col].cell.style.borderTopColor       = color;            
+            this.cellData[bottom][col].cell.style.borderBottomColor = color;            
+        }
+    }
 
 //*************** Serialization
 
 
-    private resolvePlaceHolderElement(selector:string) : string {
+    private resolvePlaceHolderElement(selector:string, cellData:any) : string {
 
-        return `<option hidden>${this.hostScene.resolveTemplates(selector, this._templateRef)}</option>`;
+        let element = `<option hidden>${this.hostScene.resolveTemplates(selector, this._templateRef)}</option>`;
+
+        cellData.placeHolder = this.hostScene.ontologyPath;
+
+        return element;
     }
 
 
-    private resolveOptionElements(options:Array<string>) : string {
+    private resolveOptionElements(options:Array<string>, cellData:any) : string {
 
         let optionStr:string = "";
-
+        cellData.options = [];
+        
         options.forEach((selector:string )=> {
 
             optionStr += `<option value="">${this.hostScene.resolveTemplates(selector, this._templateRef)}</option>`;            
+
+            cellData.options.push[this.hostScene.ontologyPath];        
         });
 
         return optionStr;
@@ -262,34 +434,50 @@ export class THtmlTable extends THtmlBase {
 
         let cell = this.table.rows[rowindex].cells.item(colindex);
 
+        // resolve any selector references - these may include query selectors.
+        // 
         let value = this.hostScene.resolveTemplates(element.value, this._templateRef);        
+        let path  = this.hostScene.ontologyPath;
+
+        let cellData:any = this.cellData[rowindex][colindex] = {};
+
+        cellData.row         = rowindex;
+        cellData.col         = colindex;
+        cellData.ontologyKey = path;
 
         switch(value) {
             case "$LIST": 
+                cellData.isList = true;
+
                 cell.innerHTML = `<div><select class="list">
-                    ${this.resolvePlaceHolderElement(element.placeHolder)}
-                    ${this.resolveOptionElements(element.options)}
+                    ${this.resolvePlaceHolderElement(element.placeHolder, cellData)}
+                    ${this.resolveOptionElements(element.options, cellData)}
                 </select></div>`;
                 break;
 
             default:    
-                cell.innerHTML = `<div>${value}</div>`;
+                cellData.isText = true;
+                cell.innerHTML  = `<div>${value}</div>`;
                 break;
         }
-        cell.dataset.data = `${rowindex}.${colindex}.${value}`;
 
-        this.cellData[rowindex][colindex] = cell;
+        cellData.cell = cell;
     }
 
 
-    protected initObjfromData(data:any) {
+    /*
+    * Note this is potentially called recursively with (referenced data) layouts
+    */
+   public deSerializeObj(objData:any) : void
+   {
+        console.log("deserializing: Table Control");
 
-        super.initObjfromData(data);
+        super.deSerializeObj(objData);			
 
-        if(data.tabledata) {
+        if(objData.tabledata) {
             this.cellData = [];
 
-            data.tabledata.rowdata.forEach( (coldata:any, rowindex:number) => {
+            objData.tabledata.rowdata.forEach( (coldata:any, rowindex:number) => {
             
                 this.cellData.push([]);
 
@@ -299,27 +487,6 @@ export class THtmlTable extends THtmlBase {
                 });            
             });
         }
-    }
-
-
-    protected initFromDataSource(datasource:any) {
-
-        let data:any = this.hostScene.resolveSelector(datasource, null);
-
-        if(data) {
-            this.initObjfromData(data);
-        }
-    }
-
-
-    /*
-    * Note this is potentially called recursively with (referenced data) $$REF
-    */
-   public deSerializeObj(objData:any) : void
-   {
-        console.log("deserializing: Table Control");
-
-        super.deSerializeObj(objData);			
    }
 
 

@@ -105,10 +105,14 @@ export class TObject extends TRoot
 	
 	private _tarObj:string;
     
+    protected _ontologyPath:string;
     protected _ontologyKey:Array<string>;
     protected _ontologyRef:string;
     protected _templateRef:any;
-    protected datasource:any;
+
+    // Component state variables
+    // 
+    public selected:any;
 
 	// Factory Object Initialization data for this object - maintains a pointer to the original data source for the object
 	
@@ -180,6 +184,12 @@ export class TObject extends TRoot
 
 	/* ######################################################### */
 	/*  ###########  END CREATEJS SUBCLASS SUPPORT ###########   */
+
+
+	public get ontologyPath() : string
+	{
+		return this._ontologyPath;
+	}
 
 
 	/**
@@ -1064,13 +1074,13 @@ export class TObject extends TRoot
 	public assertFeature(_feature:string) : void			//## Added Feb 27 2013 - to support dynamic features
 	{	
 		if(_feature != "")
-			this.tutorDoc.tutorContainer.addFeature = _feature;
+			this.tutorDoc.addFeature = _feature;
 	}
 	
 	public retractFeature(_feature:string) : void			//## Added Feb 27 2013 - to support dynamic features
 	{	
 		if(_feature != "")
-			this.tutorDoc.tutorContainer.delFeature = _feature;
+			this.tutorDoc.delFeature = _feature;
 	}
 
 	
@@ -1544,7 +1554,7 @@ export class TObject extends TRoot
 		*/
 		public deSerializeObj(objData:any) : void
 		{
-			super.deSerializeObj(objData);				
+            super.deSerializeObj(objData);	
 
             this.xname = objData.xname || this.xname;	
             
@@ -1564,8 +1574,7 @@ export class TObject extends TRoot
 				
 				// this._maskColor = Number(xmlSrc.mask.color);
 				// this._maskAlpha = Number(xmlSrc.mask.alpha);
-			}
-			
+			}            
 		}
 
 //*************** Serialization

@@ -207,173 +207,198 @@ export class TSceneBase extends TObject
 	}
 
 
-    public getStateValid(property:string[], target:string = CONST.MODULESTATE) {
+    private assignProperty(root:any, property:string, value:any) : void {
 
-        let valid:any = null;
+        let path   = property.split(".");
+        let target = root;
 
-        for(let i1 = 0 ; i1 < property.length ; i1++) {
+        for(let i1 = 0 ; i1 < path.length-1 ; i1++) {
 
-            switch(target) {
-
-                case CONST.SCENESTATE:
-                    valid = this.tutorDoc.sceneState[this.name][property[i1]];
-                    break;
-
-                case CONST.MODULESTATE:
-                    valid = this.tutorDoc.moduleState[this.hostModule][property[i1]]
-                    break;
-
-                case CONST.TUTORSTATE:
-                    valid = this.tutorDoc.tutorState[property[i1]];
-                    break;
-            }        
-
-            if(!valid) break;
+            if(target[path[i1]])             
+                target = target[path[i1]];
+            else 
+                target = target[path[i1]] = {};
         }
-
-        return valid? true:false;
+        target[path[path.length-1]] = value;
     }
 
 
-    public setStateValue(property:string, value:any, target:string = CONST.MODULESTATE) {
+    private resolveProperty(root:any, property:string) : any {
+
+        let path   = property.split(".");
+        let target = root;
+        let value:any;
+
+        for(let i1 = 0 ; i1 < path.length-1 ; i1++) {
+
+            if(target[path[i1]])             
+                target = target[path[i1]];
+            else 
+                target = target[path[i1]] = {};
+        }
+
+        return value = target[path[path.length-1]];
+    }
+
+
+    public setSceneValue(property:string, value:any) : void {
+        this.setStateValue(property, value, CONST.SCENESTATE) 
+    }    
+    public setModuleValue(property:string, value:any) : void {
+        this.setStateValue(property, value, CONST.MODULESTATE) 
+    }
+    public setTutorValue(property:string, value:any) : void {
+        this.setStateValue(property, value, CONST.TUTORSTATE) 
+    }
+
+    public setStateValue(property:string, value:any, target:string = CONST.MODULESTATE) : void {
 
         switch(target) {
 
             case CONST.SCENESTATE:
-                this.tutorDoc.sceneState[this.name][property]  = value;
+                this.assignProperty(this.tutorDoc.sceneState[this.name], property, value);
                 this.tutorDoc.sceneChange[this.name][property] = true;
                 break;
 
             case CONST.MODULESTATE:
-                this.tutorDoc.moduleState[this.hostModule][property]  = value;
+                this.assignProperty(this.tutorDoc.moduleState[this.hostModule], property, value);
                 this.tutorDoc.moduleChange[this.hostModule][property] = true;
                 break;
 
             case CONST.TUTORSTATE:
-                this.tutorDoc.tutorState[property]  = value;
+                this.assignProperty(this.tutorDoc.tutorState, property, value);
                 this.tutorDoc.tutorChange[property] = true;
                 break;
         }        
     }
 
-    public getStateValue(property:string, target:string = CONST.MODULESTATE) {
+    
 
-        let result:any;
+    public getRawSceneValue(property:string) : any {
+        return this.getRawStateValue(property, CONST.SCENESTATE) 
+    }    
+    public getRawModuleValue(property:string) : any {
+        return this.getRawStateValue(property, CONST.MODULESTATE) 
+    }
+    public getRawTutorValue(property:string) : any {
+        return this.getRawStateValue(property, CONST.TUTORSTATE) 
+    }
+
+    public getRawStateValue(property:string, target:string = CONST.MODULESTATE) : any {
+
+        let prop:any;
 
         switch(target) {
-
             case CONST.SCENESTATE:
-                result = this.tutorDoc.sceneState[this.name][property];
+                prop = this.resolveProperty(this.tutorDoc.sceneState[this.name], property);
                 break;
 
             case CONST.MODULESTATE:
-                result = this.tutorDoc.moduleState[this.hostModule][property];
+                prop = this.resolveProperty(this.tutorDoc.moduleState[this.hostModule], property);
                 break;
 
             case CONST.TUTORSTATE:
-                result = this.tutorDoc.tutorState[property];
+                prop = this.resolveProperty(this.tutorDoc.tutorState, property);
                 break;
         }        
 
-        result = this.resolveTemplates(result, null);
-
-        return result;
+        return prop;
     }
 
 
-    public getRawStateValue(property:string, target:string = CONST.MODULESTATE) {
 
-        let result:any;
+    public getSceneValue(property:string) : any {
+        return this.getStateValue(property, CONST.SCENESTATE) 
+    }    
+    public getModuleValue(property:string) : any {
+        return this.getStateValue(property, CONST.MODULESTATE) 
+    }
+    public getTutorValue(property:string) : any {
+        return this.getStateValue(property, CONST.TUTORSTATE) 
+    }
 
-        switch(target) {
+    public getStateValue(property:string, target:string = CONST.MODULESTATE) : any {
 
-            case CONST.SCENESTATE:
-                result = this.tutorDoc.sceneState[this.name][property];
-                break;
+        let prop:any;
 
-            case CONST.MODULESTATE:
-                result = this.tutorDoc.moduleState[this.hostModule][property];
-                break;
+        prop = this.getRawStateValue(property, target);
+        prop = this.resolveTemplates(prop, null);
 
-            case CONST.TUTORSTATE:
-                result = this.tutorDoc.tutorState[property];
-                break;
-        }        
-
-        return result;
+        return prop;
     }
 
 
-    public queryValueChanged(property:string, target:string = CONST.MODULESTATE) {
 
-        let result:any;
+    public querySceneChange(property:string) : boolean {
+        return this.queryValueChanged(property, CONST.SCENESTATE) 
+    }    
+    public queryModuleChange(property:string) : boolean {
+        return this.queryValueChanged(property, CONST.MODULESTATE) 
+    }
+    public queryTutorChange(property:string) : boolean {
+        return this.queryValueChanged(property, CONST.TUTORSTATE) 
+    }
 
-        switch(target) {
+    public queryValueChanged(property:string, target:string = CONST.MODULESTATE) : boolean {
 
-            case CONST.SCENESTATE:
-                result = this.tutorDoc.sceneChange[this.name][property];
-                break;
+        let prop:any;
 
-            case CONST.MODULESTATE:
-                result = this.tutorDoc.moduleChange[this.hostModule][property];
-                break;
+        prop = this.getRawStateValue(property, target);
 
-            case CONST.TUTORSTATE:
-                result = this.tutorDoc.tutorChange[property];
-                break;
-        }        
-
-        return result;
+        return prop.changed;
     }
 
 
-    public clearValueChanged(property:string, target:string = CONST.MODULESTATE) {
 
-        switch(target) {
-
-            case CONST.SCENESTATE:
-                if(property === null)
-                    this.tutorDoc.sceneChange[this.name] = {};
-                else   
-                    this.tutorDoc.sceneChange[this.name][property] = null;
-                break;
-
-            case CONST.MODULESTATE:
-                if(property === null)
-                    this.tutorDoc.moduleChange[this.hostModule] = {};
-                else
-                    this.tutorDoc.moduleChange[this.hostModule][property] = null;
-                break;
-
-            case CONST.TUTORSTATE:
-                if(property === null)
-                    this.tutorDoc.tutorChange = {};
-                else
-                    this.tutorDoc.tutorChange[property] = null;
-                break;
-        }        
+    public testSceneValue(property:string, value:any) :boolean {
+        return this.testStateValue(property, value, CONST.SCENESTATE) 
+    }    
+    public testModuleValue(property:string, value:any) :boolean {
+        return this.testStateValue(property, value, CONST.MODULESTATE) 
+    }
+    public testTutorValue(property:string, value:any) :boolean {
+        return this.testStateValue(property, value, CONST.TUTORSTATE) 
     }
 
-    public testStateValue(property:string, value:any, target:string = CONST.MODULESTATE) {
+    public testStateValue(property:string, value:any, target:string = CONST.MODULESTATE) :boolean {
 
         let result:boolean = false;
+        let prop:any;
 
-        switch(target) {
+        prop = this.getRawStateValue(property, target);
 
-            case CONST.SCENESTATE:
-                result = this.tutorDoc.sceneState[this.name][property] === value;
-                break;
-
-            case CONST.MODULESTATE:
-                result = this.tutorDoc.moduleState[this.hostModule][property] === value;
-                break;
-
-            case CONST.TUTORSTATE:
-                result = this.tutorDoc.tutorState[property] === value;
-                break;
-        }        
+        result = prop === value;
 
         return result;
+    }
+
+
+
+    public querySceneProp(property:string[]) :boolean {
+        return this.queryStateProp(property, CONST.SCENESTATE) 
+    }    
+    public queryModuleProp(property:string[]) :boolean {
+        return this.queryStateProp(property, CONST.MODULESTATE) 
+    }
+    public queryTutorProp(property:string[]) :boolean {
+        return this.queryStateProp(property, CONST.TUTORSTATE) 
+    }
+
+    public queryStateProp(property:string[], target:string = CONST.MODULESTATE) : boolean {
+
+        let prop:any;
+        let valid:any = null;
+
+        for(let i1 = 0 ; i1 < property.length ; i1++) {
+
+            prop = this.getRawStateValue(property[i1], target);
+
+            valid = prop;
+
+            if(!valid) break;
+        }
+
+        return valid? true:false;
     }
 
 
@@ -520,17 +545,17 @@ export class TSceneBase extends TObject
 
                 case CONST.SCENESTATE_SELECTOR:
 
-                    result = this.resolveObject(this.tutorDoc.sceneState[this.name], selectorVal[2]);
+                    result = this.getRawStateValue(selectorVal[2], CONST.SCENESTATE);
                     break;
 
                 case CONST.MODULESTATE_SELECTOR:
 
-                    result = this.resolveObject(this.tutorDoc.moduleState[this.hostModule], selectorVal[2]);
+                    result = this.getRawStateValue(selectorVal[2], CONST.MODULESTATE);
                     break;
                 
                 case CONST.TUTORSTATE_SELECTOR:
 
-                    result = this.resolveObject(this.tutorDoc.tutorState, selectorVal[2]);
+                    result = this.getRawStateValue(selectorVal[2], CONST.TUTORSTATE);
                     break;
                 
                 case CONST.FOREIGNMODULE_SELECTOR:
@@ -581,7 +606,8 @@ export class TSceneBase extends TObject
 
     private resolveOntologyObject(oSelector:string, ontologyRoot:any, templateRef:any) : any {
 
-        let result:any = oSelector;
+        let result:any   = oSelector;
+        let ontologyPath = [];
 
         if(oSelector) {
 
@@ -592,12 +618,28 @@ export class TSceneBase extends TObject
 
             for(let index = 0 ; index < qArray.length ; index++) {
                 
-                ontologyRoot = ontologyRoot[qArray[index].includes("?")? this._ontologyKey[index]: qArray[index]];
+                let pathEl = qArray[index].includes("?")? this._ontologyKey[index]: qArray[index];
+
+                ontologyPath.push(pathEl);
+
+                ontologyRoot = ontologyRoot[pathEl];
             }
-            
+
+            // Update the result
             // May resolve property of object or the object itself
+            // also build the ontologyPath to the selected resource
+            // - used as component values
             // 
-            result = vArray[1]? ontologyRoot[vArray[1]] : ontologyRoot;
+            this._ontologyPath = ontologyPath.join("_");
+
+            if(vArray[1]) {
+                result = ontologyRoot[vArray[1]];
+                
+                this._ontologyPath += "|" + vArray[1];
+            }
+            else {
+                result = ontologyRoot;
+            }
         }
 
         return result;
@@ -839,11 +881,11 @@ export class TSceneBase extends TObject
 
 //****** Component Behaviors Start
 
-    public handleEvent() {
+    public handleEvent(target:string) {
 
         // User selection has been made
 		//
-		this.$handleEvent();
+		this.$handleEvent(target);
     }
 
 	/**
