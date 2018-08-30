@@ -77,7 +77,7 @@ export class THtmlList1 extends THtmlBase {
 
         this.fontSize   = 14;
         this.arrowScale = 4.5;
-        this.selected   = {};
+        this.selected   = null;
 
         this.ARROWNORMAL = "[eflist] .listbox::after";
         this.ARROWACTIVE = "[eflist] .listbox.active::after";        

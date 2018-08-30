@@ -58,6 +58,9 @@ export class TSceneBase extends TObject
     public moduleData:any; 
     public sceneData :any; 
     private sceneState:any;
+    
+    public changeRequestorScene:string;
+    public changeRequestorTrack:string;
 
 	protected _section:string;					// Arbitrary tutor section id
     
@@ -237,7 +240,12 @@ export class TSceneBase extends TObject
                 target = target[path[i1]] = {};
         }
 
-        return value = target[path[path.length-1]];
+        value = target[path[path.length-1]];
+
+        if(value === undefined) 
+                        value = null;
+
+        return value;
     }
 
 

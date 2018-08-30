@@ -501,7 +501,7 @@ export class THtmlBase extends TObject {
 
                 if(objData[i1].default) {
                     this._currObjNdx = i1;
-                    this.initObjfromHtmlData(objData[i1]);
+                    this.deSerializeObj(objData[i1]);
                     break;
                 }
             }

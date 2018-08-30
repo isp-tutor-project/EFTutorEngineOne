@@ -192,7 +192,7 @@ export class TScene extends TSceneBase
 	{
 		if(this.traceMode) CUtil.trace("navNext: " + event);
 		
-		this.navigator.gotoNextScene();
+		this.navigator.gotoNextScene("$scriptAction");
 	}		
 	
 //*************** SubSequence Navigation
@@ -240,11 +240,13 @@ export class TScene extends TSceneBase
     /**
     * gotoNextScene manual entry point
     */
-    public nextTrack() : void
+    public nextTrack(source:string) : void
     {
         // Do automated scene increments asynchronously to allow
         // actiontrack scripts to complete prior to scene nav
         
+        this.changeRequestorTrack = source;
+
         this._trackHandler = this._asyncGraphTimer.on(CONST.TIMER, this._asyncNextTrack, this);
         this._asyncGraphTimer.start();
     }
@@ -270,7 +272,9 @@ export class TScene extends TSceneBase
 	{
 		let historyNode:CSceneHistoryNode;
 		let nextTrack:CSceneTrack;
-		
+        
+        console.log("SCENEGRAPH: state change: " + this.changeRequestorTrack);
+
 		// If this scene has an animation graph
 		// This may be called as a result of scene increment on scenes that just have actiontracks
 		
@@ -313,8 +317,6 @@ export class TScene extends TSceneBase
 			{
                 this.STrack = nextTrack;
                 this.connectTrack(nextTrack);	
-
-                console.log("SCENEGRAPH: playing:" + nextTrack.trackName);
                 
                 if(!this._deferPlay)
                     this.STrack.play();			
@@ -323,7 +325,7 @@ export class TScene extends TSceneBase
 			// If we run out of tracks then move to the next scene node
 			else if(!bNavigating)
 			{
-				this.navigator.gotoNextScene();				
+				this.navigator.gotoNextScene("$endOfTracks");				
 			}
 		}
 		
@@ -408,7 +410,7 @@ export class TScene extends TSceneBase
         // Set up the root sceneTrack
         // 
         this._deferPlay = true;
-        this.nextTrack();
+        this.nextTrack("$preEnterScene");
         
 		return result;
 	}

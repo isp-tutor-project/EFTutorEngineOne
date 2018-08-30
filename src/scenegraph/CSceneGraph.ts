@@ -146,7 +146,7 @@ export class CSceneGraph extends CSceneNode
                 this._currNode = this._currNode.nextNode();
 
                 if(this._currNode)
-                    console.log("SCENEGRAPH: State:" + this._currNode.name);
+                    console.log("SCENEGRAPH: State:" + this._currNode.id);
 			}
 			
 		}while((this._currTrack == null) && (this._currNode != null))

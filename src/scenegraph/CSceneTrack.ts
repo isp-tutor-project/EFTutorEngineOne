@@ -95,6 +95,9 @@ export class CSceneTrack extends EventDispatcher
     private timedSet:Array<timedEvents>;
     private templates: any;    
 
+    private _asyncTrimTimer:CEFTimer;
+    private _trimHandler:Function;
+
     private _asyncPlayTimer:CEFTimer;
     private _playHandler:Function;
 
@@ -202,7 +205,7 @@ export class CSceneTrack extends EventDispatcher
                 this._ontologyKey = objSelector[0].split("_");
             }
             else {
-                console.error("SCENETRACK: Error: invalid Ontology Reference: " + ontologyRef );
+                throw("SCENETRACK: Error: invalid Ontology Reference: " + ontologyRef );
             }
         }
     }
@@ -217,13 +220,13 @@ export class CSceneTrack extends EventDispatcher
     public registerTrack() {
  
         let assetPath = [this.hostModule] + CONST.TRACKASSETS_FILEPATH + this.language + "/";
-        let sounds = [];
-        let filename:string;
+        let newSounds = [];
         let segvalue:segmentVal;
 
         this.segSequence = [];
 
-        if(this._type === CONST.SCENE_TRACK) {
+        // if(this._type === CONST.SCENE_TRACK) {
+        try {
 
             Object.assign(this, this.tutorDoc.moduleData[this.hostModule][CONST.TRACK_DATA][this.sceneName].tracks[this._trackname][this.language]);
 
@@ -241,7 +244,7 @@ export class CSceneTrack extends EventDispatcher
                         // 
                         segvalue = segment[selector] as segmentVal;
 
-                        filename = this.sceneName + "/" + this._trackname + CONST.SEGMENT_PREFIX + segvalue.fileid + CONST.VOICE_PREFIX + this.voice + CONST.TYPE_MP3;
+                        segvalue.filepath = this.sceneName + "/" + this._trackname + CONST.SEGMENT_PREFIX + segvalue.fileid + CONST.VOICE_PREFIX + this.voice + CONST.TYPE_MP3;
                         break;
 
                     default:
@@ -252,34 +255,39 @@ export class CSceneTrack extends EventDispatcher
                         // 
                         this.resolveOntologyKey(selector, this.templateRef);
                         
-                        let selectorreg = this._ontologyRef.replace(this.RX_DELIMITERS, "");
+                        let selectorTag = this._ontologyRef.replace(this.RX_DELIMITERS, "");
 
                         // Use the delimiter-stripped Selector reference to determine the Value to use 
                         // for this iteration. This is to mirror how the audio builder generates template
                         // segment names
                         // 
-                        segvalue = segment[selectorreg] as segmentVal;
+                        segvalue = segment[selectorTag] as segmentVal;
 
-                        filename = CONST.COMMONAUDIO + selectorreg + CONST.VOICE_PREFIX + this.voice + CONST.TYPE_MP3;
+                        segvalue.filepath = CONST.COMMONAUDIO + selectorTag + CONST.VOICE_PREFIX + this.voice + CONST.TYPE_MP3;
                         break;
                 }
 
+                console.log("SCENEGRAPH: Loading: " + this._trackname + segvalue.fileid + " => " + segvalue.SSML);
 
-                console.log("SCENETRACK: Processing segment: " + segvalue.fileid + " =>" + segvalue.SSML);
-
-                sounds.push({src:filename, id: segvalue.fileid})
+                newSounds.push({src:segvalue.filepath, id:segvalue.fileid})
 
                 this.segSequence.push(segvalue);                
             }
+
+            // If this track has audio then queue it to load
+            // 
+            if(newSounds.length > 0) {
+                // Release resources
+                // createjs.Sound.removeAllSounds();
+
+                createjs.Sound.on("fileload", this.onTrackLoaded, this);
+                createjs.Sound.registerSounds(newSounds, assetPath);
+
+                this.hasAudio = true;
+            }
         }
-
-        // If this track has audio then queue it to load
-        // 
-        if(sounds.length > 0) {
-            createjs.Sound.on("fileload", this.onTrackLoaded, this);
-            createjs.Sound.registerSounds(sounds, assetPath);
-
-            this.hasAudio = true;
+        catch(err) {
+            console.error("SCENETRACK: ERROR: " + err);
         }
     }
 
@@ -309,10 +317,10 @@ export class CSceneTrack extends EventDispatcher
                     this._asyncPlayTimer.off(CONST.TIMER, this._playHandler);
                     this._asyncPlayTimer = null;
 
-                    console.log("SCENETRACK: Async Play: " + this._name);
+                    console.log("SCENEGRAPH: Async Play: " + this._trackname + segment.fileid + " => " + segment.SSML);
                 }
                 else {
-                    console.log("SCENETRACK: Loaded Play: " + this._name);
+                    console.log("SCENEGRAPH: Loaded Play: " + this._trackname + segment.fileid + " => " + segment.SSML);
                 }
 
                 var props = new createjs.PlayPropsConfig().set({interrupt: createjs.Sound.INTERRUPT_ANY, 
@@ -320,11 +328,17 @@ export class CSceneTrack extends EventDispatcher
 
                 this.trackAudio = createjs.Sound.play(segment.fileid, props); 
 
-                if(segment.trim) {
-                    this._asyncPlayTimer  = new CEFTimer(segment.duration + segment.trim);
+                if(this.trackAudio.playState === CONST.PLAY_FAILED) {
 
-                    this._playHandler = this._asyncPlayTimer.on(CONST.TIMER, this.segmentComplete, this);
-                    this._asyncPlayTimer.start();        
+                    console.log("SCENEGRAPH: Play Failed: " + this._trackname + segment.fileid + " => " + segment.SSML);
+                    alert("Track Play Failed: " + this._trackname + segment.fileid + " => " + segment.SSML);            
+                }
+
+                if(segment.trim) {
+                    this._asyncTrimTimer  = new CEFTimer(segment.duration + segment.trim);
+
+                    this._trimHandler = this._asyncTrimTimer.on(CONST.TIMER, this.segmentComplete, this);
+                    this._asyncTrimTimer.start();        
                 }
                 else {
                     this.trackAudio.on("complete", this.segmentComplete, this);
@@ -365,6 +379,7 @@ export class CSceneTrack extends EventDispatcher
         }
     }
 
+
     private cueHandler(evt:Event, _timer:CEFTimer) {
 
         this.dispatchEvent(evt);
@@ -382,6 +397,18 @@ export class CSceneTrack extends EventDispatcher
     // user input.
     private segmentComplete(event:Event) {
 
+
+        if(this._asyncTrimTimer) {
+            this._asyncTrimTimer.stop();        
+            this._asyncTrimTimer.off(CONST.TIMER, this._trimHandler);
+            this._asyncTrimTimer = null;
+
+            console.log("SCENETRACK: Async Track Segment Completion: " + this._name);
+        }
+        else {
+            console.log("SCENETRACK: Normal Track Segment Completion: " + this._name);
+        }
+
         this.segNdx++;
 
         if(this.segNdx < this.segSequence.length) {
@@ -393,14 +420,14 @@ export class CSceneTrack extends EventDispatcher
             this.segNdx = 0;
 
             this.hostScene.$cuePoints(this._name, CONST.END_CUEPOINT);
-            this.autoPlay();
+            this.autoStep();
         }
     }
 
 
     // Play next track or just wait for user input
     // 
-    public autoPlay() {
+    public autoStep() {
 
         if(this._autostep) {
 
@@ -410,13 +437,13 @@ export class CSceneTrack extends EventDispatcher
                 this._autoPlayHandler = this._autoPlayTimer.on(CONST.TIMER, this._asyncAutoPlay, this);
                 this._autoPlayTimer.start();
             }
-            else this.hostScene.nextTrack();
+            else this.hostScene.nextTrack("$autoPlay");
         }
     }
     private _asyncAutoPlay(evt:Event) : void
 	{			
 		this.killAutoPlayTimer();	
-        this.hostScene.nextTrack();
+        this.hostScene.nextTrack("$asyncAutoPlay");
 	}
 	private killAutoPlayTimer() {
 
@@ -443,10 +470,12 @@ export class CSceneTrack extends EventDispatcher
             case CONST.SCENE_ACTION:
 
                 this.hostScene.$nodeAction(this._actionname);
-                this.autoPlay();
+                this.autoStep();
                 break;
 
+
             case CONST.SCENE_TRACK:
+
                 if(!this.isPlaying) {
                     if(this.hasAudio) {
     
