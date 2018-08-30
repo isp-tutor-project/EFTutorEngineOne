@@ -313,6 +313,8 @@ export class TScene extends TSceneBase
 			{
                 this.STrack = nextTrack;
                 this.connectTrack(nextTrack);	
+
+                console.log("SCENEGRAPH: playing:" + nextTrack.trackName);
                 
                 if(!this._deferPlay)
                     this.STrack.play();			

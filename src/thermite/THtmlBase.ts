@@ -158,8 +158,6 @@ export class THtmlBase extends TObject {
 
     public onAddedToStage(evt:CEFEvent) {
 
-        let stage;
-
         // We are added to the scene on each frame of an animation
         //
 		this._lastFrame = (this.parent as MovieClip).currentFrame;       
@@ -175,33 +173,44 @@ export class THtmlBase extends TObject {
 
             // Note that the sheet property is null until the element is added to the 
             // page.
-            // 
-            document.head.appendChild(this.styleElement);                        
+            // Moved to addHTMLControl
+            // document.head.appendChild(this.styleElement);                        
 
             // TODO: Make this reactive to the initial css tranparency setting
             // 
             this.effectAlpha    = 1;  //this.alpha;
-
-            this.fAdded = true;
-
-            if(stage = this.getStage()) {
-                this._updateVisibilityCbk = stage.on('drawstart', this._handleDrawStart, this, false);
-                this._updateComponentCbk  = stage.on('drawend'  , this._handleDrawEnd  , this, false);
-            }
         }
     }
 
 
-    public addCSSRules(styleElement:HTMLStyleElement, cssStyles:any) {
+    /**
+     * Provides a means to defer adding the HTML component until transition time - The control itself may be persistent
+     * in which case we don't want the unused copy on stage.
+     */
+    public addHTMLControl() {
 
-        let sheet:CSSStyleSheet = styleElement.sheet as CSSStyleSheet;
+        let stage;
 
-        for(let ruleSet in cssStyles) {
-            
-            let ruleStr:string = `${ruleSet} {${this.buildRuleSet(cssStyles[ruleSet])}}`;
-            sheet.insertRule(ruleStr, sheet.cssRules.length);
+        dom_overlay_container.appendChild(this.outerContainer); 
+
+        // Note that the sheet property is null until the element is added to the 
+        // page.
+        document.head.appendChild(this.styleElement);       
+        
+        // NOTE: You cannot add rules to a sheet until its style element has been added 
+        //       to the document as its "sheet" property is created when added
+        // 
+        this.addCSSRules(this.styleElement, this.cssSheet );
+
+        // TODO : Move to addHTMLControl ??
+        this.fAdded = true;
+
+        if(stage = this.getStage()) {
+            this._updateVisibilityCbk = stage.on('drawstart', this._handleDrawStart, this, false);
+            this._updateComponentCbk  = stage.on('drawend'  , this._handleDrawEnd  , this, false);
         }
     }
+
 
     public buildRuleSet(cssRules:any) : string {
 
@@ -429,6 +438,18 @@ export class THtmlBase extends TObject {
     
 //*************** Serialization
 
+    public addCSSRules(styleElement:HTMLStyleElement, cssStyles:any) {
+
+        let sheet:CSSStyleSheet = styleElement.sheet as CSSStyleSheet;
+
+        for(let ruleSet in cssStyles) {
+            
+            let ruleStr:string = `${ruleSet} {${this.buildRuleSet(cssStyles[ruleSet])}}`;
+            sheet.insertRule(ruleStr, sheet.cssRules.length);
+        }
+    }
+
+
     protected addCustomStyles(srcStyle:any, tarStyle:any) {
 
         for(let ruleSet in srcStyle) {
@@ -454,7 +475,6 @@ export class THtmlBase extends TObject {
 
             if(objData.htmlData.style) {
                 this.addCustomStyles(objData.htmlData.style, this.cssSheet );
-                this.addCSSRules(this.styleElement, this.cssSheet );
             }
 
             this.invertScale();

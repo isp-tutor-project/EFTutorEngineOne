@@ -970,6 +970,38 @@ export class TSceneBase extends TObject
 	}
 	
 
+	public showScene() : void
+	{
+		if(this.traceMode) CUtil.trace("Base showScene Behavior: " + this.name);		
+		
+		// Allow mixins to fire behaviors
+		// 
+		try {
+			this.$preShowScene();
+		}
+		catch(error) {
+			CUtil.trace("preShowScene error on scene: " + this.name + " - " + error);
+		}
+			
+	}
+
+	
+	public hideScene() : void
+	{
+		if(this.traceMode) CUtil.trace("Base showScene Behavior: " + this.name);		
+		
+		// Allow mixins to fire behaviors
+		// 
+		try {
+			this.$preHideScene();
+		}
+		catch(error) {
+			CUtil.trace("preHideScene error on scene: " + this.name + " - " + error);
+		}
+			
+	}
+
+
 	// Default behavior - Set the Tutor Title and return same target scene
 	// Direction can be - "WOZNEXT" , "WOZBACK" , "WOZGOTO"
 	// 

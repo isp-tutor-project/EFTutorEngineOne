@@ -191,7 +191,7 @@ export class CSceneTrack extends EventDispatcher
             let ontologyRef:string = templateRef[selector] || templateRef["*"];
 
             if(!ontologyRef) {
-                console.error("ERROR: missing Template Reference for:" + selector);
+                console.error("SCENETRACK: ERROR: missing Template Reference for:" + selector);
             }
             
             this._ontologyRef = this.hostScene.resolveRawSelector(ontologyRef, null);
@@ -202,7 +202,7 @@ export class CSceneTrack extends EventDispatcher
                 this._ontologyKey = objSelector[0].split("_");
             }
             else {
-                console.error("Error: invalid Ontology Reference: " + ontologyRef );
+                console.error("SCENETRACK: Error: invalid Ontology Reference: " + ontologyRef );
             }
         }
     }
@@ -265,7 +265,7 @@ export class CSceneTrack extends EventDispatcher
                 }
 
 
-                console.log("Processing segment: " + segvalue.fileid + " =>" + segvalue.SSML);
+                console.log("SCENETRACK: Processing segment: " + segvalue.fileid + " =>" + segvalue.SSML);
 
                 sounds.push({src:filename, id: segvalue.fileid})
 
@@ -286,7 +286,7 @@ export class CSceneTrack extends EventDispatcher
     
     public onTrackLoaded(event:any) {
         this.trackLoaded = true;
-        console.log("Track Loaded: " + event.id + ": " + event.src);
+        console.log("SCENETRACK: Track Loaded: " + event.id + ": " + event.src);
     }
 
 
@@ -308,8 +308,13 @@ export class CSceneTrack extends EventDispatcher
                     this._asyncPlayTimer.stop();        
                     this._asyncPlayTimer.off(CONST.TIMER, this._playHandler);
                     this._asyncPlayTimer = null;
+
+                    console.log("SCENETRACK: Async Play: " + this._name);
                 }
-                                
+                else {
+                    console.log("SCENETRACK: Loaded Play: " + this._name);
+                }
+
                 var props = new createjs.PlayPropsConfig().set({interrupt: createjs.Sound.INTERRUPT_ANY, 
                                                                 volume: segment.volume})
 
@@ -350,7 +355,7 @@ export class CSceneTrack extends EventDispatcher
 
         for (let cue of segment.cues) {
 
-            console.log("Configure cue: " + cue.name);
+            console.log("SCENETRACK: Configure cue: " + cue.name);
             
             this._cueTimers.push(CEFTimer.startTimer(cue.relTime, 
                                                      this.cueHandler, 
@@ -450,7 +455,7 @@ export class CSceneTrack extends EventDispatcher
                         this.playTrack();
                     }
                     else {
-                        console.log("something funny going on with the audio :)");
+                        console.log("SCENETRACK: something funny going on with the audio :)");
                     }
                 }
                 break;
