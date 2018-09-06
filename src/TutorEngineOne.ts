@@ -294,20 +294,24 @@ export class CEngine {
                     let temp1:any         = {};
                     let foreignObject:any = EFLoadManager.classLib[AnModuleName][varPath[1]];
 
-                    temp1.clone         = library[compName].prototype.clone;
-                    temp1.nominalBounds = library[compName].prototype.nominalBounds;
-                    temp1.frameBounds   = library[compName].prototype.frameBounds;
+                    // NOTE: Use this section to guarantee that component proportions are not 
+                    //       distorted by a poorly set up TL_ object.  i.e. if the TL_ object
+                    //       does not have the precise size/position of exported original.
+
+                    // temp1.clone         = library[compName].prototype.clone;
+                    // temp1.nominalBounds = library[compName].prototype.nominalBounds;
+                    // temp1.frameBounds   = library[compName].prototype.frameBounds;
         
-                    let foreignClone:any = function() {
-                    	foreignObject.call(this);
-                    }
-                    foreignClone.prototype = Object.create(foreignObject.prototype);
+                    // let foreignClone:any = function() {
+                    // 	foreignObject.call(this);
+                    // }
+                    // foreignClone.prototype = Object.create(foreignObject.prototype);
 
-                    foreignClone.prototype.clone           = temp1.clone;
-                    foreignClone.prototype.nominalBounds   = temp1.nominalBounds;
-                    foreignClone.prototype.frameBounds     = temp1.frameBounds;
+                    // foreignClone.prototype.clone           = temp1.clone;
+                    // foreignClone.prototype.nominalBounds   = temp1.nominalBounds;
+                    // foreignClone.prototype.frameBounds     = temp1.frameBounds;
 
-                    library[compName] = foreignClone;
+                    library[compName] = foreignObject;
                 }
             }
         }
