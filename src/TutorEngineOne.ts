@@ -139,14 +139,15 @@ export class CEngine {
         }
 
         Promise.all(loaderPromises)        
-        .then(() => {
+        .then((values) => {
 
-            console.log("Tutor init Complete");
+            console.log("Tutor init Complete:" + values);
 
             // Map any linked objects between modules.
             // 
             this.mapForeignClasses();
 
+            // TODO: This is being called multiple times ????
             this.startTutor();
         })                
 
@@ -218,9 +219,9 @@ export class CEngine {
         }
 
         Promise.all(importPromises)        
-            .then(() => {
+            .then((values) => {
                 
-                console.log("Thermite mapping complete");
+                console.log("Thermite mapping complete:" + values);
 
                 // resolve the preloader promise
                 if(resolve)
@@ -267,8 +268,8 @@ export class CEngine {
     }
 
 
-    // Foreign classes are encoded:
-    // TL_<moduleName-trimmed>_<classname>__<variant>
+    // Foreign class resources are encoded:
+    // TL_<moduleName-trimmed>__<variant>
     // This is intended as a simple means of laying out components from a foreign module
     // while maintaining position and size.
     // So we replace the actual component in the animate lib with a modified version of the

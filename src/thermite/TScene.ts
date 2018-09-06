@@ -154,7 +154,7 @@ export class TScene extends TSceneBase
 	*/
 	public connectTrack(track:CSceneTrack ) :void 
 	{
-		if(this.traceMode) CUtil.trace("Connect Audio Behavior");		
+		CUtil.trace("Connect Audio Cue Behaviors");		
 		
 		// Listen for cue/navigation events
 		//
@@ -166,7 +166,7 @@ export class TScene extends TSceneBase
 	*/
 	public disConnectTrack(track:CSceneTrack ) :void 
 	{
-		if(this.traceMode) CUtil.trace("disConnectAudio Audio Behavior");		
+		CUtil.trace("Disconnect Audio Cue Behaviors");		
 		
 		if(track)
 		{
@@ -386,6 +386,7 @@ export class TScene extends TSceneBase
         if(!historyNode)
         {
             this.STrack = this.sceneGraph.rootTrack;
+            this.connectTrack(this.STrack);	
         }
 
         return historyNode;

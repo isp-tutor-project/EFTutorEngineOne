@@ -90,6 +90,7 @@ export class CSceneTrack extends EventDispatcher
     private templateRef:any;
     private _ontologyKey:Array<string>;
     private _ontologyRef:string;
+    private _ontologyPath:string;
 
     private segments:Array<segment>;    
     private timedSet:Array<timedEvents>;
@@ -185,29 +186,21 @@ export class CSceneTrack extends EventDispatcher
     }
     
 
-    public resolveOntologyKey(selector:string, templateRef:any) {
+    public resolveSegmentKey(selector:string, templateRef:any) :string {
 
-        if(templateRef) {
+        //  Use the prescribed selector or the default if present
+        // 
+        let ontologyRef:string = templateRef[selector] || templateRef["*"];
 
-            //  Use the prescribed selector or the default if present
-            // 
-            let ontologyRef:string = templateRef[selector] || templateRef["*"];
-
-            if(!ontologyRef) {
-                console.error("SCENETRACK: ERROR: missing Template Reference for:" + selector);
-            }
-            
-            this._ontologyRef = this.hostScene.resolveRawSelector(ontologyRef, null);
-
-            if(this._ontologyRef) {
-
-                let objSelector   = this._ontologyRef.split("|");
-                this._ontologyKey = objSelector[0].split("_");
-            }
-            else {
-                throw("SCENETRACK: Error: invalid Ontology Reference: " + ontologyRef );
-            }
+        if(!ontologyRef) {
+            console.error("SCENETRACK: ERROR: missing Template Reference for:" + selector);
         }
+        
+        this._ontologyRef = this.hostScene.resolveRawSelector(ontologyRef, null);
+
+        this.hostScene.resolveRawSelector(selector, this._ontologyRef);
+
+        return this.hostScene.ontologyPath;
     }
 
 
@@ -253,14 +246,14 @@ export class CSceneTrack extends EventDispatcher
                         // 
                         // NOTE: we call the resolver in the context of this scenetrack - so it's ontologyKey is set not the hostScene
                         // 
-                        this.resolveOntologyKey(selector, this.templateRef);
+                        this._ontologyPath = this.resolveSegmentKey(selector, this.templateRef);
                         
-                        let selectorTag = this._ontologyRef.replace(this.RX_DELIMITERS, "");
-
                         // Use the delimiter-stripped Selector reference to determine the Value to use 
                         // for this iteration. This is to mirror how the audio builder generates template
                         // segment names
                         // 
+                        let selectorTag = this._ontologyPath.replace(this.RX_DELIMITERS, "");
+
                         segvalue = segment[selectorTag] as segmentVal;
 
                         segvalue.filepath = CONST.COMMONAUDIO + selectorTag + CONST.VOICE_PREFIX + this.voice + CONST.TYPE_MP3;

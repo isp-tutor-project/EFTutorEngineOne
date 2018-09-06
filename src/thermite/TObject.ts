@@ -136,7 +136,9 @@ export class TObject extends TRoot
 	public _maskColor:string;
 	public _maskAlpha:string;		
 	
-	private _hidden:boolean = false;							// This is the only way to keep object !.visible during a transition 
+    private _hidden:boolean;							        // This is the only way to keep object !.visible during a transition 
+    private _shownVisibility:boolean;
+    private _shownAlpha:number;
 
 	// navigator object - used to link objects to logging mechanism - _phaseData
 	
@@ -192,21 +194,40 @@ export class TObject extends TRoot
 	}
 
 
+    /**
+     * Provides a means to defer adding the HTML component until transition time - The control itself may be persistent
+     * in which case we don't want the unused copy on stage.
+     * Allow custom controls to override to init subcomponents.
+     */
+    public addHTMLControls() {}
+
+
 	/**
 	 * This is a mechanism to keep woz objects !.visible through a transition
 	 *  
 	 */
 	public set hidden(hide:boolean)
 	{
-		this._hidden = hide;
-		
-		if(this._hidden)
-		{			
-			this.visible = false;
-			this.alpha   = 0;
-		}
-	}
-	
+        if(this._hidden !== hide) {
+            
+            this._hidden = hide;
+            
+            if(this._hidden)
+            {			
+                this._shownVisibility = this.visible;
+                this._shownAlpha      = this.alpha;
+
+                this.visible = false;
+                this.alpha   = 0;
+            }
+            else {
+
+                this.visible = this._shownVisibility || this.visible;
+                this.alpha   = this._shownAlpha || this.alpha;
+            }
+        }
+    }
+    
 	public get hidden() : boolean
 	{
 		return this._hidden; 
@@ -268,15 +289,23 @@ export class TObject extends TRoot
 
         if(templateRef) {
 
+            // We may receive a preresolved reference - i.e. from scripts
+            // 
+            if(typeof templateRef === 'string') {
+
+                this._ontologyRef = templateRef;
+            }
             //  Use the prescribed selector or the default if present
             // 
-            let ontologyRef:string = templateRef[selector] || templateRef["*"];
+            else {
+                let ontologyRef = templateRef[selector] || templateRef["*"];
 
-            if(!ontologyRef) {
-                console.error("ERROR: missing Template Reference for:" + selector);
+                if(!ontologyRef) {
+                    console.error("ERROR: missing Template Reference for:" + selector);
+                }
+
+                this._ontologyRef = this.resolveRawSelector(ontologyRef, null);
             }
-
-            this._ontologyRef = this.resolveRawSelector(ontologyRef, null);
 
             if(this._ontologyRef) {
 
@@ -290,7 +319,7 @@ export class TObject extends TRoot
                 // }
             }
             else {
-                console.error("Error: invalid Ontology Reference: " + ontologyRef );
+                console.error("Error: invalid Ontology Reference: " + templateRef );
             }
         }
     }

@@ -187,27 +187,29 @@ export class THtmlBase extends TObject {
      * Provides a means to defer adding the HTML component until transition time - The control itself may be persistent
      * in which case we don't want the unused copy on stage.
      */
-    public addHTMLControl() {
+    public addHTMLControls() {
 
         let stage;
 
-        dom_overlay_container.appendChild(this.outerContainer); 
+        if(this.outerContainer && !this.fAdded) {
+            dom_overlay_container.appendChild(this.outerContainer); 
 
-        // Note that the sheet property is null until the element is added to the 
-        // page.
-        document.head.appendChild(this.styleElement);       
-        
-        // NOTE: You cannot add rules to a sheet until its style element has been added 
-        //       to the document as its "sheet" property is created when added
-        // 
-        this.addCSSRules(this.styleElement, this.cssSheet );
+            // Note that the sheet property is null until the element is added to the 
+            // page.
+            document.head.appendChild(this.styleElement);       
+            
+            // NOTE: You cannot add rules to a sheet until its style element has been added 
+            //       to the document as its "sheet" property is created when added
+            // 
+            this.addCSSRules(this.styleElement, this.cssSheet );
 
-        // TODO : Move to addHTMLControl ??
-        this.fAdded = true;
+            this.fAdded   = true;
+            this.HTMLmute = false;
 
-        if(stage = this.getStage()) {
-            this._updateVisibilityCbk = stage.on('drawstart', this._handleDrawStart, this, false);
-            this._updateComponentCbk  = stage.on('drawend'  , this._handleDrawEnd  , this, false);
+            if(stage = this.getStage()) {
+                this._updateVisibilityCbk = stage.on('drawstart', this._handleDrawStart, this, false);
+                this._updateComponentCbk  = stage.on('drawend'  , this._handleDrawEnd  , this, false);
+            }
         }
     }
 
@@ -326,6 +328,17 @@ export class THtmlBase extends TObject {
         let span = document.getElementById(spanID);
 
         span.style.visibility = "visible";
+    }
+
+
+    public show() {
+
+        this.outerContainer.style.visibility = "visible";
+    }
+
+    public hide() {
+
+        this.outerContainer.style.visibility = "hidden";
     }
 
 
@@ -500,11 +513,17 @@ export class THtmlBase extends TObject {
                                     break;
 
                 if(objData[i1].default) {
-                    this._currObjNdx = i1;
+
+                    this._currObjNdx = i1;                    
+                    this.fontSize    = objData[i1].fontSize || this.fontSize;
+
                     this.deSerializeObj(objData[i1]);
                     break;
                 }
             }
+        }
+        else {
+            this.fontSize = objData.fontSize || this.fontSize;
         }
     }
 

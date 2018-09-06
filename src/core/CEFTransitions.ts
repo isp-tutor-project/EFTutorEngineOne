@@ -459,17 +459,14 @@ export class CEFTransitions extends CEFTimeLine
                     // only when used.  i.e. controls that persist between scenes and therefore have
                     // an unused control instance should never be added
                     // 
-                    if(targObj._instance.isHTMLControl)
-											targObj._instance.addHTMLControl();
-
+                    if(targObj._instance.addHTMLControls)
+                            targObj._instance.addHTMLControls();
+                            
 					// Run the alpha tween from ZERO to bring the object on stage
 					//
 					if(!(targObj._instance instanceof TObjectMask))
 											targObj._instance.alpha = 0;
 
-					if(targObj._instance.isHTMLControl)
-							targObj._instance.muteHTMLControl(false);
-					
 					// Generate the tween
 					//
 					tween = new Tween(targObj._instance).to({alpha:targObj.inPlace.alpha}, this.tTime, Ease.cubicInOut);
