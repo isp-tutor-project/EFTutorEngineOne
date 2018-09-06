@@ -196,7 +196,9 @@ export class CONST {
 	public static readonly xmlSQLERROR:string			=	"sqlerror";
 	
 	public static readonly INVALID_USER:string			=	"INVALID_USERPASS";
-	
+    
+    public static readonly PLAY_FAILED:string           =   "playFailed";
+
 	// Custom Port Constants
 		
 	public static readonly PORT_NTP:number     =	12000;

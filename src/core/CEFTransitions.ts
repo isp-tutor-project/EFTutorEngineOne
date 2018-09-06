@@ -47,8 +47,8 @@ export class CEFTransitions extends CEFTimeLine
 	public currScene:string = null;				// null initial scene
 	public newScene:string  = null;				// null next scene
 	
-	public rTime:number     = 1000;				// Removal Transition time
-	public tTime:number     = 1000;				// Normal Transition time
+	public rTime:number     = 500;				// Removal Transition time
+	public tTime:number     = 500;				// Normal Transition time
 
 	public fSingleStep:boolean = true;			// single stepping operations - debug
 
@@ -134,8 +134,10 @@ export class CEFTransitions extends CEFTimeLine
 		{
 			this.setTransitionOUT();	
 			
-			if(this.targets.length)
-				this.startTransition(this.outFinished, this);				
+			if(this.targets.length) {
+
+                this.startTransition(this.outFinished, this);				
+            }
 				
 			else 
 			{
@@ -145,6 +147,7 @@ export class CEFTransitions extends CEFTimeLine
 				// Catch special case where there are no tweens
 				// 
 				if(this._tweens.length > 0) {
+
 					this.startTransition(this.inFinished, this);					
 				}
 				else
@@ -154,7 +157,8 @@ export class CEFTransitions extends CEFTimeLine
 		else
 		{
 			this.setTransitionIN(this.tutorAutoObj, this.newScene);	
-			this.changeScene();
+            this.changeScene();
+            
 			this.startTransition(this.inFinished, this);				
 		}
 	}				
@@ -175,7 +179,7 @@ export class CEFTransitions extends CEFTimeLine
 		let bMatch:boolean;
 		let targObj:any;
 		let tween:Tween;
-	
+            
 		try {
 			// look for objects that are not in the new scene but are in current
 			//
@@ -227,7 +231,11 @@ export class CEFTransitions extends CEFTimeLine
 		}
 		catch(error) {
 			CUtil.trace("setTransitionOUT failed: " + error);
-		}
+        }
+        
+        // Allow scripts to fire just before out transition
+        // 
+        this.tutorAutoObj[this.currScene]._instance.hideScene();
 	}				
 		
 	
@@ -247,7 +255,7 @@ export class CEFTransitions extends CEFTimeLine
 		let liveObj:DisplayObject;
 		let tween:Tween;
 		let xname:string;
-		
+        
 		// always start the current Object array from scratch
 		
 		this.currentObjs = new Array;
@@ -447,14 +455,18 @@ export class CEFTransitions extends CEFTimeLine
 				// Otherwise just set tweens to bring the objects on screen from 0 alpha
 				else
 				{
+                    // New HTML controls must be added to the overlay container and their style sheets
+                    // only when used.  i.e. controls that persist between scenes and therefore have
+                    // an unused control instance should never be added
+                    // 
+                    if(targObj._instance.addHTMLControls)
+                            targObj._instance.addHTMLControls();
+                            
 					// Run the alpha tween from ZERO to bring the object on stage
 					//
 					if(!(targObj._instance instanceof TObjectMask))
 											targObj._instance.alpha = 0;
 
-					if(targObj._instance.isHTMLControl)
-							targObj._instance.muteHTMLControl(false);
-					
 					// Generate the tween
 					//
 					tween = new Tween(targObj._instance).to({alpha:targObj.inPlace.alpha}, this.tTime, Ease.cubicInOut);
@@ -521,7 +533,11 @@ export class CEFTransitions extends CEFTimeLine
 		for (let perObj in this.persistObjs)
 		{
 			this.activeObjs[this.persistObjs[perObj].xname] = this.persistObjs[perObj];
-		}			
+        }			
+        
+        // Allow scripts to fire just before in transition
+        // 
+        this.tutorAutoObj[this.newScene]._instance.showScene();
 	}				
 	
 	

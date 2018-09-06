@@ -154,7 +154,7 @@ export class TScene extends TSceneBase
 	*/
 	public connectTrack(track:CSceneTrack ) :void 
 	{
-		if(this.traceMode) CUtil.trace("Connect Audio Behavior");		
+		CUtil.trace("Connect Audio Cue Behaviors");		
 		
 		// Listen for cue/navigation events
 		//
@@ -166,7 +166,7 @@ export class TScene extends TSceneBase
 	*/
 	public disConnectTrack(track:CSceneTrack ) :void 
 	{
-		if(this.traceMode) CUtil.trace("disConnectAudio Audio Behavior");		
+		CUtil.trace("Disconnect Audio Cue Behaviors");		
 		
 		if(track)
 		{
@@ -192,7 +192,7 @@ export class TScene extends TSceneBase
 	{
 		if(this.traceMode) CUtil.trace("navNext: " + event);
 		
-		this.navigator.gotoNextScene();
+		this.navigator.gotoNextScene("$scriptAction");
 	}		
 	
 //*************** SubSequence Navigation
@@ -240,11 +240,13 @@ export class TScene extends TSceneBase
     /**
     * gotoNextScene manual entry point
     */
-    public nextTrack() : void
+    public nextTrack(source:string) : void
     {
         // Do automated scene increments asynchronously to allow
         // actiontrack scripts to complete prior to scene nav
         
+        this.changeRequestorTrack = source;
+
         this._trackHandler = this._asyncGraphTimer.on(CONST.TIMER, this._asyncNextTrack, this);
         this._asyncGraphTimer.start();
     }
@@ -270,7 +272,9 @@ export class TScene extends TSceneBase
 	{
 		let historyNode:CSceneHistoryNode;
 		let nextTrack:CSceneTrack;
-		
+        
+        console.log("SCENEGRAPH: state change: " + this.changeRequestorTrack);
+
 		// If this scene has an animation graph
 		// This may be called as a result of scene increment on scenes that just have actiontracks
 		
@@ -321,7 +325,7 @@ export class TScene extends TSceneBase
 			// If we run out of tracks then move to the next scene node
 			else if(!bNavigating)
 			{
-				this.navigator.gotoNextScene();				
+				this.navigator.gotoNextScene("$endOfTracks");				
 			}
 		}
 		
@@ -382,6 +386,7 @@ export class TScene extends TSceneBase
         if(!historyNode)
         {
             this.STrack = this.sceneGraph.rootTrack;
+            this.connectTrack(this.STrack);	
         }
 
         return historyNode;
@@ -406,7 +411,7 @@ export class TScene extends TSceneBase
         // Set up the root sceneTrack
         // 
         this._deferPlay = true;
-        this.nextTrack();
+        this.nextTrack("$preEnterScene");
         
 		return result;
 	}

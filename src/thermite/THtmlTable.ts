@@ -177,8 +177,6 @@ export class THtmlTable extends THtmlBase {
             this.outerContainer.setAttribute(CONST.EFTABLE_TYPE, "");            
             this.outerContainer.setAttribute(this.name, "");
 
-            dom_overlay_container.appendChild(this.outerContainer); 
-
             this.controlContainer  = this.outerContainer;
 
             super.onAddedToStage(evt);
@@ -200,6 +198,11 @@ export class THtmlTable extends THtmlBase {
     public getCols() : number {
 
         return this.cellData[0].length;
+    }
+
+    public setColWidth(col:number, width:string) {
+
+        this.getCell(0,col).cell.classList.toggle("hidden");
     }
 
     private findCell(cell:any) : void {

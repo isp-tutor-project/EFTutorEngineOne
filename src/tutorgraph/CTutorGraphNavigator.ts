@@ -188,22 +188,7 @@ export class CTutorGraphNavigator extends CEFNavigator
 		this.tutorDoc.log.logTerminateEvent();
 	}
 	
-	
-	
-	/**
-		* gotoNextScene Event driven entry point
-		* @param	evt
-		*/
-	public onButtonNext(evt:TMouseEvent) : void
-	{
-		// this.dispatchEvent(new Event("NEXT_CLICK",false,false));
-
-		// Do button clicks synchronously
 		
-		this.traceGraphEdge();
-	}		
-
-	
 	/**
 		* 	recoverState - called from CONST.launchTutors to restart an interrupted session
 		*/
@@ -226,11 +211,13 @@ export class CTutorGraphNavigator extends CEFNavigator
 	/**
 		* gotoNextScene manual entry point
 		*/
-	public gotoNextScene() : void
+	public gotoNextScene(source:string) : void
 	{
 		// Do automated scene increments asynchronously to allow
 		// actiontrack scripts to complete prior to scene nav
-		
+        
+        this.changeRequestorScene = source;
+        
         this._tickHandler = this._asyncTimer.on(CONST.TIMER, this._asyncNextScene, this);
         this._asyncTimer.start();
 	}
@@ -240,9 +227,23 @@ export class CTutorGraphNavigator extends CEFNavigator
         this._asyncTimer.stop();
 		this._asyncTimer.off(CONST.TIMER, this._tickHandler);
 					
-		this.traceGraphEdge();
+        this.traceGraphEdge();
 	}
-	
+	/**
+    * gotoNextScene Event driven entry point
+    * @param	evt
+    */
+    public onButtonNext(evt:TMouseEvent) : void
+    {
+        // Do button clicks synchronously
+        
+        this.changeRequestorScene = "$buttonClick" + evt.currentTarget.name;
+        
+        this.traceGraphEdge();
+    }		
+
+        
+        
 	/**
 		* gotoNextScene Event driven entry point
 		* @param	evt
@@ -261,7 +262,12 @@ export class CTutorGraphNavigator extends CEFNavigator
 			if(this._inNavigation) 
 						    return;
 			
-			this._inNavigation = true;
+            this._inNavigation = true;
+
+            console.log("TUTORGRAPH: state change: " + this.changeRequestorScene);
+
+            if(scene)
+                scene.changeRequestorTrack = "$tutorGraph:" + this.changeRequestorScene;
 			
 			// The next button can target either the tutorgraph or the scenegraph.
 			// i.e. You either want it to trigger the next step in the sceneGraph or the tutorgraph

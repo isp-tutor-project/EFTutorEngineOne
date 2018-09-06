@@ -48,7 +48,8 @@ export class CEFNavigator extends EventDispatcher
 
 	public tutorDoc:CEFTutorDoc;		
 	public tutorAutoObj:any;							// This allows us to automate non-EF objects - They have no code behind and therefore no local variables to store initial state
-	public sceneCnt:number = 0;
+    public sceneCnt:number = 0;
+    public changeRequestorScene:string;
 	
 	public   xitions:CEFTransitions;					// This is the tutor transition object
 
@@ -383,7 +384,7 @@ export class CEFNavigator extends EventDispatcher
 //			if(evt != null)
 //				gTutor.captureSceneGraph();			
 		
-		this.gotoNextScene();
+		this.gotoNextScene("$buttonClick");
 	}
 	
 	/**
@@ -397,7 +398,7 @@ export class CEFNavigator extends EventDispatcher
 	/**
 	 * gotoNextScene manual entry point
 	 */
-	public gotoNextScene() : void
+	public gotoNextScene(source:string) : void
 	{
 		if(this.traceMode) CUtil.trace("Nav Next: " );
 		

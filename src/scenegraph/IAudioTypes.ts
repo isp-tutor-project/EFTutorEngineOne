@@ -46,6 +46,7 @@ export interface segment {
 }
 export interface segmentVal {
 
+    filepath?:string;
     fileid:string;
     SSML: string;
     cues: Array<cuePoint>;

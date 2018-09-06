@@ -416,7 +416,7 @@ export class CEFTutorDoc extends EventDispatcher implements IEFTutorDoc
 		
 		this.resetStateFrameID();	
 
-		this.tutorNavigator.gotoNextScene();
+		this.tutorNavigator.gotoNextScene("$launchTutor");
 	}
 	
 			

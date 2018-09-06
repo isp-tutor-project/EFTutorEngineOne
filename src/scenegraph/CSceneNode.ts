@@ -108,6 +108,14 @@ export class CSceneNode extends EventDispatcher
 		
 	}
     
+    public get name() : string {
+        return this._name;
+    }
+
+    public get id() : string {
+        return this._id;
+    }
+
     public get index() {
         return -1;
     }

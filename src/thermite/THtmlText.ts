@@ -132,7 +132,6 @@ export class THtmlText extends THtmlBase {
             this.controlContainer = document.createElement("div"); 
             this.controlContainer.className = "tablecell";
 
-            dom_overlay_container.appendChild(this.outerContainer); 
             this.outerContainer.appendChild(this.controlContainer); 
 
             super.onAddedToStage(evt);
@@ -144,7 +143,8 @@ export class THtmlText extends THtmlBase {
    {
        console.log("deserializing: Text Control");
 
-       super.deSerializeObj(objData);				
+       super.deSerializeObj(objData);		
+       
    }
 
 //*************** Serialization

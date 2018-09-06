@@ -77,7 +77,7 @@ export class THtmlList1 extends THtmlBase {
 
         this.fontSize   = 14;
         this.arrowScale = 4.5;
-        this.selected   = {};
+        this.selected   = null;
 
         this.ARROWNORMAL = "[eflist] .listbox::after";
         this.ARROWACTIVE = "[eflist] .listbox.active::after";        
@@ -228,7 +228,6 @@ export class THtmlList1 extends THtmlBase {
             this.efListOptions.setAttribute("class", "listoptions color hideoptions");
             this.efList = new Array<HTMLElement>();
 
-            dom_overlay_container.appendChild(this.outerContainer); 
             this.controlContainer = this.outerContainer;          
             this.controlContainer.appendChild(this.efListOptions);
   
@@ -382,12 +381,11 @@ export class THtmlList1 extends THtmlBase {
 
         if(objData.htmlData) {
             
-            // Note: this custom control does not use html source it creates it dynamically
+            // Note: this custom control does not use an html layout it creates it dynamically
 
             if(objData.htmlData.style) {
                 this.addCustomStyles(objData.htmlData.style, this.cssSheet );
-                this.addCSSRules(this.styleElement, this.cssSheet );
-            }
+             }
         }
     }
 

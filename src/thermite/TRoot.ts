@@ -44,7 +44,7 @@ export class TRoot extends MovieClip
 	public static xInstID:number = 1;		
 
 	public hostModule:string;
-	public hostScene:TScene;
+	public _hostScene:TScene;
 
     protected _InitData:string;
 	protected _DataSnapShot:string;
@@ -109,6 +109,19 @@ export class TRoot extends MovieClip
 
 	/* ######################################################### */
 	/*  ###########  END CREATEJS SUBCLASS SUPPORT ###########   */
+
+    
+    // Allow components to manage hostscene - may need to initialize 
+    // subcomponents
+    // 
+    public set hostScene(scene:TScene) {
+
+        this._hostScene = scene;
+    }
+    public get hostScene() : TScene {
+
+        return this._hostScene;
+    }
 
 
     public addListener(target:any, type:string) {

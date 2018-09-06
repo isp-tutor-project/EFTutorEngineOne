@@ -343,7 +343,7 @@ export class TTutorContainer extends TRoot
 			if(sceneObj instanceof TObject)
 			{
 				wozObj = sceneObj as TObject;			// Coerce the Object					
-				// wozObj.removeAllListeners(true); 		// Cleanup listeners  @@FLAG
+				// wozObj.removeAllListeners(true); 	// Cleanup listeners  @@FLAG
 				
 				wozObj.Destructor();					// Object cleanup 				
 			}								

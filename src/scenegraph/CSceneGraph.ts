@@ -66,7 +66,9 @@ export class CSceneGraph extends CSceneNode
 		scenegraph.sceneInstance = parent;
 		scenegraph.parseNodes();			
 		scenegraph.seekRoot();
-		
+
+        console.log("SCENEGRAPH: State:" + parent.name + ":ROOT");
+        
 		return scenegraph;
 	}
 	
@@ -142,6 +144,9 @@ export class CSceneGraph extends CSceneNode
 			if(this._currTrack == null)
 			{
                 this._currNode = this._currNode.nextNode();
+
+                if(this._currNode)
+                    console.log("SCENEGRAPH: State:" + this._currNode.id);
 			}
 			
 		}while((this._currTrack == null) && (this._currNode != null))

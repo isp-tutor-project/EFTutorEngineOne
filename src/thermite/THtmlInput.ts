@@ -149,8 +149,6 @@ export class THtmlInput extends THtmlBase {
 
             this.controlContainer  = this.outerContainer;
 
-            dom_overlay_container.appendChild(this.outerContainer); 
-
             // TODO: to use the ANimateCC control to set the font - decompose font
             //       must be modified.
             // 

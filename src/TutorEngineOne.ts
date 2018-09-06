@@ -139,14 +139,15 @@ export class CEngine {
         }
 
         Promise.all(loaderPromises)        
-        .then(() => {
+        .then((values) => {
 
-            console.log("Tutor init Complete");
+            console.log("Tutor init Complete:" + values);
 
             // Map any linked objects between modules.
             // 
             this.mapForeignClasses();
 
+            // TODO: This is being called multiple times ????
             this.startTutor();
         })                
 
@@ -218,9 +219,9 @@ export class CEngine {
         }
 
         Promise.all(importPromises)        
-            .then(() => {
+            .then((values) => {
                 
-                console.log("Thermite mapping complete");
+                console.log("Thermite mapping complete:" + values);
 
                 // resolve the preloader promise
                 if(resolve)
@@ -267,8 +268,8 @@ export class CEngine {
     }
 
 
-    // Foreign classes are encoded:
-    // TL_<moduleName-trimmed>_<classname>__<variant>
+    // Foreign class resources are encoded:
+    // TL_<moduleName-trimmed>__<variant>
     // This is intended as a simple means of laying out components from a foreign module
     // while maintaining position and size.
     // So we replace the actual component in the animate lib with a modified version of the
@@ -293,20 +294,24 @@ export class CEngine {
                     let temp1:any         = {};
                     let foreignObject:any = EFLoadManager.classLib[AnModuleName][varPath[1]];
 
-                    temp1.clone         = library[compName].prototype.clone;
-                    temp1.nominalBounds = library[compName].prototype.nominalBounds;
-                    temp1.frameBounds   = library[compName].prototype.frameBounds;
+                    // NOTE: Use this section to guarantee that component proportions are not 
+                    //       distorted by a poorly set up TL_ object.  i.e. if the TL_ object
+                    //       does not have the precise size/position of exported original.
+
+                    // temp1.clone         = library[compName].prototype.clone;
+                    // temp1.nominalBounds = library[compName].prototype.nominalBounds;
+                    // temp1.frameBounds   = library[compName].prototype.frameBounds;
         
-                    let foreignClone:any = function() {
-                    	foreignObject.call(this);
-                    }
-                    foreignClone.prototype = Object.create(foreignObject.prototype);
+                    // let foreignClone:any = function() {
+                    // 	foreignObject.call(this);
+                    // }
+                    // foreignClone.prototype = Object.create(foreignObject.prototype);
 
-                    foreignClone.prototype.clone           = temp1.clone;
-                    foreignClone.prototype.nominalBounds   = temp1.nominalBounds;
-                    foreignClone.prototype.frameBounds     = temp1.frameBounds;
+                    // foreignClone.prototype.clone           = temp1.clone;
+                    // foreignClone.prototype.nominalBounds   = temp1.nominalBounds;
+                    // foreignClone.prototype.frameBounds     = temp1.frameBounds;
 
-                    library[compName] = foreignClone;
+                    library[compName] = foreignObject;
                 }
             }
         }
