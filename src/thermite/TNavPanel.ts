@@ -105,12 +105,12 @@ export class TNavPanel extends TScene
 
 
     public enableNext(enable:boolean) {
-        this.Snext.enableButton(enable);
+        this.Snext.enable(enable);
     }
 
 
     public enablePrev(enable:boolean) {
-        this.Sback.enableButton(enable);
+        this.Sback.enable(enable);
     }
 
 
@@ -122,13 +122,13 @@ export class TNavPanel extends TScene
 			case CONST.NEXTSCENE:
                 this._nextButton  = this[butComp].on(CONST.MOUSE_CLICK, this.tutorNavigator.onButtonNext, this.tutorNavigator);
                 this.Snext.hidden = false;        
-                this.Snext.enableButton(true);
+                this.Snext.enable(true);
 				break;
 
 			case CONST.PREVSCENE:
 				this._prevButton  = this[butComp].on(CONST.MOUSE_CLICK, this.tutorNavigator.onButtonPrev, this.tutorNavigator);
                 this.Sback.hidden = false;
-                this.Sback.enableButton(true);
+                this.Sback.enable(true);
                 break;				
 		}
 	}
@@ -161,12 +161,12 @@ export class TNavPanel extends TScene
 		switch(type) {
 			case CONST.NEXTSCENE:
                 this.Snext.hidden = !show;        
-                this.Snext.enableButton(show);
+                this.Snext.enable(show);
 				break;
 
 			case CONST.PREVSCENE:
                 this.Sback.hidden = !show;
-                this.Sback.enableButton(show);
+                this.Sback.enable(show);
                 break;				
 		}
 	}

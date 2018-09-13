@@ -906,10 +906,10 @@ export class TSceneBase extends TObject
 
 	/**
 	 */
-	public onClick(target:string) : void {
+	public onAction(target:string, evt:string) : void {
 		// User selection has been made
 		//
-		this.$onClick(target);
+		this.$onAction(target, evt);
 	}
 
 

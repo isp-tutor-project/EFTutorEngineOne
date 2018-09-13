@@ -40,10 +40,10 @@ export class TButton extends TObject
 	
 	//************ Stage Symbols
 	
-	public curState:string   = "unknown";
-	public fPressed:boolean  = false;
-	public fEnabled:boolean  = true;
-    public fOver:boolean     = false;
+	public curState:string;
+	public fPressed:boolean;
+	public fEnabled:boolean;
+    public fOver:boolean;
     
     public STATE_UP:string;      
     public STATE_OVER:string;
@@ -83,6 +83,11 @@ export class TButton extends TObject
 
 		this.on(CEFEvent.ADDED_TO_STAGE, this.onAddedToStage);
 
+        this.curState  = "unknown";
+        this.fPressed  = false;
+        this.fEnabled  = true;
+        this.fOver     = false;
+    
 		// Note the CreateJS(AnimateCC) parts of the button have not been created
 		// at this point.
 	}
@@ -164,7 +169,7 @@ export class TButton extends TObject
 		this.fEnabled = thisObj.defState.fEnabled;
 		this.fOver    = thisObj.defState.fOver;   
 					
-		this.enableButton(this.fEnabled);
+		this.enable(this.fEnabled);
 		
 		super.restoreDefState(thisObj );
 	}
@@ -276,17 +281,17 @@ export class TButton extends TObject
 		{
 			if(this.traceMode) CUtil.trace("Button UnMuted: " + this.name);				
 			
-			this.on(TMouseEvent.MOUSE_CLICK , this.doMouseClicked);
-			this.on(TMouseEvent.MOUSE_OVER  , this.doMouseOver);
-			this.on(TMouseEvent.MOUSE_OUT   , this.doMouseOut);
-			this.on(TMouseEvent.MOUSE_DOWN  , this.doMouseDown);
-			this.on(TMouseEvent.MOUSE_UP    , this.doMouseUp);
+			this.on(TMouseEvent.MOUSE_CLICK , this.doMouseClicked, this);
+			this.on(TMouseEvent.MOUSE_OVER  , this.doMouseOver, this);
+			this.on(TMouseEvent.MOUSE_OUT   , this.doMouseOut, this);
+			this.on(TMouseEvent.MOUSE_DOWN  , this.doMouseDown, this);
+			this.on(TMouseEvent.MOUSE_UP    , this.doMouseUp, this);
 		}
 		
 	}
 			
 	
-	public enableButton( bFlag:boolean)
+	public enable( bFlag:boolean)
 	{			
 		// set flag
 		// 
@@ -341,17 +346,19 @@ export class TButton extends TObject
 		
 	}					
 
-	// TODO: implement sceneExt action
+    // TODO: implement sceneExt action
+    // 
 	protected doClickAction(evt:TMouseEvent) : void
 	{
 		try
 		{
-            // this.dispatchEvent(new Event(CONST.MOUSE_CLICK));
-			// this.sceneExt["SButton1_Action"].call(this);
+            // TODO: fix initialization of hostScene globally
+            if(this.hostScene)
+                this.hostScene.onAction(this.name, evt.type);
 		}
 		catch(e)
 		{
-			CUtil.trace("Error in onClick script: " + this.onClickScript);
+			CUtil.trace("Error in onClick script: " + e);
 		}
 	}
 	
@@ -407,31 +414,14 @@ export class TButton extends TObject
 	
 //*************** Serialization
 	
-	/*
-	* 
-	*/
-	public loadXML(stringSrc:any) : void
-	{		
-		super.loadXML(stringSrc);
-		
-		if(stringSrc.onclick != undefined)		
-		{
-			// Note: it is imperitive that we precompile the script -
-			//       Doing it on each invokation causes failures
 
-			// this.onClickScript = D.parseProgram(stringSrc.onclick);
-		}
-	}
-	
-	/*
-	*/
-	public saveXML() : string
-	{
-		let propVector:string;
-		
-		return propVector;
-	}	
-	
+public deSerializeObj(objData:any) : void
+{
+    console.log("deserializing: Button Control");
+
+    super.deSerializeObj(objData);				
+}
+
 //*************** Serialization
 	
 }

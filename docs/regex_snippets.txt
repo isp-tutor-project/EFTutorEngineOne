@@ -1,6 +1,9 @@
 
 VSCode regex cheatsheet:
 
+Regex to locate whitespace/punctuation between templates
+}}[,\.!\?\\-\s]+{{
+
 Regex to convert style specifications to Json representation - watch for excessive matching
 ([\w-]*)\s*:\s*([\w-\s#%\(\),\.]*);
 "$1":"$2",

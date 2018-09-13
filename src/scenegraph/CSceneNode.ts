@@ -55,9 +55,9 @@ export class CSceneNode extends EventDispatcher
         this._parent = parent;
         this._parentScene = parent._parentScene;        
 		
-		this._id    = id;			
-		this._type  = nodefactory.type; 		
-		this._name  = nodefactory.name;			
+		this._id       = id;			
+		this._type     = nodefactory.type; 		
+		this._name     = nodefactory.name;			
 		
 		for (let edge of nodefactory.edges)
 		{
@@ -102,7 +102,6 @@ export class CSceneNode extends EventDispatcher
 		return node;
 	}
 	
-		
 	public seekToTrack(historyNode:CSceneHistoryNode) :any
 	{
 		

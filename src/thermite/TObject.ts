@@ -19,6 +19,7 @@
 import { TRoot } 			from "./TRoot";
 import { TObjectDyno } 		from "./TObjectDyno";
 import { TSceneBase }  		from "./TSceneBase";
+import { TSelector }        from "./TSelector";
 
 import { TTutorContainer } 	from "./TTutorContainer";
 
@@ -232,7 +233,16 @@ export class TObject extends TRoot
 	{
 		return this._hidden; 
 	}
-	
+    
+    public hide() {
+        this.hidden = true;
+    }
+
+    public show() {
+        this.hidden = false;
+    }
+
+
 	public set features(newFTR:string)
 	{
 		this._features = newFTR; 
@@ -1574,7 +1584,16 @@ export class TObject extends TRoot
 				}					
 			}
 		}
+ 
+//*************** Selector operations
         
+        public $(selector:string) : TSelector {
+
+            return new TSelector(this, selector);
+        }
+
+//*************** Selector operations
+
         
 //*************** Serialization
 

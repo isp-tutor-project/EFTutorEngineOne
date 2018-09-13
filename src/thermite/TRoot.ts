@@ -587,7 +587,25 @@ export class TRoot extends MovieClip
         // Use datasource to initialize
         // 
         if(objData.datasource) {
-            this.initFromDataSource(objData.datasource);
+
+            // Allow datasources to be feature reactive.
+            // 
+            if(Array.isArray(objData.datasource)) {
+
+                // feature matching is first to the post... i.e. the array of datasources
+                // is tested in order and the first match wins.
+                // 
+                for(let i1 = 0; i1 < objData.datasource.length ; i1++) {
+
+                    if(this.tutorDoc.testFeatureSet(objData.datasource[i1].features)) {
+
+                        this.initFromDataSource(objData.datasource[i1].src);
+                        break;
+                    }
+                }
+            }
+            else 
+                this.initFromDataSource(objData.datasource);
         }        				
 
     }

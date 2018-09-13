@@ -296,7 +296,7 @@ export class CEngine {
 
                     // NOTE: Use this section to guarantee that component proportions are not 
                     //       distorted by a poorly set up TL_ object.  i.e. if the TL_ object
-                    //       does not have the precise size/position of exported original.
+                    //       does not have the precise size/position of the exported original.
 
                     // temp1.clone         = library[compName].prototype.clone;
                     // temp1.nominalBounds = library[compName].prototype.nominalBounds;

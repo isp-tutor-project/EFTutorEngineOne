@@ -44,6 +44,7 @@ export class CSceneTrack extends EventDispatcher
 	protected tutorDoc:IEFTutorDoc;		
     private _parent:CSceneGraph;
     private _name:string;
+	private _enqueue:boolean;
 
     private hostScene:TScene;    
     private sceneName:string;    
@@ -143,6 +144,11 @@ export class CSceneTrack extends EventDispatcher
 			this._actionname = factory.actionname;
 		}
 
+        if(factory.enqueue === false) {
+            console.log("rtest");
+        }
+
+		this._enqueue   = typeof factory.enqueue == "undefined"? true:factory.enqueue;			
         this._autostep  = factory.autostep  || false;        
         this._stepdelay = factory.stepdelay || 0.0;        
         this._odds      = factory.odds;
@@ -185,6 +191,12 @@ export class CSceneTrack extends EventDispatcher
 		return sceneTrack;
     }
     
+
+    public get isHistoric() : boolean {
+
+        return this._enqueue;
+    }
+
 
     public resolveSegmentKey(selector:string, templateRef:any) :string {
 

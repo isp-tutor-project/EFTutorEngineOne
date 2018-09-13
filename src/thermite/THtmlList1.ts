@@ -367,6 +367,8 @@ export class THtmlList1 extends THtmlBase {
             efOption.setAttribute("class", "isselected");
         }
 
+        //  TODO: convert to ".on"
+        // 
         let host = this;
         efOption.addEventListener("click", function (evt) {
             host.onOptionClick.call(host, evt, this);

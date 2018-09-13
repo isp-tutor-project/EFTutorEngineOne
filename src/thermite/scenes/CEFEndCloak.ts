@@ -86,8 +86,8 @@ export class CEFEndCloak extends TScene
 
 		// Update the Navigation
 		//
-		this.tutorDoc.tutorContainer.SnavPanel.SnextButton.enableButton(false);		
-		this.tutorDoc.tutorContainer.SnavPanel.SbackButton.enableButton(false);																		
+		this.tutorDoc.tutorContainer.SnavPanel.SnextButton.enable(false);		
+		this.tutorDoc.tutorContainer.SnavPanel.SbackButton.enable(false);																		
 														
 		return super.preEnterScene(lTutor, sceneLabel, sceneTitle, scenePage, Direction );
 	}

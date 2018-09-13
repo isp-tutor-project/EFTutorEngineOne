@@ -1106,13 +1106,13 @@ export class TTutorContainer extends TRoot
 	
 	public enableNext(fEnable:boolean)
 	{			
-		// this.SnavPanel.SnextButton.enableButton(fEnable);		
+		// this.SnavPanel.SnextButton.enable(fEnable);		
 	}
 
 	
 	public enableBack(fEnable:boolean)
 	{			
-		// this.SnavPanel.SbackButton.enableButton(fEnable);		
+		// this.SnavPanel.SbackButton.enable(fEnable);		
 	}
 
 	

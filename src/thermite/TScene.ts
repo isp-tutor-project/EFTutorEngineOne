@@ -348,13 +348,16 @@ export class TScene extends TSceneBase
         // Note we support historic scenes no longer being visitable.
         // i.e. We can set a feature so a scene will only be visited once.			
         do
-        {
+        {            
             historyNode = this._history.back();
             
             // If we are at the root of the history - stop
             
             if(historyNode != null)
             {					
+                if(!historyNode.track.isHistoric) 
+                                            continue;
+
                 features = historyNode.track.features;
                 
                 // If scene no longer matches the feature set skip it
