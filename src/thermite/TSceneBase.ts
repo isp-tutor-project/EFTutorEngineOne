@@ -176,8 +176,9 @@ export class TSceneBase extends TObject
                 
                 if(this[element] && this[element].deSerializeObj) {
 
-                    this[element].hostModule = this.hostModule;
-                    this[element].hostScene  = this;
+                    this[element].hostModule  = this.hostModule;
+                    this[element].ownerModule = this.ownerModule;
+                    this[element].hostScene   = this;
                     this[element].deSerializeObj(dataElement);
                 }       
                 else {
@@ -651,6 +652,14 @@ export class TSceneBase extends TObject
         }
 
         return result;
+    }
+
+
+    public addFeaturebyQuery(_selector:string, _name:string) {
+        
+        let value = this.resolveOntologyObject(_selector, this.tutorDoc.moduleData[this.hostModule][CONST.SCENE_DATA]._ONTOLOGY, "");
+
+        this.addFeature(value, _name);
     }
 
 

@@ -192,8 +192,10 @@ export class CEFTutorDoc extends EventDispatcher implements IEFTutorDoc
 
 	//**************** Current feature vector
 	
-	private fFeatures:Array<string> = new Array<string>();			
-	private fDefaults:Array<string> = new Array<string>();			
+    private fFeatures:any = {};		
+    private featureID:any = {};		
+    	
+	private fDefaults:any = {};			
     
     
 
@@ -921,41 +923,80 @@ export class CEFTutorDoc extends EventDispatcher implements IEFTutorDoc
 	
 	// udpate the working feature set for this instance
 	//
-	public set addFeature(feature:string) 
+	public addFeature(_feature:string, _id:string) 
 	{			
-		// Add new features - no duplicates
-		
-		if(this.fFeatures.indexOf(feature) == -1)
-		{
-			this.fFeatures.push(feature);
-		}
+        // Add new features
+        // 
+        if(_feature && _feature != "") {		
+
+            if(_id) {
+                this.featureID[_id] = this.featureID[_id] || {};
+                this.featureID[_id][_feature] = true;                
+            }
+            else {
+                this.fFeatures[_feature] = true;
+            }
+        }
 	}
-	
+    
+    
 	// udpate the working feature set for this instance
 	//
-	public set delFeature(feature:string)
+	public delFeature(_feature:string, _id:string)
 	{
-		let fIndex:number;
-		
-		// remove features - no duplicates
-		
-		if((fIndex = this.fFeatures.indexOf(feature)) != -1)
-		{
-			this.fFeatures.splice(fIndex,1);
-		}
-	}
+        if(_feature && _feature != "") {		
+
+            // Remove named features
+            // 
+            if(_id && _id != "") {
+
+                if(_feature) {
+                    if(this.featureID[_id][_feature])
+                        delete this.featureID[_id][_feature];
+                }
+                else {
+                    if(this.featureID[_id])
+                        delete this.featureID[_id];
+                }
+            }
+
+            // Remove One-dimensional features
+            // 
+            else {
+                delete this.fFeatures[_feature];
+            }
+        }
+    }
+    
 	
 	//## Mod Jul 01 2012 - Support for NOT operation on features.
 	//
 	//	
 	private testFeature(element:any, index:number, arr:Array<string>) : boolean
 	{
+        let testElement:string = element;
+        let result    = false;
+        let invResult = false;
+
 		if(element.charAt(0) == "!")
 		{
-			return (this.fFeatures.indexOf(element.substring(1)) != -1)? false:true;
-		}
-		else
-			return (this.fFeatures.indexOf(element) != -1)? true:false;
+            testElement = element.substring(1);
+            invResult   = true;
+        }
+
+        if(this.fFeatures[testElement]) {
+            result = true;
+        }
+        else {
+            for(let id in this.featureID) {
+                if(this.featureID[id][testElement]) {
+                    result = true;
+                    break;
+                }
+            }
+        }
+
+		return (invResult)? !result:result;
 	}
 	
 	
@@ -964,12 +1005,12 @@ export class CEFTutorDoc extends EventDispatcher implements IEFTutorDoc
 	public testFeatureSet(featSet:string) : boolean
 	{
 		let feature:string;
-		let disjFeat:Array<string> = featSet.split(":");	// Disjunctive features
+		let disjFeat:Array<string> = featSet.split("|");	// Disjunctive features
 		let conjFeat:Array<string>;							// Conjunctive features
 		
 		// match a null set - i.e. empty string means the object is not feature constrained
 		
-		if(featSet == "")
+		if(featSet === "")
 				return true;
 		
 		// Check all disjunctive featuresets - one in each element of disjFeat

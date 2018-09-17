@@ -333,7 +333,7 @@ export class TButton extends TObject
 
 			if(this.traceMode) CUtil.trace("dispatch CLICK");
 			
-			this.doClickAction(evt);
+			this.doAction(evt);
 		
 			//@@ Action Logging			
 			let logData:any = {'action':'button_click', 'targetid':this.name};
@@ -346,23 +346,8 @@ export class TButton extends TObject
 		
 	}					
 
-    // TODO: implement sceneExt action
-    // 
-	protected doClickAction(evt:TMouseEvent) : void
-	{
-		try
-		{
-            // TODO: fix initialization of hostScene globally
-            if(this.hostScene)
-                this.hostScene.onAction(this.name, evt.type);
-		}
-		catch(e)
-		{
-			CUtil.trace("Error in onClick script: " + e);
-		}
-	}
-	
-	public doMouseOver(evt:TMouseEvent) : void 
+
+    public doMouseOver(evt:TMouseEvent) : void 
 	{											
 		this.gotoState(this.STATE_OVER);		
 	}					

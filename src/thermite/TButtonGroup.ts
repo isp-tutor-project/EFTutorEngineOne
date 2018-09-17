@@ -324,7 +324,7 @@ export class TButtonGroup extends TObject
 		}
 		
 		if(_feature != "")
-			this.tutorDoc.addFeature = _feature;
+			this.tutorDoc.addFeature(_feature);
 		
 		// Assert button specific features 
 		//
@@ -356,7 +356,7 @@ export class TButtonGroup extends TObject
 		}
 		
 		if(_feature != "")
-			this.tutorDoc.delFeature = _feature;
+			this.tutorDoc.delFeature(_feature);
 		
 		// Assert button specific features 
 		//

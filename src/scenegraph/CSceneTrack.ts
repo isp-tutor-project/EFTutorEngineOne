@@ -49,6 +49,7 @@ export class CSceneTrack extends EventDispatcher
     private hostScene:TScene;    
     private sceneName:string;    
     private hostModule:string;
+    private ownerModule:string;
     private voice:string;
     private language:string;
     
@@ -120,6 +121,7 @@ export class CSceneTrack extends EventDispatcher
         this.hostScene   = parent.sceneInstance;
         this.sceneName   = this.hostScene.name;
         this.hostModule  = this.hostScene.hostModule;
+        this.ownerModule = this.hostScene.ownerModule;
         this.language    = this.tutorDoc.language;
         this.voice       = this.tutorDoc.voice;
 		

@@ -208,16 +208,19 @@ export class TTutorContainer extends TRoot
 	}
     
     
+    // 
     public instantiateScenePath(sceneName:string, classPath:string, sceneVisible:boolean=false) : any
 	{
+        console.error("ERROR: Use of Deprecated Function");
+
         let namespace:Array<string> = classPath.split(".");
         
-		this.instantiateScene(sceneName, namespace[0], namespace[1], sceneVisible) 
+		this.instantiateScene(sceneName, namespace[0], namespace[0], namespace[1], sceneVisible) 
 
     }
     
 
-	public instantiateScene(sceneName:string, hostModule:string, classPath:string, sceneVisible:boolean=false) : any
+	public instantiateScene(sceneName:string, ownerModule:string, hostModule:string, classPath:string, sceneVisible:boolean=false) : any
 	{			
 		let i1:number;
 		let tarScene:TScene;
@@ -225,13 +228,14 @@ export class TTutorContainer extends TRoot
 
 		if (this.traceMode) CUtil.trace("Creating Scene : "+ sceneName);
 
-        tarScene = CUtil.instantiateThermiteObject(hostModule, classPath) as TScene;
+        tarScene = CUtil.instantiateThermiteObject(ownerModule, classPath) as TScene;
         
         // Note the scene object is expected to have the name as its createJS "name"
         //
 		tarScene.name         = sceneName;
         tarScene.sceneName    = sceneName;        
         tarScene.hostModule   = hostModule;
+        tarScene.ownerModule  = ownerModule;
         tarScene.classPath    = classPath;
         tarScene.navigator    = this.tutorDoc.tutorNavigator
 		tarScene.tutorDoc     = this.tutorDoc;

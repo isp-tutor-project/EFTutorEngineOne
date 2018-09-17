@@ -248,7 +248,7 @@ export class TCheckButton extends TButton
 		
 		if(this._activeFeature != "")
 		{
-			this.tutorDoc.addFeature = this._activeFeature;
+			this.tutorDoc.addFeature(this._activeFeature);
 		}
 		return this.activeFeature;
 	}
@@ -259,11 +259,11 @@ export class TCheckButton extends TButton
 		
 		if(this._ftrChecked != "")
 		{
-			this.tutorDoc.delFeature = this._ftrChecked;
+			this.tutorDoc.delFeature(this._ftrChecked);
 		}
 		if(this._ftrUnchecked != "")
 		{
-			this.tutorDoc.delFeature = this._ftrUnchecked;
+			this.tutorDoc.delFeature(this._ftrUnchecked);
 		}							
 	}
 	

@@ -266,9 +266,9 @@ export interface IEFTutorDoc {
 
 	features : string;
 
-	addFeature :string;
+	addFeature(feature:string, _id?:string) : void;
 
-	delFeature :string;
+	delFeature(feature:string, _id?:string) : void;
 
 	testFeatureSet(featSet:string) : boolean;
 

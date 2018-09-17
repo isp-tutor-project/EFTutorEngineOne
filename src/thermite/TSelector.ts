@@ -177,5 +177,15 @@ export class TSelector
         });
     }
 
+    public play() {
+
+        this.targets.forEach(component => {
+
+            if(component.playMC instanceof Function) {
+                component.playMC();
+            }
+        });
+    }
+
 
 }

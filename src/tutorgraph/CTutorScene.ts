@@ -69,7 +69,7 @@ export class CTutorScene
         
 		this._name		  = factory.name;
         this._classPath	  = factory.classname;
-        this._hostModule  = namespace[0];
+        this._hostModule  = factory.hostname || namespace[0];
         this._ownerModule = namespace[0];
         this._className   = namespace[1];
 		this._title 	  = factory.title;
@@ -99,7 +99,7 @@ export class CTutorScene
 	
 	public instantiateScene() : any
 	{
-		this._scene = this.tutorContainer.instantiateScene(this._name, this._hostModule, this._className, this._visible) as TObject;
+		this._scene = this.tutorContainer.instantiateScene(this._name, this._ownerModule, this._hostModule, this._className, this._visible) as TObject;
 		
 		// Transcribe the factory feature to the object itself
 		

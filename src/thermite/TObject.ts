@@ -43,6 +43,8 @@ import ColorMatrixFilter  = createjs.ColorMatrixFilter;
 import BlurFilter		  = createjs.BlurFilter;
 import DisplayObject      = createjs.DisplayObject;
 import Ease			      = createjs.Ease;
+import { TMouseEvent } from "../events/CEFMouseEvent";
+import { TEvent } from "./events/TEvent";
 
 
 //@@ Bug - Note that tweens start automatically so the push onto the running array should be coupled with a stop 
@@ -146,11 +148,8 @@ export class TObject extends TRoot
 	public navigator:CEFNavigator;								// Subsequence Navigator - optional
 	
 
-	protected onCreateScript:string = null;						// Support for XML based runtime scripting
-	protected onExitScript:string   = null;						// Support for XML based runtime scripting
-	
-	
-	
+
+    
 	constructor()
 	{
 		super();
@@ -182,11 +181,19 @@ export class TObject extends TRoot
 		this.tweenID       = 1;						// Instance ID - Identically named objects and ID's will copy deep-state from each other - considered same instance or just shallow state.			
 		this.bTweenable    = true; 					// Objects with the same name will tween together. This flag indicates if the object participates in tweening
 		this.bSubTweenable = false; 				// Certain objects have subobjects that require tweening - we only do this when we have to - keep tutorAutoObj object as small as possible
-		this.bPersist      = false;					// Some objects persist throughout the life of the session
+        this.bPersist      = false;					// Some objects persist throughout the life of the session
     }
 
 	/* ######################################################### */
 	/*  ###########  END CREATEJS SUBCLASS SUPPORT ###########   */
+
+
+	public Destructor() : void
+	{
+        this.off(CEFEvent.COMPLETE, this.doAction);			
+		
+		super.Destructor();
+	}
 
 
 	public get ontologyPath() : string
@@ -202,6 +209,43 @@ export class TObject extends TRoot
      */
     public addHTMLControls() {}
 
+
+    public playMC() {
+
+        // Listen for complete events on the MovieClip itself
+        // 
+        this.timeline.on(CEFEvent.CHANGE, this.checkMCcomplete, this);		
+        
+        this.gotoAndPlay(0);
+    }
+
+
+    private checkMCcomplete(evt:Event) {
+
+        if(this.timeline.position >= this.timeline.duration) {
+
+            this.timeline.off(CEFEvent.CHANGE, this.checkMCcomplete);	
+            this.doAction(new TEvent("complete"));
+        }
+    }
+
+
+    // TODO: implement sceneExt action
+    // 
+	protected doAction(evt:TEvent) : void
+	{
+		try
+		{
+            // TODO: fix initialization of hostScene globally
+            if(this.hostScene)
+                this.hostScene.onAction(this.name, evt.type);
+		}
+		catch(e)
+		{
+			CUtil.trace("Error in onClick script: " + e);
+		}
+	}
+	
 
 	/**
 	 * This is a mechanism to keep woz objects !.visible through a transition
@@ -336,12 +380,16 @@ export class TObject extends TRoot
     
 //*************** Dynamic object creation
 	
-	
+    
+    // TODO: Allow for host/owner Module destinction
+    // 
 	public buildObject(hostModule:string, objectClass:string, objectName:string) : TObject
 	{
 		let newObject:TObject;
 		let maskDim:Point;
-		
+        
+        console.error("Error: Use of incomplete Function");
+
 		newObject = CUtil.instantiateThermiteObject(hostModule, objectClass) as TObject;
 		newObject.name = objectName;
 		
@@ -1109,18 +1157,27 @@ export class TObject extends TRoot
 		return "0";
 	}
 
-	
-	public assertFeature(_feature:string) : void			//## Added Feb 27 2013 - to support dynamic features
+    
+    public addFeature(_feature:string, _name?:string) : void {
+
+        this.assertFeature(_feature, _name);
+    }
+    public delFeature(_feature:string, _name?:string) : void {
+
+        this.retractFeature(_feature, _name);
+    }
+    
+
+	public assertFeature(_feature:string, _name?:string) : void			//## Added Feb 27 2013 - to support dynamic features
 	{	
-		if(_feature != "")
-			this.tutorDoc.addFeature = _feature;
+		this.tutorDoc.addFeature(_feature, _name);
 	}
 	
-	public retractFeature(_feature:string) : void			//## Added Feb 27 2013 - to support dynamic features
+	public retractFeature(_feature:string, _name?:string) : void			//## Added Feb 27 2013 - to support dynamic features
 	{	
-		if(_feature != "")
-			this.tutorDoc.delFeature = _feature;
+		this.tutorDoc.delFeature(_feature, _name);
 	}
+
 
 	
 //****************** END Globals		

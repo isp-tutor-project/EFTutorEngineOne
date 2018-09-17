@@ -2,6 +2,9 @@
 
 export class CONST {
 
+	public static readonly MC_NOLOOP = false;
+	public static readonly MC_LOOP   = true;
+
 	public static readonly TUTORCONTAINER = "STutorContainer";
     
     public static readonly ACTION_PFX       = "$nodeAction.";    

@@ -43,6 +43,7 @@ export class TRoot extends MovieClip
 	public xname:string;
 	public static xInstID:number = 1;		
 
+    public ownerModule:string;
 	public hostModule:string;
 	public _hostScene:TScene;
 
@@ -78,7 +79,7 @@ export class TRoot extends MovieClip
 	/* ######################################################### */
 
 	public TRootInitialize() {
-        MovieClip.call(this);
+        MovieClip.call(this, MovieClip.INDEPENDENT, 0, CONST.MC_NOLOOP, null);
 
         this.init0();
     }
@@ -104,7 +105,7 @@ export class TRoot extends MovieClip
         
         this.clickBoundListener  = this.clickListener.bind(this);
         this.changeBoundListener = this.changeListener.bind(this);
-
+        this.completeListener    = this.completeListener.bind(this);
     }
 
 	/* ######################################################### */
@@ -163,6 +164,8 @@ export class TRoot extends MovieClip
     protected clickListener(e:Event) {        
     }        
     protected changeListener(e:Event) {        
+    }        
+    protected completeListener(e:Event) {        
     }        
 
 
