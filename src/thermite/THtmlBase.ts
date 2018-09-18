@@ -333,10 +333,14 @@ export class THtmlBase extends TObject {
 
     public show() {
 
+        super.show();
+
         this.outerContainer.style.visibility = "visible";
     }
 
     public hide() {
+
+        super.hide();
 
         this.outerContainer.style.visibility = "hidden";
     }
@@ -522,6 +526,7 @@ export class THtmlBase extends TObject {
                 }
             }
         }
+        
         else {
             this.fontSize = objData.fontSize || this.fontSize;
         }

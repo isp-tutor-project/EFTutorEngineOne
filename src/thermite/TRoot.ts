@@ -566,13 +566,23 @@ export class TRoot extends MovieClip
         this.deSerializeObj(data);
     }
 
+    
+    public setContext(_hostModule:any, _ownerModule:any, _hostScene:any) {
+
+        this.hostModule  = _hostModule;
+        this.ownerModule = _ownerModule;
+        this.hostScene   = _hostScene;
+    }
+
 
     public deSerializeObj(objData:any) : void
     {
-        // Keep a pointer to the object spec
+        // Keep a pointer to the initial object spec
         // 
         this._InitData    = this._InitData    || Object.assign({}, objData);        
-        this._templateRef = this._templateRef || objData.templateRef;
+
+        if(objData.templateRef)
+            this._templateRef = objData.templateRef;
 
         // resolve layout datareferences
         // 

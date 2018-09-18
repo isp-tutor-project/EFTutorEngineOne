@@ -176,9 +176,10 @@ export class TSceneBase extends TObject
                 
                 if(this[element] && this[element].deSerializeObj) {
 
-                    this[element].hostModule  = this.hostModule;
-                    this[element].ownerModule = this.ownerModule;
-                    this[element].hostScene   = this;
+                    // Composite Controls must initialize child contexts in overload
+                    // e.g. THtmlButton
+                    // 
+                    this[element].setContext(this.hostModule, this.ownerModule, this);
                     this[element].deSerializeObj(dataElement);
                 }       
                 else {
