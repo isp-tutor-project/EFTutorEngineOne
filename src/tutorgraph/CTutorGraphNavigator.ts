@@ -411,6 +411,9 @@ export class CTutorGraphNavigator extends CEFNavigator
                         
                         this._xType = "WOZBACK";
                         
+                        console.log("AUDIO: Remove All Sounds");
+                        createjs.Sound.removeAllSounds();
+                                
                         this.seekToScene(historyNode.scene);
                         
                         break;					

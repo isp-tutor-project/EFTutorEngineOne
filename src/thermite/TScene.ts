@@ -345,7 +345,7 @@ export class TScene extends TSceneBase
             this.disConnectTrack(this.STrack);				
             this.STrack = null;
         }
-
+        
         // If we are not at the end of the history then step back.
         // Note we support historic scenes no longer being visitable.
         // i.e. We can set a feature so a scene will only be visited once.			
@@ -356,7 +356,7 @@ export class TScene extends TSceneBase
             // If we are at the root of the history - stop
             
             if(historyNode != null)
-            {					
+            {					        
                 if(!historyNode.track.isHistoric) 
                                             continue;
 
