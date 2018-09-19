@@ -109,6 +109,12 @@ export class CSceneTrack extends EventDispatcher
 
     private RX_DELIMITERS:RegExp = /[_|]/g;
 
+    private assetPath:string     = "";
+    private newSounds:Array<any> = [];
+
+
+    private static  lastLoaded:string = "";
+
 
     
 	constructor(_tutorDoc:IEFTutorDoc, factory:any, parent:CSceneGraph)
@@ -124,7 +130,7 @@ export class CSceneTrack extends EventDispatcher
         this.ownerModule = this.hostScene.ownerModule;
         this.language    = this.tutorDoc.language;
         this.voice       = this.tutorDoc.voice;
-		
+    
 		if(factory.choiceset != undefined)
 		{
             this._type      = CONST.SCENE_CHOICESET;	
@@ -226,8 +232,8 @@ export class CSceneTrack extends EventDispatcher
      */
     public registerTrack() {
  
-        let assetPath = [this.hostModule] + CONST.TRACKASSETS_FILEPATH + this.language + "/";
-        let newSounds = [];
+        this.assetPath = [this.hostModule] + CONST.TRACKASSETS_FILEPATH + this.language + "/";
+        this.newSounds = [];
         let segvalue:segmentVal;
 
         this.segSequence = [];
@@ -276,21 +282,34 @@ export class CSceneTrack extends EventDispatcher
 
                 console.log("SCENEGRAPH: Loading: " + this._trackname + segvalue.fileid + " => " + segvalue.SSML);
 
-                newSounds.push({src:segvalue.filepath, id:segvalue.fileid})
+                this.newSounds.push({src:segvalue.filepath, id:segvalue.fileid})
 
                 this.segSequence.push(segvalue);                
             }
 
             // If this track has audio then queue it to load
             // 
-            if(newSounds.length > 0) {
+            if(this.newSounds.length > 0) {
+
+                // Notes: If you don't do this you can't replay a loaded resource later 
+                //        and if you remove the last played just before reloading it will 
+                //        fail to play
+                // 
                 // Release resources
-                // createjs.Sound.removeAllSounds();
+
+                // if(CSceneTrack.lastLoaded !== this.newSounds[0].src)
+                //                     createjs.Sound.removeAllSounds();
 
                 createjs.Sound.on("fileload", this.onTrackLoaded, this);
-                createjs.Sound.registerSounds(newSounds, assetPath);
+                createjs.Sound.registerSounds(this.newSounds, this.assetPath);
 
                 this.hasAudio = true;
+
+                // Notes: If you don't do this you can't replay a loaded resource later 
+                //        and if you remove the last played just before reloading it will 
+                //        fail to play
+                // 
+                CSceneTrack.lastLoaded = this.newSounds[0].src;
             }
         }
         catch(err) {
@@ -354,6 +373,10 @@ export class CSceneTrack extends EventDispatcher
                 // Fire the start cue point
                 //
                 this.hostScene.$cuePoints(this._name, CONST.START_CUEPOINT);
+
+                // Set and start any inline cue points
+                // 
+                this.setCuePoints(segment);
             }
             else {
                 // TODO: setup retry of track loading if this fails for some defined 
@@ -366,7 +389,6 @@ export class CSceneTrack extends EventDispatcher
                     this._asyncPlayTimer.start();        
                 }
             }
-            this.setCuePoints(segment);
         }
     }
 
@@ -398,6 +420,38 @@ export class CSceneTrack extends EventDispatcher
     }
 
     
+    public ensureFireCues() {
+
+        if(this._cueTimers) {
+            
+            this._cueTimers.forEach(timer => {
+
+                timer.stop();
+            });
+
+            this._cueTimers.forEach(timer => {
+
+                this.dispatchEvent(timer.publicEvent);
+
+                let index = this._cueTimers.indexOf(timer);
+                this._cueTimers.splice(index,1);                
+            });
+        }
+    }
+
+    // public cleanTrack() {
+
+    //     // Release resources
+    //     this.newSounds.forEach(sound => {
+
+    //         createjs.Sound.removeSound(sound, this.assetPath);            
+    //     });
+
+    //     this.newSounds = [];
+    //     this.assetPath = "";
+    // }
+
+
     // KEYPOINT: 
     // This will play the next segment or if segments are exhausted 
     // it will auto step to the next track or just stop and wait for

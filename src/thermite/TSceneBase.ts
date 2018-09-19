@@ -212,45 +212,6 @@ export class TSceneBase extends TObject
 	}
 
 
-    private assignProperty(root:any, property:string, value:any) : void {
-
-        let path   = property.split(".");
-        let target = root;
-
-        for(let i1 = 0 ; i1 < path.length-1 ; i1++) {
-
-            if(target[path[i1]])             
-                target = target[path[i1]];
-            else 
-                target = target[path[i1]] = {};
-        }
-        target[path[path.length-1]] = value;
-    }
-
-
-    private resolveProperty(root:any, property:string) : any {
-
-        let path   = property.split(".");
-        let target = root;
-        let value:any;
-
-        for(let i1 = 0 ; i1 < path.length-1 ; i1++) {
-
-            if(target[path[i1]])             
-                target = target[path[i1]];
-            else 
-                target = target[path[i1]] = {};
-        }
-
-        value = target[path[path.length-1]];
-
-        if(value === undefined) 
-                        value = null;
-
-        return value;
-    }
-
-
     public setSceneValue(property:string, value:any) : void {
         this.setStateValue(property, value, CONST.SCENESTATE) 
     }    
@@ -261,29 +222,29 @@ export class TSceneBase extends TObject
         this.setStateValue(property, value, CONST.TUTORSTATE) 
     }
 
+
     public setStateValue(property:string, value:any, target:string = CONST.MODULESTATE) : void {
 
         switch(target) {
 
             case CONST.SCENESTATE:
-                this.assignProperty(this.tutorDoc.sceneState[this.name], property, value);
+                this.tutorDoc.assignProperty(this.tutorDoc.sceneState[this.name], property, value);
                 this.tutorDoc.sceneChange[this.name][property] = true;
                 break;
 
             case CONST.MODULESTATE:
-                this.assignProperty(this.tutorDoc.moduleState[this.hostModule], property, value);
+                this.tutorDoc.assignProperty(this.tutorDoc.moduleState[this.hostModule], property, value);
                 this.tutorDoc.moduleChange[this.hostModule][property] = true;
                 break;
 
             case CONST.TUTORSTATE:
-                this.assignProperty(this.tutorDoc.tutorState, property, value);
+                this.tutorDoc.assignProperty(this.tutorDoc.tutorState, property, value);
                 this.tutorDoc.tutorChange[property] = true;
                 break;
         }        
     }
 
     
-
     public getRawSceneValue(property:string) : any {
         return this.getRawStateValue(property, CONST.SCENESTATE) 
     }    
@@ -300,15 +261,15 @@ export class TSceneBase extends TObject
 
         switch(target) {
             case CONST.SCENESTATE:
-                prop = this.resolveProperty(this.tutorDoc.sceneState[this.name], property);
+                prop = this.tutorDoc.resolveProperty(this.tutorDoc.sceneState[this.name], property);
                 break;
 
             case CONST.MODULESTATE:
-                prop = this.resolveProperty(this.tutorDoc.moduleState[this.hostModule], property);
+                prop = this.tutorDoc.resolveProperty(this.tutorDoc.moduleState[this.hostModule], property);
                 break;
 
             case CONST.TUTORSTATE:
-                prop = this.resolveProperty(this.tutorDoc.tutorState, property);
+                prop = this.tutorDoc.resolveProperty(this.tutorDoc.tutorState, property);
                 break;
         }        
 

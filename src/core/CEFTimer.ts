@@ -42,6 +42,7 @@ export class CEFTimer extends EventDispatcher
     private _handler:Function;
     private _scope:Object;
     private _event:Object;
+    public publicEvent:Object;
 
 	private _time	     : number;
     private _repeatCount : number;
@@ -83,6 +84,8 @@ export class CEFTimer extends EventDispatcher
     public static startTimer(duration:number, callback:Function, scope:Object, event:Object) : CEFTimer {
 
         let timer:CEFTimer = new CEFTimer(duration);
+
+        timer.publicEvent = event;
 
         timer._event   = event;
         timer._handler = callback

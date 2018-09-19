@@ -99,18 +99,16 @@ export class CTutorEdge extends Object
 	 */ 
 	public testConstraint() : boolean
 	{
-		// * default to pass - if there is a null constraint then we just pass and seek along that edge.
-		
+        // * default to pass - if there is a null constraint then we just pass and seek along that edge.
+        
 		let result:boolean = true;
-		
-		let constraint:CTutorConstraint = this._parent.findConstraintByName(this._edgeConst);			
-					
-		if(constraint != null)
-			result = constraint.execute();
+		        
+        result = (this._edgeConst === "")? true: this.tutorDoc.$nodeConstraint(this._edgeConst);	
 		
 		return 	result;		 	
 	}
-	
+
+    
 	public followEdge() : CTutorNode
 	{					
 		return this._parent.findNodeByName(this._edgeNode);	 	

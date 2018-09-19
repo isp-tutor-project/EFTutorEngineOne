@@ -173,17 +173,6 @@ export class THtmlList1 extends THtmlBase {
 /*  ###########  END CREATEJS SUBCLASS SUPPORT ###########   */
 
 
-    public Destructor() : void
-    {
-        
-        if(this.fAdded) {
-            dom_overlay_container.removeChild(this.outerContainer); 
-            this.fAdded = false;
-        }
-
-        super.Destructor();
-    }
-
     /**
      * Note that this is called during the forced CreateJS tick to initialize 
      * the createJS controls - so onCreate will not have been called yet.

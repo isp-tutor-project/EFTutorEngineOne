@@ -170,7 +170,9 @@ export class TScene extends TSceneBase
 		
 		if(track)
 		{
-			track.stop();
+            track.stop();
+            track.ensureFireCues();
+            // track.cleanTrack();
 			
 			// Stop listening for cue/navigation events
 			//

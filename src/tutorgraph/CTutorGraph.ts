@@ -113,10 +113,7 @@ export class CTutorGraph extends CTutorNode
 		{
 			// recover the scene instance
 			//
-			if(this._prevScene != null)
-			{
-				objInstance = this.tutorDoc.TutAutomator[this._prevScene.scenename]._instance as TObject;
-			}
+            objInstance = this.tutorDoc.TutAutomator[this._currScene.scenename]._instance as TObject;
 		}
 		catch(err)
 		{
@@ -242,23 +239,12 @@ export class CTutorGraph extends CTutorNode
 			{
 				nextNode = this._currNode.nextNode();
 				
-				if(this._currNode == nextNode)
-				{
-					// If node increment failed then fall back to previous scene
-										
-					this._currScene = this._prevScene;
-					
-					this._currNode.seekToScene(this._currScene);
-				}					
-				else 
-				{
-					this._currNode = nextNode;
-					
-					// Apply action nodes
-					
-					if(this._currNode != null)
-						this._currNode.applyNode();
-				}
+                this._currNode = nextNode;
+                
+                // Apply action nodes
+                
+                if(this._currNode != null)
+                    this._currNode.applyNode();
 			}
 			// Increment the iteration count - for logging 
 			else
@@ -387,7 +373,7 @@ export class CTutorGraph extends CTutorNode
 	
 	public set scene(seekScene:CTutorScene)
 	{
-		this._currNode.seekToScene(seekScene);			
+		this._currScene = this._currNode.seekToScene(seekScene);			
 	}
 	
 }

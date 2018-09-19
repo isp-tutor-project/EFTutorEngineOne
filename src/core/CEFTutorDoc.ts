@@ -170,6 +170,8 @@ export class CEFTutorDoc extends EventDispatcher implements IEFTutorDoc
 		
     public _log:any;							  		// ILogManager - Logging service connection
     
+    public hostModule:string;
+
     public sceneState:any  = {};	 	       	    	     						
     public moduleState:any = {};	 	       		     						    
     public tutorState:any  = {};	 	       		         						
@@ -242,12 +244,15 @@ export class CEFTutorDoc extends EventDispatcher implements IEFTutorDoc
 	
 	public initializeTutor() {
 
+        this.hostModule = this.tutorGraph.hostModule;
+
         // This manufactures the tutorGraph from the JSON spec file 			
         //
         CTutorGraphNavigator.rootFactory(this, this.tutorGraph);
 
         //## Mod Aug 10 2012 - must wait for initializeScenes to ensure basic scenes are in place now that 
         //					   we allow dynamic creation of the navPanel etc.
+        // 
         // Parse the active Tutor
         //
         this.tutorContainer.initAutomation();										
@@ -260,6 +265,110 @@ export class CEFTutorDoc extends EventDispatcher implements IEFTutorDoc
         this.launchTutor();			
     }
     
+
+    //*************** MIXINS *************
+    //************************************
+
+    public $nodeConstraint(edgeConstraint:string): boolean {return false};
+
+    //*************** MIXINS *************
+    //************************************
+
+
+    public getSceneValue(property:string) : any {
+        return this.getStateValue(property, CONST.SCENESTATE) 
+    }    
+    public getModuleValue(property:string) : any {
+        return this.getStateValue(property, CONST.MODULESTATE) 
+    }
+    public getTutorValue(property:string) : any {
+        return this.getStateValue(property, CONST.TUTORSTATE) 
+    }
+
+    public getStateValue(property:string, target:string = CONST.MODULESTATE) : any {
+
+        let prop:any;
+
+        prop = this.getRawStateValue(property, target);
+
+        return prop;
+    }
+
+    public getRawStateValue(property:string, target:string = CONST.MODULESTATE) : any {
+
+        let prop:any;
+
+        switch(target) {
+            case CONST.SCENESTATE:
+                prop = this.resolveProperty(this.sceneState[this.name], property);
+                break;
+
+            case CONST.MODULESTATE:
+                prop = this.resolveProperty(this.moduleState[this.hostModule], property);
+                break;
+
+            case CONST.TUTORSTATE:
+                prop = this.resolveProperty(this.tutorState, property);
+                break;
+        }        
+
+        return prop;
+    }
+
+
+
+    public assignProperty(root:any, property:string, value:any) : void {
+
+        let path   = property.split(".");
+        let target = root;
+
+        for(let i1 = 0 ; i1 < path.length-1 ; i1++) {
+
+            if(target[path[i1]])             
+                target = target[path[i1]];
+            else 
+                target = target[path[i1]] = {};
+        }
+        target[path[path.length-1]] = value;
+    }
+
+
+    public resolveProperty(root:any, property:string) : any {
+
+        let path   = property.split(".");
+        let target = root;
+        let value:any;
+
+        for(let i1 = 0 ; i1 < path.length-1 ; i1++) {
+
+            if(target[path[i1]])             
+                target = target[path[i1]];
+            else 
+                target = target[path[i1]] = {};
+        }
+
+        value = target[path[path.length-1]];
+
+        if(value === undefined) 
+                        value = null;
+
+        return value;
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     //*************** FLEX integration 
     
@@ -944,27 +1053,27 @@ export class CEFTutorDoc extends EventDispatcher implements IEFTutorDoc
 	//
 	public delFeature(_feature:string, _id:string)
 	{
-        if(_feature && _feature != "") {		
+        // Remove named features
+        // 
+        if(_id && _id != "") {
 
-            // Remove named features
-            // 
-            if(_id && _id != "") {
-
-                if(_feature) {
-                    if(this.featureID[_id][_feature])
-                        delete this.featureID[_id][_feature];
-                }
-                else {
-                    if(this.featureID[_id])
-                        delete this.featureID[_id];
+            if(_feature) {
+                
+                if(this.featureID[_id] && this.featureID[_id][_feature]) {
+                    delete this.featureID[_id][_feature];
                 }
             }
-
-            // Remove One-dimensional features
-            // 
             else {
-                delete this.fFeatures[_feature];
+                if(this.featureID[_id])
+                    delete this.featureID[_id];
             }
+        }
+
+        // Remove One-dimensional features
+        // 
+        else if(_feature && this.fFeatures[_feature]) {
+
+            delete this.fFeatures[_feature];
         }
     }
     

@@ -262,11 +262,11 @@ export class THtmlBase extends TObject {
                 dom_overlay_container.removeChild(this.outerContainer); 
                 this.fAdded = false;
 
-                this.stage.removeEventListener('drawstart', this._updateVisibilityCbk);
-                this._updateVisibilityCbk = false;
+                // this.stage.removeEventListener('drawstart', this._updateVisibilityCbk);
+                // this._updateVisibilityCbk = false;
 
-                this.stage.removeEventListener('drawend', this._updateComponentCbk);
-                this._updateComponentCbk = false;
+                // this.stage.removeEventListener('drawend', this._updateComponentCbk);
+                // this._updateComponentCbk = false;
             }
         }
     }

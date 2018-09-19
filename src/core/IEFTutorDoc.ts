@@ -145,7 +145,21 @@ export interface IEFTutorDoc {
 	TutAutomator:any;				// The location of this tutor automation object			
 
 
-	initializeTutor() : void;
+    initializeTutor() : void;
+    
+    assignProperty(root:any, property:string, value:any) : any;
+    resolveProperty(root:any, property:string) : any;
+
+    // mixins
+    $nodeConstraint(edgeConstraint:string): boolean;
+
+
+    getSceneValue(property:string) : any;
+    getModuleValue(property:string) : any;
+    getTutorValue(property:string) : any;
+    getStateValue(property:string, target:string) : any;
+    getRawStateValue(property:string, target:string) : any;
+
 
     //*************** FLEX integration 
     

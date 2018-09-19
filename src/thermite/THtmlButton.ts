@@ -40,7 +40,10 @@ export class THtmlButton extends TButton
 	
 	//************ Stage Symbols
 	    
-    
+    protected fAdded:boolean;
+    protected _updateVisibilityCbk:any;
+    protected _updateComponentCbk:any;
+
 
 /*  ###########  START CREATEJS SUBCLASS SUPPORT ##########  */
 /* ######################################################### */
@@ -66,14 +69,52 @@ export class THtmlButton extends TButton
 /* ######################################################### */
 /*  ###########  END CREATEJS SUBCLASS SUPPORT ###########   */
 
-    
+
+    public Destructor() : void
+    {        
+        if(this.fAdded && this.stage) {
+            this.stage.removeEventListener('drawstart', this._updateVisibilityCbk);
+            this.stage.removeEventListener('drawend', this._updateComponentCbk);
+        }
+
+        this.Stext.Destructor();
+        super.Destructor();
+
+        this.fAdded = false;
+    }
+
+
     public onAddedToStage(evt:CEFEvent) {
+
+        let stage;
 
         console.log("THtmlButton On Stage");
 
         super.onAddedToStage(evt);
 
+        if(!this.fAdded) {
+
+            this.fAdded = true;
+
+            if(stage = this.getStage()) {
+                this._updateVisibilityCbk = stage.on('drawstart', this._handleDrawStart, this, false);
+                this._updateComponentCbk  = stage.on('drawend'  , this._handleDrawEnd  , this, false);
+            }
+        }
         this.Stext.onAddedToStage(evt);
+    }
+
+
+    public _handleDrawStart(evt:CEFEvent) {
+    }
+
+
+    public _handleDrawEnd(evt:CEFEvent) {
+
+        if(this.fAdded && !this.HTMLmute) {
+
+            this.Stext.alpha = this.alpha;
+        }
     }
 
 

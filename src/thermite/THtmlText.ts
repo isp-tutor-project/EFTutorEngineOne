@@ -96,17 +96,6 @@ export class THtmlText extends THtmlBase {
 /*  ###########  END CREATEJS SUBCLASS SUPPORT ###########   */
 
 
-    public Destructor() : void
-    {
-        
-        if(this.fAdded) {
-            dom_overlay_container.removeChild(this.outerContainer); 
-            this.fAdded = false;
-        }
-
-        super.Destructor();
-    }
-
 //*************** Serialization
 
     /**
