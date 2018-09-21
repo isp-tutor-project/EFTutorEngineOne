@@ -74,7 +74,7 @@ export class THtmlTable extends THtmlBase {
         if(this.traceMode) CUtil.trace("THtmlTable:Constructor");
     
         this.RX_CELLID = /(\d*)\.(\d*)\.(.*)/;
-        this.fontSize  = 20;
+        // this.fontSize  = 20;
 
         this.cssSheet = {
 
@@ -346,7 +346,7 @@ export class THtmlTable extends THtmlBase {
 
             for(let col=0 ; col < this.cellData[row].length ; col++ ) {
 
-                this.cellData[row][col].cell.style.backgroundColor = "";
+                this.cellData[row][col].cell.style.background = "";
             }
         }
     }
@@ -373,7 +373,7 @@ export class THtmlTable extends THtmlBase {
 
                 let cell = this.cellData[row][col].cell;
 
-                cell.style.backgroundColor = bgcolor;
+                cell.style.background = bgcolor;
             }
         }
     }

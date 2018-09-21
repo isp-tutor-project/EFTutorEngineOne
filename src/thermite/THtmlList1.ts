@@ -75,7 +75,7 @@ export class THtmlList1 extends THtmlBase {
         this.traceMode = true;
         if(this.traceMode) CUtil.trace("THtmlList1:Constructor");
 
-        this.fontSize   = 14;
+        // this.fontSize   = 14;
         this.arrowScale = 4.5;
         this.selected   = null;
 
@@ -377,6 +377,8 @@ export class THtmlList1 extends THtmlBase {
             if(objData.htmlData.style) {
                 this.addCustomStyles(objData.htmlData.style, this.cssSheet );
              }
+             
+            this.invertScale();
         }
     }
 

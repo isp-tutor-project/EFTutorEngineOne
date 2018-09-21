@@ -584,6 +584,11 @@ export class TSceneBase extends TObject
 
             this.resolveOntologyKey(oSelector, templateRef);
 
+            // Splitting the selector on "|" will result in multiple regions
+            // vArray[0]    => selector
+            // vArray[1]    => property
+            // vArray[2]... => variants
+            // 
             let vArray:Array<string> = oSelector.split("|");
             let qArray:Array<string> = vArray[0].split("_");
 

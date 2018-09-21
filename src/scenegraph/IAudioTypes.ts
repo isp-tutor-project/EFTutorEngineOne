@@ -53,6 +53,7 @@ export interface segmentVal {
     duration:number;
     trim:number;
     volume: number;
+    track:any;
 }
 export interface cuePoint {
     

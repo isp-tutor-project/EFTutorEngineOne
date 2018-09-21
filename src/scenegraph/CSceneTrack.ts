@@ -257,7 +257,7 @@ export class CSceneTrack extends EventDispatcher
                         // 
                         segvalue = segment[selector] as segmentVal;
 
-                        segvalue.filepath = this.sceneName + "/" + this._trackname + CONST.SEGMENT_PREFIX + segvalue.fileid + CONST.VOICE_PREFIX + this.voice + CONST.TYPE_MP3;
+                        segvalue.filepath = this.sceneName + "/" + this._trackname + CONST.SEGMENT_PREFIX + segvalue.fileid + CONST.VOICE_PREFIX + this.voice + CONST.TYPE_WAV;
                         break;
 
                     default:
@@ -276,7 +276,7 @@ export class CSceneTrack extends EventDispatcher
 
                         segvalue = segment[selectorTag] as segmentVal;
 
-                        segvalue.filepath = CONST.COMMONAUDIO + selectorTag + CONST.VOICE_PREFIX + this.voice + CONST.TYPE_MP3;
+                        segvalue.filepath = CONST.COMMONAUDIO + selectorTag + CONST.VOICE_PREFIX + this.voice + CONST.TYPE_WAV;
                         break;
                 }
 
@@ -349,10 +349,9 @@ export class CSceneTrack extends EventDispatcher
                     console.log("SCENEGRAPH: Loaded Play: " + this._trackname + segment.fileid + " => " + segment.SSML);
                 }
 
-                var props = new createjs.PlayPropsConfig().set({interrupt: createjs.Sound.INTERRUPT_ANY, 
-                                                                volume: segment.volume})
+                var props = new createjs.PlayPropsConfig().set({interrupt: createjs.Sound.INTERRUPT_ANY, volume: segment.volume});
 
-                this.trackAudio = createjs.Sound.play(segment.fileid, props); 
+                this.trackAudio = this.segSequence[this.segNdx].track = createjs.Sound.play(segment.fileid, props); 
 
                 if(this.trackAudio.playState === CONST.PLAY_FAILED) {
 
@@ -457,7 +456,6 @@ export class CSceneTrack extends EventDispatcher
     // it will auto step to the next track or just stop and wait for
     // user input.
     private segmentComplete(event:Event) {
-
 
         if(this._asyncTrimTimer) {
             this._asyncTrimTimer.stop();        

@@ -526,10 +526,10 @@ export class THtmlBase extends TObject {
                 }
             }
         }
-        
-        else {
-            this.fontSize = objData.fontSize || this.fontSize;
-        }
+
+        // Take a fontSize spec at any point in the datasource package
+        // 
+        this.fontSize = objData.fontSize || this.fontSize;
     }
 
 //*************** Serialization    

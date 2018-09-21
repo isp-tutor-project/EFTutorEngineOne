@@ -66,7 +66,7 @@ export class THtmlList extends THtmlBase {
         this.traceMode = true;
         if(this.traceMode) CUtil.trace("THtmlList:Constructor");
 
-        this.fontSize = 4;
+        // this.fontSize = 4;
 
         this.cssSheet = {
 
