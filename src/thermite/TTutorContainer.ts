@@ -42,6 +42,7 @@ import Tween 				  = createjs.Tween;
 import CJSEvent				  = createjs.Event;
 import Rectangle     	  	  = createjs.Rectangle;
 import Shape     		  	  = createjs.Shape;
+import { CTutorScene } from "../tutorgraph/CTutorScene";
 
 
 
@@ -215,28 +216,33 @@ export class TTutorContainer extends TRoot
 
         let namespace:Array<string> = classPath.split(".");
         
-		this.instantiateScene(sceneName, namespace[0], namespace[0], namespace[1], sceneVisible) 
+		// this.instantiateScene(sceneName, namespace[0], namespace[0], namespace[1], sceneVisible) 
 
     }
     
+    // this.tutorContainer.instantiateScene(this._name, this._ownerModule, this._hostModule, this._className, this._visible) as TObject;
+    // sceneName:string, ownerModule:string, hostModule:string, classPath:string, sceneVisible:boolean=false
 
-	public instantiateScene(sceneName:string, ownerModule:string, hostModule:string, classPath:string, sceneVisible:boolean=false) : any
+	public instantiateScene(factory:CTutorScene) : any
 	{			
 		let i1:number;
 		let tarScene:TScene;
 		let subScene:any;
 
-		if (this.traceMode) CUtil.trace("Creating Scene : "+ sceneName);
+		if (this.traceMode) CUtil.trace("Creating Scene : "+ factory.scenename);
 
-        tarScene = CUtil.instantiateThermiteObject(ownerModule, classPath) as TScene;
+        tarScene = CUtil.instantiateThermiteObject(factory.ownermodule, factory.classname) as TScene;
         
         // Note the scene object is expected to have the name as its createJS "name"
         //
-		tarScene.name         = sceneName;
-        tarScene.sceneName    = sceneName;        
-        tarScene.hostModule   = hostModule;
-        tarScene.ownerModule  = ownerModule;
-        tarScene.classPath    = classPath;
+        tarScene.factory      = factory;
+		tarScene.name         = factory.scenename;
+        tarScene.sceneName    = factory.scenename;        
+        tarScene.hostModule   = factory.hostmodule;
+        tarScene.ownerModule  = factory.ownermodule;
+        tarScene.classPath    = factory.classname;
+        tarScene.isAnchor     = factory.isAnchor;
+        tarScene.copyOf       = factory.copyOf;
         tarScene.navigator    = this.tutorDoc.tutorNavigator
 		tarScene.tutorDoc     = this.tutorDoc;
 		tarScene.tutorAutoObj = this.tutorAutoObj;
@@ -247,13 +253,13 @@ export class TTutorContainer extends TRoot
 		// Mixin the supplimentary code on the scene instance.
         //
         try {
-            CUtil.mixinCodeSuppliments(tarScene, EFTut_Suppl[hostModule][CONST.COMMON_CODE], CONST.EXT_SIG);
+            CUtil.mixinCodeSuppliments(tarScene, EFTut_Suppl[factory.hostmodule][CONST.COMMON_CODE], CONST.EXT_SIG);
         }
         catch(err) {
             console.log("Error: missing $Common mixin");
         }
         try {
-            CUtil.mixinCodeSuppliments(tarScene, EFTut_Suppl[hostModule][sceneName], CONST.EXT_SIG);        
+            CUtil.mixinCodeSuppliments(tarScene, EFTut_Suppl[factory.hostmodule][factory.scenename], CONST.EXT_SIG);        
         }
         catch(err) {
             console.log("Error: missing Scene mixin");
@@ -271,7 +277,7 @@ export class TTutorContainer extends TRoot
         // Note that the mixins must be in place prior to the graph init.  
         // The CSceneTrack template variables must be init'd (in the mixin)
         // 
-        tarScene.connectSceneGraph(hostModule, sceneName);				
+        tarScene.connectSceneGraph(factory.hostmodule, factory.scenename);				
 
 		//enumChildren(tarScene,0);				//@@ Debug display list Test May 10 2014
 		//enumScenes();							//@@ Debug display list Test Oct 29 2012		
@@ -281,19 +287,19 @@ export class TTutorContainer extends TRoot
 
 		//## Mod Aug 10 2012 - must wait for initializeScenes to ensure basic scenes are in place now that 
 		//					   we allow dynamic creation of the navPanel etc.
-		//## Mod Oct 29 2012 - add sceneVisible - once scene has been created hasOwnProperty(sceneName) will return 
+		//## Mod Oct 29 2012 - add sceneVisible - once scene has been created hasOwnProperty(factory.scenename) will return 
 		//                                        true even if scene is destroyed - as in demo mode - in demo reentering scene 
 		//										  cause scene to appear before transitionIN
 		// 
-		if(sceneVisible)
+		if(factory.visible)
 		{
-			this[sceneName]  = tarScene;
+			this[factory.scenename]  = tarScene;
 			tarScene.visible = true;
 		}
 		
 		// Generate the automation hooks
 		
-		this.automateScene(sceneName, tarScene);
+		this.automateScene(factory.scenename, tarScene);
 		
 		// Listen for Nav Events
 		

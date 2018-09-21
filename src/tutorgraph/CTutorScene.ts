@@ -41,7 +41,9 @@ export class CTutorScene
 	
 	public  _name:string;
 	private _title:string;
-	private _page:string;
+    private _page:string;
+    private _isAnchor:boolean;
+    private _copyOf:string;
 	private _classPath:string;
     private _hostModule:string;
     private _ownerModule:string;
@@ -72,8 +74,12 @@ export class CTutorScene
         this._hostModule  = factory.hostname || namespace[0];
         this._ownerModule = namespace[0];
         this._className   = namespace[1];
-		this._title 	  = factory.title;
-		this._page		  = factory.page;
+        
+        this._title 	  = factory.title;
+        this._page		  = factory.page;
+        this._isAnchor    = factory.isanchor || false;
+        this._copyOf      = factory.copyof   || "";        
+
 		this._features	  = factory.features;
 		this._enqueue	  = (factory.enqueue    === "true")? true:false
 		this._create	  = (factory.create     === "true")? true:false
@@ -99,7 +105,7 @@ export class CTutorScene
 	
 	public instantiateScene() : any
 	{
-		this._scene = this.tutorContainer.instantiateScene(this._name, this._ownerModule, this._hostModule, this._className, this._visible) as TObject;
+		this._scene = this.tutorContainer.instantiateScene(this) as TObject;
 		
 		// Transcribe the factory feature to the object itself
 		
@@ -146,7 +152,22 @@ export class CTutorScene
 	
 	public get classname() : string
 	{
+		return this._className;
+	}
+	
+	public get classpath() : string
+	{
 		return this._classPath;
+	}
+	
+	public get ownermodule() : string
+	{
+		return this._ownerModule;
+	}
+	
+	public get hostmodule() : string
+	{
+		return this._hostModule;
 	}
 	
 	public get title() : string
@@ -163,7 +184,22 @@ export class CTutorScene
 	{
 		return this._page;
 	}
-	
+   
+	public get visible() : boolean
+	{
+		return this._visible;
+	}   
+    
+	public get isAnchor() : boolean
+	{
+		return this._isAnchor;
+	}   
+    
+	public get copyOf() : string
+	{
+		return this._copyOf;
+	}   
+    
 	public get persist() : boolean
 	{
 		return this._persist;

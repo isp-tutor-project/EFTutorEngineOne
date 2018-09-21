@@ -739,11 +739,26 @@ export class TSceneBase extends TObject
 			
 			if(childObj instanceof DisplayObject)
 			{
-				// Assign transition names (xnames) to AnimateCC objects
-				
-				if(!(childObj as any).xname) {
-					(childObj as any).xname = this.nextXname();
-				}
+				// Assign transition names (xnames) to Stage Object
+                // 
+                //  The name structure for anchor scenes or copies thereof is:
+                // 
+                //  <scene name><objectname> if the instance has a unique name assigned in authoring
+                //  <scene name><objectid>   if the instance does no have a unique name assigned in authoring
+                //  non-anchor/copy scenes are assigned unique xnames to ensure they don't interact with 
+                //  subsequent scene objects.
+                // 
+                if(this.isAnchor) {
+
+                    (childObj as any).xname = this.name + (childObj.name? childObj.name:childObj.id);
+                }
+                else if(this.copyOf && this.copyOf !== "") {
+
+                    (childObj as any).xname = this.copyOf + (childObj.name? childObj.name:childObj.id);
+                }
+                else {
+                    (childObj as any).xname = this.nextXname();
+                }					
 
 				if(childObj.name) childName = childObj.name;
 				else childName = propName;
