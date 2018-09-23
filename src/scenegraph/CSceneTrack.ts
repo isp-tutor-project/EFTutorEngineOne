@@ -543,7 +543,9 @@ export class CSceneTrack extends EventDispatcher
                         this.playTrack();
                     }
                     else {
-                        console.log("SCENETRACK: something funny going on with the audio :)");
+                        console.log("SCENETRACK: Null audio track:)");
+
+                        this.autoStep();
                     }
                 }
                 break;
