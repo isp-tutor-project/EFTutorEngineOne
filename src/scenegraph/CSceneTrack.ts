@@ -208,15 +208,20 @@ export class CSceneTrack extends EventDispatcher
 
     public resolveSegmentKey(selector:string, templateRef:any) :string {
 
-        //  Use the prescribed selector or the default if present
+        // Allow null templateRef so we can have fully resolved selectors without
+        // a reference.  i.e. This is to simplify the ontology syntax
         // 
-        let ontologyRef:string = templateRef[selector] || templateRef["*"];
+        if(templateRef) {
+            //  Use the prescribed selector or the default if present
+            // 
+            let ontologyRef:string = templateRef[selector] || templateRef["*"];
 
-        if(!ontologyRef) {
-            console.error("SCENETRACK: ERROR: missing Template Reference for:" + selector);
+            if(!ontologyRef) {
+                console.error("SCENETRACK: ERROR: missing Template Reference for:" + selector);
+            }
+
+            this._ontologyRef = this.hostScene.resolveRawSelector(ontologyRef, null);
         }
-        
-        this._ontologyRef = this.hostScene.resolveRawSelector(ontologyRef, null);
 
         this.hostScene.resolveRawSelector(selector, this._ontologyRef);
 

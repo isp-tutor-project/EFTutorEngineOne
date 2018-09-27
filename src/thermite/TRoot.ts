@@ -171,7 +171,7 @@ export class TRoot extends MovieClip
 
 	public nextXname() : string {
 
-		let Xname:string  = "CEF" + TRoot.xInstID.toString();
+		let Xname:string  = CONST.XNAME_SIG + TRoot.xInstID.toString();
 		
 		TRoot.xInstID++;	
 
@@ -200,6 +200,15 @@ export class TRoot extends MovieClip
 		}		 
 	}
 
+    public testFeatures(features:string) : boolean {
+
+        let result = false;
+
+        if(features && features !== "")
+            result = this.tutorDoc.testFeatureSet(features);
+
+        return result;    
+    }
 
 
 //***************** Automation *******************************		

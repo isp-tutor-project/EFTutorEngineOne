@@ -274,7 +274,7 @@ export class CTutorGraph extends CTutorNode
 		
 		for(let name in nodeList) 
 		{
-			if(name != "COMMENT")				
+			if(!(name.startsWith("COMMENT"))) {	
 
 				CUtil.trace("TutorGraph - generating node: " + name);
 				
@@ -298,7 +298,8 @@ export class CTutorGraph extends CTutorNode
 					
 					case "external":					
 						break;						
-				}
+                }
+            }
 		}			
 		
 		return true;
@@ -311,7 +312,7 @@ export class CTutorGraph extends CTutorNode
 		
 		for(let name in constFactory) 
 		{
-			if(name != "COMMENT")
+			if(!(name.startsWith("COMMENT")))		
 				this._constraints[name] = CTutorConstraint.factory(this.tutorDoc, this, constFactory[name]);	
 		}			
 		
@@ -333,7 +334,7 @@ export class CTutorGraph extends CTutorNode
 		
 		for(let name in skillsFactory) 
 		{
-			if(name != "COMMENT")
+			if(!(name.startsWith("COMMENT")))		
 				this._skillSet[name] = CBKTSkill.factory(this.tutorDoc, skillsFactory[name]);	
 		}			
 		

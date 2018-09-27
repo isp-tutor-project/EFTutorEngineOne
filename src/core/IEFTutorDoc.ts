@@ -284,6 +284,8 @@ export interface IEFTutorDoc {
 
 	delFeature(feature:string, _id?:string) : void;
 
+    testFeatures(features:string) : boolean;
+
 	testFeatureSet(featSet:string) : boolean;
 
 	traceFeatures() : void;

@@ -31,7 +31,8 @@ export class CONST {
 	public static readonly GLOBAL_MODULE      = "$GLOBAL";
 	public static readonly GLOBAL_CODE        = "$GLOBAL";
 	public static readonly COMMON_CODE        = "$Common";
-	public static readonly EXT_SIG            = "$";
+    public static readonly EXT_SIG            = "$";
+    public static readonly XNAME_SIG          = "$$";
 
     // Webroot relative paths    
     public static readonly TUTOR_COMMONPATH:string      = "EFTutors/";

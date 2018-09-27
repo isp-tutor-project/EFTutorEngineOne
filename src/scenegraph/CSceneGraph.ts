@@ -180,7 +180,7 @@ export class CSceneGraph extends CSceneNode
 		
 		for(let name in nodeList) 
 		{
-			if(name != "COMMENT")		
+			if(!(name.startsWith("COMMENT")))		
 			{
                 let nodeType:string = nodeList[name].subtype || nodeList[name].type;
 

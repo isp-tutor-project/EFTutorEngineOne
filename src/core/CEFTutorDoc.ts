@@ -1107,7 +1107,20 @@ export class CEFTutorDoc extends EventDispatcher implements IEFTutorDoc
 
 		return (invResult)? !result:result;
 	}
-	
+    
+    
+    // Simple alias for testFeatureSet
+    // 
+    public testFeatures(features:string) : boolean {
+
+        let result = false;
+
+        if(features && features !== "")
+            result = this.testFeatureSet(features);
+
+        return result;    
+    }
+
 	
 	// test possibly compound features
 	//
