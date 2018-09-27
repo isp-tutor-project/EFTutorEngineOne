@@ -385,9 +385,9 @@ export class THtmlList1 extends THtmlBase {
 
     public deSerializeObj(objData:any) : void
     {
-        console.log("deserializing: Input Custom Control");
-
         super.deSerializeObj(objData);				
+
+        console.log("deserializing: Input Custom Control");
 
         if(objData.listdata) {
             this.listData = objData.listdata;

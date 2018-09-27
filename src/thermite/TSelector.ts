@@ -147,6 +147,16 @@ export class TSelector
         });
     }
 
+    public hideAll() {
+
+        this.targets.forEach(component => {
+
+            if(component.hideAll instanceof Function) {
+                component.hideAll();
+            }
+        });
+    }
+
     public show() {
 
         this.targets.forEach(component => {
@@ -183,6 +193,16 @@ export class TSelector
 
             if(component.playMC instanceof Function) {
                 component.playMC();
+            }
+        });
+    }
+
+    public exec(func:string, ...vars:any[]) {
+
+        this.targets.forEach(component => {
+
+            if(component[func] instanceof Function) {
+                component[func](vars);
             }
         });
     }

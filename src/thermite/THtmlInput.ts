@@ -331,10 +331,10 @@ export class THtmlInput extends THtmlBase {
     */
     public deSerializeObj(objData:any) : void
     {
-        console.log("deserializing: Input Custom Control");
-
         this.fontSize= objData.fontSize || this.fontSize;        
 
         super.deSerializeObj(objData);				
+
+        console.log("deserializing: Input Custom Control");
     }
 }

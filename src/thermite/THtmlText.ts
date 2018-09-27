@@ -130,10 +130,9 @@ export class THtmlText extends THtmlBase {
     
    public deSerializeObj(objData:any) : void
    {
-       console.log("deserializing: Text Control");
-
        super.deSerializeObj(objData);		
-       
+
+       console.log("deserializing: Text Control");       
    }
 
 //*************** Serialization

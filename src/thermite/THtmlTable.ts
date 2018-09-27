@@ -462,9 +462,9 @@ export class THtmlTable extends THtmlBase {
     */
    public deSerializeObj(objData:any) : void
    {
-        console.log("deserializing: Table Control");
-
         super.deSerializeObj(objData);			
+
+        console.log("deserializing: Table Control");
 
         if(objData.tabledata) {
             this.cellData = [];

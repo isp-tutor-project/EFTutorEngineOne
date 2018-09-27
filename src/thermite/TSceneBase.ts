@@ -756,9 +756,9 @@ export class TSceneBase extends TObject
 
                     (childObj as any).xname = this.copyOf + (childObj.name? childObj.name:childObj.id);
                 }
-                else {
-                    (childObj as any).xname = this.nextXname();
-                }					
+                // else {
+                //     (childObj as any).xname = this.nextXname();
+                // }					
 
 				if(childObj.name) childName = childObj.name;
 				else childName = propName;

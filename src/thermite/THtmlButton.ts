@@ -141,9 +141,9 @@ export class THtmlButton extends TButton
 
     public deSerializeObj(objData:any) : void
     {
-        console.log("deserializing: Text Control");
-
         super.deSerializeObj(objData);		
+
+        console.log("deserializing: Text Control");
 
         if(objData.buttonHTML)
             this.Stext.deSerializeObj(objData.buttonHTML);       

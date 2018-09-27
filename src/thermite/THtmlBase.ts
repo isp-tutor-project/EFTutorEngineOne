@@ -377,6 +377,24 @@ export class THtmlBase extends TObject {
         this.performTransition(zeroBase, effectType, effectDur);
     }
 
+
+/**
+     * 
+     */	
+    public setContentFromString(newContent:string) : void
+    {
+        // Build a dynamic datasource
+        // 
+        let dataSource = {
+            "htmlData": {
+                "html": newContent
+            },
+        }
+
+        this.deSerializeObj(dataSource);
+    }
+    
+    
     /**
      * 
      */	
@@ -501,9 +519,9 @@ export class THtmlBase extends TObject {
 
     public deSerializeObj(objData:any) : void
     {
-        console.log("deserializing: HTMLBase Custom Control");
-
         super.deSerializeObj(objData);
+
+        console.log("deserializing: HTMLBase Custom Control");
 
         if(Array.isArray(objData)) {
 

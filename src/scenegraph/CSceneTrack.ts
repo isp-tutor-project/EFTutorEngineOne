@@ -257,7 +257,7 @@ export class CSceneTrack extends EventDispatcher
                         // 
                         segvalue = segment[selector] as segmentVal;
 
-                        segvalue.filepath = this.sceneName + "/" + this._trackname + CONST.SEGMENT_PREFIX + segvalue.fileid + CONST.VOICE_PREFIX + this.voice + CONST.TYPE_WAV;
+                        segvalue.filepath = this.sceneName + "/" + this._trackname + CONST.SEGMENT_PREFIX + segvalue.fileid + CONST.VOICE_PREFIX + this.voice + CONST.TYPE_MP3;
                         break;
 
                     default:
@@ -276,7 +276,7 @@ export class CSceneTrack extends EventDispatcher
 
                         segvalue = segment[selectorTag] as segmentVal;
 
-                        segvalue.filepath = CONST.COMMONAUDIO + selectorTag + CONST.VOICE_PREFIX + this.voice + CONST.TYPE_WAV;
+                        segvalue.filepath = CONST.COMMONAUDIO + selectorTag + CONST.VOICE_PREFIX + this.voice + CONST.TYPE_MP3;
                         break;
                 }
 
