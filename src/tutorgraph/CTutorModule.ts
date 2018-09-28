@@ -47,7 +47,7 @@ export class CTutorModule extends CTutorNode
 	//      
 	public static factory(_tutorDoc:any, parent:CTutorGraph, id:string, moduleFactory:any, factory:any) : CTutorModule	
 	{
-		var moduleFactoryData:any = factory.CModules[moduleFactory.name];
+		var moduleFactoryData:any = factory.CModules[moduleFactory.link];
 		
 		var node:any = new CTutorModule(_tutorDoc);			
 		

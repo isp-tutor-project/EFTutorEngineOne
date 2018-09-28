@@ -51,7 +51,7 @@ export class CTutorModuleGroup extends CTutorNode
 	
 	public static factory(_tutorDoc:any, parent:CTutorGraph, id:string, groupFactory:any, factory:any) : CTutorModuleGroup
 	{
-		let groupFactoryData:any = factory.CModuleGroups[groupFactory.name];
+		let groupFactoryData:any = factory.CModuleGroups[groupFactory.link];
 		
 		let node:CTutorModuleGroup = new CTutorModuleGroup(_tutorDoc);			
 		

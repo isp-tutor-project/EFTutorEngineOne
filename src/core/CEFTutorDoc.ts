@@ -269,7 +269,7 @@ export class CEFTutorDoc extends EventDispatcher implements IEFTutorDoc
     //*************** MIXINS *************
     //************************************
 
-    public $nodeConstraint(edgeConstraint:string): boolean {return false};
+    public $nodeConstraint(nodeName:string, edgeConstraint:string): boolean {return false};
 
     //*************** MIXINS *************
     //************************************

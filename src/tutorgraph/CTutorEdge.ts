@@ -29,7 +29,8 @@ export class CTutorEdge extends Object
 {
 	protected tutorDoc:IEFTutorDoc;		
 	protected _parent:CTutorGraph;
-			
+            
+    private _edgeOwner:CTutorNode;
 	private _edgeConst:string;
 	private _edgeNode:string;
 	
@@ -48,12 +49,13 @@ export class CTutorEdge extends Object
 	}				
 	
 	
-	public static factory(_tutorDoc:IEFTutorDoc, parent:CTutorGraph, factory:any) : CTutorEdge
+	public static factory(_tutorDoc:IEFTutorDoc, parent:CTutorGraph, owner:CTutorNode, factory:any) : CTutorEdge
 	{
 		let edge:CTutorEdge = new CTutorEdge(_tutorDoc);			
 		
-		edge._parent = parent;
-		
+        edge._parent = parent;
+        
+		edge._edgeOwner = owner;		
 		edge._edgeConst = factory.constraint;
 		edge._edgeNode  = factory.edge;
 		
@@ -103,7 +105,7 @@ export class CTutorEdge extends Object
         
 		let result:boolean = true;
 		        
-        result = (this._edgeConst === "")? true: this.tutorDoc.$nodeConstraint(this._edgeConst);	
+        result = (this._edgeConst === "")? true: this.tutorDoc.$nodeConstraint(this._edgeOwner.id, this._edgeConst);	
 		
 		return 	result;		 	
 	}

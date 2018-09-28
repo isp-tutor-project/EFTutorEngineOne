@@ -1,6 +1,32 @@
 
 VSCode regex cheatsheet:
 
+Convert:
+				"type":"module", 
+				"name"
+to 
+				"type":"module", 
+				"link"			
+				
+("type":"module",\s*\n[\t\s]*)"name"
+==>
+$1"link"
+
+
+("name":\"TEDQ(\d)_[A-Z\d]*([_",])([A-Z\d]*([_"]))*,)
+$1\n\t\t\t\t"id":"TEDQ$2$3$4,
+
+"name":"TEDQ1_CRYSTAL",	
+==>
+"name":"TEDQ1_CRYSTAL",	
+"id":"TEDQ1",
+
+or
+"name":"TEDQ1_CRYSTAL_RIGHT",
+==>
+"name":"TEDQ1_CRYSTAL_RIGHT",
+"id":"TEDQ1_RIGHT",
+
 Regex to locate whitespace/punctuation between templates
 }}[,\.!\?\\-\s]+{{
 

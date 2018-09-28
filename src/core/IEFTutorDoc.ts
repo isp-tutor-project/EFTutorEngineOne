@@ -151,7 +151,7 @@ export interface IEFTutorDoc {
     resolveProperty(root:any, property:string) : any;
 
     // mixins
-    $nodeConstraint(edgeConstraint:string): boolean;
+    $nodeConstraint(ownerNode:string, edgeConstraint:string): boolean;
 
 
     getSceneValue(property:string) : any;

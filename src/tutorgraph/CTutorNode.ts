@@ -57,13 +57,13 @@ export class CTutorNode extends EventDispatcher
 	}			
 	
 	
-	protected nodeFactory(parent:CTutorGraph, id:string, nodefactory:any) : void
+	protected nodeFactory(parent:CTutorGraph, nodeName:string, nodefactory:any) : void
 	{
 		this._parent = parent;
 		
-		this._id    = id;			
+		this._id    = nodefactory.id;			
 		this._type  = nodefactory.type; 		
-		this._name  = nodefactory.name;			
+		this._name  = nodeName;			
 	
 		this._preEnter = nodefactory.preenter;
 		this._preExit  = nodefactory.preexit;
@@ -75,13 +75,18 @@ export class CTutorNode extends EventDispatcher
 		
 		for (let edge of nodefactory.edges)
 		{
-			this._edges.push(CTutorEdge.factory(this.tutorDoc, parent, edge));	
+			this._edges.push(CTutorEdge.factory(this.tutorDoc, parent, this, edge));	
 		}
 	}
 			
 	public get id() : string
 	{
 		return this._id;
+	}
+	
+	public get name() : string
+	{
+		return this._name;
 	}
 	
 	public captureGraph(obj:Object) : Object

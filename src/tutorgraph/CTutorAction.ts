@@ -35,19 +35,19 @@ export class CTutorAction extends CTutorNode
 		super(_tutorDoc);
 	}				
 	
-	public static factory(_tutorDoc:IEFTutorDoc, parent:CTutorGraph, id:string, factory:any) : CTutorAction
+	public static factory(_tutorDoc:IEFTutorDoc, parent:CTutorGraph, name:string, factory:any) : CTutorAction
 	{			
-		let nodeFactoryData = factory.CNodes[id];
+		let nodeFactoryData = factory.CNodes[name];
 		
 		let node:CTutorAction = new CTutorAction(_tutorDoc);
 
 		// polymorphically Initialize the base type - add the edges
 		
-		node.nodeFactory(parent, id, nodeFactoryData);
+		node.nodeFactory(parent, name, nodeFactoryData);
 		
 		// extract the action command & parameters
 		
-		let actObject = factory.CActions[nodeFactoryData.name];			
+		let actObject = factory.CActions[nodeFactoryData.link];			
 
 		node._cmnd  = actObject.cmd; 		
 		node._parms = actObject.parms;

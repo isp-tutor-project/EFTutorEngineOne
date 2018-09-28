@@ -293,7 +293,7 @@ export class CTutorGraph extends CTutorNode
 						break;
 					
 					case "subgraph":					
-						//_nodes[name] = CSceneGraph.factory(this, name, this._factory.CSubGraphs[nodeList[name].name]);
+						//_nodes[name] = CSceneGraph.factory(this, name, this._factory.CSubGraphs[nodeList[name].link]);
 						break;
 					
 					case "external":					

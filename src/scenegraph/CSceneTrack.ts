@@ -212,15 +212,21 @@ export class CSceneTrack extends EventDispatcher
         // a reference.  i.e. This is to simplify the ontology syntax
         // 
         if(templateRef) {
+
             //  Use the prescribed selector or the default if present
             // 
             let ontologyRef:string = templateRef[selector] || templateRef["*"];
 
+            // If there is no Ontology Key check if it needs one.  If the selector is not
+            // ambiguous i.e. has no '?' elements then it will resolve ok. Otherwise set error
+            // 
             if(!ontologyRef) {
-                console.error("SCENETRACK: ERROR: missing Template Reference for:" + selector);
+                if(selector.includes("?"))
+                    console.error("SCENETRACK: ERROR: missing Template Reference for:" + selector);
             }
-
-            this._ontologyRef = this.hostScene.resolveRawSelector(ontologyRef, null);
+            else {
+                this._ontologyRef = this.hostScene.resolveRawSelector(ontologyRef, null);
+            }
         }
 
         this.hostScene.resolveRawSelector(selector, this._ontologyRef);
