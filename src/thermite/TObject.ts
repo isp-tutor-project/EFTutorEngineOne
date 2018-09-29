@@ -354,11 +354,16 @@ export class TObject extends TRoot
             else {
                 let ontologyRef = templateRef[selector] || templateRef["*"];
 
+                // If there is no Ontology Key check if it needs one.  If the selector is not
+                // ambiguous i.e. has no '?' elements then it will resolve ok. Otherwise set error
+                // 
                 if(!ontologyRef) {
-                    console.error("ERROR: missing Template Reference for:" + selector);
+                    if(selector.includes("?"))
+                        console.error("SELECTOR ERROR: missing Template Reference for:" + selector);
                 }
-
-                this._ontologyRef = this.resolveRawSelector(ontologyRef, null);
+                else {
+                    this._ontologyRef = this.resolveRawSelector(ontologyRef, null);
+                }
             }
 
             if(this._ontologyRef) {
@@ -373,7 +378,7 @@ export class TObject extends TRoot
                 // }
             }
             else {
-                console.error("Error: invalid Ontology Reference: " + templateRef );
+                this._ontologyKey = [];
             }
         }
     }
