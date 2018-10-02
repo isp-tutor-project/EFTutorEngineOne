@@ -242,7 +242,9 @@ export class CSceneTrack extends EventDispatcher
      * /ISP_TUTOR/<moduleName>/EFaudio/EFassets/<Lang>/<sceneName>/<<trackName>_s<segmentid>_v<voiceId>>.mp3
      */
     public registerTrack() {
- 
+
+        createjs.Sound.removeAllSounds();
+                
         this.assetPath = [this.hostModule] + CONST.TRACKASSETS_FILEPATH + this.language + "/";
         this.newSounds = [];
         let segvalue:segmentVal;

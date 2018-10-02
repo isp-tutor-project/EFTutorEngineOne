@@ -339,6 +339,11 @@ export class THtmlTable extends THtmlBase {
         this.cellData[row][col].cell.innerHTML = value;
     }
 
+    getCellValue(row:number, col:number) :string {
+
+        return this.cellData[row][col].cell.innerHTML;
+    }
+
 
     public highlightNone() {
 
