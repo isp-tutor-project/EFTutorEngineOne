@@ -103,6 +103,7 @@ export class CSceneTrack extends EventDispatcher
 
     private _asyncPlayTimer:CEFTimer;
     private _playHandler:Function;
+    private _soundCount:number;
 
     private _asyncCueTimer:CEFTimer;
     private _cueTimers:Array<CEFTimer>;
@@ -244,7 +245,7 @@ export class CSceneTrack extends EventDispatcher
     public registerTrack() {
 
         createjs.Sound.removeAllSounds();
-                
+
         this.assetPath = [this.hostModule] + CONST.TRACKASSETS_FILEPATH + this.language + "/";
         this.newSounds = [];
         let segvalue:segmentVal;
@@ -313,10 +314,13 @@ export class CSceneTrack extends EventDispatcher
                 // if(CSceneTrack.lastLoaded !== this.newSounds[0].src)
                 //                     createjs.Sound.removeAllSounds();
 
+                this._soundCount = this.newSounds.length;
+
                 createjs.Sound.on("fileload", this.onTrackLoaded, this);
                 createjs.Sound.registerSounds(this.newSounds, this.assetPath);
 
-                this.hasAudio = true;
+                this.hasAudio    = true;
+                this.trackLoaded = false;
 
                 // Notes: If you don't do this you can't replay a loaded resource later 
                 //        and if you remove the last played just before reloading it will 
@@ -332,8 +336,15 @@ export class CSceneTrack extends EventDispatcher
 
     
     public onTrackLoaded(event:any) {
-        this.trackLoaded = true;
-        console.log("SCENETRACK: Track Loaded: " + event.id + ": " + event.src);
+
+        this._soundCount--;
+
+        console.log("SCENETRACK: Segment Loaded: " + event.id + ": " + event.src);
+
+        if(!this._soundCount) {
+            this.trackLoaded = true;
+            console.log("SCENETRACK: Track Loaded: ");
+        }
     }
 
 

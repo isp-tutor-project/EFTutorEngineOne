@@ -38,7 +38,7 @@ export class THtmlTable extends THtmlBase {
     //************ Stage Symbols	
     
     private table:HTMLTableElement;
-    private cellData:Array<Array<any>>;    
+    private cellData:Array<Array<cellData>>;    
     private cellContent:Array<Array<any>>;    
 
     public selectedCell:cellData; 
@@ -210,12 +210,14 @@ export class THtmlTable extends THtmlBase {
         }
     }
 
-    protected clickListener(e:Event) {        
-        e.stopPropagation();
+    protected clickListener(e:Event) {    
 
-        this.findCell(e.currentTarget);
+        this.changeListener(e);
+        // e.stopPropagation();
+
+        // this.findCell(e.currentTarget);
         
-        this.hostScene.onSelect(this.name); // Pass control name     
+        // this.hostScene.onSelect(this.name); // Pass control name     
     }        
 
     private getParentCell(control:HTMLElement) : HTMLElement {
@@ -239,14 +241,31 @@ export class THtmlTable extends THtmlBase {
     }
 
     protected changeListener(e:Event) {        
+
+        let target = e.currentTarget;
+        let select:HTMLSelectElement = null;
+
         e.stopPropagation();
 
-        let select:HTMLSelectElement = e.currentTarget as HTMLSelectElement;
+        if(e.currentTarget instanceof HTMLSelectElement) {
 
-        this.findCell(this.getParentCell(select));
+            select = e.currentTarget as HTMLSelectElement;
+
+            target = this.getParentCell(select);    
+        }
+        else {
+            select = this.getInnerComponent(e.currentTarget as HTMLElement) as HTMLSelectElement;
+
+            if(select)
+                target = this.getParentCell(select);    
+        }
+
+        this.findCell(target);    
         
-        this.selectedCell.selectedIndex = select.selectedIndex;
-        this.selectedCell.selectedValue = select.options[select.selectedIndex].text;
+        if(select) {
+            this.selectedCell.selectedIndex = select.selectedIndex;
+            this.selectedCell.selectedValue = select.options[select.selectedIndex].text;
+        }
 
         this.hostScene.onSelect(this.name); // Pass control name     
     }        
@@ -333,7 +352,6 @@ export class THtmlTable extends THtmlBase {
         }
     }
 
-
     setCellValue(row:number, col:number, value:string) {
 
         this.cellData[row][col].cell.innerHTML = value;
@@ -341,7 +359,7 @@ export class THtmlTable extends THtmlBase {
 
     getCellValue(row:number, col:number) :string {
 
-        return this.cellData[row][col].cell.innerHTML;
+        return this.cellData[row][col].selectedValue;
     }
 
 
@@ -427,7 +445,7 @@ export class THtmlTable extends THtmlBase {
     }
 
 
-    private initElementFromData(rowindex:number, colindex:number, element:any) : void {
+    public initElementFromData(rowindex:number, colindex:number, element:any) : void {
 
         let cell = this.table.rows[rowindex].cells.item(colindex);
 
@@ -436,12 +454,12 @@ export class THtmlTable extends THtmlBase {
         let value = this.hostScene.resolveTemplates(element.value, this._templateRef);        
         let path  = this.hostScene.ontologyPath;
 
-        let cellData:any = this.cellData[rowindex][colindex] = {};
-
-        cellData.row         = rowindex;
-        cellData.col         = colindex;
-        cellData.ontologyKey = path;
-
+        let cellData:any = this.cellData[rowindex][colindex] = 
+                                                        {
+                                                            row:rowindex,
+                                                            col:colindex,
+                                                            ontologyKey:path 
+                                                        };
         switch(value) {
             case "$LIST": 
                 cellData.isList = true;
@@ -456,6 +474,18 @@ export class THtmlTable extends THtmlBase {
                 cellData.isText = true;
                 cell.innerHTML  = `<div>${value}</div>`;
                 break;
+        }
+
+        if(element.initialValue) {
+
+            let value = this.hostScene.resolveTemplates(element.initialValue, this._templateRef);        
+
+            let select:HTMLSelectElement = this.getInnerComponent(cell) as HTMLSelectElement;
+            
+            select.selectedIndex = parseInt(value);
+
+            cellData.selectedIndex = select.selectedIndex;
+            cellData.selectedValue = select.options[select.selectedIndex].text;
         }
 
         cellData.cell = cell;

@@ -329,7 +329,11 @@ export class CEFTransitions extends CEFTimeLine
 						
 						this.tutorAutoObj[this.currScene]._instance[namedObj] = dO2;
 						this.tutorAutoObj[this.newScene]._instance[namedObj]  = dO1;
-						
+                        
+                        // Update the host scene id for mixins
+                        // 
+						this.tutorAutoObj[this.newScene]._instance[namedObj].hostScene = this.tutorAutoObj[this.newScene]._instance;
+                        
 						// update the convenience copy
 						
 						targObj = objectList[sceneName][namedObj];									

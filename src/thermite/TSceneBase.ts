@@ -124,7 +124,8 @@ export class TSceneBase extends TObject
         this.RX_TEMPLATE  = /{{[\$\w\.\?_\|]*}}/;
         this.RX_ONTQUERY  = /{{\$EFO_([\w\.\?]*\|\w*)}}/;
 
-        this.RX_GENSELECTOR = /\{\{((\$EF\w*?_)(([\w_\.\?]*)\|?([\w_\?]*)))\}\}/g;
+        // this.RX_GENSELECTOR = /\{\{((\$EF\w*?_)(([\w_\.\?]*)\|?([\w_\?]*)))\}\}/g;   
+        this.RX_GENSELECTOR = /{{((\$EF\w*?_)(([\w_\.\?]*)(\|?([\w_\?]*))*))}}/g;       // Added support for |1 in this sequence {{a?_b?_c|x|1}}
         this.RX_GENTEMPLATE = /\{\{((\$EF\w*?_)(([\w_\?]*)\|([\w_\?]*)))\}\}/g;
     
         this.NDX_RAWTEMPLATE  = 0; 
