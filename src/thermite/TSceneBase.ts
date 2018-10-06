@@ -182,10 +182,14 @@ export class TSceneBase extends TObject
                     // 
                     this[element].setContext(this.hostModule, this.ownerModule, this);
                     this[element].deSerializeObj(dataElement);
+
+                    // Give custom controls the opportunity to initialize HTML components
+                    // 
+                    this[element].onCreate();
                 }       
                 else {
                     console.log(`Error: ObjData mismatch: Module-${this.hostModule}  Scene-${this.sceneName}  Element-${element}`);
-                }         
+                }        
             }
 		}		
 		catch(error) {
@@ -201,6 +205,16 @@ export class TSceneBase extends TObject
 	protected initUI() : void
 	{
 		
+	}
+
+    public setBreadCrumbs(text:string) {
+
+        this.tutorDoc.setBreadCrumbs(text);
+    }
+
+	public enableNext(fEnable:boolean)
+	{			
+		this.tutorDoc.enableNext(fEnable);		
 	}
 
 
@@ -792,6 +806,7 @@ export class TSceneBase extends TObject
         // see notes on sceneExt Code - tutor Supplimentary code
         // 
         this.$onCreateScene();
+        this.$updateNav();
 	}
 	
 	
@@ -893,7 +908,8 @@ export class TSceneBase extends TObject
 	public onSelect(target:string) : void {
 		// User selection has been made
 		//
-		this.$onSelect(target);
+        this.$onSelect(target);
+        this.$updateNav();    
 	}
 
 	/**
@@ -926,7 +942,9 @@ export class TSceneBase extends TObject
 		// restart the ActionTrack sequence
 		// 
 		try {
-			this.$preEnterScene();
+            this.$preEnterScene();
+            
+			this.tutorDoc.$preEnterScene(this);
 		}
 		catch(error) {
 			CUtil.trace("sceneReplay preenter error on scene: " + this.name + " - " + error);
@@ -1015,6 +1033,8 @@ export class TSceneBase extends TObject
 		// 
 		try {
 			this.$preEnterScene();
+            
+			this.tutorDoc.$preEnterScene(this);
 		}
 		catch(error) {
 			CUtil.trace("preenter error on scene: " + this.name + " - " + error);
@@ -1047,7 +1067,9 @@ export class TSceneBase extends TObject
 		// Parse the Tutor.config for onenter procedures for this scene 
 		// 
 		try {
-			this.$preExitScene();
+            this.$preExitScene();
+            
+            this.tutorDoc.$preExitScene(this);
 		}
 		catch(error) {
 			CUtil.trace("preexit error on scene: " + this.name + " - " + error);

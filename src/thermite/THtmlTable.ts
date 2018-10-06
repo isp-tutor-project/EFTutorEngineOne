@@ -242,7 +242,7 @@ export class THtmlTable extends THtmlBase {
 
     protected changeListener(e:Event) {        
 
-        let target = e.currentTarget;
+        let target:HTMLElement = e.currentTarget as HTMLElement;
         let select:HTMLSelectElement = null;
 
         e.stopPropagation();
@@ -254,7 +254,7 @@ export class THtmlTable extends THtmlBase {
             target = this.getParentCell(select);    
         }
         else {
-            select = this.getInnerComponent(e.currentTarget as HTMLElement) as HTMLSelectElement;
+            select = target.getElementsByTagName("select")[0];
 
             if(select)
                 target = this.getParentCell(select);    
@@ -355,6 +355,7 @@ export class THtmlTable extends THtmlBase {
     setCellValue(row:number, col:number, value:string) {
 
         this.cellData[row][col].cell.innerHTML = value;
+        this.cellData[row][col].selectedValue  = value;
     }
 
     getCellValue(row:number, col:number) :string {
@@ -471,8 +472,9 @@ export class THtmlTable extends THtmlBase {
                 break;
 
             default:    
-                cellData.isText = true;
-                cell.innerHTML  = `<div>${value}</div>`;
+                cellData.isText        = true;
+                cell.innerHTML         = `<div>${value}</div>`;
+                cellData.selectedValue = value;
                 break;
         }
 

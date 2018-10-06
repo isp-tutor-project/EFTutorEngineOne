@@ -305,28 +305,23 @@ export class CSceneTrack extends EventDispatcher
             // 
             if(this.newSounds.length > 0) {
 
-                // Notes: If you don't do this you can't replay a loaded resource later 
-                //        and if you remove the last played just before reloading it will 
-                //        fail to play
-                // 
-                // Release resources
+                if(EFLoadManager.nativeSpeech) {
 
-                // if(CSceneTrack.lastLoaded !== this.newSounds[0].src)
-                //                     createjs.Sound.removeAllSounds();
+                }
+                if(EFLoadManager.nativeAudio) {
 
-                this._soundCount = this.newSounds.length;
+                }
 
-                createjs.Sound.on("fileload", this.onTrackLoaded, this);
-                createjs.Sound.registerSounds(this.newSounds, this.assetPath);
+                else {
 
-                this.hasAudio    = true;
-                this.trackLoaded = false;
+                    this._soundCount = this.newSounds.length;
 
-                // Notes: If you don't do this you can't replay a loaded resource later 
-                //        and if you remove the last played just before reloading it will 
-                //        fail to play
-                // 
-                CSceneTrack.lastLoaded = this.newSounds[0].src;
+                    createjs.Sound.on("fileload", this.onTrackLoaded, this);
+                    createjs.Sound.registerSounds(this.newSounds, this.assetPath);
+
+                    this.hasAudio    = true;
+                    this.trackLoaded = false;
+                }
             }
         }
         catch(err) {
@@ -394,8 +389,10 @@ export class CSceneTrack extends EventDispatcher
                 }
 
                 // Fire the start cue point
+                // TODO use doCuePoints in TScene
                 //
                 this.hostScene.$cuePoints(this._name, CONST.START_CUEPOINT);
+                this.hostScene.$updateNav();
 
                 // Set and start any inline cue points
                 // 
@@ -502,7 +499,9 @@ export class CSceneTrack extends EventDispatcher
             // 
             this.segNdx = 0;
 
+            // TODO use doCuePoints in TScene
             this.hostScene.$cuePoints(this._name, CONST.END_CUEPOINT);
+            this.hostScene.$updateNav();
             this.autoStep();
         }
     }

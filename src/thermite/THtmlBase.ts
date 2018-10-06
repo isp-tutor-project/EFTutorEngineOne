@@ -62,6 +62,8 @@ export class THtmlBase extends TObject {
     protected cssDirty:any;
 
     protected fontSize:number;
+    protected cssClass:string;
+
     protected _updateVisibilityCbk:any;
     protected _updateComponentCbk:any;
     protected _lastFrame:number;
@@ -169,7 +171,14 @@ export class THtmlBase extends TObject {
 
             this.styleElement       = document.createElement('style');
             this.styleElement.type  = 'text/css';
-            this.styleElement.id    = this.name.toLowerCase();
+
+            // If the control has been assigned a cssClass use it as a style id
+            // otherwise default to the controls name.
+            // 
+            if(this.cssClass)
+                this.styleElement.id = this.cssClass.toLowerCase();
+            else 
+                this.styleElement.id = this.name.toLowerCase();
 
             // Note that the sheet property is null until the element is added to the 
             // page.
@@ -548,6 +557,11 @@ export class THtmlBase extends TObject {
         // Take a fontSize spec at any point in the datasource package
         // 
         this.fontSize = objData.fontSize || this.fontSize;
+
+        if(objData.cssClass) {
+            this.cssClass = objData.cssClass;
+            this.outerContainer.setAttribute(this.cssClass, "");
+        }
     }
 
 //*************** Serialization    

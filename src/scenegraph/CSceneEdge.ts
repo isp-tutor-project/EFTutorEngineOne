@@ -57,6 +57,8 @@ export class CSceneEdge
 		let result:boolean = true;
 		        
         result = (this._edgeConst === "")? true: this._parent.sceneInstance.$nodeConstraint(this._edgeConst);	
+
+        this._parent.sceneInstance.$updateNav();
 		
 		return 	result;		 	
 	}

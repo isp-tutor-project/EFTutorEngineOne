@@ -202,7 +202,7 @@ export class TScene extends TSceneBase
 //*************** Audio Cue Points
 
 	/**
-	 * 
+	 * TODO: move this to SceneBase
 	 * @param	evt
 	 */
 	public doSceneCue(evt:CustomEvent)
@@ -210,7 +210,7 @@ export class TScene extends TSceneBase
         if(this.traceMode) CUtil.trace("SceneCue: " + evt.detail.id + " - track: " + evt.detail.track);
 
         this.$cuePoints(evt.detail.track, evt.detail.id);
-        
+        this.$updateNav();        
 	}	
 
 //*************** Audio Cue Points

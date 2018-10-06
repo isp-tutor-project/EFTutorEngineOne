@@ -23,6 +23,7 @@ import { CURLLoader }           from "../network/CURLLoader";
 import { CURLRequest }          from "../network/CURLRequest";
 
 import { TTutorContainer }      from "../thermite/TTutorContainer";
+import { TNavPanel }            from "../thermite/TNavPanel";
 
 import { CEFEvent } 		    from "../events/CEFEvent";
 
@@ -53,11 +54,11 @@ export class CEFTutorDoc extends EventDispatcher implements IEFTutorDoc
 
 	//************ Stage Symbols
 
-    public tutorNavigator:CTutorGraphNavigator;	
-
+    public SnavPanel:TNavPanel;	
     
 	//************ Stage Symbols
     
+    public tutorNavigator:CTutorGraphNavigator;	
     public name:string;
     public loaderData:Array<LoaderPackage.ILoaderData>;
 
@@ -264,11 +265,29 @@ export class CEFTutorDoc extends EventDispatcher implements IEFTutorDoc
         
         this.launchTutor();			
     }
+
+    public attachNavPanel(panel:TNavPanel) {
+
+        this.SnavPanel = panel;
+    }
     
+    public setBreadCrumbs(text:string) {
+
+        if(this.SnavPanel) 
+            this.SnavPanel.setBreadCrumbs(text);
+    }
+
+	public enableNext(fEnable:boolean)
+	{			
+		 this.SnavPanel.enableNext(fEnable);		
+	}
+
 
     //*************** MIXINS *************
     //************************************
 
+    public $preEnterScene(scene:any): void {};
+    public $preExitScene(scene:any): void {};
     public $nodeConstraint(nodeName:string, edgeConstraint:string): boolean {return false};
 
     //*************** MIXINS *************
@@ -1057,7 +1076,7 @@ export class CEFTutorDoc extends EventDispatcher implements IEFTutorDoc
         // 
         if(_id && _id != "") {
 
-            if(_feature) {
+            if(_feature && _feature !== "*") {
                 
                 if(this.featureID[_id] && this.featureID[_id][_feature]) {
                     delete this.featureID[_id][_feature];

@@ -187,6 +187,12 @@ export class TObject extends TRoot
 	/* ######################################################### */
 	/*  ###########  END CREATEJS SUBCLASS SUPPORT ###########   */
 
+    // The primary pruppose of this is to allow custom controls to add HTML content.
+    // 
+    public onCreate() {
+
+    }
+
 
 	public Destructor() : void
 	{

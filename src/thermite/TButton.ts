@@ -20,11 +20,13 @@ import { TObject }     	from "./TObject";
 
 import { CEFEvent } 	from "../events/CEFEvent";
 import { TMouseEvent }  from "./events/TMouseEvent";
+import { TEvent }       from "./events/TEvent";
 
 import { CONST }        from "../util/CONST";
 import { CUtil } 		from "../util/CUtil";
 
 import MovieClip     		  = createjs.MovieClip;
+import Text          		  = createjs.Text;
 import Timeline     		  = createjs.Timeline;
 
 
@@ -32,14 +34,18 @@ import Timeline     		  = createjs.Timeline;
 export class TButton extends TObject
 {
 	//************ Stage Symbols
-	
+    
+	public text:Text;
+    
 	public shape:MovieClip;
 	public shape_1:MovieClip;
 	public shape_2:MovieClip;
 	public shape_3:MovieClip;
 	
 	//************ Stage Symbols
-	
+    
+    public Label:Text;
+
 	public curState:string;
 	public fPressed:boolean;
 	public fEnabled:boolean;
@@ -124,6 +130,9 @@ export class TButton extends TObject
 		this.addChild(this[this.STATE_DOWN]);
 		this.addChild(this[this.STATE_DISABLED]);
 
+        if(this.Label)
+    		this.addChild(this.Label);
+
 		this.resetState();
 	}
 
@@ -133,6 +142,8 @@ export class TButton extends TObject
     // 
     public decomposeButton() {
         
+        this.Label          = this[CONST.BUTTON_TEXT];
+
         this.STATE_UP       = this[CONST.INSTANCE_UP]? CONST.INSTANCE_UP:CONST.SHAPE_UP;
         this.STATE_OVER     = this[CONST.INSTANCE_OVER]? CONST.INSTANCE_OVER:CONST.SHAPE_OVER;
         this.STATE_DOWN     = this[CONST.INSTANCE_DOWN]? CONST.INSTANCE_DOWN:CONST.SHAPE_DOWN;
@@ -337,7 +348,9 @@ export class TButton extends TObject
 		
 			//@@ Action Logging			
 			let logData:any = {'action':'button_click', 'targetid':this.name};
-			
+            
+            this.dispatchEvent(new TEvent(CONST.BUTTON_CLICK));
+
 			this.tutorDoc.log.logActionEvent(logData);			
 			//@@ Action Logging						
 		}

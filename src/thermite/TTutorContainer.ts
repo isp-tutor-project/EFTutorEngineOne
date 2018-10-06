@@ -229,7 +229,7 @@ export class TTutorContainer extends TRoot
 		let tarScene:TScene;
 		let subScene:any;
 
-		if (this.traceMode) CUtil.trace("Creating Scene : "+ factory.scenename);
+		if (this.traceMode) CUtil.trace("Creating Scene : "+ factory.scenename + " : Class : " + factory.classname);
 
         tarScene = CUtil.instantiateThermiteObject(factory.ownermodule, factory.classname) as TScene;
         

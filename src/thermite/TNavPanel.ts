@@ -30,6 +30,8 @@ import { CUtil } 				from "../util/CUtil";
 import { CONST }                from "../util/CONST";
 import { TScene } from "./TScene";
 import { TObject } from "./TObject";
+import { TText } from "./TText";
+import { THtmlText } from "./THtmlText";
 
 
 
@@ -42,6 +44,7 @@ export class TNavPanel extends TScene
 
 	//************ Stage Symbols
     
+    protected SbreadCrumbs:THtmlText;
     protected Sbackground:TObject;
     protected Sback:TObject;
     protected SbackMask:TObject;
@@ -101,6 +104,10 @@ export class TNavPanel extends TScene
         // Allow scene to override settings
         // 
         super.onCreate();
+
+        this.tutorDoc.attachNavPanel(this);
+
+        this.SbreadCrumbs.addHTMLControls();
 	}
 
 
@@ -120,18 +127,23 @@ export class TNavPanel extends TScene
 
 		switch(type) {
 			case CONST.NEXTSCENE:
-                this._nextButton  = this[butComp].on(CONST.MOUSE_CLICK, this.tutorNavigator.onButtonNext, this.tutorNavigator);
+                this._nextButton  = this[butComp].on(CONST.BUTTON_CLICK, this.tutorNavigator.onButtonNext, this.tutorNavigator);
                 this.Snext.hidden = false;        
                 this.Snext.enable(true);
 				break;
 
 			case CONST.PREVSCENE:
-				this._prevButton  = this[butComp].on(CONST.MOUSE_CLICK, this.tutorNavigator.onButtonPrev, this.tutorNavigator);
+				this._prevButton  = this[butComp].on(CONST.BUTTON_CLICK, this.tutorNavigator.onButtonPrev, this.tutorNavigator);
                 this.Sback.hidden = false;
                 this.Sback.enable(true);
                 break;				
 		}
 	}
+
+    public setBreadCrumbs(text:string) {
+
+        this.SbreadCrumbs.setContentFromString(text);
+    }
 
 
 	public disConnectNavButton(type:string, butComp:string ) {

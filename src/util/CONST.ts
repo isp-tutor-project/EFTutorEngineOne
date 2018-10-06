@@ -118,6 +118,9 @@ export class CONST {
 	public static STATE_DISABLED	= "";	                    // Note that we have a dual interpretation of the AnimateCC HIT state
 	public static STATE_HIT 		= "";
 
+        
+    public static readonly BUTTON_TEXT		    = "text";
+    
 	public static readonly SHAPE_UP   		    = "shape";
 	public static readonly SHAPE_OVER 		    = "shape_1";
 	public static readonly SHAPE_DOWN		    = "shape_2";
@@ -140,7 +143,8 @@ export class CONST {
 	static readonly MOUSE_DOWN:string 		= "mousedown";			// Click event from the button 
 	static readonly MOUSE_UP:string 		= "mouseup";			// Click event from the button 
 	static readonly MOUSE_CLICK:string 		= "click";				// Click event from the button 
-	static readonly DOUBLE_CLICK:string 	= "dblclick";			// Click event from the button 
+    static readonly DOUBLE_CLICK:string 	= "dblclick";			// Click event from the button 
+    static readonly BUTTON_CLICK:string 	= "buttonclick"         // Internal button event
 
 	static readonly CLICK:string 			= "click";				// Click event from the button 
 				
