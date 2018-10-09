@@ -268,8 +268,8 @@ export class THtmlBase extends TObject {
 
             if((this.getStage() == null || this._lastFrame != (this.parent as MovieClip).currentFrame)) {
 
-                dom_overlay_container.removeChild(this.outerContainer); 
-                this.fAdded = false;
+                // dom_overlay_container.removeChild(this.outerContainer); 
+                // this.fAdded = false;
 
                 // this.stage.removeEventListener('drawstart', this._updateVisibilityCbk);
                 // this._updateVisibilityCbk = false;
@@ -291,7 +291,8 @@ export class THtmlBase extends TObject {
             let sy = tx1.scaleY;
 
             // TODO: should this.prototype.nominalbounds be used instead?
-            
+            // mat.tx/ty ???
+            // 
             mat.tx += this.dimContainer.nominalBounds.x  * sx; 
             mat.ty += this.dimContainer.nominalBounds.y  * sy; 
             let w   = this.dimContainer.nominalBounds.width  * sx; 
@@ -313,7 +314,18 @@ export class THtmlBase extends TObject {
             let tx = 'matrix(' + mat.a + ',' + mat.b + ',' + mat.c + ',' + mat.d + ',' + x + ',' + y + ')';
 
             this.setProperty("visibility", this.visible? "visible":"hidden");
-            this.setProperty("opacity", this.alpha);
+
+            // Support nested HTML controls
+            // 
+            let obj:createjs.Container = this;
+            let alpha:number           = this.alpha;
+
+            while(obj.parent) {
+                obj   = obj.parent;
+                alpha = obj.alpha * alpha;
+            }
+
+            this.setProperty("opacity", alpha);
 
             this.setProperty("font-size", this.fontSize * sy  * this.scaleCompensation + "px");        // TODO: investigate use of 'vw' units to auto scale
 

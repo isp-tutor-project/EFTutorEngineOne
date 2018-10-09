@@ -39,7 +39,6 @@ import MovieClip     		  = createjs.MovieClip;
 import DisplayObject 		  = createjs.DisplayObject;
 import DisplayObjectContainer = createjs.Container;
 import Tween 				  = createjs.Tween;
-import CJSEvent				  = createjs.Event;
 import Rectangle     	  	  = createjs.Rectangle;
 import Shape     		  	  = createjs.Shape;
 import { CTutorScene } from "../tutorgraph/CTutorScene";
@@ -265,14 +264,16 @@ export class TTutorContainer extends TRoot
             console.log("Error: missing Scene mixin");
         }
 
-		this.addChild(tarScene);
-
 		// Special CreateJS processing to initialize the scene with components.
 		// AnimateCC uses ManagedChildren - i.e. movie clips add child components automatically in their timeline
 		// on frame 0... etc - we do a single tick to load the scene so the transitions has inPlace components 
 		// to work with
 		// 
-		this.initSceneTick(tarScene);
+		CUtil.initSceneTick(tarScene);
+
+        // It is important to do the init scene tick so all children exist prior to being added to stage
+        // 
+		this.addChild(tarScene);
 
         // Note that the mixins must be in place prior to the graph init.  
         // The CSceneTrack template variables must be init'd (in the mixin)
@@ -323,18 +324,6 @@ export class TTutorContainer extends TRoot
 	}
 	
 
-	private initSceneTick(tarScene:any) {
-
-		let event = new CJSEvent("tick",false,false);
-		event.delta = 0;
-		event.paused = true;
-		event.time = CUtil.getTimer();
-		event.runTime = event.time;
-		
-		tarScene._tick(event);
-	}
-
-	
 	public destroyScene(sceneName:string ) : void
 	{			
 		let sceneObj:DisplayObject = this.getChildByName(sceneName);

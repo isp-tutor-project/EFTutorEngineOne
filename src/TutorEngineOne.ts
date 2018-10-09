@@ -263,7 +263,13 @@ export class CEngine {
             AnObject.prototype.tutorDoc       = this.tutorDoc;
             AnObject.prototype.tutorContainer = this.tutorDoc.tutorContainer;
 
-            EFLoadManager.classLib[AnModuleName][variant] = AnObject;            
+            if(EFLoadManager.classLib[AnModuleName][variant]) {
+                console.error(`ERROR: Name Collision: module- ${AnModuleName}  variant- ${variant}`);
+                throw("NameCollision");
+            }
+            else {
+                EFLoadManager.classLib[AnModuleName][variant] = AnObject;            
+            }
         })
     }
 

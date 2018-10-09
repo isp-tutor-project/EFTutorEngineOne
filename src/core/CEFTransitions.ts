@@ -47,8 +47,8 @@ export class CEFTransitions extends CEFTimeLine
 	public currScene:string = null;				// null initial scene
 	public newScene:string  = null;				// null next scene
 	
-	public rTime:number     = 350;				// Removal Transition time
-	public tTime:number     = 350;				// Normal Transition time
+	public rTime:number     = 2350;				// Removal Transition time
+	public tTime:number     = 2350;				// Normal Transition time
 
 	public fSingleStep:boolean = true;			// single stepping operations - debug
 
@@ -222,6 +222,7 @@ export class CEFTransitions extends CEFTimeLine
 					// Run the alpha tween from the current alpha to ZERO to remove the object
 					//
 					tween = new Tween(targObj._instance).to({alpha:0}, Number(this.rTime), Ease.cubicInOut)
+					if(this.traceMode) CUtil.trace("Tweening obj in scene: " + this.currScene + "  named : " + targObj._instance.name + " property: alpha" + " out: " + tween.duration + "msecs");
 											
 					// push the tween on to the run stack
 					//

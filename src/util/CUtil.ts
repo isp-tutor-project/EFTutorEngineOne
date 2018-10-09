@@ -21,7 +21,7 @@ var TutorEngineOne:any;
 
 import { IModuleDesc } from "./IModuleDesc";
 
-
+import CJSEvent				  = createjs.Event;
 import DisplayObject          = createjs.DisplayObject;
 
 
@@ -217,6 +217,20 @@ export class CUtil extends Object
 		return strMap;
 	}		
 
+
+
+	public static initSceneTick(tarComponent:any) {
+
+		let event = new CJSEvent("tick",false,false);
+		event.delta = 0;
+		event.paused = true;
+		event.time = CUtil.getTimer();
+		event.runTime = event.time;
+		
+		tarComponent._tick(event);
+	}
+
+	
 
 	//****** Overridable Behaviors
 
