@@ -1,6 +1,10 @@
 
 VSCode regex cheatsheet:
 
+Capture specific HTML tags
+</?(p|br|html|span\s\w*)>
+
+
 Convert:
 				"type":"module", 
 				"name"

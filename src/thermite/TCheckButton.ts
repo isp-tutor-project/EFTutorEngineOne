@@ -27,6 +27,8 @@ import { CUtil } 			from "../util/CUtil";
 
 import MovieClip     	  = createjs.MovieClip;
 import Text     		  = createjs.Text;
+import { CEFEvent } from "../events/CEFEvent";
+import { TEvent } from "./events/TEvent";
 
 
 
@@ -35,59 +37,81 @@ export class TCheckButton extends TButton
 	//************ Stage Symbols
 	
 	public Schecked:MovieClip;
-	public Slabel:Text;
 	
 	//************ Stage Symbols
-	
+    
+    public STATE_CHECKED:string;      
+    
+
+	constructor()
+	{
+		super();
+		this.init4();
+	}
+
+/*  ###########  START CREATEJS SUBCLASS SUPPORT ##########  */
+/* ######################################################### */
+
+	public TCheckButtonInitialize() {
+
+		this.TButtonInitialize.call(this);
+		this.init4();
+	}
+
+	public initialize() {
+
+		this.TButtonInitialize.call(this);		
+		this.init4();
+	}
+
+	private init4() {
+		
+		this.traceMode = true;
+        if(this.traceMode) CUtil.trace("TCheckButton:Constructor");
+
+        this.STATE_CHECKED = "Schecked";
+	}
+
+/* ######################################################### */
+/*  ###########  END CREATEJS SUBCLASS SUPPORT ###########   */
+
+
 	protected fChecked:boolean = false;
 
 	private _ftrChecked:string   = "";
 	private _ftrUnchecked:string = "";
 	
 	
-	public CheckButton():void
-	{
-		this.traceMode = true;
-		if(this.traceMode) CUtil.trace("CheckButton:Constructor");
-		
-		this.addEventListener(TMouseEvent.WOZCLICK, this.doMouseClick);			
-	}
-	
 	public Destructor() : void
 	{
-		this.removeEventListener(TMouseEvent.WOZCLICK, this.doMouseClick);			
-		
 		super.Destructor();
 	}
-	
-	public highLight(color:number) : void
+
+    
+	public onAddedToStage(evt:CEFEvent) {
+
+        super.onAddedToStage(evt);
+
+        this.addChild(this[this.STATE_CHECKED]);
+        this[this.STATE_CHECKED].visible = false;
+	}
+
+	public highLight(color:string) : void
 	{
-		// this.Slabel.label.textColor = color;        
+		this.Slabel.color = color;        
 	}
 	
 	public set label(newLabel:string) 
 	{
-		// this.Slabel.label.text = newLabel;			
+		this.Slabel.text = newLabel;			
 	}				
 	
 	
 	public get label() : string
 	{
-		// return this.Slabel.label.text;		
-		return "";	
+		return this.Slabel.text;				
 	}				
 	
-	
-	public setLabel(newLabel:string) : void
-	{
-		this.label = newLabel;			
-	}				
-	
-	public getLabel() : string
-	{
-		// return this.Slabel.label.text;			
-		return "";	
-	}				
 	
 	public set showLabel(bVisible:boolean)
 	{
@@ -157,7 +181,7 @@ export class TCheckButton extends TButton
 	{			
 		super.resetState();
 		
-		this["Schecked"].visible    = false;		
+		this[this.STATE_CHECKED].visible    = false;		
 	}
 	
 	public gotoState(sState:string) : void 
@@ -165,66 +189,74 @@ export class TCheckButton extends TButton
 		if(this.traceMode) CUtil.trace("Button.gotoState: ", name + " " + sState);
 		
 		this.resetState();
-
 		this.curState = sState;
 
 		if(!this.fEnabled)
 		{
-			this[CONST.STATE_DISABLED].visible = true;
+			this[this.STATE_UP].visible 	  = false;
+            this[this.STATE_DISABLED].visible = true;
+            
 			this.fPressed = false;
 		}
 		
 		else switch(sState)
 		{
-			case CONST.STATE_DOWN:
-				this[CONST.STATE_DOWN].visible = true;
+			case this.STATE_DOWN:
+				this[this.STATE_DOWN].visible = true;
 				
 				this.fPressed  		 = true;
 				break;
 							
-			case CONST.STATE_UP:
+			case this.STATE_UP:
 				if(this.fChecked)
-					this["Schecked"].visible = true;
+					this[this.STATE_CHECKED].visible = true;
 				else	
-					this[CONST.STATE_UP].visible = true;
+					this[this.STATE_UP].visible = true;
 					
-					this.fPressed   = false;
+				this.fPressed   = false;
 				break;
 			
-			case CONST.STATE_OVER:
+			case this.STATE_OVER:
 				if(!this.fPressed)
 				{
 					if(this.fChecked)
-						this["Schecked"].visible = true;
+						this[this.STATE_CHECKED].visible = true;
 					else
-						this[CONST.STATE_OVER].visible = true;
+						this[this.STATE_OVER].visible = true;
 				}
 				else
-					this[CONST.STATE_DOWN].visible = true;					
+                    this[this.STATE_DOWN].visible = true;					
+                    
+                this.fOver = true;					    
 				break;
 
-			case "Sout":
+			case CONST.STATE_OUT:
 				if(this.fChecked)
-					this["Schecked"].visible = true;
+					this[this.STATE_CHECKED].visible = true;
 				else	
-					this[CONST.STATE_UP].visible = true;
+                    this[this.STATE_UP].visible = true;
+                                    
+                this.fOver    = false;                					
+				this.fPressed = false;
 				break;
 		}
 	}					
 
 	
-	public doMouseClick(evt:TMouseEvent) : void 
+	public doMouseClicked(evt:TMouseEvent) : void 
 	{						
 		this.setCheck(!this.fChecked);
 
-		if(this.traceMode) CUtil.trace("Setting Checked State: " + this.fChecked + " on button: " + name)				
+        if(this.traceMode) CUtil.trace("Setting Checked State: " + this.fChecked + " on button: " + name);
+
+        this.doClickActions(evt);
 	}					
 
 	
 	public setCheck(bCheck:boolean)
 	{
 		this.fChecked = bCheck;
-		this.gotoState(CONST.STATE_UP);
+		this.gotoState(this.STATE_UP);
 	}
 	
 	
@@ -306,5 +338,18 @@ export class TCheckButton extends TButton
 	}	
 	
 //*************** Serialization		
+    
+//*************** Serialization
 	
+
+    public deSerializeObj(objData:any) : void
+    {
+        console.log("deserializing: CheckButton Control");
+
+        super.deSerializeObj(objData);				
+    }
+
+//*************** Serialization
+
+
 }

@@ -32,25 +32,48 @@ export class TRadioButton extends TCheckButton
 	constructor()
 	{
 		super();
+		this.init5();
+	}
+    
+    
+/*  ###########  START CREATEJS SUBCLASS SUPPORT ##########  */
+/* ######################################################### */
 
-		//trace("CEFRadioButton:Constructor");
+	public TRadioButtonInitialize() {
+
+		this.TCheckButtonInitialize.call(this);
+		this.init5();
 	}
-	
-	public attachGroup(butGroup:TButtonGroup)
-	{
-		butGroup.addButton(this);	
+
+	public initialize() {
+
+		this.TCheckButtonInitialize.call(this);		
+		this.init5();
 	}
+
+	private init5() {
+		
+		this.traceMode = true;
+        if(this.traceMode) CUtil.trace("TRadioButton:Constructor");
+	}
+
+/* ######################################################### */
+/*  ###########  END CREATEJS SUBCLASS SUPPORT ###########   */
+
+    
 	
 	/**
 	 * Don't allow radio buttons to be clicked off
 	 * @param	evt
 	 */
-	public doMouseClick(evt:TMouseEvent) : void 
+	public doMouseClicked(evt:TMouseEvent) : void 
 	{		
 		// Radio buttons can only be clicked to the ON state - you cannot turn them off independently only the button group can turn them off
 		this.setCheck(true);
 
-		if(this.traceMode) CUtil.trace("Setting Checked State: " + this.fChecked + " on button: " + name)				
+        if(this.traceMode) CUtil.trace("Setting Checked State: " + this.fChecked + " on button: " + name)				
+
+        this.doClickActions(evt);        
 	}					
 
 	/**
@@ -66,13 +89,5 @@ export class TRadioButton extends TCheckButton
 		else
 			this.dispatchEvent(new TButtonEvent(TButtonEvent.WOZUNCHECKED));
 	}
-			
-	/**
-	 * return a text representation of what the button is
-	 */
-	public toString() : string
-	{
-		return this.getLabel();
-	}			
 	
 }

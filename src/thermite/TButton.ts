@@ -35,7 +35,7 @@ export class TButton extends TObject
 {
 	//************ Stage Symbols
     
-	public text:Text;
+    public Slabel:Text;
     
 	public shape:MovieClip;
 	public shape_1:MovieClip;
@@ -44,7 +44,6 @@ export class TButton extends TObject
 	
 	//************ Stage Symbols
     
-    public Label:Text;
 
 	public curState:string;
 	public fPressed:boolean;
@@ -130,10 +129,12 @@ export class TButton extends TObject
 		this.addChild(this[this.STATE_DOWN]);
 		this.addChild(this[this.STATE_DISABLED]);
 
-        if(this.Label)
-    		this.addChild(this.Label);
+        if(this.Slabel)
+    		this.addChild(this.Slabel);
 
-		this.resetState();
+        this.resetState();
+        
+        this[this.STATE_UP].visible = true;
 	}
 
 
@@ -142,8 +143,6 @@ export class TButton extends TObject
     // 
     public decomposeButton() {
         
-        this.Label          = this[CONST.BUTTON_TEXT];
-
         this.STATE_UP       = this[CONST.INSTANCE_UP]? CONST.INSTANCE_UP:CONST.SHAPE_UP;
         this.STATE_OVER     = this[CONST.INSTANCE_OVER]? CONST.INSTANCE_OVER:CONST.SHAPE_OVER;
         this.STATE_DOWN     = this[CONST.INSTANCE_DOWN]? CONST.INSTANCE_DOWN:CONST.SHAPE_DOWN;
@@ -213,9 +212,9 @@ export class TButton extends TObject
 
 	public resetState() : void 
 	{											
-		this[this.STATE_UP].visible 	   = true;
-		this[this.STATE_OVER].visible 	   = false;
-		this[this.STATE_DOWN].visible 	   = false;		
+		this[this.STATE_UP].visible 	  = false;
+		this[this.STATE_OVER].visible 	  = false;
+		this[this.STATE_DOWN].visible 	  = false;		
 		this[this.STATE_DISABLED].visible = false;		
 	}
 
@@ -231,8 +230,8 @@ export class TButton extends TObject
 
 			case this.STATE_DOWN:
 				this[this.STATE_DOWN].visible = true;
-				this.fPressed = true;
-				
+                
+                this.fPressed = true;			
 				break;
 							
 			case this.STATE_UP:
@@ -241,8 +240,7 @@ export class TButton extends TObject
 				else
 					this[this.STATE_UP].visible = true;
 					
-				this.fPressed = false;
-				
+				this.fPressed = false;				
 				break;
 			
 			case this.STATE_OVER:
@@ -251,13 +249,14 @@ export class TButton extends TObject
 				else
 					this[this.STATE_DOWN].visible = true;											
 					
-					this.fOver = true;					
+				this.fOver = true;					
 				break;
 
 			case CONST.STATE_OUT:
 
-				this[this.STATE_UP].visible   = true;								
-				this.fOver    = false;					
+                this[this.STATE_UP].visible   = true;								
+                
+                this.fOver    = false;                					
 				this.fPressed = false;
 				break;
 		}
@@ -342,22 +341,28 @@ export class TButton extends TObject
 	{						
 		if(this.fPressed && this.fEnabled) {
 
-			if(this.traceMode) CUtil.trace("dispatch CLICK");
-			
-			this.doAction(evt);
-		
-			//@@ Action Logging			
-			let logData:any = {'action':'button_click', 'targetid':this.name};
-            
-            this.dispatchEvent(new TEvent(CONST.BUTTON_CLICK));
-
-			this.tutorDoc.log.logActionEvent(logData);			
-			//@@ Action Logging						
+            this.doClickActions(evt);
 		}
 
 		this.gotoState(this.STATE_UP);
 		
 	}					
+
+    protected doClickActions(evt:TEvent) {
+
+        if(this.traceMode) CUtil.trace("dispatch CLICK");
+			
+        this.doAction(evt);
+    
+        //@@ Action Logging			
+        let logData:any = {'action':'button_click', 'targetid':this.name};
+        
+        this.dispatchEvent(new TEvent(CONST.BUTTON_CLICK));
+
+        this.tutorDoc.log.logActionEvent(logData);			
+        //@@ Action Logging						
+    }
+
 
 
     public doMouseOver(evt:TMouseEvent) : void 
@@ -411,14 +416,45 @@ export class TButton extends TObject
 	}	
 	
 //*************** Serialization
-	
 
-public deSerializeObj(objData:any) : void
-{
-    console.log("deserializing: Button Control");
 
-    super.deSerializeObj(objData);				
-}
+    private addBtnElementsFromData(elementData:Array<any>) {
+
+        elementData.forEach((element:any) => {
+
+            try {
+                this.addChildAt(this[element.name], this.getChildIndex(this.getChildByName(element.sibling)));
+            }
+            catch(err) {
+                console.error("ERROR: Button Data Error");
+            }        
+        });
+    }
+
+
+    private initBtnFromData(btnData:any) {
+
+        if(btnData.elements)  this.addBtnElementsFromData(btnData.elements);
+
+        if(this.Slabel) {
+
+            this.Slabel.text = btnData.label? this.hostScene.resolveTemplates(btnData.label, this._templateRef):"";
+        }
+        
+        this.type = btnData.type || CONST.SIMPLE_BUTTON;
+    }
+
+
+    public deSerializeObj(objData:any) : void
+    {
+        console.log("deserializing: Button Control");
+
+        super.deSerializeObj(objData);				
+
+        if(objData.btnData)
+            this.initBtnFromData(objData.btnData);
+
+    }
 
 //*************** Serialization
 	

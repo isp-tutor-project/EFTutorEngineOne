@@ -20,21 +20,26 @@ import { TObject }     	from "./TObject";
 
 import { CEFEvent } 	from "../events/CEFEvent";
 import { TMouseEvent }  from "./events/TMouseEvent";
+import { TEvent }       from "./events/TEvent";
 
 import { CONST }        from "../util/CONST";
 import { CUtil } 		from "../util/CUtil";
 
 import MovieClip     		  = createjs.MovieClip;
+import Text          		  = createjs.Text;
 import Timeline     		  = createjs.Timeline;
 
 
 
-export class TVirtual extends TObject
+export class TClickMask extends TObject
 {
 	//************ Stage Symbols
-	
+    
+    public Smask:MovieClip;
+    	
 	//************ Stage Symbols
-	
+    
+
 
 	constructor()
 	{
@@ -46,7 +51,7 @@ export class TVirtual extends TObject
 /*  ###########  START CREATEJS SUBCLASS SUPPORT ##########  */
 /* ######################################################### */
 
-	public TVirtualInitialize() {
+	public TClickMaskInitialize() {
 
 		this.TObjectInitialize.call(this);
 		this.init3();
@@ -61,11 +66,11 @@ export class TVirtual extends TObject
 	private init3() {
 		
 		this.traceMode = true;
-		if(this.traceMode) CUtil.trace("TVirtual:Constructor");
+		if(this.traceMode) CUtil.trace("TClickMask:Constructor");
 
 		this.on(CEFEvent.ADDED_TO_STAGE, this.onAddedToStage);	
 
-		// Note the CreateJS(AnimateCC) parts of the button have not been created
+        // Note the CreateJS(AnimateCC) parts of the button have not been created
 		// at this point.
 	}
 
@@ -78,23 +83,25 @@ export class TVirtual extends TObject
 		super.Destructor();
 	}
 
-    
+
     public onAddedToStage(evt:CEFEvent) {
 
-		console.log("Button On Stage");
+		console.log("ClickMask On Stage");
 
         this.mouseChildren = false;
 
-        // "hidden" inhibits the Tranition manager from showing the object.
-        // 
-		this.hidden  = true;
-		this.visible = false;
+        this.on(TMouseEvent.MOUSE_CLICK , this.doMouseEvent, this);
+        this.on(TMouseEvent.MOUSE_OVER  , this.doMouseEvent, this);
+        this.on(TMouseEvent.MOUSE_OUT   , this.doMouseEvent, this);
+        this.on(TMouseEvent.MOUSE_DOWN  , this.doMouseEvent, this);
+        this.on(TMouseEvent.MOUSE_UP    , this.doMouseEvent, this);    
     }
 
+	public doMouseEvent(evt:TMouseEvent) : void 
+	{						
+        evt.stopImmediatePropagation();
 
-//*************** Serialization
-	
-	
-//*************** Serialization
-	
+        console.log("NOTICE: Event Masked by TClickMask Object");
+	}					
+
 }

@@ -244,6 +244,8 @@ export class CSceneTrack extends EventDispatcher
      */
     public registerTrack() {
 
+        // This is required -- the HTML loader only sends loaded events for non-cached sounds
+        // 
         createjs.Sound.removeAllSounds();
 
         this.assetPath = [this.hostModule] + CONST.TRACKASSETS_FILEPATH + this.language + "/";

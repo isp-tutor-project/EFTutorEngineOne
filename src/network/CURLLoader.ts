@@ -83,7 +83,7 @@ export class CURLLoader extends EventDispatcher
 			let xhr    = new XMLHttpRequest;
 
 			xhr.open("GET", loader.request.url, true);		
-            xhr.timeout = 2000;
+            xhr.timeout = 5000;
 
 			xhr.onload = function (e) {
                 if (xhr.readyState === 4) {

@@ -140,6 +140,14 @@ export class THtmlTable extends THtmlBase {
         };
     }
 
+
+    public Destructor() : void
+    {
+        super.Destructor();
+    }
+
+
+
 /* ######################################################### */
 /*  ###########  END CREATEJS SUBCLASS SUPPORT ###########   */
 
@@ -352,6 +360,23 @@ export class THtmlTable extends THtmlBase {
         }
     }
 
+    public cellsHaveValues(left:number, top:number, right:number, bottom:number) : boolean {
+
+        let result:boolean = true;
+
+        for(let row=top; row <= bottom ; row++) {
+            for(let col=left ; col <= right ; col++ ) {
+
+                if(!this.cellData[row][col].selectedValue) {
+                    result = false;
+                    break;
+                }
+            }            
+        }
+
+        return result;
+    }
+
     setCellValue(row:number, col:number, value:string) {
 
         this.cellData[row][col].cell.innerHTML = value;
@@ -417,6 +442,24 @@ export class THtmlTable extends THtmlBase {
         }
     }
 
+
+    public reifyTable() {
+
+        for(let row=0 ; row < this.cellData.length ; row++) {
+
+            for(let col=0 ; col < this.cellData[row].length ; col++ ) {
+
+                let cellData:any = this.cellData[row][col];
+
+                if(cellData.isList) {
+
+                    this.setCellValue(row, col, cellData.selectedValue);
+                }
+            }
+        }
+    }
+
+    
 //*************** Serialization
 
 

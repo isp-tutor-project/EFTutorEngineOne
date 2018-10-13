@@ -195,19 +195,24 @@ export class CEFTransitions extends CEFTimeLine
 				//
 				if(this.newScene != null)
 				{	
-					// If object exists in the new scene, then:
-					//  	1: If it is CEF and the xnames match then they are the same
-					//
-					if (this.tutorAutoObj[this.newScene][sceneObj] != undefined)
-					{
-						if(this.traceMode) CUtil.trace("newObject: " + this.tutorAutoObj[this.newScene][sceneObj]._instance.xname);
-						if(this.traceMode) CUtil.trace("oldObject: " + this.tutorAutoObj[this.currScene][sceneObj]._instance.xname);
-						
-						if (this.tutorAutoObj[this.newScene][sceneObj]._instance.xname == 
-							this.tutorAutoObj[this.currScene][sceneObj]._instance.xname )
-																					bMatch = true;
-					}
-					
+                    // If this scene is not an anchor then check if it has xname matches
+                    // This is required to avoid anchor inheriting from itself in a loop
+                    // 
+                    if(!this.tutorAutoObj[this.newScene]._instance.isAnchor) {
+
+                        // If object exists in the new scene, then:
+                        //  	1: If it is CEF and the xnames match then they are the same
+                        //
+                        if (this.tutorAutoObj[this.newScene][sceneObj] != undefined)
+                        {
+                            if(this.traceMode) CUtil.trace("newObject: " + this.tutorAutoObj[this.newScene][sceneObj]._instance.xname);
+                            if(this.traceMode) CUtil.trace("oldObject: " + this.tutorAutoObj[this.currScene][sceneObj]._instance.xname);
+                            
+                            if(this.tutorAutoObj[this.newScene][sceneObj]._instance.xname == 
+                            this.tutorAutoObj[this.currScene][sceneObj]._instance.xname )
+                                                                                        bMatch = true;
+                        }
+                    }					
 				}
 				
 				// This object in the current scene does not exist in the new scene
@@ -292,10 +297,15 @@ export class CEFTransitions extends CEFTimeLine
                 // 
                 if(targObj._instance.hidden)
                                         continue;
+
+                // Clear the active objeccts for new Anchor Scenes
+                // 
+                if(this.tutorAutoObj[this.newScene]._instance.isAnchor) 
+            		                                    this.activeObjs = {};										
                 
 				// If matching object has been onscreen before copy its properties
 				// Note that all unique objects in a movie must have a unique name even across scenes(CEFScenes)
-				//
+                //
 				if(this.activeObjs[xname] != undefined)
 				{
 					// Convenience Copy

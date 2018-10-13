@@ -64,6 +64,8 @@ export class CUtil extends Object
 			console.log(fullMessage + "\n"); 
 		}
 		else {
+            if(message.includes("call")) 
+                        var tag = 1;
 
 			console.log(message); 
 		}

@@ -44,11 +44,15 @@ export class TNavPanel extends TScene
 
 	//************ Stage Symbols
     
+    protected SbackMask:TObject;
     protected SbreadCrumbs:THtmlText;
     protected Sbackground:TObject;
     protected Sback:TObject;
-    protected SbackMask:TObject;
     protected Snext:TObject;
+    protected Smask0:TObject;
+    protected Smask1:TObject;
+    protected Smask2:TObject;
+    protected Smask3:TObject;
 	
 	// non-interactive elements
 	
@@ -121,6 +125,28 @@ export class TNavPanel extends TScene
     }
 
 
+    public setBreadCrumbs(text:string) {
+
+        this.SbreadCrumbs.setContentFromString(text);
+    }
+
+
+	public showHideNavButton(type:string, show:boolean) {
+
+		switch(type) {
+			case CONST.NEXTSCENE:
+                this.Snext.hidden = !show;        
+                this.Snext.enable(show);
+				break;
+
+			case CONST.PREVSCENE:
+                this.Sback.hidden = !show;
+                this.Sback.enable(show);
+                break;				
+		}
+	}
+
+
 	public connectNavButton(type:string, butComp:string, _once:boolean = true) {
 
 		this.disConnectNavButton(type, butComp );
@@ -138,14 +164,8 @@ export class TNavPanel extends TScene
                 this.Sback.enable(true);
                 break;				
 		}
-	}
-
-    public setBreadCrumbs(text:string) {
-
-        this.SbreadCrumbs.setContentFromString(text);
     }
-
-
+    
 	public disConnectNavButton(type:string, butComp:string ) {
 
 		switch(type) {
@@ -167,23 +187,6 @@ export class TNavPanel extends TScene
 		}
 	}
 
-
-	public showHideNavButton(type:string, show:boolean) {
-
-		switch(type) {
-			case CONST.NEXTSCENE:
-                this.Snext.hidden = !show;        
-                this.Snext.enable(show);
-				break;
-
-			case CONST.PREVSCENE:
-                this.Sback.hidden = !show;
-                this.Sback.enable(show);
-                break;				
-		}
-	}
-
-
     public setNavigationTarget(behavior:string) {
 
         if(behavior.toUpperCase() === "TUTOR")
@@ -192,5 +195,53 @@ export class TNavPanel extends TScene
             this.tutorNavigator.buttonBehavior = CONST.GOTONEXTTRACK;
 
     }
+
+    private hideAllAssets() {
+
+        this.disConnectNavButton(CONST.NEXTSCENE, "Snext");
+        this.disConnectNavButton(CONST.PREVSCENE, "Sback");
+
+        this.showHideNavButton(CONST.NEXTSCENE, false);
+        this.showHideNavButton(CONST.PREVSCENE, false);
+
+        this.Smask0.hide();
+        this.Smask1.hide();
+        this.Smask2.hide();
+        this.Smask3.hide();
+    }
+
+    public setNavMode(modeID:number, navTar:string) {
+        
+        this.hideAllAssets();
+
+        this.setNavigationTarget(navTar);    
+
+        switch(modeID) {
+            case CONST.NAVNONE:
+                // nothing to show
+                break;
+
+            case CONST.NAVBACK:
+                this.connectNavButton(CONST.PREVSCENE, "Sback");
+                this.Sback.show();
+                this.Smask1.show();
+                break;
+            
+            case CONST.NAVNEXT:
+                this.connectNavButton(CONST.NEXTSCENE, "Snext");
+                this.Snext.show();
+                this.Smask2.show();
+                break;
+            
+            case CONST.NAVBOTH:
+                this.connectNavButton(CONST.NEXTSCENE, "Snext");
+                this.connectNavButton(CONST.PREVSCENE, "Sback");
+                this.Sback.show();
+                this.Snext.show();
+                this.Smask3.show();
+                break;            
+        }
+    }
+
 }
 	

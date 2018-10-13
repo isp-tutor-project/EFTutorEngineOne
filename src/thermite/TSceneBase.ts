@@ -217,6 +217,11 @@ export class TSceneBase extends TObject
 		this.tutorDoc.enableNext(fEnable);		
 	}
 
+    public setNavMode(navMode:number, navTarget:string) {
+        
+        this.tutorDoc.setNavMode(navMode, navTarget);
+    }
+
 
     public setSceneValue(property:string, value:any) : void {
         this.setStateValue(property, value, CONST.SCENESTATE) 
@@ -901,6 +906,7 @@ export class TSceneBase extends TObject
         // User selection has been made
 		//
 		this.$handleEvent(target);
+        this.$updateNav();    
     }
 
 	/**
@@ -918,6 +924,7 @@ export class TSceneBase extends TObject
 		// User selection has been made
 		//
 		this.$onAction(target, evt);
+        this.$updateNav();    
 	}
 
 
@@ -1049,9 +1056,11 @@ export class TSceneBase extends TObject
 		if (this.traceMode) CUtil.trace("Base onenter Scene Behavior:" + this.name);
 		
 		// Parse the Tutor.config for onenter procedures for this scene 
-		// 
+        // Check the nav state in case the user is navigating in a persistent scene sequence
+        // 
 		try {
-			this.$onEnterScene();
+            this.$onEnterScene();
+            this.$updateNav();      
 		}
 		catch(error) {
 			CUtil.trace("onenter error on scene: " + this.name + " - " + error);

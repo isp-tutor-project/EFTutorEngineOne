@@ -19,7 +19,9 @@
 import { TButton } 			from "./TButton";
 import { TObject } 			from "./TObject";
 import { TRoot } 			from "./TRoot";
+import { THtmlText }        from "./THtmlText";
 
+import { CEFEvent }         from "../events/CEFEvent";
 import { TMouseEvent } 		from "../events/CEFMouseEvent";
 
 import { CONST }            from "../util/CONST";
@@ -27,8 +29,6 @@ import { CUtil } 			from "../util/CUtil";
 
 import MovieClip     	  = createjs.MovieClip;
 import Text     		  = createjs.Text;
-import { THtmlText } from "./THtmlText";
-import { CEFEvent } from "../events/CEFEvent";
 
 
 
@@ -43,6 +43,14 @@ export class THtmlButton extends TButton
     protected fAdded:boolean;
     protected _updateVisibilityCbk:any;
     protected _updateComponentCbk:any;
+
+
+
+	constructor()
+	{
+		super();
+		this.init4();
+	}
 
 
 /*  ###########  START CREATEJS SUBCLASS SUPPORT ##########  */

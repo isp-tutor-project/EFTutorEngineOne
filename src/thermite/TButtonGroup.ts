@@ -26,6 +26,8 @@ import { TButtonEvent } 	from "./events/TButtonEvent";
 
 import { CONST }            from "../util/CONST";
 import { CUtil } 			from "../util/CUtil";
+import { CEFEvent } from "../events/CEFEvent";
+import { TEvent } from "./events/TEvent";
 
 
 /**
@@ -43,40 +45,97 @@ export class TButtonGroup extends TObject
 	private onChangeScript:string = null;
 
 	static readonly CHECKED:string = "ischecked";
-	
+    
+    
 	/**
 	* Creates a new ButtonGroup instance. 
 	*/
-	constructor() 
+	constructor()
 	{
 		super();
-
-		this.buttons = new Array();
+		this.init3();
 	}
-	
+
+
+/*  ###########  START CREATEJS SUBCLASS SUPPORT ##########  */
+/* ######################################################### */
+
+	public TButtonGroupInitialize() {
+
+		this.TObjectInitialize.call(this);
+		this.init3();
+	}
+
+	public initialize() {
+
+		this.TObjectInitialize.call(this);		
+		this.init3();
+	}
+
+	private init3() {
+		
+		this.traceMode = true;
+		if(this.traceMode) CUtil.trace("TButtonGroup:Constructor");
+
+        this.buttons    = new Array();
+        this.buttonType = new Array();		//## Added Sep 29 2012 - to support individual radio style buttons. i.e. buttons that are exclusive 
+    
+		this.on(CEFEvent.ADDED_TO_STAGE, this.onAddedToStage);
+        
+        this._fRadioGroup   = true;				//## Added Jun 26 2012 - to support non radio style button groups.                 
+        this._inited        = false;
+        this.onChangeScript = null;       
+
+        // Note the CreateJS(AnimateCC) parts of the button have not been created
+		// at this point.
+	}
+
+/* ######################################################### */
+/*  ###########  END CREATEJS SUBCLASS SUPPORT ###########   */
+
+    
+	public onAddedToStage(evt:CEFEvent) {
+
+		console.log("ButtonGroup On Stage");
+
+		this.mouseChildren = false;
+
+        this.Sborder.visible = false;
+        this.Sborder.hidden  = true;
+	}
+
+
 	public addButton(newButton:any, bType:string="")
 	{
 		this.buttons.push(newButton);		
 		this.buttonType.push(bType);															
-		
-		newButton.addEventListener(TButtonEvent.WOZCHECKED, this.updateGroupChk);
-		newButton.addEventListener(TButtonEvent.WOZUNCHECKED, this.updateGroupUnChk);
+        
+        newButton.on(CONST.BUTTON_CLICK , this.updateGroupChk, this);
 	}
-	
+    
+    
 	public removeButton(newButton:TButton) : void
 	{
-		newButton.removeEventListener(TButtonEvent.WOZCHECKED, this.updateGroupChk);
-		newButton.removeEventListener(TButtonEvent.WOZUNCHECKED, this.updateGroupUnChk);
+        newButton.off(CONST.BUTTON_CLICK , this.updateGroupChk);
 	}
-	
-	public updateGroupChk(evt:Event)
+    
+    
+	public updateGroupChk(evt:TEvent)
 	{
 		let i1:number;
 		let _radioReset:boolean = false;					//## Added Sep 29 2012 - to support individual radio style buttons. i.e. buttons that are exclusive
+                
+        this.doAction(evt);
 		
+        //@@ Action Logging			
+        let logData:any = {'action':'button_click', 'targetid':this.name};
+        
 		// indicate that a selection has been made in the button group
 		//
 		dispatchEvent(new Event(TButtonGroup.CHECKED));
+
+        this.tutorDoc.log.logActionEvent(logData);			
+        //@@ Action Logging						
 
 		
 		// If we have clicked a radio reactive button then set flag to reset all other buttons.
@@ -116,36 +175,17 @@ export class TButtonGroup extends TObject
 				}
 			}
 		}
-		
-		//## Mod Apr 14 2014 - support declarative button actions from scenedescr.xml <symbol>
-		if(this.onChangeScript != null)
-			this.doChangeAction(evt);			
 	}
 
+    
 	public updateGroupUnChk(evt:Event)
 	{
 		// indicate that a selection has been made in the button group
 		//
 		this.dispatchEvent(new Event(TButtonEvent.WOZCHECKED));
-		
-		//## Mod Apr 14 2014 - support declarative button actions from scenedescr.xml <symbol>
-		if(this.onChangeScript != null)
-			this.doChangeAction(evt);			
 	}
 
-	
-	protected doChangeAction(evt:Event) : void
-	{
-		try
-		{
-			eval(this.onChangeScript);
-		}
-		catch(e)
-		{
-			CUtil.trace("Error in onChange script: " + this.onChangeScript);
-		}
-	}
-	
+    
 	/**
 	 *## Added Jun 26 2012 - to support non radio style button groups.
 		* 
@@ -581,7 +621,38 @@ export class TButtonGroup extends TObject
 		
 		return propVector;
 	}
-	
-//**************** Serialization		
-	
+
+//**************** OLD Serialization		
+
+
+
+//*************** Serialization
+
+
+
+private initGroupFromData(objData:any) {
+
+    let btnOwner:any = this.parent;
+
+    objData.members.forEach((btnName:string) => {
+        this.addButton(btnOwner[btnName], objData.type||"radio");
+    });    
+}
+
+
+public deSerializeObj(objData:any) : void
+{
+    console.log("deserializing: ButtonGroup");
+
+    super.deSerializeObj(objData);		
+    
+    if(objData.grpData)
+        this.initGroupFromData(objData.grpData);
+    
+}
+
+//*************** Serialization
+
+
+
 }

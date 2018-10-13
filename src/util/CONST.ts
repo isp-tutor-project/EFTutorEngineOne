@@ -7,6 +7,11 @@ export class CONST {
 
 	public static readonly TUTORCONTAINER = "STutorContainer";
     
+    public static readonly NAVNONE  = 0;
+    public static readonly NAVBACK  = 1;
+    public static readonly NAVNEXT  = 2;
+    public static readonly NAVBOTH  = 3;
+
     public static readonly ACTION_PFX       = "$nodeAction.";    
     public static readonly SCENE_CHOICESET  = "choiceset";
     public static readonly SCENE_TRACK      = "track";
@@ -119,7 +124,8 @@ export class CONST {
 	public static STATE_HIT 		= "";
 
         
-    public static readonly BUTTON_TEXT		    = "text";
+    public static readonly BUTTON_TEXT		    = "Slabel";
+    public static readonly SIMPLE_BUTTON	    = "SIMPLE_BUTTON";    
     
 	public static readonly SHAPE_UP   		    = "shape";
 	public static readonly SHAPE_OVER 		    = "shape_1";
