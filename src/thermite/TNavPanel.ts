@@ -218,7 +218,10 @@ export class TNavPanel extends TScene
 
         switch(modeID) {
             case CONST.NAVNONE:
-                // nothing to show
+                // no buttons to show
+                this.enableNext(false);
+                this.enablePrev(false);
+                this.Smask0.show();
                 break;
 
             case CONST.NAVBACK:

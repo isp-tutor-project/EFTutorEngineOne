@@ -37,7 +37,8 @@ export class CSceneGraph extends CSceneNode
 	private _currTrack:CSceneTrack;
 	private _prevTrack:CSceneTrack;
 	
-	public  _parentScene:TScene;
+    public  _parentScene:TScene;
+    private _volatile:boolean;
 	
 	public  _graphFactory:any;
 
@@ -63,7 +64,8 @@ export class CSceneGraph extends CSceneNode
             console.log("Error: Missing scene graph: " + hostModule + ":" + sceneName);
         }
 
-		scenegraph.sceneInstance = parent;
+        scenegraph.sceneInstance = parent;
+        scenegraph.volatile      = scenegraph._graphFactory.volatile || false;
 		scenegraph.parseNodes();			
 		scenegraph.seekRoot();
 
@@ -90,6 +92,19 @@ export class CSceneGraph extends CSceneNode
 	public set sceneInstance(scene : TScene)
 	{
 		this._parentScene  = scene;		
+	}		
+			
+	
+	public get volatile() : boolean
+	{
+		// Do scene Specific Enter Scripts
+		//
+		return this._volatile;		
+	}		
+	
+	public set volatile(value : boolean)
+	{
+		this._volatile = value;		
 	}		
 			
 	

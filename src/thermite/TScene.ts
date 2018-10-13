@@ -300,7 +300,10 @@ export class TScene extends TSceneBase
             {
                 nextTrack = this.sceneGraph.gotoNextTrack();
                 
-                if(nextTrack != null)
+                // If the graph history is non-volatile and there is a next track
+                // remember it 
+                // 
+                if(!this.sceneGraph.volatile && nextTrack != null)
                 {
                     this._history.push(this.sceneGraph.node, nextTrack);
                 }

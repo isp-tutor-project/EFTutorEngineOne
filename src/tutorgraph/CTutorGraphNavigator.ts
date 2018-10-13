@@ -383,7 +383,7 @@ export class CTutorGraphNavigator extends CEFNavigator
                         features = historyNode.scene.features;
                         
                         // If scene no longer matches the feature set skip it
-                        
+                        // 
                         if(features != "")
                         {
                             if(!this.tutorDoc.testFeatureSet(features))
@@ -409,11 +409,7 @@ export class CTutorGraphNavigator extends CEFNavigator
                         
                         // Do the scene Transition 
                         
-                        this._xType = "WOZBACK";
-                        
-                        console.log("AUDIO: Remove All Sounds");
-                        // createjs.Sound.removeAllSounds();
-                                
+                        this._xType = "WOZBACK";                                                                                
                         this.seekToScene(historyNode.scene);
                         
                         break;					
