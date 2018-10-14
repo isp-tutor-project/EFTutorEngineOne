@@ -217,6 +217,11 @@ export class TSceneBase extends TObject
 		this.tutorDoc.enableNext(fEnable);		
 	}
 
+	public enableBack(fEnable:boolean)
+	{			
+		this.tutorDoc.enableBack(fEnable);		
+	}
+
     public setNavMode(navMode:number, navTarget:string) {
         
         this.tutorDoc.setNavMode(navMode, navTarget);

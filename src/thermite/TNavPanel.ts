@@ -112,6 +112,9 @@ export class TNavPanel extends TScene
         this.tutorDoc.attachNavPanel(this);
 
         this.SbreadCrumbs.addHTMLControls();
+        this.enableNext(false);
+        this.enablePrev(false);
+
 	}
 
 
@@ -121,9 +124,12 @@ export class TNavPanel extends TScene
 
 
     public enablePrev(enable:boolean) {
-        this.Sback.enable(enable);
+        this.enableBack(enable);
     }
 
+    public enableBack(enable:boolean) {
+        this.Sback.enable(enable);
+    }
 
     public setBreadCrumbs(text:string) {
 
@@ -155,13 +161,13 @@ export class TNavPanel extends TScene
 			case CONST.NEXTSCENE:
                 this._nextButton  = this[butComp].on(CONST.BUTTON_CLICK, this.tutorNavigator.onButtonNext, this.tutorNavigator);
                 this.Snext.hidden = false;        
-                this.Snext.enable(true);
+                // this.Snext.enable(true);
 				break;
 
 			case CONST.PREVSCENE:
 				this._prevButton  = this[butComp].on(CONST.BUTTON_CLICK, this.tutorNavigator.onButtonPrev, this.tutorNavigator);
                 this.Sback.hidden = false;
-                this.Sback.enable(true);
+                // this.Sback.enable(true);
                 break;				
 		}
     }
@@ -219,8 +225,6 @@ export class TNavPanel extends TScene
         switch(modeID) {
             case CONST.NAVNONE:
                 // no buttons to show
-                this.enableNext(false);
-                this.enablePrev(false);
                 this.Smask0.show();
                 break;
 

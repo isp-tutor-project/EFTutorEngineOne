@@ -283,6 +283,12 @@ export class CEFTutorDoc extends EventDispatcher implements IEFTutorDoc
             this.SnavPanel.enableNext(fEnable);		
 	}
 
+	public enableBack(fEnable:boolean)
+	{			
+        if(this.SnavPanel) 
+            this.SnavPanel.enableBack(fEnable);		
+	}
+
     public setNavMode(navMode:number, navTarget:string) {
         
         if(this.SnavPanel) 

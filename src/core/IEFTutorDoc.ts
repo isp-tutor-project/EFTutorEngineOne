@@ -150,6 +150,7 @@ export interface IEFTutorDoc {
     attachNavPanel(panel:any) : void;
     setBreadCrumbs(text:string) : void;
     enableNext(fEnable:boolean) : void;
+    enableBack(fEnable:boolean) : void;
     setNavMode(navMode:number, navTarget:string):void;
 
     assignProperty(root:any, property:string, value:any) : any;
