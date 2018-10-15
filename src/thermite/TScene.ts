@@ -300,6 +300,15 @@ export class TScene extends TSceneBase
             {
                 nextTrack = this.sceneGraph.gotoNextTrack();
                 
+                // TODO: there are 2 "volatile" concepts which need to be reconciled: 
+                // 
+                //  1: The history itself. i.e. whether
+                //     you can go forward through a history you have gone back into.
+                // 
+                //  2: Currently The graph as a whole. i.e. whether to remember what 
+                //     tracks have been visited or not. Should this be on a per-track
+                //     basis?
+                //        
                 // If the graph history is non-volatile and there is a next track
                 // remember it 
                 // 
@@ -388,13 +397,21 @@ export class TScene extends TSceneBase
             
         }while(historyNode != null)					
 
-        // We init this to permit the TutorNavigator to simply restart the root track
-        // should we be in the root scene. i.e. no more nav-backs 
+        // We init this to permit the TutorNavigator to simply restart the root-track
+        // should we be in the root-scene. i.e. no more nav-backs 
         // 
         if(!historyNode)
         {
             this.STrack = this.sceneGraph.rootTrack;
             this.connectTrack(this.STrack);	
+
+            // When the history is exhausted we may be going back to a previous scene
+            // (if we are not at the root of the scene history). From that point we may 
+            // come back to this scene "instance" if it is persistent. For that case we 
+            // need to reset the root sceneNode ndx to -1 to start it from scratch.
+            // Otherwise it will do a "nextTrack" call on the 0-track which will skip it.
+            // 
+            this.sceneGraph.resetRoot();
         }
 
         return historyNode;

@@ -178,7 +178,7 @@ export class TNavPanel extends TScene
 			case CONST.NEXTSCENE:
 				if(this._nextButton) {
 
-					this[butComp].off(this._nextButton);
+                    this[butComp].off(CONST.BUTTON_CLICK, this._nextButton);
 					this._nextButton = null;
 				}
 				break;
@@ -186,7 +186,7 @@ export class TNavPanel extends TScene
 			case CONST.PREVSCENE:
 				if(this._prevButton) {
 
-					this[butComp].off(this._prevButton);
+                    this[butComp].off(CONST.BUTTON_CLICK, this._prevButton);
 					this._prevButton = null;
 				}
 				break;				

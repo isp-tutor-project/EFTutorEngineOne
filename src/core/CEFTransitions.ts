@@ -287,11 +287,18 @@ export class CEFTransitions extends CEFTimeLine
 				if(targObj._instance instanceof TObject)
 				{                    
 					if(!targObj._instance.isTweenable())
-												continue;
-				}	
-				// use the xname to identify unique instances
-				
-				xname = targObj._instance.xname;
+                                                continue;
+                                                
+                    // use the xname to identify unique instances
+                    // 
+                    xname = targObj._instance.xname;
+                }	
+                else {
+                    // We do this as we need a valid (defined) xname
+                    // use unique createjs unique id
+				    // 
+    				xname = targObj._instance.id;
+                }
                 
                 // Don't show hidden objects
                 // 

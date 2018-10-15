@@ -168,7 +168,7 @@ export class CSceneModule extends CSceneNode
 
         this._ndx = historyNode.trackNdx;		
 
-        seekTrack  = this._tracks[this._ndx];				
+        seekTrack = this._tracks[this._ndx];				
         seekTrack = seekTrack.resolve();	
 
         return seekTrack;

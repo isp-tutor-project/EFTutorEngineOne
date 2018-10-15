@@ -248,5 +248,12 @@ export class CSceneGraph extends CSceneNode
 			this._currNode.resetNode();
 		
 		this._currNode = newNode;			
-	}		
+    }		
+    
+
+    public resetRoot() : void {
+
+        this._currNode = this._nodes["root"];
+        this._currNode.resetNode();
+    }
 }

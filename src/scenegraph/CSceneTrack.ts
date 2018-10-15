@@ -554,6 +554,7 @@ export class CSceneTrack extends EventDispatcher
             case CONST.SCENE_ACTION:
 
                 this.hostScene.$nodeAction(this._actionname);
+                this.hostScene.$updateNav();        
                 this.autoStep();
                 break;
 
