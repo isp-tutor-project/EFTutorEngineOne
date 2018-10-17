@@ -307,11 +307,26 @@ export class CSceneTrack extends EventDispatcher
             // 
             if(this.newSounds.length > 0) {
 
+                // Preferentially use Speech-Synthesis over native-media over HTML-audio
+                // 
                 if(EFLoadManager.nativeSpeech) {
 
+                    this.newSounds.forEach(sound => {
+                        EFLoadManager.nativeSpeech.registerSounds(sound, this.assetPath);    
+                    });
+                    this.hasAudio    = true;
+                    this.trackLoaded = true;
                 }
-                if(EFLoadManager.nativeAudio) {
 
+                else if(EFLoadManager.nativeAudio) {
+
+                    EFLoadManager.nativeAudio.clearAllSounds();    
+
+                    this.newSounds.forEach(sound => {
+                        EFLoadManager.nativeAudio.registerSounds(sound.src, sound.id, this.assetPath);    
+                    });                    
+                    this.hasAudio    = true;
+                    this.trackLoaded = true;
                 }
 
                 else {
@@ -370,24 +385,53 @@ export class CSceneTrack extends EventDispatcher
                     console.log("SCENEGRAPH: Loaded Play: " + this._trackname + segment.fileid + " => " + segment.SSML);
                 }
 
-                var props = new createjs.PlayPropsConfig().set({interrupt: createjs.Sound.INTERRUPT_ANY, volume: segment.volume});
+                if(EFLoadManager.nativeSpeech) {
 
-                this.trackAudio = this.segSequence[this.segNdx].track = createjs.Sound.play(segment.fileid, props); 
-
-                if(this.trackAudio.playState === CONST.PLAY_FAILED) {
-
-                    console.log("SCENEGRAPH: Play Failed: " + this._trackname + segment.fileid + " => " + segment.SSML);
-                    alert("Track Play Failed: " + this._trackname + segment.fileid + " => " + segment.SSML);            
                 }
+                else if(EFLoadManager.nativeAudio) {
 
-                if(segment.trim) {
-                    this._asyncTrimTimer  = new CEFTimer(segment.duration + segment.trim);
+                    EFLoadManager.nativeAudio.play(segment.fileid); 
 
-                    this._trimHandler = this._asyncTrimTimer.on(CONST.TIMER, this.segmentComplete, this);
-                    this._asyncTrimTimer.start();        
+                    // If we are trimming the segment we use the published duration to time the segment completion event
+                    // and we ignore the event from the Java Domain
+                    // 
+                    if(segment.trim) {
+                        EFLoadManager.trackOwner = null;
+                        EFLoadManager.trackEvent = null;
+    
+                        this._asyncTrimTimer  = new CEFTimer(segment.duration + segment.trim);
+
+                        this._trimHandler = this._asyncTrimTimer.on(CONST.TIMER, this.segmentComplete, this);
+                        this._asyncTrimTimer.start();        
+                    }
+                    // Under normal circumstances we let the Java-domain event drive the completion of the segment
+                    // 
+                    else {
+                        EFLoadManager.trackOwner = this;
+                        EFLoadManager.trackEvent = this.segmentComplete;
+                    }
                 }
                 else {
-                    this.trackAudio.on("complete", this.segmentComplete, this);
+
+                    var props = new createjs.PlayPropsConfig().set({interrupt: createjs.Sound.INTERRUPT_ANY, volume: segment.volume});
+
+                    this.trackAudio = this.segSequence[this.segNdx].track = createjs.Sound.play(segment.fileid, props); 
+
+                    if(this.trackAudio.playState === CONST.PLAY_FAILED) {
+
+                        console.log("SCENEGRAPH: Play Failed: " + this._trackname + segment.fileid + " => " + segment.SSML);
+                        alert("Track Play Failed: " + this._trackname + segment.fileid + " => " + segment.SSML);            
+                    }
+
+                    if(segment.trim) {
+                        this._asyncTrimTimer  = new CEFTimer(segment.duration + segment.trim);
+
+                        this._trimHandler = this._asyncTrimTimer.on(CONST.TIMER, this.segmentComplete, this);
+                        this._asyncTrimTimer.start();        
+                    }
+                    else {
+                        this.trackAudio.on("complete", this.segmentComplete, this);
+                    }
                 }
 
                 // Fire the start cue point

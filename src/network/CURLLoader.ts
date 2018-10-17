@@ -88,7 +88,11 @@ export class CURLLoader extends EventDispatcher
 			xhr.onload = function (e) {
                 if (xhr.readyState === 4) {
 
-                    if (xhr.status === 200) {
+                    // TODO: make this reactive to runtime environment
+                    // NOTE: On Android the xhr.status returns 0 on apparently 
+                    // successful requests made to EXTERNALSTORAGE 
+                    // 
+                    if (xhr.status === 200 || xhr.status === 0) {
 
                         resolve(xhr.response);
 
