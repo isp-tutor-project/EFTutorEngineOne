@@ -143,19 +143,39 @@ export class CSceneGraph extends CSceneNode
 	//
 	// returns the class name of the next ActionTrack as a string
 	//
-	public gotoNextTrack() : CSceneTrack
+	public gotoNextTrack(bUserEvent:boolean) : CSceneTrack
 	{
-		let nextNode:CSceneNode;
-		
+        let inGroup:boolean = true;
+
 		if(this._currNode) do 
 		{
+
 			// Increment the animation polymorphically - remember the root track
-			
-            this._currTrack = this._currNode.gotoNextTrack();            
-            this._rootTrack = this._rootTrack || this._currTrack;
-			
+            // If a user nav event arrives in the middle of a group we increment
+            // past the end of the group. i.e. we treat the group as a (track) single
+            // entity from the nav button standpoint.
+            // 
+            if(bUserEvent && this._currTrack && this._currTrack.isGroup) {
+
+                // Note that we want to step to one track past the end of the group.
+                // A group can either end on a non-group track or when autostep is false
+                // indicating a normal nav wait point.
+                // 
+                while(this._currTrack && inGroup) {
+
+                    inGroup = this._currTrack.isAutoStep && this._currTrack.isGroup;
+
+                    this._currTrack = this._currNode.gotoNextTrack();            
+                    this._rootTrack = this._rootTrack || this._currTrack;
+                }
+            }
+            else {
+                this._currTrack = this._currNode.gotoNextTrack();            
+                this._rootTrack = this._rootTrack || this._currTrack;
+            }
+
 			// If the node is exhausted move to next node
-			
+			// 
 			if(this._currTrack == null)
 			{
                 this._currNode = this._currNode.nextNode();

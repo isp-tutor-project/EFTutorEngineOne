@@ -202,13 +202,15 @@ export class THtmlList1 extends THtmlBase {
             let host = this;
             this.efListBox.addEventListener("click", function (e) {
 
-                // when the select box is clicked, close any other select boxes,
-                // and open/close the current select box:
+                if(host.fEnabled) {
+                    // when the select box is clicked, close any other select boxes,
+                    // and open/close the current select box:
 
-                e.stopPropagation();
-                host.closeAllSelect(this);
-                host.efListBox.nextElementSibling.classList.toggle("hideoptions");
-                host.efListBox.classList.toggle("active");
+                    e.stopPropagation();
+                    host.closeAllSelect(this);
+                    host.efListBox.nextElementSibling.classList.toggle("hideoptions");
+                    host.efListBox.classList.toggle("active");
+                }
             });        
         
             // create a new DIV that will contain the option list:

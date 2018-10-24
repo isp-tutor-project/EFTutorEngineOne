@@ -66,7 +66,7 @@ export class CSceneNode extends EventDispatcher
 	}
     
     
-	public gotoNextTrack() : CSceneTrack
+	public gotoNextTrack(bUserEvent:boolean = false) : CSceneTrack
 	{
 		return null;
 	}	

@@ -51,6 +51,7 @@ export class THtmlBase extends TObject {
     protected scaleCompensation:number;
 
     protected fAdded:boolean;
+    protected fEnabled:boolean;
 
     protected isHTMLControl:boolean;
     protected HTMLmute:boolean;
@@ -103,6 +104,7 @@ export class THtmlBase extends TObject {
         this.on(CEFEvent.ADDED_TO_STAGE, this.onAddedToStage);
         
         this.fAdded   = false;
+        this.fEnabled = true;
 
         this.isHTMLControl = true;
         this.HTMLmute      = true;
@@ -129,6 +131,18 @@ export class THtmlBase extends TObject {
 
         super.Destructor();
     }
+
+
+	public enable()
+	{			
+        this.fEnabled = true;
+    }
+
+	public disable()
+	{			
+        this.fEnabled = false;
+    }
+
 
     // Invert the initial scaling on the object itself - 
     // i.e. distortion due to the resize of the controlcontainer in AnimateCC layout

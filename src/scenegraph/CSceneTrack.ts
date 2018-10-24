@@ -57,6 +57,8 @@ export class CSceneTrack extends EventDispatcher
 	private _type:string;
 	private _autostep:boolean;
     private _stepdelay:number;
+	private _isgroup:boolean;
+
     private _autoPlayTimer:CEFTimer;
     private _autoPlayHandler:Function;
 
@@ -161,7 +163,8 @@ export class CSceneTrack extends EventDispatcher
         this._autostep  = factory.autostep  || false;        
         this._stepdelay = factory.stepdelay || 0.0;        
         this._odds      = factory.odds;
-		this._features 	= factory.features  || "";
+        this._features 	= factory.features  || "";
+        this._isgroup   = factory.isgroup   || false;
 		
 		// Handle Stocastic Features
 		
@@ -204,6 +207,16 @@ export class CSceneTrack extends EventDispatcher
     public get isHistoric() : boolean {
 
         return this._enqueue;
+    }
+
+    public get isGroup() : boolean {
+
+        return this._isgroup;
+    }
+
+    public get isAutoStep() : boolean {
+
+        return this._autostep;
     }
 
 

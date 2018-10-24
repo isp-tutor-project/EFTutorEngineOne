@@ -258,7 +258,7 @@ export class TScene extends TSceneBase
         this._asyncGraphTimer.stop();
         this._asyncGraphTimer.off(CONST.TIMER, this._trackHandler);
                     
-        this.traceGraphEdge();
+        this.traceGraphEdge(false);
     }
 
 
@@ -270,7 +270,7 @@ export class TScene extends TSceneBase
     * If this is called from scenegraphnavigator don't inc scene when scenegraph exhausted
     * let the tutorgraph handle it
     */
-	public traceGraphEdge(bNavigating:boolean = false) : CSceneTrack
+	public traceGraphEdge(bUserNavEvent:boolean = false) : CSceneTrack
 	{
 		let historyNode:CSceneHistoryNode;
 		let nextTrack:CSceneTrack;
@@ -298,7 +298,7 @@ export class TScene extends TSceneBase
             // 
             if(historyNode == null)
             {
-                nextTrack = this.sceneGraph.gotoNextTrack();
+                nextTrack = this.sceneGraph.gotoNextTrack(bUserNavEvent);
                 
                 // TODO: there are 2 "volatile" concepts which need to be reconciled: 
                 // 
@@ -337,7 +337,7 @@ export class TScene extends TSceneBase
 			}
 			
 			// If we run out of tracks then move to the next scene node
-			else if(!bNavigating)
+			else if(!bUserNavEvent)
 			{
 				this.navigator.gotoNextScene("$endOfTracks");				
 			}
