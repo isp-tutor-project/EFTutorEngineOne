@@ -73,6 +73,8 @@ export class CEngine {
             this.loadBootImage();
         }
 
+        //@@ Disable logging
+        // 
         if(EFLoadManager.NOLOG = true) {
             window['console']['log'] = function(){};
         }

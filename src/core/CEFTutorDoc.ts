@@ -1192,4 +1192,34 @@ export class CEFTutorDoc extends EventDispatcher implements IEFTutorDoc
 //***************** FEATURES ****************************
 
 
+
+//***************** LOGGING ****************************
+
+    public logTutorState(scene:string) : void {
+
+        // If the native logger is available use it to record state data
+        // 
+        if(EFLoadManager.nativeUserMgr) {
+
+            EFLoadManager.nativeUserMgr.logState(scene, JSON.stringify(this.sceneState),JSON.stringify(this.moduleState),JSON.stringify(this.tutorState));
+        }
+
+    }
+
+    public logTutorProgress(scene:string) : void {
+
+        // If the native logger is available use it to record state data
+        // 
+        if(EFLoadManager.nativeUserMgr) {
+
+            if(scene === CONST.END_OF_TUTOR) {
+                EFLoadManager.nativeUserMgr.tutorComplete();
+            }
+            else {
+                EFLoadManager.nativeUserMgr.updateScene(scene);
+            }
+        }
+    }
+
+//***************** LOGGING ****************************
 }

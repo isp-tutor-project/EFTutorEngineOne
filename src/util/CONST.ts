@@ -74,6 +74,8 @@ export class CONST {
 
 	public static readonly DONT_LAUNCH:boolean  = false;
     public static readonly LAUNCH:boolean  		= true;
+
+    public static readonly END_OF_TUTOR:string  = "END_OF_TUTOR";
     
     // This is the AnimateCC controlContainer unscaled height
     // 

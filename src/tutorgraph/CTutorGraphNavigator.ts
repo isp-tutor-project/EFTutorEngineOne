@@ -34,10 +34,10 @@ import { CEFEvent } 		from "../events/CEFEvent";
 
 import { CONST }            from "../util/CONST";
 import { CUtil } 			from "../util/CUtil";
-
+import { CEFTimer }         from "../core/CEFTimer";
 
 import Event 		  = createjs.Event;
-import { CEFTimer } from "../core/CEFTimer";
+
 
 
 
@@ -312,7 +312,12 @@ export class CTutorGraphNavigator extends CEFNavigator
 				if(this._currScene != nextScene && nextScene != null)
 				{
 					this.seekToScene(nextScene);
-				}
+                }
+                else if(nextScene == null) {
+
+                    this.tutorDoc.logTutorState(this._currScene.scenename);                    
+                    this.tutorDoc.logTutorProgress(CONST.END_OF_TUTOR);
+                }
 
 				// We aren't going to be navigating so reset the flag to allow 
 				// future attempts.
@@ -499,47 +504,20 @@ export class CTutorGraphNavigator extends CEFNavigator
 			
 			if(this._currScene)
 			{
-				this.tutorAutoObj[this._currScene.scenename]._instance.onExitScene();
+                this.tutorAutoObj[this._currScene.scenename]._instance.onExitScene();
+
+                // We always record the tutor data for each scene
+                // 
+                this.tutorDoc.logTutorState(this._currScene.scenename);
 			}				
 			
 //@@ Progress Logging
 
 			// Only scenes which can act as starting points - i.e. are independent of other scenes are eligible for
 			// progress logging
-
-			// TODO: validate logging
-			// if(this._nextScene.isCheckPoint)
-			// {
-			// 	// On the first pass we need to generate an object scaffold to hold the progress update packet.
-			// 	// On subsequent passes we just need to change the value fields and add the stateData
-				
-			// 	// Note: a progress event is processed as a mongo update operation - so we must use
-			// 	//       CObject and MObject types to define UPDATEABLE and REPLACEABLE Objects respectively
-				
-			// 	if(_progressData == null)
-			// 	{
-			// 		_progressData 	  = {};			
-			// 		this._profileData = {};				 
-																				
-			// 		_progressData['reify']           = {}; 	// 'reify' is the portion that is parsed for update fields - it and any sub-documents  			
-			// 		_progressData['reify']['phases'] = {};	// should be either CObjects, MObjects or AS3 primitive data types String, Number,int,Boolean,Null,void
-					
-			// 		_progressData['reify']['phases'][this.tutorDoc.sessionAccount.session.profile_Index] = this._profileData;
-					
-			// 		this._profileData['stateData']   = new MObject;			// Use an MObject to force replacement of entire stateData sub-document in MongoDB 
-			// 	}
-				
-			// 	this._profileData.progress = CONST._INPROGRESS;								
-				
-			// 	this._profileData['stateData']['tutorgraph'] = this._rootGraph.captureGraph({});
-				
-			// 	this._profileData['stateData']['ktSkills']  = this.tutorDoc.ktSkills;
-			// 	this._profileData['stateData']['globals']   = this.tutorDoc._globals;
-			// 	this._profileData['stateData']['features']  = this.tutorDoc.features;
-			// 	this._profileData['stateData']['data']  	= this.tutorDoc._phaseData;
-
-			// 	this.tutorDoc.log.logProgressEvent(_progressData);
-			// }
+            // 
+			if(this._nextScene.isCheckPoint)
+				this.tutorDoc.logTutorProgress(this._nextScene.scenename);
 			
 			
 			//@@ Mod Mar 9 2015 - interrupt if connection lost
