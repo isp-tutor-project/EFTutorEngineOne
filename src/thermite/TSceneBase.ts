@@ -51,7 +51,9 @@ export class TSceneBase extends TObject
 	public seekBackFunc:Array<any>;
 	
 	public sceneAttempt:number = 1;		
-	public sceneTag:string;
+    public sceneTag:string;
+    public sceneName:string;
+    public sceneLogName:string;
     
 	public classPath:string;
     
@@ -146,22 +148,16 @@ export class TSceneBase extends TObject
 
 	public onCreate() : void
 	{
+        let dataElement:any;
+
 		try {
             this.moduleData     = this.tutorDoc.moduleData[this.hostModule][CONST.SCENE_DATA];
             this.sceneData      = this.moduleData[this.sceneName];
             this.tutorNavigator = this.tutorDoc.tutorNavigator;
 
-            // Init the tutor state variables - maintain any that are extant
+            // Init the tutor state variables - retain any that are extant
             // 
-            this.tutorDoc.sceneState[this.name]         = {};
-            this.tutorDoc.moduleState[this.hostModule]  = this.tutorDoc.moduleState[this.hostModule] || {};
-            this.tutorDoc.tutorState                    = this.tutorDoc.tutorState || {};
-
-            this.tutorDoc.sceneChange[this.sceneName]   = {};
-            this.tutorDoc.moduleChange[this.hostModule] = this.tutorDoc.moduleChange[this.hostModule] || {};
-            this.tutorDoc.tutorChange                   = this.tutorDoc.tutorChange                   || {};            
-
-            let dataElement:any;
+            this.tutorDoc.initializeStateData(this, this.name, this.sceneName, this.hostModule);
 
 			// Execute the create procedures for this scene instance
 			// see notes on sceneExt Code - tutor Supplimentary code
@@ -228,6 +224,7 @@ export class TSceneBase extends TObject
     }
 
 
+
     public setSceneValue(property:string, value:any) : void {
         this.setStateValue(property, value, CONST.SCENESTATE) 
     }    
@@ -237,7 +234,6 @@ export class TSceneBase extends TObject
     public setTutorValue(property:string, value:any) : void {
         this.setStateValue(property, value, CONST.TUTORSTATE) 
     }
-
 
     public setStateValue(property:string, value:any, target:string = CONST.MODULESTATE) : void {
 
@@ -257,8 +253,42 @@ export class TSceneBase extends TObject
                 this.tutorDoc.assignProperty(this.tutorDoc.tutorState, property, value);
                 this.tutorDoc.tutorChange[property] = true;
                 break;
+        }      
+        
+        this.pushStateEvent(property, value, target);
+    }
+
+
+
+    public pushSceneEvent(property:string, value:any) : void {
+        this.pushStateEvent(property, value, CONST.SCENESTATE) 
+    }    
+    public pushModuleEvent(property:string, value:any) : void {
+        this.pushStateEvent(property, value, CONST.MODULESTATE) 
+    }
+    public pushTutorEvent(property:string, value:any) : void {
+        this.pushStateEvent(property, value, CONST.TUTORSTATE) 
+    }
+
+    public pushStateEvent(property:string, value:any, target:string = CONST.MODULESTATE) : void {
+
+        switch(target) {
+
+            case CONST.SCENESTATE:
+                this.tutorDoc.pushEvent(this.tutorDoc.sceneState[this.name], property, value);
+                break;
+
+            case CONST.MODULESTATE:
+                this.tutorDoc.pushEvent(this.tutorDoc.moduleState[this.hostModule], property, value);
+                break;
+
+            case CONST.TUTORSTATE:
+                this.tutorDoc.pushEvent(this.tutorDoc.tutorState, property, value);
+                break;
         }        
     }
+
+    
 
     
     public getRawSceneValue(property:string) : any {

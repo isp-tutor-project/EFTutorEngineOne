@@ -35,6 +35,7 @@ import { CUtil }                from "../util/CUtil";
 
 
 import EventDispatcher 		  = createjs.EventDispatcher;
+import { TSceneBase } from "../thermite/TSceneBase";
 
 
 
@@ -100,10 +101,15 @@ export class CEFTutorDoc extends EventDispatcher implements IEFTutorDoc
 		
 	public sceneGraph:any;						        // The factory definition object used to create scene graphs for specified scenes
 	public tutorGraph:any;						    	// The factory definition object used to create the tutor Graph		
+    public tutorStateData:any;						   	// The factory definition object used to initialize tutor state
+    public userStateData:any = null;
+    public userID:string;
+
     public tutorConfig:LoaderPackage.ITutorConfig;
+    public dataInitialized:boolean = false;
 
     public language:string = "en";
-    public voice:string    = "F0";             // F0 | M0
+    public voice:string    = "F0";                      // F0 | M0
 
     public modules:Array<LoaderPackage.IModuleDescr>;
     public moduleData:any;
@@ -123,7 +129,10 @@ export class CEFTutorDoc extends EventDispatcher implements IEFTutorDoc
     
     public STAGEWIDTH:number  = 1024;  
 	public STAGEHEIGHT:number = 768;  
-	
+    
+    private hostFeatures:string;
+    private hostTutorData:string;
+
 	// Global logging support - each scene instance and subscene animation instance represent 
 	//                          object instances in the log.
 	//                          The frameid is a '.' delimited string representing the:
@@ -262,9 +271,106 @@ export class CEFTutorDoc extends EventDispatcher implements IEFTutorDoc
 		// NOTE: Logger Connections must be made before cursor replacement
         //
         // this.Stutor.replaceCursor();
-        
+
+        // If we are running in a hosted environment (e.g. ANDROID) ask it to initialize the tutor prior to launch
+        // 
+        if(EFLoadManager.nativeUserMgr) {
+
+            this.hostFeatures  = EFLoadManager.nativeUserMgr.getFeatures();
+            this.hostTutorData = EFLoadManager.nativeUserMgr.getTutorState();
+
+            // this.setTutorFeatures(this.hostFeatures);
+            // TODO: Implement setTutorData
+            // this.setTutorData(this.hostTutorData);
+        }
+        // If we are running in a hosted environment ask it to initialize the tutor prior to launch
+        // 
+        else if(EFLoadManager.efFeatures) {
+            
+            this.setTutorFeatures(EFLoadManager.efFeatures);
+        }
+
         this.launchTutor();			
     }
+
+
+    public initializeStateData(scene:TSceneBase, name:string, sceneName:string, hostModule:string) {
+
+        //TODO: want to remove one of these - they appear to be duplicate
+        if(name !== sceneName) { 
+            alert("TutorDoc Scene name Mismatch: "+ name + " != " + sceneName);
+        }
+
+        // Init the tutor state variables - retain any that are extant
+        // 
+        this.sceneState[name]         = {};
+        this.moduleState[hostModule]  = this.moduleState[hostModule] || {};
+        this.tutorState               = this.tutorState              || {};
+
+        this.sceneChange[sceneName]   = {};
+        this.moduleChange[hostModule] = this.moduleChange[hostModule] || {};
+        this.tutorChange              = this.tutorChange              || {};            
+
+        //  load user specific data
+        // 
+        if(!this.dataInitialized) {
+
+            this.dataInitialized = true;            
+
+            // If the native logger is available use it to record state data
+            // 
+            if(EFLoadManager.nativeUserMgr) {
+
+                this.userID = EFLoadManager.nativeUserMgr.getUserId();
+            }
+            else {
+                this.userID = "KEVINWI_DEC_27";
+            }
+
+            // TODO: Check what happens if there is no tutorStateData file
+            // 
+            if(this.tutorStateData) {
+
+                this.normalizeStateData();
+                
+                for(let element of this.tutorStateData.users) {
+
+                    if(element.userName === this.userID) {
+                        
+                        this.userStateData = element;
+                        break;
+                    }
+                }
+
+                if(this.userStateData) {
+
+                    for(let key in this.userStateData.tutorState) {
+
+                        scene.setTutorValue(key, this.userStateData.tutorState[key]);
+                    }
+
+                    for(let key in this.userStateData.moduleState) {
+                        
+                        scene.setModuleValue(key, this.userStateData.moduleState[key]);
+                    }
+
+                    for(let value of this.userStateData.features) {
+
+                        this.addFeature(value, null);
+                    }
+                }
+            }
+        }
+    }
+
+    public normalizeStateData() {
+
+        for(let element of this.tutorStateData.users) {
+
+            element.userName = element.userName.replace("-","_").toUpperCase();
+        }
+    }
+
 
     public attachNavPanel(panel:TNavPanel) {
 
@@ -346,8 +452,7 @@ export class CEFTutorDoc extends EventDispatcher implements IEFTutorDoc
         return prop;
     }
 
-
-
+    
     public assignProperty(root:any, property:string, value:any) : void {
 
         let path   = property.split(".");
@@ -387,18 +492,16 @@ export class CEFTutorDoc extends EventDispatcher implements IEFTutorDoc
     }
 
 
+    public pushEvent(root:any, property:string, value:any) : void {
 
+        root["$seq"] = root["$seq"] || [];
 
-
-
-
-
-
-
-
-
-
-
+        root["$seq"].push({
+                            "prop":property,
+                            "value":value,
+                            "time":Date.now()
+                            });
+    }
 
 
     //*************** FLEX integration 
@@ -718,6 +821,16 @@ export class CEFTutorDoc extends EventDispatcher implements IEFTutorDoc
         
         this.loaderData = [];
 
+        // Loader for the tutorstatedata
+        //
+        this.loaderData.push( {
+                type: CONST.TUTORSTATEVAR,
+                filePath : CONST.TUTOR_COMMONPATH + CONST.TUTORSTATEVAR,
+                onLoad   : this.onLoadJson.bind(this),
+                fileName : CONST.TUTORSTATEVAR,
+                varName  : CONST.TUTORSTATEFAC
+        });
+
         // Loaders for the Tutorgraph and TutorConfig
         //
         for(let i1 = 0 ; i1 < CONST.TUTOR_VARIABLE.length ; i1++) {
@@ -1002,14 +1115,13 @@ export class CEFTutorDoc extends EventDispatcher implements IEFTutorDoc
 	//
 	public setTutorDefaults(featSet:string) : void
 	{
-		let feature:string;
 		let featArray:Array<string> = featSet.split(":");
 		
-		this.fDefaults = new Array<string>();
+		this.fDefaults = {};
 		
-		for(let feature of featArray)
+		for(let feature in featArray)
 		{
-			this.fDefaults.push(feature);
+			this.fDefaults[feature] = true;
 		}
 	}
 			
@@ -1017,26 +1129,25 @@ export class CEFTutorDoc extends EventDispatcher implements IEFTutorDoc
 	//
 	public setTutorFeatures(featSet:string) : void
 	{
-		let feature:string;
 		let featArray:Array<string> = new Array;
 		
 		if(featSet.length > 0)
 			featArray = featSet.split(":");
 		
-		this.fFeatures = new Array<string>();
+		this.fFeatures = {};
 
 		// Add default features 
 		
-		for (let feature of this.fDefaults)
+		for (let feature in this.fDefaults)
 		{
-			this.fFeatures.push(feature);
+            this.addFeature(feature, null); 
 		}
 
 		// Add instance features 
 		
 		for (let feature of featArray)
 		{
-			this.fFeatures.push(feature);
+            this.addFeature(feature, null); 
 		}
 	}
 
@@ -1056,7 +1167,8 @@ export class CEFTutorDoc extends EventDispatcher implements IEFTutorDoc
 	public set features(ftrSet:string) 
 	{			
 		// Add new features - no duplicates
-		
+        // TODO: deprecate this - it's dangerous
+        // 
 		this.fFeatures = ftrSet.split(":");
 	}
 
@@ -1108,6 +1220,21 @@ export class CEFTutorDoc extends EventDispatcher implements IEFTutorDoc
         }
     }
     
+    private includes(ftrObj:any, ftr:string) : boolean {
+
+        let result:boolean = false;
+
+        for(let fElement in ftrObj) {
+            
+            if(fElement === ftr) {
+                result = true;
+                break;
+            }
+        }
+
+        return result;
+    }
+
 	
 	//## Mod Jul 01 2012 - Support for NOT operation on features.
 	//
@@ -1195,16 +1322,68 @@ export class CEFTutorDoc extends EventDispatcher implements IEFTutorDoc
 
 //***************** LOGGING ****************************
 
-    public logTutorState(scene:string) : void {
+    // TODO: This logging mechanism is a total kludge !!!!!! MUST FIX !!!!!
+    // 
+    public logTutorState(scene:TSceneBase) : void {
 
         // If the native logger is available use it to record state data
         // 
         if(EFLoadManager.nativeUserMgr) {
 
-            EFLoadManager.nativeUserMgr.logState(scene, JSON.stringify(this.sceneState),JSON.stringify(this.moduleState),JSON.stringify(this.tutorState));
-        }
+            EFLoadManager.nativeUserMgr.logState(scene.sceneLogName, JSON.stringify(this.sceneState),JSON.stringify(this.moduleState),JSON.stringify(this.tutorState));
 
+            if(this.hostModule.toUpperCase() === "EFMOD_RQSELECT") {
+                
+                if(this.userStateData) {
+
+                    for(let key in this.userStateData.tutorState) {
+
+                        this.userStateData.tutorState[key] = scene.getTutorValue(this.userStateData.tutorState[key]);
+                    }
+
+                    for(let key in this.userStateData.moduleState) {
+                        
+                        this.userStateData.moduleState[key] = scene.getModuleValue(this.userStateData.moduleState[key]);
+                    }
+
+                    if(this.userStateData.features.length < 2) {
+
+                        let feature:string = scene.getModuleValue("selectedTopic.ontologyKey|features");
+
+                        if(feature != null) {
+                            this.userStateData.features.push(feature);
+                        }
+                    }
+                }
+
+                EFLoadManager.nativeUserMgr.updateTutorState(JSON.stringify(this.tutorStateData));
+            }
+        }
     }
+
+    
+    private Kludge_TranslateKeys() {
+
+        if(this.hostModule.toUpperCase() === "EFMOD_RQSELECT") {
+                
+            if(this.userStateData) {
+
+                for(let key in this.userStateData.moduleState) {
+                    
+                    if(key.endsWith("ontologyKey")) {
+                        let value = this.userStateData.moduleState[key];
+
+                        value = value.slice(0,1) + "TBL" + value.slice(1);
+
+                        this.userStateData.moduleState[key] = value;
+                    }
+                }
+
+                EFLoadManager.nativeUserMgr.updateTutorState(JSON.stringify(this.tutorStateData));
+            }
+        }
+    }
+
 
     public logTutorProgress(scene:string) : void {
 
@@ -1214,6 +1393,8 @@ export class CEFTutorDoc extends EventDispatcher implements IEFTutorDoc
 
             if(scene === CONST.END_OF_TUTOR) {
                 EFLoadManager.nativeUserMgr.tutorComplete();
+
+                this.Kludge_TranslateKeys();
             }
             else {
                 EFLoadManager.nativeUserMgr.updateScene(scene);

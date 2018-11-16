@@ -405,24 +405,32 @@ export class CSceneTrack extends EventDispatcher
 
                     EFLoadManager.nativeAudio.play(segment.fileid); 
 
-                    // If we are trimming the segment we use the published duration to time the segment completion event
-                    // and we ignore the event from the Java Domain
+                    // TODO: Need to test how to do this so we don't get both the Native completion event and the 
+                    //       timer completion event. Causes repeats when the segNdx overruns in segmentComplete
                     // 
-                    if(segment.trim) {
-                        EFLoadManager.trackOwner = null;
-                        EFLoadManager.trackEvent = null;
+                    // // If we are trimming the segment we use the published duration to time the segment completion event
+                    // // and we ignore the event from the Java Domain
+                    // // 
+                    // if(segment.trim) {
+                    //     EFLoadManager.trackOwner = null;
+                    //     EFLoadManager.trackEvent = null;
     
-                        this._asyncTrimTimer  = new CEFTimer(segment.duration + segment.trim);
+                    //     this._asyncTrimTimer  = new CEFTimer(segment.duration + segment.trim);
 
-                        this._trimHandler = this._asyncTrimTimer.on(CONST.TIMER, this.segmentComplete, this);
-                        this._asyncTrimTimer.start();        
-                    }
-                    // Under normal circumstances we let the Java-domain event drive the completion of the segment
-                    // 
-                    else {
+                    //     this._trimHandler = this._asyncTrimTimer.on(CONST.TIMER, this.segmentComplete, this);
+                    //     this._asyncTrimTimer.start();        
+                    // }
+                    // // Under normal circumstances we let the Java-domain event drive the completion of the segment
+                    // // 
+                    // else {
+                    //     EFLoadManager.trackOwner = this;
+                    //     EFLoadManager.trackEvent = this.segmentComplete;
+                    // }
+
+                        // Temporary fix - just use native completion
                         EFLoadManager.trackOwner = this;
                         EFLoadManager.trackEvent = this.segmentComplete;
-                    }
+
                 }
                 else {
 

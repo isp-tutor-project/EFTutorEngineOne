@@ -53,7 +53,10 @@ export class TNavPanel extends TScene
     protected Smask1:TObject;
     protected Smask2:TObject;
     protected Smask3:TObject;
-	
+
+    protected SbackDev:TObject;
+    protected SnextDev:TObject;
+    
 	// non-interactive elements
 	
 	
@@ -114,6 +117,12 @@ export class TNavPanel extends TScene
         this.SbreadCrumbs.addHTMLControls();
         this.enableNext(false);
         this.enablePrev(false);
+
+        if(this.SbackDev)
+            this.SbackDev.hidden = true;
+
+        if(this.SnextDev)
+            this.SnextDev.hidden = true;
 
 	}
 

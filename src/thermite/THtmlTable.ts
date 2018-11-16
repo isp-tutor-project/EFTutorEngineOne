@@ -395,7 +395,8 @@ export class THtmlTable extends THtmlBase {
 
             for(let col=0 ; col < this.cellData[row].length ; col++ ) {
 
-                this.cellData[row][col].cell.style.background = "";
+                // this.cellData[row][col].cell.style.backgroundColor = "";
+                this.cellData[row][col].cell.setAttribute("style", "background-color:");
             }
         }
     }
@@ -422,7 +423,9 @@ export class THtmlTable extends THtmlBase {
 
                 let cell = this.cellData[row][col].cell;
 
-                cell.style.background = bgcolor;
+                bgcolor = bgcolor.slice(0, 7);
+                // cell.style.backgroundColor = bgcolor;
+                this.cellData[row][col].cell.setAttribute("style", "background-color:"+ bgcolor);
             }
         }
     }

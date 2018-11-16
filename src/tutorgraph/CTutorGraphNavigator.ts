@@ -37,6 +37,7 @@ import { CUtil } 			from "../util/CUtil";
 import { CEFTimer }         from "../core/CEFTimer";
 
 import Event 		  = createjs.Event;
+import { TSceneBase } from "../thermite/TSceneBase";
 
 
 
@@ -314,8 +315,9 @@ export class CTutorGraphNavigator extends CEFNavigator
 					this.seekToScene(nextScene);
                 }
                 else if(nextScene == null) {
+                    let curScene:TSceneBase = this.tutorAutoObj[this._currScene.scenename]._instance;    
 
-                    this.tutorDoc.logTutorState(this._currScene.scenename);                    
+                    this.tutorDoc.logTutorState(curScene);                    
                     this.tutorDoc.logTutorProgress(CONST.END_OF_TUTOR);
                 }
 
@@ -504,11 +506,13 @@ export class CTutorGraphNavigator extends CEFNavigator
 			
 			if(this._currScene)
 			{
-                this.tutorAutoObj[this._currScene.scenename]._instance.onExitScene();
+                let curScene:TSceneBase = this.tutorAutoObj[this._currScene.scenename]._instance;
+
+                curScene.onExitScene();
 
                 // We always record the tutor data for each scene
                 // 
-                this.tutorDoc.logTutorState(this._currScene.scenename);
+                this.tutorDoc.logTutorState(curScene);
 			}				
 			
 //@@ Progress Logging

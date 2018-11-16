@@ -236,7 +236,8 @@ export class TTutorContainer extends TRoot
         //
         tarScene.factory      = factory;
 		tarScene.name         = factory.scenename;
-        tarScene.sceneName    = factory.scenename;        
+        tarScene.sceneName    = factory.scenename;
+        tarScene.sceneLogName = factory.scenename + "_" + factory.iteration;
         tarScene.hostModule   = factory.hostmodule;
         tarScene.ownerModule  = factory.ownermodule;
         tarScene.classPath    = factory.classname;

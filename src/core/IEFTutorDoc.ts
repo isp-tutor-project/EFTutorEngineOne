@@ -1,4 +1,5 @@
 import { LoaderPackage } from "../util/IBootLoader";
+import { TSceneBase } from "../thermite/TSceneBase";
 
 export interface IEFTutorDoc {
 
@@ -52,6 +53,8 @@ export interface IEFTutorDoc {
 		
 	sceneGraph:any;						        // The factory definition object used to create scene graphs for specified scenes
 	tutorGraph:any;						    	// The factory definition object used to create the tutor Graph		
+    tutorStateData:any;						   	// The factory definition object used to initialize tutor state
+    
     tutorConfig:LoaderPackage.ITutorConfig;
 
     language:string;
@@ -146,6 +149,7 @@ export interface IEFTutorDoc {
 
 
     initializeTutor() : void;
+    initializeStateData(scene:TSceneBase, name:string, sceneName:string, hostModule:string) : void;
     
     attachNavPanel(panel:any) : void;
     setBreadCrumbs(text:string) : void;
@@ -155,6 +159,8 @@ export interface IEFTutorDoc {
 
     assignProperty(root:any, property:string, value:any) : any;
     resolveProperty(root:any, property:string) : any;
+
+    pushEvent(root:any, property:string, value:any) : any;
 
     // mixins
     $preEnterScene(scene:any ): void;

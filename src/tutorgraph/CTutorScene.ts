@@ -221,5 +221,10 @@ export class CTutorScene
 	{
 		this.tutorContainer.enumChildren(this.tutorContainer, 0);
 	}
-	
+    
+    public get sceneLogName() : string {
+
+        return this.scenename + "_" + this.iteration;
+    }
+
 }

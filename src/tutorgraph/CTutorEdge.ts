@@ -104,9 +104,14 @@ export class CTutorEdge extends Object
         // * default to pass - if there is a null constraint then we just pass and seek along that edge.
         
 		let result:boolean = true;
-		        
-        result = (this._edgeConst === "")? true: this.tutorDoc.$nodeConstraint(this._edgeOwner.id, this._edgeConst);	
-		
+                
+        if(this._edgeConst.startsWith("FTR_")) {
+            result = this.tutorDoc.testFeatureSet(this._edgeConst);
+        }
+        else {
+            result = (this._edgeConst === "")? true: this.tutorDoc.$nodeConstraint(this._edgeOwner.id, this._edgeConst);	
+        }
+
 		return 	result;		 	
 	}
 

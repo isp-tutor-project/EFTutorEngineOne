@@ -352,7 +352,7 @@ export class CEngine {
         }
         catch(error) {
 
-            console.log("Tutor Construction Failed:  " + error.toString());
+            console.log("Tutor Construction Failed: " + error.toString());
         }
     }
 
