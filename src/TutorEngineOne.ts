@@ -76,7 +76,7 @@ export class CEngine {
         //@@ Disable logging
         // 
         if(EFLoadManager.NOLOG = true) {
-            window['console']['log'] = function(){};
+            // window['console']['log'] = function(){};
         }
     }
 

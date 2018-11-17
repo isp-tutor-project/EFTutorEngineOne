@@ -324,7 +324,8 @@ export class CEFTutorDoc extends EventDispatcher implements IEFTutorDoc
                 this.userID = EFLoadManager.nativeUserMgr.getUserId();
             }
             else {
-                this.userID = "KEVINWI_DEC_27";
+                this.userID = "GUESTBL_JAN_1";
+                this.addFeature("FTR_WEB", null);
             }
 
             // TODO: Check what happens if there is no tutorStateData file
@@ -1189,8 +1190,7 @@ export class CEFTutorDoc extends EventDispatcher implements IEFTutorDoc
                 this.fFeatures[_feature] = true;
             }
         }
-	}
-    
+    }
     
 	// udpate the working feature set for this instance
 	//
@@ -1219,6 +1219,23 @@ export class CEFTutorDoc extends EventDispatcher implements IEFTutorDoc
             delete this.fFeatures[_feature];
         }
     }
+
+    public getFeaturesById(_id:string) {
+
+        let cnt:number = 0;
+        let features:string = "";
+
+        for(let ftr in this.featureID[_id]) {
+
+            if(cnt > 0) {
+                features += ":";
+            }
+            features += ftr;
+        }
+
+        return features;
+    }
+    
     
     private includes(ftrObj:any, ftr:string) : boolean {
 
@@ -1328,60 +1345,36 @@ export class CEFTutorDoc extends EventDispatcher implements IEFTutorDoc
 
         // If the native logger is available use it to record state data
         // 
-        if(EFLoadManager.nativeUserMgr) {
-
+        if(EFLoadManager.nativeUserMgr) 
             EFLoadManager.nativeUserMgr.logState(scene.sceneLogName, JSON.stringify(this.sceneState),JSON.stringify(this.moduleState),JSON.stringify(this.tutorState));
 
-            if(this.hostModule.toUpperCase() === "EFMOD_RQSELECT") {
-                
-                if(this.userStateData) {
-
-                    for(let key in this.userStateData.tutorState) {
-
-                        this.userStateData.tutorState[key] = scene.getTutorValue(this.userStateData.tutorState[key]);
-                    }
-
-                    for(let key in this.userStateData.moduleState) {
-                        
-                        this.userStateData.moduleState[key] = scene.getModuleValue(this.userStateData.moduleState[key]);
-                    }
-
-                    if(this.userStateData.features.length < 2) {
-
-                        let feature:string = scene.getModuleValue("selectedTopic.ontologyKey|features");
-
-                        if(feature != null) {
-                            this.userStateData.features.push(feature);
-                        }
-                    }
-                }
-
-                EFLoadManager.nativeUserMgr.updateTutorState(JSON.stringify(this.tutorStateData));
-            }
-        }
-    }
-
-    
-    private Kludge_TranslateKeys() {
-
         if(this.hostModule.toUpperCase() === "EFMOD_RQSELECT") {
-                
+            
             if(this.userStateData) {
+
+                for(let key in this.userStateData.tutorState) {
+
+                    this.userStateData.tutorState[key] = scene.getTutorValue(key);
+                }
 
                 for(let key in this.userStateData.moduleState) {
                     
-                    if(key.endsWith("ontologyKey")) {
-                        let value = this.userStateData.moduleState[key];
-
-                        value = value.slice(0,1) + "TBL" + value.slice(1);
-
-                        this.userStateData.moduleState[key] = value;
-                    }
+                    this.userStateData.moduleState[key] = scene.getModuleValue(key);
                 }
 
-                EFLoadManager.nativeUserMgr.updateTutorState(JSON.stringify(this.tutorStateData));
+                if(this.userStateData.features.length < 2) {
+
+                    let feature:string = scene.getModuleValue("selectedTopic.ontologyKey|features");
+
+                    if(feature != null) {
+                        this.userStateData.features.push(feature);
+                    }
+                }
             }
         }
+
+        if(EFLoadManager.nativeUserMgr) 
+                EFLoadManager.nativeUserMgr.updateTutorState(JSON.stringify(this.tutorStateData));
     }
 
 
@@ -1393,8 +1386,6 @@ export class CEFTutorDoc extends EventDispatcher implements IEFTutorDoc
 
             if(scene === CONST.END_OF_TUTOR) {
                 EFLoadManager.nativeUserMgr.tutorComplete();
-
-                this.Kludge_TranslateKeys();
             }
             else {
                 EFLoadManager.nativeUserMgr.updateScene(scene);

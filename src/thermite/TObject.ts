@@ -1177,7 +1177,11 @@ export class TObject extends TRoot
 
         this.retractFeature(_feature, _name);
     }
-    
+    public getFeaturesById(_id:string) : string {
+
+        return this.tutorDoc.getFeaturesById(_id);
+    }
+
 
 	public assertFeature(_feature:string, _name?:string) : void			//## Added Feb 27 2013 - to support dynamic features
 	{	

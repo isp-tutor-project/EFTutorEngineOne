@@ -298,6 +298,8 @@ export interface IEFTutorDoc {
 
 	delFeature(feature:string, _id?:string) : void;
 
+    getFeaturesById(_id:string): string;
+
     testFeatures(features:string) : boolean;
 
 	testFeatureSet(featSet:string) : boolean;
