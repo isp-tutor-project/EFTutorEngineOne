@@ -148,8 +148,10 @@ export interface IEFTutorDoc {
 	TutAutomator:any;				// The location of this tutor automation object			
 
 
-    initializeTutor() : void;
-    initializeStateData(scene:TSceneBase, name:string, sceneName:string, hostModule:string) : void;
+    launchTutor() : void;
+    initializeSceneStateData(scene:TSceneBase, name:string, sceneName:string, hostModule:string) : void;
+    
+    resolveTemplates(selector:string, ref:string) : string;    
     
     attachNavPanel(panel:any) : void;
     setBreadCrumbs(text:string) : void;
@@ -221,8 +223,6 @@ export interface IEFTutorDoc {
     queryGlobal(_id:string) : any							//## Added Sep 23 2013 - to support global variables
 
     globals : Object;
-
-    launchTutor(): void;
 
     resetStateFrameID() : void;
 

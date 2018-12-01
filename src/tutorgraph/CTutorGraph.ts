@@ -86,7 +86,9 @@ export class CTutorGraph extends CTutorNode
 		
 		obj['currNodeID'] = this._currNode.id;			
 		obj['currNode']   = this._currNode.captureGraph({});
-		
+        
+        // e.g. {"currNodeID":"root","currNode":{"index":0}}
+
 		return obj;
 	}
 	

@@ -102,9 +102,6 @@ export class CONST {
     public static readonly MODULESTATE   = "MDL";    
     public static readonly TUTORSTATE    = "TUT";
 
-    public static readonly TUTORSTATEVAR    = "tutorstatedata.json";
-    public static readonly TUTORSTATEFAC    = "tutorStateData";
-
 
 	public static readonly TUTOR_VARIABLE:string[] = [
         "tutorconfig.json",

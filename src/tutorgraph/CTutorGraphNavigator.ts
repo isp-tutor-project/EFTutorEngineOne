@@ -122,7 +122,7 @@ export class CTutorGraphNavigator extends CEFNavigator
 		*/
 	public static rootFactory(_tutorDoc:IEFTutorDoc, factory:any) : CTutorGraphNavigator
 	{	
-        // Create the tutors navigator object and init the internal pointer 
+        // Create the tutors navigator object and init the internal pointer _tutorDoc.tutorNavigator
         // which may be used during scene initialization
         // 
 		let tutorNav 	         = new CTutorGraphNavigator(_tutorDoc);				
@@ -146,20 +146,21 @@ export class CTutorGraphNavigator extends CEFNavigator
 
 		return tutorNav;
 	}
-	
+
+
+    // pass the name of the target scene and the type of the transition
+	//
+    public captureGraph() : any
+    {
+       return this._rootGraph.captureGraph({});
+    }
 	
 	// pass the name of the target scene and the type of the transition
 	//
-//		public goToScene(tutorGraphID:string) : void
-//		{
-//			_xType = "WOZGOTO";
-//
-//			// Find the ordinal for the requested scene Label
-//			//
-//			_nextScene = tutorGraph.seekTo(nxtScene);			
-//						
-//		//	seekToScene(nxtScene);
-//		}
+    public restoreGraph(nodeState:any) : void
+    {
+        this._rootGraph.restoreGraph(nodeState);
+    }
 
 
 	/**

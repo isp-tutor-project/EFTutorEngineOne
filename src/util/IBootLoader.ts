@@ -275,6 +275,7 @@ export namespace LoaderPackage {
 
     export interface ITutorConfig {
         dependencies:Array<string>;
+        tutorStateID:string;
     }
 
     export interface IBootdescr {

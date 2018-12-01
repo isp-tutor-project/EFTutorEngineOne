@@ -258,6 +258,15 @@ export class THtmlList1 extends THtmlBase {
         }
     }
 
+    public setColor(bgcolor:string) {
+
+        // cell.style.backgroundColor = bgcolor;
+        this.efListBox.setAttribute("style", "background-color:"+ bgcolor);
+    }
+
+
+
+
 
 //*************** Serialization
 

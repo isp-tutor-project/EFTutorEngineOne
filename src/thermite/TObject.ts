@@ -1661,6 +1661,10 @@ export class TObject extends TRoot
         
         public $(selector:string) : TSelector {
 
+            // Support templatized selectors
+            // 
+            selector = this.tutorDoc.resolveTemplates(selector, null);
+
             return new TSelector(this, selector);
         }
 

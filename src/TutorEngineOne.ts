@@ -346,7 +346,7 @@ export class CEngine {
 
         try {
 
-            this.tutorDoc.initializeTutor();
+            this.tutorDoc.launchTutor();
                                     
             console.log("Tutor Construction Complete");
         }

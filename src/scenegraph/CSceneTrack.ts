@@ -240,6 +240,10 @@ export class CSceneTrack extends EventDispatcher
             }
             else {
                 this._ontologyRef = this.hostScene.resolveRawSelector(ontologyRef, null);
+
+                if(!this._ontologyRef) {
+                    console.error("SCENETRACK: Error: missing Ontology Value:" + ontologyRef);
+                }
             }
         }
 
@@ -305,7 +309,12 @@ export class CSceneTrack extends EventDispatcher
 
                         segvalue = segment[selectorTag] as segmentVal;
 
-                        segvalue.filepath = CONST.COMMONAUDIO + selectorTag + CONST.VOICE_PREFIX + this.voice + CONST.TYPE_MP3;
+                        if(segvalue) {
+                            segvalue.filepath = CONST.COMMONAUDIO + selectorTag + CONST.VOICE_PREFIX + this.voice + CONST.TYPE_MP3;
+                        }
+                        else {
+                            console.log("ERROR: Missing ontology selector TAG: " + selectorTag);
+                        }
                         break;
                 }
 

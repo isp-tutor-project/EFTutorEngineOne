@@ -144,8 +144,6 @@ export class TSceneBase extends TObject
 /*  ###########  END CREATEJS SUBCLASS SUPPORT ###########   */
 
 
-
-
 	public onCreate() : void
 	{
         let dataElement:any;
@@ -157,7 +155,7 @@ export class TSceneBase extends TObject
 
             // Init the tutor state variables - retain any that are extant
             // 
-            this.tutorDoc.initializeStateData(this, this.name, this.sceneName, this.hostModule);
+            this.tutorDoc.initializeSceneStateData(this, this.name, this.sceneName, this.hostModule);
 
 			// Execute the create procedures for this scene instance
 			// see notes on sceneExt Code - tutor Supplimentary code
@@ -223,8 +221,6 @@ export class TSceneBase extends TObject
         this.tutorDoc.setNavMode(navMode, navTarget);
     }
 
-
-
     public setSceneValue(property:string, value:any) : void {
         this.setStateValue(property, value, CONST.SCENESTATE) 
     }    
@@ -245,8 +241,8 @@ export class TSceneBase extends TObject
                 break;
 
             case CONST.MODULESTATE:
-                this.tutorDoc.assignProperty(this.tutorDoc.moduleState[this.hostModule], property, value);
-                this.tutorDoc.moduleChange[this.hostModule][property] = true;
+                this.tutorDoc.assignProperty(this.tutorDoc.moduleState, property, value);
+                this.tutorDoc.moduleChange[property] = true;
                 break;
 
             case CONST.TUTORSTATE:
@@ -279,7 +275,7 @@ export class TSceneBase extends TObject
                 break;
 
             case CONST.MODULESTATE:
-                this.tutorDoc.pushEvent(this.tutorDoc.moduleState[this.hostModule], property, value);
+                this.tutorDoc.pushEvent(this.tutorDoc.moduleState, property, value);
                 break;
 
             case CONST.TUTORSTATE:
@@ -311,7 +307,7 @@ export class TSceneBase extends TObject
                 break;
 
             case CONST.MODULESTATE:
-                prop = this.tutorDoc.resolveProperty(this.tutorDoc.moduleState[this.hostModule], property);
+                prop = this.tutorDoc.resolveProperty(this.tutorDoc.moduleState, property);
                 break;
 
             case CONST.TUTORSTATE:
@@ -530,6 +526,9 @@ export class TSceneBase extends TObject
                         result = this.resolveSelector(result, null);
                     break;                
             }
+        }
+        else {
+            result = selector;
         }
 
         return result;

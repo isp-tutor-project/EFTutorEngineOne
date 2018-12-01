@@ -43,6 +43,7 @@ export class CEFTutorDoc extends EventDispatcher implements IEFTutorDoc
 {
 	public traceMode:boolean;
     private isDebug:boolean;
+    private clickBoundListener:EventListener;
 
 	// This is a special signature to avoid typescript error "because <type> has no index signature."
 	// on this[<element name>]
@@ -104,9 +105,10 @@ export class CEFTutorDoc extends EventDispatcher implements IEFTutorDoc
     public tutorStateData:any;						   	// The factory definition object used to initialize tutor state
     public userStateData:any = null;
     public userID:string;
+    public graphState:any;
+    public sceneObj:TSceneBase;
 
     public tutorConfig:LoaderPackage.ITutorConfig;
-    public dataInitialized:boolean = false;
 
     public language:string = "en";
     public voice:string    = "F0";                      // F0 | M0
@@ -248,18 +250,49 @@ export class CEFTutorDoc extends EventDispatcher implements IEFTutorDoc
         this.setTutorDefaults(this._tutorFeatures);
 		this.setTutorFeatures("");
 		
-		this.log = CLogManager.getInstance();
+        this.log = CLogManager.getInstance();
+
+        this.clickBoundListener  = this.clickListener.bind(this);
 	}
 	
 	
-	public initializeTutor() {
+	public launchTutor() {
 
         this.hostModule = this.tutorGraph.hostModule;
+
+		// TODO: implement under HTML5 
+		// NOTE: Logger Connections must be made before cursor replacement
+        //
+        // this.Stutor.replaceCursor();
+
+        // Load user state data
+        // If the native logger is available use it to record state data
+        // 
+        if(EFLoadManager.nativeUserMgr) {
+
+            this.userID       = EFLoadManager.nativeUserMgr.getUserId();
+            this.graphState   = EFLoadManager.nativeUserMgr.getCurrentScene();
+            this.hostFeatures = EFLoadManager.nativeUserMgr.getFeatures();
+
+            this.setTutorFeatures(this.hostFeatures);    
+            this.restoreTutorState();
+        }
+        else {
+            this.userID       = "GUESTBL_JAN_1";
+            this.graphState   = EFLoadManager.efBootNode;
+            this.hostFeatures = EFLoadManager.efFeatures;
+
+            this.setTutorFeatures(this.hostFeatures);
+        }
+
+		// reset the frame and state IDs
+		
+		this.resetStateFrameID();	
 
         // This manufactures the tutorGraph from the JSON spec file 			
         //
         CTutorGraphNavigator.rootFactory(this, this.tutorGraph);
-
+        
         //## Mod Aug 10 2012 - must wait for initializeScenes to ensure basic scenes are in place now that 
         //					   we allow dynamic creation of the navPanel etc.
         // 
@@ -267,34 +300,36 @@ export class CEFTutorDoc extends EventDispatcher implements IEFTutorDoc
         //
         this.tutorContainer.initAutomation();										
 
-		// TODO: implement under HTML5 
-		// NOTE: Logger Connections must be made before cursor replacement
-        //
-        // this.Stutor.replaceCursor();
-
-        // If we are running in a hosted environment (e.g. ANDROID) ask it to initialize the tutor prior to launch
-        // 
-        if(EFLoadManager.nativeUserMgr) {
-
-            this.hostFeatures  = EFLoadManager.nativeUserMgr.getFeatures();
-            this.hostTutorData = EFLoadManager.nativeUserMgr.getTutorState();
-
-            // this.setTutorFeatures(this.hostFeatures);
-            // TODO: Implement setTutorData
-            // this.setTutorData(this.hostTutorData);
-        }
-        // If we are running in a hosted environment ask it to initialize the tutor prior to launch
-        // 
-        else if(EFLoadManager.efFeatures) {
-            
-            this.setTutorFeatures(EFLoadManager.efFeatures);
+        if(this.graphState) {
+            this.tutorNavigator.restoreGraph(this.graphState);
         }
 
-        this.launchTutor();			
+        // Force click to start Tutor - Chrome DOMException if you don't interact with the document prior to
+        // play event.
+        // 
+        if(this.testFeatures("FTR_WEB")) {
+
+            window.addEventListener("click", this.clickBoundListener);
+        }
+        else {
+            //### TUTOR LAUNCH ###
+            this.tutorNavigator.gotoNextScene("$launchTutor");
+        }
     }
 
+    // Override
+    public clickListener(e:Event) {        
 
-    public initializeStateData(scene:TSceneBase, name:string, sceneName:string, hostModule:string) {
+        if(e.type === "click") {
+            window.removeEventListener("click", this.clickBoundListener);
+
+            //### DEFERRED TUTOR LAUNCH ###
+            this.tutorNavigator.gotoNextScene("$launchTutor");
+        }
+    }        
+
+
+    public initializeSceneStateData(scene:TSceneBase, name:string, sceneName:string, hostModule:string) {
 
         //TODO: want to remove one of these - they appear to be duplicate
         if(name !== sceneName) { 
@@ -303,75 +338,66 @@ export class CEFTutorDoc extends EventDispatcher implements IEFTutorDoc
 
         // Init the tutor state variables - retain any that are extant
         // 
-        this.sceneState[name]         = {};
-        this.moduleState[hostModule]  = this.moduleState[hostModule] || {};
-        this.tutorState               = this.tutorState              || {};
+        this.sceneObj               = scene;
+        this.sceneState[name]       = {};
+        this.sceneChange[sceneName] = {};
+    }
 
-        this.sceneChange[sceneName]   = {};
-        this.moduleChange[hostModule] = this.moduleChange[hostModule] || {};
-        this.tutorChange              = this.tutorChange              || {};            
 
-        //  load user specific data
+    private getTutorState() : string {
+
+        let store:any = {
+            "sceneState" : {},
+            "moduleState": {},
+            "tutorState" : {},
+
+            "fFeatures" : {},
+            "featureID" : {}
+        };
+
+        Object.assign(store.sceneState,  this.sceneState);
+        Object.assign(store.moduleState, this.moduleState);
+        Object.assign(store.tutorState,  this.tutorState);
+
+        delete(store.sceneState.$seq);
+        delete(store.moduleState.$seq);
+        delete(store.tutorState.$seq);
+
+        Object.assign(store.fFeatures, this.fFeatures);
+        Object.assign(store.featureID, this.featureID);
+
+        return JSON.stringify(store);
+    }
+
+    private restoreTutorState(): boolean {
+
+        let result:boolean    = false;
+
+        let jsonData:string = EFLoadManager.nativeUserMgr.getTutorState(this.tutorConfig.tutorStateID);
+
+        // If the tutor has saved a state previously - use that to init the state
         // 
-        if(!this.dataInitialized) {
+        if(jsonData && jsonData !== "") {
 
-            this.dataInitialized = true;            
+            let hostTutorData:any = JSON.parse(jsonData);
 
-            // If the native logger is available use it to record state data
-            // 
-            if(EFLoadManager.nativeUserMgr) {
-
-                this.userID = EFLoadManager.nativeUserMgr.getUserId();
-            }
-            else {
-                this.userID = "GUESTBL_JAN_1";
-                this.addFeature("FTR_WEB", null);
-            }
-
-            // TODO: Check what happens if there is no tutorStateData file
-            // 
-            if(this.tutorStateData) {
-
-                this.normalizeStateData();
-                
-                for(let element of this.tutorStateData.users) {
-
-                    if(element.userName === this.userID) {
-                        
-                        this.userStateData = element;
-                        break;
-                    }
-                }
-
-                if(this.userStateData) {
-
-                    for(let key in this.userStateData.tutorState) {
-
-                        scene.setTutorValue(key, this.userStateData.tutorState[key]);
-                    }
-
-                    for(let key in this.userStateData.moduleState) {
-                        
-                        scene.setModuleValue(key, this.userStateData.moduleState[key]);
-                    }
-
-                    for(let value of this.userStateData.features) {
-
-                        this.addFeature(value, null);
-                    }
-                }
-            }
+            Object.assign(this.sceneState, hostTutorData.sceneState);
+            Object.assign(this.moduleState, hostTutorData.moduleState);
+            Object.assign(this.tutorState  = hostTutorData.tutorState);
+    
+            Object.assign(this.fFeatures   = hostTutorData.fFeatures);
+            Object.assign(this.featureID   = hostTutorData.featureID);
         }
+
+        return result;
     }
 
-    public normalizeStateData() {
+    // TODO: Templates management should reside in TutorDoc or preferably a custom object
+    // 
+    public resolveTemplates(selector:string, ref:string) : string {
 
-        for(let element of this.tutorStateData.users) {
-
-            element.userName = element.userName.replace("-","_").toUpperCase();
-        }
+        return this.sceneObj.resolveTemplates(selector, ref);
     }
-
 
     public attachNavPanel(panel:TNavPanel) {
 
@@ -442,7 +468,7 @@ export class CEFTutorDoc extends EventDispatcher implements IEFTutorDoc
                 break;
 
             case CONST.MODULESTATE:
-                prop = this.resolveProperty(this.moduleState[this.hostModule], property);
+                prop = this.resolveProperty(this.moduleState, property);
                 break;
 
             case CONST.TUTORSTATE:
@@ -656,16 +682,6 @@ export class CEFTutorDoc extends EventDispatcher implements IEFTutorDoc
 
 
 
-	public launchTutor(): void
-	{			
-		// reset the frame and state IDs
-		
-		this.resetStateFrameID();	
-
-		this.tutorNavigator.gotoNextScene("$launchTutor");
-	}
-	
-			
 //***************** Automation *******************************		
 
 	/**
@@ -821,16 +837,6 @@ export class CEFTutorDoc extends EventDispatcher implements IEFTutorDoc
     public buildBootSet(targetTutor:string) : void {
         
         this.loaderData = [];
-
-        // Loader for the tutorstatedata
-        //
-        this.loaderData.push( {
-                type: CONST.TUTORSTATEVAR,
-                filePath : CONST.TUTOR_COMMONPATH + CONST.TUTORSTATEVAR,
-                onLoad   : this.onLoadJson.bind(this),
-                fileName : CONST.TUTORSTATEVAR,
-                varName  : CONST.TUTORSTATEFAC
-        });
 
         // Loaders for the Tutorgraph and TutorConfig
         //
@@ -1124,8 +1130,9 @@ export class CEFTutorDoc extends EventDispatcher implements IEFTutorDoc
 		{
 			this.fDefaults[feature] = true;
 		}
-	}
-			
+    }
+    
+
 	// generate the working feature set for this instance
 	//
 	public setTutorFeatures(featSet:string) : void
@@ -1348,33 +1355,8 @@ export class CEFTutorDoc extends EventDispatcher implements IEFTutorDoc
         if(EFLoadManager.nativeUserMgr) 
             EFLoadManager.nativeUserMgr.logState(scene.sceneLogName, JSON.stringify(this.sceneState),JSON.stringify(this.moduleState),JSON.stringify(this.tutorState));
 
-        if(this.hostModule.toUpperCase() === "EFMOD_RQSELECT") {
-            
-            if(this.userStateData) {
-
-                for(let key in this.userStateData.tutorState) {
-
-                    this.userStateData.tutorState[key] = scene.getTutorValue(key);
-                }
-
-                for(let key in this.userStateData.moduleState) {
-                    
-                    this.userStateData.moduleState[key] = scene.getModuleValue(key);
-                }
-
-                if(this.userStateData.features.length < 2) {
-
-                    let feature:string = scene.getModuleValue("selectedTopic.ontologyKey|features");
-
-                    if(feature != null) {
-                        this.userStateData.features.push(feature);
-                    }
-                }
-            }
-        }
-
         if(EFLoadManager.nativeUserMgr) 
-                EFLoadManager.nativeUserMgr.updateTutorState(JSON.stringify(this.tutorStateData));
+                EFLoadManager.nativeUserMgr.updateTutorState(this.tutorConfig.tutorStateID, this.getTutorState());
     }
 
 
@@ -1388,7 +1370,9 @@ export class CEFTutorDoc extends EventDispatcher implements IEFTutorDoc
                 EFLoadManager.nativeUserMgr.tutorComplete();
             }
             else {
-                EFLoadManager.nativeUserMgr.updateScene(scene);
+                let graphState:string = JSON.stringify(this.tutorNavigator.captureGraph());
+
+                EFLoadManager.nativeUserMgr.updateScene(graphState);
             }
         }
     }

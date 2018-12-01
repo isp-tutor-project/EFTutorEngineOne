@@ -33,8 +33,10 @@ import { CUtil } 		from "../util/CUtil";
 export class CTutorModule extends CTutorNode
 {
 	private _scenes:Array<any> = new Array;	
-	private _ndx:number = -1;
-	private _reuse:boolean;
+	private _ndx:number        = -1;
+    private _reuse:boolean;
+
+    private restored:boolean   = false;
 	
 	
 	constructor(_tutorDoc:IEFTutorDoc)
@@ -81,7 +83,8 @@ export class CTutorModule extends CTutorNode
 	
 	public restoreGraph(obj:any) : any
 	{			
-		this._ndx = Number(obj['index']);
+        this._ndx = Number(obj['index']);
+        this.restored = true;
 		
 		return this._scenes[this._ndx];
 	}
@@ -98,45 +101,59 @@ export class CTutorModule extends CTutorNode
 		
 		while(this._ndx < this._scenes.length)
 		{
-			this._ndx++;
+            // If we just restored to this state we start there
+            // TODO: This assumes the graph does not change between sessions.
+            //       must manage edge cases.
+            // 
+            if(this.restored) {
+                this.restored  = false;
+                nextScene      = this._scenes[this._ndx];
+                break;
+            }
+            // Otherwise increment the scene index and test
+            // 
+            else {
+
+                this._ndx++;
 			
-			if(this._ndx >= this._scenes.length) nextScene = null;
-									else nextScene = this._scenes[this._ndx];
-			
-			if(nextScene != null)
-			{
-				features = nextScene.features;
-				
-				// If this scene is not in the feature set for the tutor then check the next one.
-				
-				if(features != "")
-				{
-					if(this.tutorDoc.testFeatureSet(features))
-					{
-						// Check stocastic Feature if present
-						
-						if(nextScene.hasPFeature)
-						{
-							if(nextScene.testPFeature())
-													break;
-						}											
-						else
-							break;
-					}
-					CUtil.trace("Graph Feature: " + features + " :failed.");
-				}
-				
-				// Check Stocastic Feature if present
-				
-				else if(nextScene.hasPFeature)
-				{
-					if(nextScene.testPFeature())
-											break;
-				}											
-				else
-					break;
-			}
-			else break;
+                if(this._ndx >= this._scenes.length) nextScene = null;
+                                                else nextScene = this._scenes[this._ndx];
+                
+                if(nextScene != null)
+                {
+                    features = nextScene.features;
+                    
+                    // If this scene is not in the feature set for the tutor then check the next one.
+                    
+                    if(features != "")
+                    {
+                        if(this.tutorDoc.testFeatureSet(features))
+                        {
+                            // Check stocastic Feature if present
+                            
+                            if(nextScene.hasPFeature)
+                            {
+                                if(nextScene.testPFeature())
+                                                        break;
+                            }											
+                            else
+                                break;
+                        }
+                        CUtil.trace("Graph Feature: " + features + " :failed.");
+                    }
+                    
+                    // Check Stocastic Feature if present
+                    
+                    else if(nextScene.hasPFeature)
+                    {
+                        if(nextScene.testPFeature())
+                                                break;
+                    }											
+                    else
+                        break;
+                }
+                else break;
+            }
 		}
 		
 		// If we have exhausete the node check if it can be reused - if so reinitialize it for 
