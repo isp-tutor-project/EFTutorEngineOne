@@ -194,6 +194,10 @@ export class TObject extends TRoot
     }
 
 
+	public onAddedToStage(evt:CEFEvent) {
+    }
+    
+
 	public Destructor() : void
 	{
         this.off(CEFEvent.COMPLETE, this.doAction);			

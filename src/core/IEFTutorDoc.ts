@@ -155,6 +155,9 @@ export interface IEFTutorDoc {
     
     attachNavPanel(panel:any) : void;
     setBreadCrumbs(text:string) : void;
+    hideProgress() : void;
+    setProgress(step:number, state:number) : void;
+    
     enableNext(fEnable:boolean) : void;
     enableBack(fEnable:boolean) : void;
     setNavMode(navMode:number, navTarget:string):void;
@@ -198,7 +201,7 @@ export interface IEFTutorDoc {
     
     
     // note that the feature is not ready for use until the call to 
-    // TutorRoot.setTutorFeatures which occures in the CEFTutorDoc.doOnStage Handler
+    // TutorRoot.addTutorFeatures which occures in the CEFTutorDoc.doOnStage Handler
     
     extTutorFeatures:string;
         
@@ -290,7 +293,7 @@ export interface IEFTutorDoc {
 	//
 	setTutorDefaults(featSet:string) : void;
 
-	setTutorFeatures(featSet:string) : void;
+	addTutorFeatures(featSet:string) : void;
 
 	features : string;
 

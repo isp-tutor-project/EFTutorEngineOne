@@ -168,6 +168,7 @@ export class CEFTimer extends EventDispatcher
 
     
 	/**
+     * TODO: Keep bound listener - use with off()
 	 */
 	public connectToTutor():void
 	{

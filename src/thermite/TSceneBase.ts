@@ -59,7 +59,7 @@ export class TSceneBase extends TObject
     
     public moduleData:any; 
     public sceneData :any; 
-    private sceneState:any;
+    protected sceneState:any;
     
     public changeRequestorScene:string;
     public changeRequestorTrack:string;
@@ -76,6 +76,7 @@ export class TSceneBase extends TObject
     private RX_TEMPLATES:RegExp;
     private RX_TEMPLATE:RegExp;
     private RX_ONTQUERY:RegExp;
+    private RX_SSML:RegExp;
 
     private RX_GENSELECTOR:RegExp;     // Can decompose all selector types
     private RX_GENTEMPLATE:RegExp;     // Can decompose only Ontology selectors
@@ -125,6 +126,7 @@ export class TSceneBase extends TObject
         this.RX_TEMPLTAGS = /\{\{|\}\}/g;
         this.RX_TEMPLATE  = /{{[\$\w\.\?_\|]*}}/;
         this.RX_ONTQUERY  = /{{\$EFO_([\w\.\?]*\|\w*)}}/;
+        this.RX_SSML      = /<[^>]*>([^<]*)/g;             // SSML tag filter - $1 returns nontag portion
 
         // this.RX_GENSELECTOR = /\{\{((\$EF\w*?_)(([\w_\.\?]*)\|?([\w_\?]*)))\}\}/g;   
         this.RX_GENSELECTOR = /{{((\$EF\w*?_)(([\w_\.\?]*)(\|?([\w_\?]*))*))}}/g;       // Added support for |1 in this sequence {{a?_b?_c|x|1}}
@@ -136,8 +138,6 @@ export class TSceneBase extends TObject
         this.NDX_SELECTOR     = 3; 
         this.NDX_OBJSELECTOR  = 4; 
         this.NDX_PROPSELECTOR = 5; 
-
-
 	}
 
 /* ######################################################### */
@@ -204,6 +204,16 @@ export class TSceneBase extends TObject
     public setBreadCrumbs(text:string) {
 
         this.tutorDoc.setBreadCrumbs(text);
+    }
+
+    public hideProgress() {
+
+        this.tutorDoc.hideProgress();
+    }
+
+    public setProgress(step:number, state:number ) {
+
+        this.tutorDoc.setProgress(step, state );
     }
 
 	public enableNext(fEnable:boolean)

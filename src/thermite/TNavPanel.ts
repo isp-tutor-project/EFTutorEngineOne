@@ -32,6 +32,7 @@ import { TScene } from "./TScene";
 import { TObject } from "./TObject";
 import { TText } from "./TText";
 import { THtmlText } from "./THtmlText";
+import { TProgress } from "./TProgress";
 
 
 
@@ -44,6 +45,8 @@ export class TNavPanel extends TScene
 
 	//************ Stage Symbols
     
+    protected Sprogress:TProgress;
+
     protected SbackMask:TObject;
     protected SbreadCrumbs:THtmlText;
     protected Sbackground:TObject;
@@ -118,6 +121,8 @@ export class TNavPanel extends TScene
         this.enableNext(false);
         this.enablePrev(false);
 
+        this.hideProgress();
+
         if(this.SbackDev)
             this.SbackDev.hidden = true;
 
@@ -145,6 +150,19 @@ export class TNavPanel extends TScene
         this.SbreadCrumbs.setContentFromString(text);
     }
 
+    public hideProgress() {
+        if(this.Sprogress)
+            this.Sprogress.visible = false;
+    }
+
+    public setProgress(step:number, state:number) {
+
+        if(this.Sprogress) {
+            this.Sprogress.visible = true;
+
+            this.Sprogress.gotoState(step, state);
+        }
+    }
 
 	public showHideNavButton(type:string, show:boolean) {
 

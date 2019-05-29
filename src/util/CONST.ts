@@ -12,6 +12,9 @@ export class CONST {
     public static readonly NAVNEXT  = 2;
     public static readonly NAVBOTH  = 3;
 
+    public static readonly NAVSCENE      = "SCENE";
+    public static readonly NAVTUTOR      = "TUTOR";
+
     public static readonly ACTION_PFX       = "$nodeAction.";    
     public static readonly SCENE_CHOICESET  = "choiceset";
     public static readonly SCENE_TRACK      = "track";
@@ -140,7 +143,6 @@ export class CONST {
 	public static readonly INSTANCE_DOWN		= "instance_2";
 	public static readonly INSTANCE_DISABLED	= "instance_3";	// Note that we have a dual interpretation of the AnimateCC HIT state
 	public static readonly INSTANCE_HIT 		= "instance_3";
-
 
 	public static readonly STATE_OUT   		= "state_out";	// this represents a transition not a display object
 

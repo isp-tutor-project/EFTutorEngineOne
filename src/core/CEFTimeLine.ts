@@ -70,11 +70,15 @@ export class CEFTimeLine extends Timeline
 		this.targets = new Array();
 	}
 			
-	public addTween(...tween:Tween[]) {
+	public addTween(...tween:Tween[]) : Tween {
 
-		super.addTween(...tween);
+        let result:Tween;
 
-		tween.forEach( tween => this.targets.push(tween.target));
+        result = super.addTween(...tween);
+
+        tween.forEach( tween => this.targets.push(tween.target));
+        
+        return result;
 	}
 
 	/**

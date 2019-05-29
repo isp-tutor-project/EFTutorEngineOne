@@ -36,6 +36,7 @@ import { CONST }            from "../util/CONST";
 
 import AbstractSoundInstance  	= createjs.AbstractSoundInstance ;
 import EventDispatcher 	        = createjs.EventDispatcher;
+import { CUtil } from "../util/CUtil";
 
 
 
@@ -111,9 +112,12 @@ export class CSceneTrack extends EventDispatcher
     private _cueTimers:Array<CEFTimer>;
 
     private RX_DELIMITERS:RegExp = /[_|]/g;
+    private RX_SSML:RegExp       = /<[^>]*>([^<]*)/g;             // SSML tag filter - $1 returns nontag portion
+    private RX_DOT:RegExp        = /(\.[\s+\r+])/g;               // period filter - $1 returns nontag portion
 
-    private assetPath:string     = "";
-    private newSounds:Array<any> = [];
+
+    private assetPath:string      = "";
+    private newSounds:Array<any>  = [];
 
 
     private static  lastLoaded:string = "";
@@ -268,6 +272,8 @@ export class CSceneTrack extends EventDispatcher
         this.assetPath = [this.hostModule] + CONST.TRACKASSETS_FILEPATH + this.language + "/";
         this.newSounds = [];
         let segvalue:segmentVal;
+        let SSML:string    = "";
+        let TrackID:string = CUtil.getTimer().toString();
 
         this.segSequence = [];
 
@@ -285,10 +291,11 @@ export class CSceneTrack extends EventDispatcher
                 switch(selector) {
 
                     case CONST.NOVAR:
-                        // Use the value "__novar" or the resolved template value to determine the Value to use 
-                        // for this iteration
+                        // Use the value "__novar" or the "default" resolved template value to determine the Value to use 
+                        // for this iteration. novar means there is no template to resolve and the text to speak is a literal string.
                         // 
                         segvalue = segment[selector] as segmentVal;
+                        SSML    += segvalue.SSML + " ";
 
                         segvalue.filepath = this.sceneName + "/" + this._trackname + CONST.SEGMENT_PREFIX + segvalue.fileid + CONST.VOICE_PREFIX + this.voice + CONST.TYPE_MP3;
                         break;
@@ -308,6 +315,7 @@ export class CSceneTrack extends EventDispatcher
                         let selectorTag = this._ontologyPath.replace(this.RX_DELIMITERS, "");
 
                         segvalue = segment[selectorTag] as segmentVal;
+                        SSML    += segvalue.SSML + " ";
 
                         if(segvalue) {
                             segvalue.filepath = CONST.COMMONAUDIO + selectorTag + CONST.VOICE_PREFIX + this.voice + CONST.TYPE_MP3;
@@ -333,9 +341,11 @@ export class CSceneTrack extends EventDispatcher
                 // 
                 if(EFLoadManager.nativeSpeech) {
 
-                    this.newSounds.forEach(sound => {
-                        EFLoadManager.nativeSpeech.registerSounds(sound, this.assetPath);    
-                    });
+                    var noTags = SSML.replace(this.RX_SSML, '$1');
+                        noTags = noTags.replace(this.RX_DOT, '$1\n ');
+
+                    EFLoadManager.nativeSpeech.registerSpeech(noTags, TrackID);    
+                    
                     this.hasAudio    = true;
                     this.trackLoaded = true;
                 }
@@ -409,6 +419,12 @@ export class CSceneTrack extends EventDispatcher
 
                 if(EFLoadManager.nativeSpeech) {
 
+                    // Use the native completion event
+                    // 
+                    EFLoadManager.trackOwner = this;
+                    EFLoadManager.trackEvent = this.speechComplete;                    
+
+                    EFLoadManager.nativeSpeech.playTrack(); 
                 }
                 else if(EFLoadManager.nativeAudio) {
 
@@ -439,7 +455,6 @@ export class CSceneTrack extends EventDispatcher
                         // Temporary fix - just use native completion
                         EFLoadManager.trackOwner = this;
                         EFLoadManager.trackEvent = this.segmentComplete;
-
                 }
                 else {
 
@@ -568,6 +583,7 @@ export class CSceneTrack extends EventDispatcher
         this.segNdx++;
 
         if(this.segNdx < this.segSequence.length) {
+
             this.playTrack();
         }
         else {
@@ -575,11 +591,20 @@ export class CSceneTrack extends EventDispatcher
             // 
             this.segNdx = 0;
 
-            // TODO use doCuePoints in TScene
-            this.hostScene.$cuePoints(this._name, CONST.END_CUEPOINT);
-            this.hostScene.$updateNav();
-            this.autoStep();
+            this.speechComplete(null);
         }
+    }
+
+
+    // KEYPOINT: 
+    // Used as cleanup for mp3 playback and for nativespeech 
+    //
+    private speechComplete(event:Event) {
+
+        // TODO use doCuePoints in TScene
+        this.hostScene.$cuePoints(this._name, CONST.END_CUEPOINT);
+        this.hostScene.$updateNav();
+        this.autoStep();
     }
 
 

@@ -248,7 +248,6 @@ export class CEFTutorDoc extends EventDispatcher implements IEFTutorDoc
         //@@ Mod May 09 2012 - Demo Support - manage the features so that the demo can augment the default set.
         
         this.setTutorDefaults(this._tutorFeatures);
-		this.setTutorFeatures("");
 		
         this.log = CLogManager.getInstance();
 
@@ -274,15 +273,18 @@ export class CEFTutorDoc extends EventDispatcher implements IEFTutorDoc
             this.graphState   = EFLoadManager.nativeUserMgr.getCurrentScene();
             this.hostFeatures = EFLoadManager.nativeUserMgr.getFeatures();
 
-            this.setTutorFeatures(this.hostFeatures);    
+            // Restore the named tutor state.
+            // Then add the instructionseq defined features
+            // 
             this.restoreTutorState();
+            this.addTutorFeatures(this.hostFeatures);    
         }
         else {
             this.userID       = "GUESTBL_JAN_1";
             this.graphState   = EFLoadManager.efBootNode;
             this.hostFeatures = EFLoadManager.efFeatures;
 
-            this.setTutorFeatures(this.hostFeatures);
+            this.addTutorFeatures(this.hostFeatures);
         }
 
 		// reset the frame and state IDs
@@ -300,7 +302,7 @@ export class CEFTutorDoc extends EventDispatcher implements IEFTutorDoc
         //
         this.tutorContainer.initAutomation();										
 
-        if(this.graphState) {
+        if(this.graphState && this.graphState.currNodeID && (this.graphState.currNodeID != "")) {
             this.tutorNavigator.restoreGraph(this.graphState);
         }
 
@@ -310,6 +312,8 @@ export class CEFTutorDoc extends EventDispatcher implements IEFTutorDoc
         if(this.testFeatures("FTR_WEB")) {
 
             window.addEventListener("click", this.clickBoundListener);
+            console.log("$$ Waiting for user interaction. $$");
+
         }
         else {
             //### TUTOR LAUNCH ###
@@ -381,7 +385,11 @@ export class CEFTutorDoc extends EventDispatcher implements IEFTutorDoc
 
             let hostTutorData:any = JSON.parse(jsonData);
 
-            Object.assign(this.sceneState, hostTutorData.sceneState);
+            // TODO: Do we ever want to restore scene state????
+            //       We never start mid-scene so the scene data should be clear???
+            // 
+            // Object.assign(this.sceneState, hostTutorData.sceneState);
+
             Object.assign(this.moduleState, hostTutorData.moduleState);
             Object.assign(this.tutorState  = hostTutorData.tutorState);
     
@@ -408,6 +416,18 @@ export class CEFTutorDoc extends EventDispatcher implements IEFTutorDoc
 
         if(this.SnavPanel) 
             this.SnavPanel.setBreadCrumbs(text);
+    }
+
+    public hideProgress() {
+
+        if(this.SnavPanel) 
+            this.SnavPanel.hideProgress();
+    }
+
+    public setProgress(step:number, state:number ) {
+
+        if(this.SnavPanel) 
+            this.SnavPanel.setProgress(step, state);
     }
 
 	public enableNext(fEnable:boolean)
@@ -1135,14 +1155,12 @@ export class CEFTutorDoc extends EventDispatcher implements IEFTutorDoc
 
 	// generate the working feature set for this instance
 	//
-	public setTutorFeatures(featSet:string) : void
+	public addTutorFeatures(featSet:string) : void
 	{
 		let featArray:Array<string> = new Array;
 		
 		if(featSet.length > 0)
 			featArray = featSet.split(":");
-		
-		this.fFeatures = {};
 
 		// Add default features 
 		
@@ -1360,19 +1378,22 @@ export class CEFTutorDoc extends EventDispatcher implements IEFTutorDoc
     }
 
 
-    public logTutorProgress(scene:string) : void {
+    public logTutorProgress(sceneName:string) : void {
+
+        //##TESTTEST
+        // console.log(JSON.stringify(this.tutorNavigator.captureGraph()));
 
         // If the native logger is available use it to record state data
         // 
         if(EFLoadManager.nativeUserMgr) {
 
-            if(scene === CONST.END_OF_TUTOR) {
+            if(sceneName === CONST.END_OF_TUTOR) {
                 EFLoadManager.nativeUserMgr.tutorComplete();
             }
             else {
                 let graphState:string = JSON.stringify(this.tutorNavigator.captureGraph());
 
-                EFLoadManager.nativeUserMgr.updateScene(graphState);
+                EFLoadManager.nativeUserMgr.updateScene(sceneName, graphState);
             }
         }
     }

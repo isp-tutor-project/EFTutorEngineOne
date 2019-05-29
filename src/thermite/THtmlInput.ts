@@ -148,6 +148,41 @@ export class THtmlInput extends THtmlBase {
     }
 
 
+	public hasMinWords(cnt: number = 0, minLen: number = 8) : Boolean
+	{
+		var regEx:RegExp;
+		var regStr:string;
+		var i1: number;
+		var fResult:Boolean = false;
+		
+		if(cnt == 0)
+		{
+			if(this.getText().length >= 1)
+								fResult = true;
+		}
+		else if(this.getText().length >= minLen)
+		{			
+			// default to a single word
+			
+			regStr = "^(.+";
+			
+			// Do as many words as requested
+			
+			for(i1 = 1 ; i1 < cnt ; i1++)
+			{
+				regStr += "\\s+.+";
+			}
+			regStr += "(\b|\.))";
+							
+			regEx = new RegExp(regStr,"i");
+			
+			fResult = (this.getText().search(regEx) != -1);
+		}			
+		
+		return fResult; 
+	}
+
+
     public setFocus(focus:boolean) {
         
         

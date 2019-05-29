@@ -26,8 +26,11 @@ import { CURLLoader }           from "./network/CURLLoader";
 import { CONST }                from "./util/CONST";
 import { CUtil }                from "./util/CUtil";
 
+// To manually push updated Engine to Tablet...
+// From: ./ISPTutor
+// execute: adb  push ./dist /sdcard/EdForge
 
-
+// Language and Input -  Text To Speech Output
 
 export class CEngine {
 
@@ -61,6 +64,7 @@ export class CEngine {
         // 
         var frequency = 30;
         EFLoadManager.efStage.enableMouseOver(frequency);
+        EFLoadManager.efStage.snapToPixel = true;
 
         if(_bootTutorID) {
 
@@ -75,8 +79,8 @@ export class CEngine {
 
         //@@ Disable logging
         // 
-        if(EFLoadManager.NOLOG = true) {
-            // window['console']['log'] = function(){};
+        if(EFLoadManager.NOLOG === true) {
+            window['console']['log'] = function(){};
         }
     }
 

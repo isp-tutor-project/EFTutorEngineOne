@@ -83,8 +83,9 @@ export class CTutorGraph extends CTutorNode
 	public captureGraph(obj:any) : Object
 	{			
 		// Capture the polymorphic node state
-		
-		obj['currNodeID'] = this._currNode.id;			
+        //  TODO: Reconcile this with the node id  which to use??
+        // 
+		obj['currNodeID'] = this._currNode.name;			
 		obj['currNode']   = this._currNode.captureGraph({});
         
         // e.g. {"currNodeID":"root","currNode":{"index":0}}

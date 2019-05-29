@@ -536,6 +536,17 @@ export class THtmlBase extends TObject {
     }
 
 
+    public getText() : string {
+
+        return this.controlContainer.innerHTML;
+    }
+
+    public setText(text:string ) : void {
+
+        this.controlContainer.innerHTML = text;
+    }
+
+
     protected initObjfromHtmlData(objData:any) {
 
         if(objData.htmlData) {
