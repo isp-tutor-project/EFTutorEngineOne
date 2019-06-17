@@ -273,6 +273,7 @@ export class TTutorContainer extends TRoot
 		CUtil.initSceneTick(tarScene);
 
         // It is important to do the init scene tick so all children exist prior to being added to stage
+        // as the onAddedToStage event for components is fired here.
         // 
 		this.addChild(tarScene);
 

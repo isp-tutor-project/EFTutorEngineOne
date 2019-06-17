@@ -79,8 +79,6 @@ export class TButtonGroup extends TObject
 
         this.buttons    = new Array();
         this.buttonType = new Array();		//## Added Sep 29 2012 - to support individual radio style buttons. i.e. buttons that are exclusive 
-    
-		this.on(CEFEvent.ADDED_TO_STAGE, this.onAddedToStage);
         
         this._fRadioGroup   = true;				//## Added Jun 26 2012 - to support non radio style button groups.                 
         this._inited        = false;

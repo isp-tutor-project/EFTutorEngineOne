@@ -51,14 +51,18 @@ export class THtmlList extends THtmlBase {
 
     public THtmlListInitialize() {
 
-        this.THtmlBaseInitialize.call(this);
+        // NOTE: cssSheetBase must be initialized prior to baseInitialize
+        // 
         this.init4();
+        this.THtmlBaseInitialize.call(this);
     }
 
     public initialize() {
 
-        this.THtmlBaseInitialize.call(this);		
+        // NOTE: cssSheetBase must be initialized prior to baseInitialize
+        // 
         this.init4();
+        this.THtmlBaseInitialize.call(this);		
     }
 
     private init4() {
@@ -68,7 +72,7 @@ export class THtmlList extends THtmlBase {
 
         // this.fontSize = 4;
 
-        this.cssSheet = {
+        this.cssSheetBase = {
 
             ".outerContainer" : {
                 "position":"absolute",

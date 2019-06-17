@@ -34,6 +34,7 @@ import Timeline   		  	= createjs.Timeline;
 import Event    		  	= createjs.Event;
 import DisplayObject 		= createjs.DisplayObject;
 import Ease			  	    = createjs.Ease;
+import { THtmlBase } from "../thermite/THtmlBase";
 
 
 
@@ -48,13 +49,16 @@ export class CEFTransitions extends CEFTimeLine
 	public newScene:string  = null;				// null next scene
 	
 	public rTime:number     = 350;				// Removal Transition time
-	public tTime:number     = 350;				// Normal Transition time
+    public tTime:number     = 350;				// Normal Transition time
+    public xType:string;
 
 	public fSingleStep:boolean = true;			// single stepping operations - debug
 
 	private activeObjs:any  = {};				// Pointers to the objects in the most recent scene + persistent ojects
 	private persistObjs:any = {};				// Pointers to persistent objects - these live thorughout the tutor lifecycle
-	private currentObjs:Array<any>;				// Pointers to the objects in the current scene
+    private currentObjs:Array<any>;				// Pointers to the objects in the current scene
+
+                                                // TODO: Deep state copy in HTML5 is not implemented
 	private fSwapObjects:boolean = true;		// flag - true - swap objects  - false - use deep state copy 
 
 	
@@ -115,10 +119,14 @@ export class CEFTransitions extends CEFTimeLine
 	//
 	// returns: NULL
 	//		
-	public gotoScene(scn:string) : void
+	public gotoScene(scn:string, xtype:string) : void
 	{					
 		if(this.traceMode) CUtil.trace("Goto Scene: ", scn);
-	
+    
+        // Record which direction we're going
+        //
+        this.xType = xtype;
+
 		// Use single Stepping 
 		//
 		this.fSingleStep = false;						
@@ -198,7 +206,7 @@ export class CEFTransitions extends CEFTimeLine
                     // If this scene is not an anchor then check if it has xname matches
                     // This is required to avoid anchor inheriting from itself in a loop
                     // 
-                    if(!this.tutorAutoObj[this.newScene]._instance.isAnchor) {
+                    // if(!this.tutorAutoObj[this.newScene]._instance.isAnchor && this.xType === "WOZNEXT") {
 
                         // If object exists in the new scene, then:
                         //  	1: If it is CEF and the xnames match then they are the same
@@ -212,7 +220,7 @@ export class CEFTransitions extends CEFTimeLine
                             this.tutorAutoObj[this.currScene][sceneObj]._instance.xname )
                                                                                         bMatch = true;
                         }
-                    }					
+                    // }					
 				}
 				
 				// This object in the current scene does not exist in the new scene
@@ -307,8 +315,16 @@ export class CEFTransitions extends CEFTimeLine
 
                 // Clear the active objeccts for new Anchor Scenes
                 // 
-                if(this.tutorAutoObj[this.newScene]._instance.isAnchor) 
-            		                                    this.activeObjs = {};										
+                // if(this.xType === "WOZNEXT") {
+
+                //     if(this.tutorAutoObj[this.newScene]._instance.isAnchor) 
+                //                                             this.activeObjs = {};										
+                // }
+                // else {
+
+                //     if(this.tutorAutoObj[this.currScene]._instance.isAnchor) 
+                //                                             this.activeObjs = {};										
+                // }
                 
 				// If matching object has been onscreen before copy its properties
 				// Note that all unique objects in a movie must have a unique name even across scenes(CEFScenes)
@@ -323,38 +339,78 @@ export class CEFTransitions extends CEFTimeLine
 					//
 					if(this.fSwapObjects)
 					{
-						// Get the objects
-						
-						let dO1:DisplayObject = this.tutorAutoObj[this.currScene][namedObj]._instance;
-						let dO2:DisplayObject = this.tutorAutoObj[this.newScene][namedObj]._instance;
-						
-						// Get their locations in the display list
-						
-						let dI1:number = this.tutorContainer[this.currScene].getChildIndex(dO1);
-						let dI2:number = this.tutorContainer[this.newScene].getChildIndex(dO2);
-						
-						// Swap them in the scenes display lists
-						
-						this.tutorContainer[this.currScene].addChildAt(dO2, dI1 );
-						this.tutorContainer[this.newScene].addChildAt(dO1, dI2);
-						
-						// Swap the instances in the TutorObj
-						
-						this.tutorAutoObj[this.currScene][namedObj]._instance = dO2;
-						this.tutorAutoObj[this.newScene][namedObj]._instance  = dO1;
-
-						// Swap the instances in the scenes themselves
-						
-						this.tutorAutoObj[this.currScene]._instance[namedObj] = dO2;
-						this.tutorAutoObj[this.newScene]._instance[namedObj]  = dO1;
-                        
-                        // Update the host scene id for mixins
+                        // TODO: tutorAutoObj and objectList are synonymous here - use one or the other.
                         // 
-						this.tutorAutoObj[this.newScene]._instance[namedObj].hostScene = this.tutorAutoObj[this.newScene]._instance;
-                        
-						// update the convenience copy
-						
-						targObj = objectList[sceneName][namedObj];									
+                        // Swap existing objects from the previous scene.
+                        // Some Persistent objects may not be present in the current scene - if not take a copy from 
+                        // the persistent object cache. e.g. when going backwards
+                        // 
+                        if( this.tutorAutoObj[this.currScene][namedObj] ) {
+
+                            // Get the objects
+                            
+                            let dO1:DisplayObject = this.tutorAutoObj[this.currScene][namedObj]._instance;
+                            let dO2:DisplayObject = this.tutorAutoObj[this.newScene][namedObj]._instance;
+                            
+                            // Get their locations in the display list
+                            
+                            let dI1:number = this.tutorContainer[this.currScene].getChildIndex(dO1);
+                            let dI2:number = this.tutorContainer[this.newScene].getChildIndex(dO2);
+                            
+                            // Swap them in the scenes display lists
+                            // Note: These are automatically removed from their current parent by the addChild
+                            //       so there is no need for an explicit removeChild
+                            
+                            this.tutorContainer[this.currScene].addChildAt(dO2, dI1 );
+                            this.tutorContainer[this.newScene].addChildAt(dO1, dI2);
+                            
+                            // Swap the instances in the TutorObj
+                            
+                            this.tutorAutoObj[this.currScene][namedObj]._instance = dO2;
+                            this.tutorAutoObj[this.newScene][namedObj]._instance  = dO1;
+
+                            // Swap the instances in the scenes themselves
+                            
+                            this.tutorAutoObj[this.currScene]._instance[namedObj] = dO2;
+                            this.tutorAutoObj[this.newScene]._instance[namedObj]  = dO1;
+                            
+                            // Update the host scene id for mixins
+                            // 
+                            this.tutorAutoObj[this.newScene]._instance[namedObj].hostScene = this.tutorAutoObj[this.newScene]._instance;
+                            
+                            // update the convenience copy
+                            
+                            targObj = objectList[sceneName][namedObj];									
+                        }
+                        else {
+                            // Get the display object
+
+                            let dO:DisplayObject = this.tutorAutoObj[this.newScene][namedObj]._instance;                                                    
+                            let dI:number = this.tutorContainer[this.newScene].getChildIndex(dO);
+                            
+                            let pO:DisplayObject = this.persistObjs[xname]; // Get the persistent object
+
+                            // Replace the object in the scenes display list
+
+                            this.tutorContainer[this.newScene].removeChildAt(dI);                            
+                            this.tutorContainer[this.newScene].addChildAt(pO, dI);
+                            
+                            // Swap the instances in the TutorObj
+                            
+                            this.tutorAutoObj[this.newScene][namedObj]._instance  = pO;
+
+                            // Swap the instances in the scenes themselves
+                            
+                            this.tutorAutoObj[this.newScene]._instance[namedObj]  = pO;
+                            
+                            // Update the host scene id for mixins
+                            // 
+                            this.tutorAutoObj[this.newScene]._instance[namedObj].hostScene = this.tutorAutoObj[this.newScene]._instance;
+                            
+                            // update the convenience copy
+                            
+                            targObj = objectList[sceneName][namedObj];									
+                        }
 					}
 					else
 					{
@@ -476,14 +532,7 @@ export class CEFTransitions extends CEFTimeLine
 				
 				// Otherwise just set tweens to bring the objects on screen from 0 alpha
 				else
-				{
-                    // New HTML controls must be added to the overlay container and their style sheets
-                    // only when used.  i.e. controls that persist between scenes and therefore have
-                    // an unused control instance should never be added
-                    // 
-                    if(targObj._instance.addHTMLControls)
-                            targObj._instance.addHTMLControls();
-                            
+				{                            
 					// Run the alpha tween from ZERO to bring the object on stage
 					//
 					if(!(targObj._instance instanceof TObjectMask))
@@ -498,7 +547,20 @@ export class CEFTransitions extends CEFTimeLine
 					//
 					this.addTween(tween);
 				}					
-			
+            
+                if(targObj._instance instanceof THtmlBase) {
+
+                    // New HTML controls must be added to the overlay container with their style sheets
+                    // only when used.  i.e. Controls may persist between scenes and therefore have
+                    // an unused control in the newly created scene instance that has been swapped with the persistent copy.  
+                    // The unused instance should never be added to the DOM overlay
+                    // targObj represents live scene components only... this excludes persistent component mirror instances which have
+                    // been created but swapped with the persistent copy.
+                    // 
+                    if(targObj._instance.addHTMLControls)
+                            targObj._instance.addHTMLControls();
+                }
+
 									
 				// Check for persistent objects and subtweening			
 
@@ -544,7 +606,7 @@ export class CEFTransitions extends CEFTimeLine
 		
 		// Update the active object with objects from the current scene and persistent objects 
 		// Throw away the old activeObj array for GC - keeps the tutor compact
-		
+		// 
 		this.activeObjs = {};										
 		
 		for (let objRec of this.currentObjs)
@@ -557,6 +619,7 @@ export class CEFTransitions extends CEFTimeLine
 			this.activeObjs[this.persistObjs[perObj].xname] = this.persistObjs[perObj];
         }			
         
+        // TODO: reconcile this with doPreEnterScene in changeScene
         // Allow scripts to fire just before in transition
         // 
         this.tutorAutoObj[this.newScene]._instance.showScene();
@@ -585,7 +648,13 @@ export class CEFTransitions extends CEFTimeLine
 		// From this point on all newScene elements will be visible so proceed 
 		// as if it is the currScene.
 		//  
-		this.currScene = this.newScene;		
+        this.currScene = this.newScene;		
+        
+        // Allow the scene mixins to do instance level scene initializations - 
+        // This must be done at this point just prior to the scene "in" transition but after
+        // common components, if any, have been transfered from the previous scene.
+        // 
+        this.tutorDoc.tutorNavigator.doPreEnterScene();
 	}				
 	
 	

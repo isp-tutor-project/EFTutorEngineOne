@@ -65,8 +65,6 @@ export class TText extends TObject
 		this.traceMode = true;
 		if(this.traceMode) CUtil.trace("TText:Constructor");
 
-		this.on(CEFEvent.ADDED_TO_STAGE, this.onAddedToStage);
-
 		// Note the CreateJS(AnimateCC) parts of the button have not been created
 		// at this point.
 	}

@@ -335,15 +335,17 @@ export class CEFTutorDoc extends EventDispatcher implements IEFTutorDoc
 
     public initializeSceneStateData(scene:TSceneBase, name:string, sceneName:string, hostModule:string) {
 
-        //TODO: want to remove one of these - they appear to be duplicate
+        //TODO: want to remove one of these names - they appear to be duplicate
         if(name !== sceneName) { 
             alert("TutorDoc Scene name Mismatch: "+ name + " != " + sceneName);
         }
 
-        // Init the tutor state variables - retain any that are extant
+        // Init the scene state variables - retain any that are extant
+        // Note: Maintain existing instance data if any.  This is used by the persistance 
+        //       model to affect scene initialization.
         // 
         this.sceneObj               = scene;
-        this.sceneState[name]       = {};
+        this.sceneState[name]       = this.sceneState[name] || {};
         this.sceneChange[sceneName] = {};
     }
 

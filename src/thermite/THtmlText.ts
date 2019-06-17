@@ -52,14 +52,18 @@ export class THtmlText extends THtmlBase {
 
     public THtmlTextInitialize() {
 
-        this.THtmlBaseInitialize.call(this);
+        // NOTE: cssSheetBase must be initialized prior to baseInitialize
+        // 
         this.init4();
+        this.THtmlBaseInitialize.call(this);
     }
 
     public initialize() {
 
-        this.THtmlBaseInitialize.call(this);		
+        // NOTE: cssSheetBase must be initialized prior to baseInitialize
+        // 
         this.init4();
+        this.THtmlBaseInitialize.call(this);		
     }
 
     private init4() {
@@ -69,7 +73,7 @@ export class THtmlText extends THtmlBase {
 
         // this.fontSize = 40;
 
-        this.cssSheet = {
+        this.cssSheetBase = {
 
             "[eftext].outerContainer" : {
                 "display": "block",

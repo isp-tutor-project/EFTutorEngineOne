@@ -710,10 +710,13 @@ export class CSceneTrack extends EventDispatcher
     }
 
 
+    // TODO: CSceneTrack is managed differently in HTML5 - it is not in the TRoot inheritance chain
+    //       so it must be managed differently to support global pause/play
+    //
     public bindPlay(container:TTutorContainer) {
 
 		
-		if(this.tutorDoc.tutorContainer) this.tutorDoc.tutorContainer.playAddThis(this);
+		// if(this.tutorDoc.tutorContainer) this.tutorDoc.tutorContainer.playAddThis(this);
 		this.play();
     }
 

@@ -31,8 +31,6 @@ import DisplayObject 		  = createjs.DisplayObject;
 import DisplayObjectContainer = createjs.Container;
 
 
-
-
 export class TRoot extends MovieClip
 {				
 	public traceMode:boolean;
@@ -40,6 +38,8 @@ export class TRoot extends MovieClip
     private clickBoundListener:Function;
     private changeBoundListener:Function;
     
+	public bPersist:boolean;									// Some objects persist throughout the life of the session
+
 	public xname:string;
 	public static xInstID:number = 1;		
 
@@ -101,7 +101,8 @@ export class TRoot extends MovieClip
 		// Sub-classes can modify xname to have objects persist through 
 		// scene transitions (CEFTransitions)
 		//
-        this.xname = this.nextXname();
+        this.xname    = this.nextXname();
+        this.bPersist = false;
         
         this.clickBoundListener  = this.clickListener.bind(this);
         this.changeBoundListener = this.changeListener.bind(this);
@@ -191,14 +192,26 @@ export class TRoot extends MovieClip
 		{
 			subObj = this.getChildAt(i1) as DisplayObject;
 			
-			// Recurse WOZ Children
+            // Recurse Children - Don't destroy persistent objects they may be added back to 
+            // scenes at any time.
 			//
-			if(subObj instanceof TRoot)
+			if(subObj instanceof TRoot && !subObj.bPersist)
 			{
 				subObj.Destructor();
-			}								
+            }						
+            // Even when we don't want to destroy the HTML objects we want to 
+            // remove them from the overlay container
+            // 
+            else if((subObj as TRoot).bPersist) {
+
+                (subObj as TRoot).removeDOMInstance();
+            }
 		}		 
 	}
+
+    public removeDOMInstance() {
+        // only implemented in THTMLBase
+    }
 
     public testFeatures(features:string) : boolean {
 

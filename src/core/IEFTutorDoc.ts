@@ -1,5 +1,7 @@
-import { LoaderPackage } from "../util/IBootLoader";
-import { TSceneBase } from "../thermite/TSceneBase";
+import { LoaderPackage }        from "../util/IBootLoader";
+import { TSceneBase }           from "../thermite/TSceneBase";
+import { CTutorGraphNavigator } from "../tutorgraph/CTutorGraphNavigator";
+import { TTutorContainer }      from "../thermite/TTutorContainer";
 
 export interface IEFTutorDoc {
 
@@ -8,14 +10,16 @@ export interface IEFTutorDoc {
 
 	//************ Stage Symbols
 	
-    tutorContainer:any;			// every WOZObject must be associated with a specific tutor
-    tutorNavigator:any;
+    tutorContainer:TTutorContainer;			            // every WOZObject must be associated with a specific tutor
+
+    //************ Stage Symbols
+
+    tutorNavigator:CTutorGraphNavigator;
 
     name:string;
     loaderData:Array<LoaderPackage.ILoaderData>;
-
-	//************ Stage Symbols
-	
+    
+    
 	// These are used for log playback
 	//
 	// The frameID is the actual frame in which a log entry occured

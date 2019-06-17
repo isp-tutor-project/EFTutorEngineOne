@@ -489,7 +489,6 @@ export class CTutorGraphNavigator extends CEFNavigator
 				this._nextScene.instantiateScene();
 			}
 			
-			this.tutorAutoObj[this._nextScene.scenename]._instance.preEnterScene(this.tutorDoc.tutorContainer, this._nextScene.scenename, this._nextScene.title, this._nextScene.page, this._xType);
 			
 //@@ Action Logging
 			
@@ -544,7 +543,7 @@ export class CTutorGraphNavigator extends CEFNavigator
 			
 			// Do the actual scene transitions			
 			this.xitions.on(CEFEvent.COMPLETE, this.doEnterScene, this);			
-			this.xitions.gotoScene(this._nextScene.scenename);
+			this.xitions.gotoScene(this._nextScene.scenename, this._xType);
 		}
 		catch(err)
 		{
@@ -555,7 +554,15 @@ export class CTutorGraphNavigator extends CEFNavigator
 			this.tutorDoc.log.logErrorEvent(logData);
 		}
 	}
-	
+    
+
+    //#Mod Jun 11 2019 - Need to do preenter after common scene elements are moved between scenes in the transition sceneout processing
+    //
+    public doPreEnterScene() {
+
+        this.tutorAutoObj[this._currScene.scenename]._instance.preEnterScene(this.tutorDoc.tutorContainer, this._currScene.scenename, this._currScene.title, this._currScene.page, this._xType);
+    }
+
 	
 	// Performed immediately after scene is fully onscreen
 	//@@ Mod Jul 18 2013 - public -> private
