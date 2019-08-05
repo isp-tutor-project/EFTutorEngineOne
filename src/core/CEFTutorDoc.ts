@@ -37,6 +37,9 @@ import { CUtil }                from "../util/CUtil";
 import EventDispatcher 		  = createjs.EventDispatcher;
 import { TSceneBase } from "../thermite/TSceneBase";
 
+// for web logger
+import { WebLogger } from "../network/WebLogger"
+
 
 
 export class CEFTutorDoc extends EventDispatcher implements IEFTutorDoc
@@ -263,6 +266,10 @@ export class CEFTutorDoc extends EventDispatcher implements IEFTutorDoc
 		// NOTE: Logger Connections must be made before cursor replacement
         //
         // this.Stutor.replaceCursor();
+        console.log("tutor has been launched and weblogger is about to start up");
+
+        EFLoadManager.nativeUserMgr = new WebLogger();
+        EFLoadManager.nativeUserMgr.setValues(EFLoadManager.efBootNode, EFLoadManager.efFeatures);
 
         // Load user state data
         // If the native logger is available use it to record state data
