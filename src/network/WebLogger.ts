@@ -55,7 +55,7 @@ export class WebLogger {
         let jsonData = "";
         let docRef = db.collection(collectionID).doc(this.getUserId());
         await docRef.get().then((doc:any) => {
-            if (doc.exists && doc.data() != null && doc.data().rqted != null) {
+            if (doc.exists) {
                 console.log("Document exists");
                 jsonData = doc.data().rqted;
                 this.currTutorNdx = doc.data().currTutorNdx;
