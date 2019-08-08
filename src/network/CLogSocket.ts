@@ -55,8 +55,8 @@ export class CLogSocket extends EventDispatcher
 		
 	}
 
-	public sendData(dataPacket:string) {
-
+	public sendData(dataPacket:string):boolean {
+		return true;
 	}
 
 	public get connected() : boolean {

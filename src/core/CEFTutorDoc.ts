@@ -384,27 +384,47 @@ export class CEFTutorDoc extends EventDispatcher implements IEFTutorDoc
 
     private restoreTutorState(): boolean {
 
-        let result:boolean    = false;
+        let result: boolean = false;
+        /*
+                let jsonData:string = EFLoadManager.nativeUserMgr.getTutorState(this.tutorConfig.tutorStateID);
+        
+                // If the tutor has saved a state previously - use that to init the state
+                // 
+                if(jsonData && jsonData !== "") {
+        
+                    let hostTutorData:any = JSON.parse(jsonData);
+        
+                    // TODO: Do we ever want to restore scene state????
+                    //       We never start mid-scene so the scene data should be clear???
+                    // 
+                    // Object.assign(this.sceneState, hostTutorData.sceneState);
+        
+                    Object.assign(this.moduleState, hostTutorData.moduleState);
+                    Object.assign(this.tutorState  = hostTutorData.tutorState);
+            
+                    Object.assign(this.fFeatures   = hostTutorData.fFeatures);
+                    Object.assign(this.featureID   = hostTutorData.featureID);
+                }
+        */
+        // made it async
+        EFLoadManager.nativeUserMgr.getTutorState(this.tutorConfig.tutorStateID)
+            .then((jsonData: string) => {
+                if (jsonData && jsonData !== "") {
 
-        let jsonData:string = EFLoadManager.nativeUserMgr.getTutorState(this.tutorConfig.tutorStateID);
+                    let hostTutorData: any = JSON.parse(jsonData);
 
-        // If the tutor has saved a state previously - use that to init the state
-        // 
-        if(jsonData && jsonData !== "") {
+                    // TODO: Do we ever want to restore scene state????
+                    //       We never start mid-scene so the scene data should be clear???
+                    // 
+                    // Object.assign(this.sceneState, hostTutorData.sceneState);
 
-            let hostTutorData:any = JSON.parse(jsonData);
+                    Object.assign(this.moduleState, hostTutorData.moduleState);
+                    Object.assign(this.tutorState = hostTutorData.tutorState);
 
-            // TODO: Do we ever want to restore scene state????
-            //       We never start mid-scene so the scene data should be clear???
-            // 
-            // Object.assign(this.sceneState, hostTutorData.sceneState);
-
-            Object.assign(this.moduleState, hostTutorData.moduleState);
-            Object.assign(this.tutorState  = hostTutorData.tutorState);
-    
-            Object.assign(this.fFeatures   = hostTutorData.fFeatures);
-            Object.assign(this.featureID   = hostTutorData.featureID);
-        }
+                    Object.assign(this.fFeatures = hostTutorData.fFeatures);
+                    Object.assign(this.featureID = hostTutorData.featureID);
+                }
+            });
 
         return result;
     }

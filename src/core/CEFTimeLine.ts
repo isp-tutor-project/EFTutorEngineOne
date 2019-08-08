@@ -32,7 +32,6 @@ import Event 		  	  = createjs.Event;
 import Timeline 	      = createjs.Timeline;
 
 
-
 /**
 * ...
 */
@@ -53,7 +52,8 @@ export class CEFTimeLine extends Timeline
 	public xnFinalize:Function;
 	public xnScope:any;
 
-    
+	// random quick fix
+	public _tweens: any;
 
 	/**
 	 * Abstract base class providing object animation features

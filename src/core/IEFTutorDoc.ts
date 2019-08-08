@@ -145,7 +145,6 @@ export interface IEFTutorDoc {
 	_sceneData:any;								//## Added Dec 11 2013 - DB based state logging
 	_phaseData:any;								//## Added Dec 12 2013 - DB based state logging
 	
-	
 	//*************** Navigator
 	//@@Mod Aug 10 2013 - tutorautomator made so CSceneGraph can access it.
 	

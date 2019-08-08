@@ -16,7 +16,6 @@
 
 var TutorEngineOne:any;
 
-
 //** imports
 
 import { IModuleDesc } from "./IModuleDesc";
@@ -40,6 +39,7 @@ export class CUtil extends Object
     private static SHOW:boolean  = true;
     private static HIDE:boolean  = false;
 
+	
 
 	constructor()
 	{

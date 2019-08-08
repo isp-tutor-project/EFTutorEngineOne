@@ -75,7 +75,7 @@ declare var AdobeAn:any;
 
 declare var dom_overlay_container:any;
 
-
+declare var __global: any;
 
 //export var Tween:any;
 
