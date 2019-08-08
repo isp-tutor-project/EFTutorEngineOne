@@ -126,10 +126,7 @@ export class CONST {
 	public static STATE_OVER 		= "";
 	public static STATE_DOWN		= "";
 	public static STATE_DISABLED	= "";	                    // Note that we have a dual interpretation of the AnimateCC HIT state
-    public static STATE_HIT 		= "";
-    
-	public static readonly STATE_OUT   		= "Sout";	// this represents a transition not a display object
-
+	public static STATE_HIT 		= "";
 
         
     public static readonly BUTTON_TEXT		    = "Slabel";
@@ -146,6 +143,8 @@ export class CONST {
 	public static readonly INSTANCE_DOWN		= "instance_2";
 	public static readonly INSTANCE_DISABLED	= "instance_3";	// Note that we have a dual interpretation of the AnimateCC HIT state
 	public static readonly INSTANCE_HIT 		= "instance_3";
+
+	public static readonly STATE_OUT   		= "state_out";	// this represents a transition not a display object
 
 	public static readonly NEXTSCENE      = "nextbutton";
 	public static readonly PREVSCENE      = "prevbutton";

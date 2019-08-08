@@ -60,18 +60,14 @@ export class THtmlList1 extends THtmlBase {
 
     public THtmlList1Initialize() {
 
-        // NOTE: cssSheetBase must be initialized prior to baseInitialize
-        // 
-        this.init4();
         this.THtmlBaseInitialize.call(this);
+        this.init4();
     }
 
     public initialize() {
 
-        // NOTE: cssSheetBase must be initialized prior to baseInitialize
-        // 
-        this.init4();
         this.THtmlBaseInitialize.call(this);		
+        this.init4();
     }
 
     private init4() {
@@ -86,7 +82,7 @@ export class THtmlList1 extends THtmlBase {
         this.ARROWNORMAL = "[eflist] .listbox::after";
         this.ARROWACTIVE = "[eflist] .listbox.active::after";        
 
-        this.cssSheetBase = {
+        this.cssSheet = {
 
             "[eflist].outerContainer" : {
                 "position":"absolute",
@@ -384,8 +380,6 @@ export class THtmlList1 extends THtmlBase {
 
 
     protected initObjfromHtmlData(objData:any) {
-
-        this.custHTML = objData;
 
         if(objData.htmlData) {
             

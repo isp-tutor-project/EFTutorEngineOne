@@ -90,6 +90,8 @@ export class THtmlInput extends TObject {
         
         this.traceMode = true;
         if(this.traceMode) CUtil.trace("THtmlInput:Constructor");
+
+        this.on(CEFEvent.ADDED_TO_STAGE, this.onAddedToStage);
         
         this.fAdded   = false;
         

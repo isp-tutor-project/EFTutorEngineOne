@@ -54,12 +54,7 @@ export class CEFTimer extends EventDispatcher
     public  frame_ms    : number;
     
 	private _tickHandler: Function | Object;
-    
-    private _cancelHandler: Function;
-    private _pauseHandler : Function;
-    private _playHandler  : Function;
-
-
+	
 	// Create one EDFORGEObject through which we can listen for pause play commands
 	//
 	private static activeTimers:Array<CEFTimer> = new Array();
@@ -179,9 +174,9 @@ export class CEFTimer extends EventDispatcher
 	{
 		if(CEFTimer.tutorDoc)
 		{
-			this._cancelHandler = CEFTimer.tutorDoc.tutorContainer.on(CONST.EF_CANCEL,  this.cancelTimers, this);
-			this._pauseHandler  = CEFTimer.tutorDoc.tutorContainer.on(CONST.EF_PAUSING, this.pauseTimers, this);
-			this._playHandler   = CEFTimer.tutorDoc.tutorContainer.on(CONST.EF_PLAYING, this.playTimers, this);
+			CEFTimer.tutorDoc.tutorContainer.on(CONST.EF_CANCEL,  this.cancelTimers, this);
+			CEFTimer.tutorDoc.tutorContainer.on(CONST.EF_PAUSING, this.pauseTimers, this);
+			CEFTimer.tutorDoc.tutorContainer.on(CONST.EF_PLAYING, this.playTimers, this);
 			
 			this.timerAddThis();			
         }        
@@ -193,9 +188,9 @@ export class CEFTimer extends EventDispatcher
 	{
 		if(CEFTimer.tutorDoc)
 		{
-			CEFTimer.tutorDoc.tutorContainer.off(CONST.EF_CANCEL,  this.cancelTimers);
-			CEFTimer.tutorDoc.tutorContainer.off(CONST.EF_PAUSING, this.pauseTimers);
-			CEFTimer.tutorDoc.tutorContainer.off(CONST.EF_PLAYING, this.playTimers);
+			CEFTimer.tutorDoc.tutorContainer.off(CONST.EF_CANCEL,  this.cancelTimers, this);
+			CEFTimer.tutorDoc.tutorContainer.off(CONST.EF_PAUSING, this.pauseTimers, this);
+			CEFTimer.tutorDoc.tutorContainer.off(CONST.EF_PLAYING, this.playTimers, this);
 			
 			this.timerRemoveThis();			
         }        

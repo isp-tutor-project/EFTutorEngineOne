@@ -50,6 +50,7 @@ export class THtmlBase extends TObject {
     protected dimContainer:TObject;
     protected scaleCompensation:number;
 
+    protected fAdded:boolean;
     protected fEnabled:boolean;
 
     protected isHTMLControl:boolean;
@@ -58,10 +59,8 @@ export class THtmlBase extends TObject {
 
     protected styleElement:HTMLStyleElement;
     protected styleSheet:StyleSheet;
-    protected cssSheetBase:any;
     protected cssSheet:any;
     protected cssDirty:any;
-    protected custHTML:any;
 
     protected fontSize:number;
     protected cssClass:string;
@@ -101,14 +100,15 @@ export class THtmlBase extends TObject {
         
         this.traceMode = true;
         if(this.traceMode) CUtil.trace("THtmlBase:Constructor");
+
+        this.on(CEFEvent.ADDED_TO_STAGE, this.onAddedToStage);
         
         this.fAdded   = false;
         this.fEnabled = true;
 
-        this.isHTMLControl  = true;
-        this.HTMLmute       = true;        
-        this.cssSheet       = Object.assign({}, this.cssSheetBase);
-        this.cssDirty       = {};
+        this.isHTMLControl = true;
+        this.HTMLmute      = true;
+        this.cssDirty   = {};
 
     }
 
@@ -118,34 +118,18 @@ export class THtmlBase extends TObject {
 
     public Destructor() : void
     {
-        this.removeDOMInstance();
+        this.removeEventListener(TMouseEvent.WOZCLICKED, this.doMouseClicked);
+        this.removeEventListener(TMouseEvent.WOZOVER   , this.doMouseOver);
+        this.removeEventListener(TMouseEvent.WOZOUT    , this.doMouseOut);
+        this.removeEventListener(TMouseEvent.WOZDOWN   , this.doMouseDown);
+        this.removeEventListener(TMouseEvent.WOZUP     , this.doMouseUp);			
         
-        super.Destructor();
-    }
-
-
-    public removeDOMInstance() {
-
-        let stage;
-
         if(this.fAdded) {
             dom_overlay_container.removeChild(this.outerContainer); 
-            this.cssDirty = {};
-
-            // Force update
-            this.setProperty('transform-origin', 'unknown');
-            this.setProperty("visibility", 'unknown');
-            this.setProperty("opacity", 'unknown');
-            this.setProperty("font-size", 'unknown');       
-            this.setProperty('transform', 'unknown');
-            this.setProperty('width','unknown');
-            this.setProperty('height', 'unknown');
+            this.fAdded = false;
         }
 
-        if(stage = this.getStage()) {
-            stage.off('drawstart', this._updateVisibilityCbk);
-            stage.off('drawend'  , this._updateComponentCbk);
-        }
+        super.Destructor();
     }
 
 
@@ -222,18 +206,7 @@ export class THtmlBase extends TObject {
     }
 
 
-    public onRemovedFromStage(evt:CEFEvent) {
-
-        // TEST
-        // if(this.fAdded) {
-        //     document.removeChild(this.styleElement);
-        // }
-    }
-
-
     /**
-     * This is only called by html container objects when they are part of the transitionIN for a scene.  i.e. It is 
-     * only called on active scene components.
      * Provides a means to defer adding the HTML component until transition time - The control itself may be persistent
      * in which case we don't want the unused copy on stage.
      */
@@ -241,11 +214,7 @@ export class THtmlBase extends TObject {
 
         let stage;
 
-        // Note: you can safely ignore the fAdded state here as it is assumed this will only ever
-        //       be called during a scene transition when a new HTML control or a persistent copy 
-        //       is being shown on the stage.
-        // 
-        if(this.outerContainer) {
+        if(this.outerContainer && !this.fAdded) {
             dom_overlay_container.appendChild(this.outerContainer); 
 
             // Note that the sheet property is null until the element is added to the 
@@ -579,8 +548,6 @@ export class THtmlBase extends TObject {
 
 
     protected initObjfromHtmlData(objData:any) {
-
-        this.custHTML = objData;
 
         if(objData.htmlData) {
             

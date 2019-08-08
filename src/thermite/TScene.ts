@@ -234,7 +234,7 @@ export class TScene extends TSceneBase
 		}
 		catch(err)							
 		{
-			console.error("Error: scenegraph not found - connect Failed: " + err);
+			console.error("Error: scenegraph connect Failed: " + err);
 		}
 	}
 

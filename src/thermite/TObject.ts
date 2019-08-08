@@ -27,9 +27,9 @@ import { CEFNavigator } 	from "../core/CEFNavigator";
 import { CEFTimeLine }      from "../core/CEFTimeLine";
 
 import { CEFEvent }     	from "../events/CEFEvent";
-import { TEvent }           from "./events/TEvent";
 
 import { ILogManager }  	from "../managers/ILogManager";
+
 
 import { CONST }            from "../util/CONST";
 import { CUtil } 			from "../util/CUtil";
@@ -43,6 +43,8 @@ import ColorMatrixFilter  = createjs.ColorMatrixFilter;
 import BlurFilter		  = createjs.BlurFilter;
 import DisplayObject      = createjs.DisplayObject;
 import Ease			      = createjs.Ease;
+import { TMouseEvent } from "../events/CEFMouseEvent";
+import { TEvent } from "./events/TEvent";
 
 
 //@@ Bug - Note that tweens start automatically so the push onto the running array should be coupled with a stop 
@@ -63,7 +65,6 @@ export class TObject extends TRoot
 	public sAuto:string       = "UNKNOWN";						// Is the control in automation mode ?
 	
 	public objID:string;										// Automation ID - unique ID 
-    protected fAdded:boolean;
 
     public effectTimeLine:CEFTimeLine;
     public effectTweens:Array<Tween>;
@@ -71,6 +72,8 @@ export class TObject extends TRoot
 	public tweenID:number;
 	public bTweenable:boolean;  								// Objects with the same name will tween together. This flag indicates if the object participates in tweening
 	public bSubTweenable:boolean;  								// Certain objects have subobject that will require tweening - we only do this when we have to - keep tutorAutoObj object as small as possible
+	public bPersist:boolean;									// Some objects persist throughout the life of the session
+
 
 	// basic object characteristics
 	//
@@ -174,10 +177,7 @@ export class TObject extends TRoot
 		this.traceMode = true;
 		
 		if(this.traceMode) CUtil.trace("TObject:Constructor");
-        
-		this.on(CEFEvent.ADDED_TO_STAGE, this.onAddedToStage);
-        this.on(CEFEvent.REMOVED_FROM_STAGE, this.onRemovedFromStage);
-        
+		
 		this.tweenID       = 1;						// Instance ID - Identically named objects and ID's will copy deep-state from each other - considered same instance or just shallow state.			
 		this.bTweenable    = true; 					// Objects with the same name will tween together. This flag indicates if the object participates in tweening
 		this.bSubTweenable = false; 				// Certain objects have subobjects that require tweening - we only do this when we have to - keep tutorAutoObj object as small as possible
@@ -195,18 +195,10 @@ export class TObject extends TRoot
 
 
 	public onAddedToStage(evt:CEFEvent) {
-
-        // TODO: check if this is called for each frame of an animation - if so fix - watch the HTMLBase component, it has special dependencies
-        //
-
     }
     
 
-	public onRemovedFromStage(evt:CEFEvent) {
-    }
-    
-
-    public Destructor() : void
+	public Destructor() : void
 	{
         this.off(CEFEvent.COMPLETE, this.doAction);			
 		

@@ -799,7 +799,7 @@ export class TSceneBase extends TObject
                 //  The name structure for anchor scenes or copies thereof is:
                 // 
                 //  <scene name><objectname> if the instance has a unique name assigned in authoring
-                //  <scene name><objectid>   if the instance does not have a unique name assigned in authoring
+                //  <scene name><objectid>   if the instance does no have a unique name assigned in authoring
                 //  non-anchor/copy scenes are assigned unique xnames to ensure they don't interact with 
                 //  subsequent scene objects.
                 // 

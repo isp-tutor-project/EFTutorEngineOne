@@ -58,18 +58,14 @@ export class THtmlTable extends THtmlBase {
 
     public THtmlTableInitialize() {
 
-        // NOTE: cssSheetBase must be initialized prior to baseInitialize
-        // 
-        this.init4();
         this.THtmlBaseInitialize.call(this);
+        this.init4();
     }
 
     public initialize() {
 
-        // NOTE: cssSheetBase must be initialized prior to baseInitialize
-        // 
-        this.init4();
         this.THtmlBaseInitialize.call(this);		
+        this.init4();
     }
 
     private init4() {
@@ -80,7 +76,7 @@ export class THtmlTable extends THtmlBase {
         this.RX_CELLID = /(\d*)\.(\d*)\.(.*)/;
         // this.fontSize  = 20;
 
-        this.cssSheetBase = {
+        this.cssSheet = {
 
             "[eftable].outerContainer" : {
                 "table-layout": "fixed",

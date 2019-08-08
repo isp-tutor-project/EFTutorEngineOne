@@ -36,7 +36,6 @@ export class THtmlInput extends THtmlBase {
 	//************ Stage Symbols
 	
 	public SControlContainer:TObject;
-	public STextArea:HTMLInputElement;
 	
 	//************ Stage Symbols				
 
@@ -54,18 +53,14 @@ export class THtmlInput extends THtmlBase {
 
     public THtmlInputInitialize() {
 
-        // NOTE: cssSheetBase must be initialized prior to baseInitialize
-        // 
-        this.init4();
         this.THtmlBaseInitialize.call(this);
+        this.init4();
     }
 
     public initialize() {
 
-        // NOTE: cssSheetBase must be initialized prior to baseInitialize
-        // 
-        this.init4();
         this.THtmlBaseInitialize.call(this);		
+        this.init4();
     }
 
     private init4() {
@@ -73,7 +68,7 @@ export class THtmlInput extends THtmlBase {
         this.traceMode = true;
         if(this.traceMode) CUtil.trace("THtmlInput:Constructor");
 
-        this.cssSheetBase = {
+        this.cssSheet = {
 
             "[efinput].outerContainer" : {
                 
@@ -122,11 +117,6 @@ export class THtmlInput extends THtmlBase {
         };    
     }
 
-    public Destructor() : void
-    {
-        super.Destructor();
-    }
-
 /* ######################################################### */
 /*  ###########  END CREATEJS SUBCLASS SUPPORT ###########   */
 
@@ -146,10 +136,9 @@ export class THtmlInput extends THtmlBase {
             this.outerContainer.setAttribute(CONST.EFINPUT_TYPE, "");
             this.outerContainer.setAttribute(this.name, "");
 
-            this.controlContainer         = this.outerContainer;
-            this.controlContainer.oninput = this.oninput.bind(this);
+            this.controlContainer  = this.outerContainer;
 
-            // TODO: to use the AnimateCC control to set the font - decompose font
+            // TODO: to use the ANimateCC control to set the font - decompose font
             //       must be modified.
             // 
             // this.decomposeFont(this.cssSheet, this.StxtField.font);
@@ -157,56 +146,6 @@ export class THtmlInput extends THtmlBase {
             super.onAddedToStage(evt);
         }
     }
-
-
-    public onRemovedFromStage(evt:CEFEvent) {
-    }
-
-
-    // Perform an action event whenever there is input so the scenegraph can react and the complete state 
-    // will be auto-tested for completion
-    // 
-    public oninput(evt:any) {
-
-        this.doAction(evt);
-    }
-
-
-    public getText() : string {
-
-        if(!this.STextArea)
-            this.STextArea = document.getElementById("textarea") as HTMLInputElement;
-
-        let text:string = "";
-
-        if(this.STextArea)
-            text = this.STextArea.value;
-
-        return text;
-    }
-
-
-//*************** Logging state management
-	
-	public captureLogState(obj:any = null) : TObject
-	{
-		obj = super.captureLogState(obj);
-		
-		obj['text'] = this.getText();
-		
-		return obj;											   
-	}				
-	
-	public captureXMLState() : any
-	{		
-		let xmlVal:any = super.captureXMLState();
-		
-		xmlVal.text = this.getText();
-		
-		return xmlVal;
-	}		
-	
-//*************** Logging state management
 
 
 	public hasMinWords(cnt: number = 0, minLen: number = 8) : Boolean
@@ -246,7 +185,7 @@ export class THtmlInput extends THtmlBase {
 
     public setFocus(focus:boolean) {
         
-        document.getElementById("textarea").focus();
+        
     }
 
 
@@ -272,7 +211,7 @@ export class THtmlInput extends THtmlBase {
 
 
     /**
-     * Extract the font information from the AnimateCC Text Field control 
+     * Extract the font information from the STxtField control 
      * 
      * @param fontStr 
      */
@@ -301,7 +240,6 @@ export class THtmlInput extends THtmlBase {
 
         return fontSpec;
     }
-
 
 
     // --- Insert Text - No HTML import yet so we have todo it by hand, we could load() JSON but that would uglify the source.
@@ -418,9 +356,8 @@ export class THtmlInput extends THtmlBase {
 
 
     public _handleDrawEnd(evt:CEFEvent) {
-        
-        if(this.fAdded)
-            super._handleDrawEnd(evt);
+
+        super._handleDrawEnd(evt);
     }
     
 

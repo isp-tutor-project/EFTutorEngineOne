@@ -55,12 +55,6 @@ export class TButton extends TObject
     public STATE_DOWN:string;
     public STATE_DISABLED:string;
 
-    private _doMouseClickedHdlr:Function;
-    private _doMouseOverHdlr:Function;
-    private _doMouseOutHdlr:Function;
-    private _doMouseDownHdlr:Function;
-    private _doMouseUpHdlr:Function;
-    private _wired:boolean = false;
 
 	private onClickScript:TObject = null;
 	
@@ -92,6 +86,8 @@ export class TButton extends TObject
 		this.traceMode = true;
 		if(this.traceMode) CUtil.trace("TButton:Constructor");
 
+		this.on(CEFEvent.ADDED_TO_STAGE, this.onAddedToStage);
+
         this.curState  = "unknown";
         this.fPressed  = false;
         this.fEnabled  = true;
@@ -107,12 +103,13 @@ export class TButton extends TObject
 
 	public Destructor() : void
 	{
-
-        // Disconnect the button
-        //
-        this.muteButton( true);
-
-        super.Destructor();
+		this.removeEventListener(TMouseEvent.WOZCLICKED, this.doMouseClicked);
+		this.removeEventListener(TMouseEvent.WOZOVER   , this.doMouseOver);
+		this.removeEventListener(TMouseEvent.WOZOUT    , this.doMouseOut);
+		this.removeEventListener(TMouseEvent.WOZDOWN   , this.doMouseDown);
+		this.removeEventListener(TMouseEvent.WOZUP     , this.doMouseUp);			
+		
+		super.Destructor();
 	}
 
 	public onAddedToStage(evt:CEFEvent) {
@@ -225,13 +222,7 @@ export class TButton extends TObject
 	public gotoState(sState:string) : void 
 	{
 		if(this.traceMode) CUtil.trace("Button.gotoState: ", this.name + " " + sState);
-        
-        if(this.name === "Sitem3") {
-            let dI1:number = this.parent.getChildIndex(this);
-            console.log("SItem3 Index = " + dI1);
-        }
-
-
+		
 		this.resetState();
 		this.curState = sState;
 
@@ -286,41 +277,29 @@ export class TButton extends TObject
 		// Mute button
 		if(bMute)
 		{
-            if(this._wired) {
-                if(this.traceMode) CUtil.trace("Button Muted: " + this.name + " : " + this.id);				
-
-                this.off(TMouseEvent.MOUSE_CLICK , this._doMouseClickedHdlr);
-                this.off(TMouseEvent.MOUSE_OVER  , this._doMouseOverHdlr);
-                this.off(TMouseEvent.MOUSE_OUT   , this._doMouseOutHdlr);
-                this.off(TMouseEvent.MOUSE_DOWN  , this._doMouseDownHdlr);
-                this.off(TMouseEvent.MOUSE_UP    , this._doMouseUpHdlr);
-                
-                this._wired = false;
-            }
+			if(this.traceMode) CUtil.trace("Button Muted: " + this.name);				
+			
+			this.off(TMouseEvent.MOUSE_CLICK , this.doMouseClicked);
+			this.off(TMouseEvent.MOUSE_OVER  , this.doMouseOver);
+			this.off(TMouseEvent.MOUSE_OUT   , this.doMouseOut);
+			this.off(TMouseEvent.MOUSE_DOWN  , this.doMouseDown);
+			this.off(TMouseEvent.MOUSE_UP    , this.doMouseUp);
 		}
 		
 		// Unmute Button
 		else
-		{           
-            if(!this._wired) {
-                if(this.traceMode) CUtil.trace("Button UnMuted: " + this.name + " : " + this.id)
-                
-                this._doMouseClickedHdlr = this.on(TMouseEvent.MOUSE_CLICK , this.doMouseClicked, this);
-                this._doMouseOverHdlr    = this.on(TMouseEvent.MOUSE_OVER  , this.doMouseOver, this);
-                this._doMouseOutHdlr     = this.on(TMouseEvent.MOUSE_OUT   , this.doMouseOut, this);
-                this._doMouseDownHdlr    = this.on(TMouseEvent.MOUSE_DOWN  , this.doMouseDown, this);
-                this._doMouseUpHdlr      = this.on(TMouseEvent.MOUSE_UP    , this.doMouseUp, this);
-
-                this._wired =true;
-            }
+		{
+			if(this.traceMode) CUtil.trace("Button UnMuted: " + this.name);				
+			
+			this.on(TMouseEvent.MOUSE_CLICK , this.doMouseClicked, this);
+			this.on(TMouseEvent.MOUSE_OVER  , this.doMouseOver, this);
+			this.on(TMouseEvent.MOUSE_OUT   , this.doMouseOut, this);
+			this.on(TMouseEvent.MOUSE_DOWN  , this.doMouseDown, this);
+			this.on(TMouseEvent.MOUSE_UP    , this.doMouseUp, this);
 		}
 		
 	}
-
-	public enableButton( bFlag:boolean)
-    {
-        this.enable(bFlag);
-    }    
+			
 	
 	public enable( bFlag:boolean)
 	{			
