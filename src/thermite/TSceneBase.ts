@@ -830,7 +830,8 @@ export class TSceneBase extends TObject
 				// Record object in-place position - This is only done for top level objects in scene to record their inplace positions 
 				// for inter-scene tweening.
 				//
-				sceneAutoObj[childName].inPlace = childObj._cloneProps({});
+                // @ts-ignore
+                sceneAutoObj[childName].inPlace = childObj._cloneProps({});
 
 				// sceneAutoObj[childName].inPlace = {X:childObj.x, Y:childObj.y, Width:childObj.width, Height:childObj.height, Alpha:childObj.alpha};	 //** TODO */							
 

@@ -73,7 +73,7 @@ export class CEFTimeLine extends Timeline
 	public addTween(...tween:Tween[]) : Tween {
 
         let result:Tween;
-
+		// @ts-ignore
         result = super.addTween(...tween);
 
         tween.forEach( tween => this.targets.push(tween.target));
