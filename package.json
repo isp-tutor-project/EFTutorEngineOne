@@ -27,6 +27,6 @@
     "typescript": "^2.6.2"
   },
   "dependencies": {
-    "@types/systemjs": "^0.20.6",
+    "@types/systemjs": "^0.20.6"
   }
 }
