@@ -316,16 +316,16 @@ export class CEFTutorDoc extends EventDispatcher implements IEFTutorDoc
         // Force click to start Tutor - Chrome DOMException if you don't interact with the document prior to
         // play event.
         // 
-        if(this.testFeatures("FTR_WEB")) {
+        // if(this.testFeatures("FTR_WEB")) {
 
-            window.addEventListener("click", this.clickBoundListener);
-            console.log("$$ Waiting for user interaction. $$");
+        //     window.addEventListener("click", this.clickBoundListener);
+        //     console.log("$$ Waiting for user interaction. $$");
 
-        }
-        else {
+        // }
+        // else {
             //### TUTOR LAUNCH ###
             this.tutorNavigator.gotoNextScene("$launchTutor");
-        }
+        // }
     }
 
     // Override
