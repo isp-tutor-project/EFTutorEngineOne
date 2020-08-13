@@ -50,20 +50,20 @@ export class CEFTutorDoc extends EventDispatcher implements IEFTutorDoc
 
 	// This is a special signature to avoid typescript error "because <type> has no index signature."
 	// on this[<element name>]
-	// 
+	//
 	[key: string]: any;
 
 	//************ Stage Symbols
-	
+
     public tutorContainer:TTutorContainer;			// every WOZObject must be associated with a specific tutor
 
 	//************ Stage Symbols
 
-    public SnavPanel:TNavPanel;	
-    
+    public SnavPanel:TNavPanel;
+
 	//************ Stage Symbols
-    
-    public tutorNavigator:CTutorGraphNavigator;	
+
+    public tutorNavigator:CTutorGraphNavigator;
     public name:string;
     public loaderData:Array<LoaderPackage.ILoaderData>;
 
@@ -78,12 +78,12 @@ export class CEFTutorDoc extends EventDispatcher implements IEFTutorDoc
 	//
 	// During playback:
 	//  the tutor runs frame by frame playing back events as they originally occured from the event stream
-	//  Note: It is possible for the stateID and frameID to lose sync with the recorded stream should events 
+	//  Note: It is possible for the stateID and frameID to lose sync with the recorded stream should events
 	//        process faster or slower than on the original machine.
 	//	Therefore at each frame:
 	//		Check the next event in the log
 	// 				if the Tutor stateID matches the playback stateID then
-	//					if the Tutor frameID matches the playback frameID fire the event 
+	//					if the Tutor frameID matches the playback frameID fire the event
 	//					if the Tutor frameID < playback frameID - wait for the playback tutor to reach the event
 	//					if the Tutor frameID > playback frameID - sequentially fire events (playback is running slow)
 	//
@@ -91,20 +91,20 @@ export class CEFTutorDoc extends EventDispatcher implements IEFTutorDoc
 	//					flush all queued events until sync achieved
 	//
 	// 				if the Tutor stateID < playback stateID then (may freeze if state transitions do not occur)
-	//					wait for the tutor to fire non-event state transitions				
-	//					
-	
+	//					wait for the tutor to fire non-event state transitions
+	//
+
 	public logFrameID = 0;
 	public logStateID = 0;
 
-    // knowledge tracing 
+    // knowledge tracing
     public   ktSkills:any;							    //@@ Mod Aug 28 2013 - support for new kt structure in sceneGraph
-    
+
 
     //*** Tutor graph descriptions
-		
+
 	public sceneGraph:any;						        // The factory definition object used to create scene graphs for specified scenes
-	public tutorGraph:any;						    	// The factory definition object used to create the tutor Graph		
+	public tutorGraph:any;						    	// The factory definition object used to create the tutor Graph
     public tutorStateData:any;						   	// The factory definition object used to initialize tutor state
     public userStateData:any = null;
     public userID:string;
@@ -123,51 +123,51 @@ export class CEFTutorDoc extends EventDispatcher implements IEFTutorDoc
     public state:Array<string>;
     public scenedata:Array<string>;
 
-    public _tutorFeatures:string = "";                  // used in Flash mode to set instance features   
-    public _modulePath:string;							//@@ Mod May 07 2012 - support for relative module paths						
-    public _forcedPause:boolean = false;				//@@ Mod Mar 15 2013 - FLEX support - manage pause when transitioning in and out of full screen mode 
-    
-    public _pFeatures:any = {}; 
-	
+    public _tutorFeatures:string = "";                  // used in Flash mode to set instance features
+    public _modulePath:string;							//@@ Mod May 07 2012 - support for relative module paths
+    public _forcedPause:boolean = false;				//@@ Mod Mar 15 2013 - FLEX support - manage pause when transitioning in and out of full screen mode
+
+    public _pFeatures:any = {};
+
 	public designWidth:number = 1024;
     public designHeight:number = 768;
-    
-    public STAGEWIDTH:number  = 1024;  
-	public STAGEHEIGHT:number = 768;  
-    
+
+    public STAGEWIDTH:number  = 1024;
+	public STAGEHEIGHT:number = 768;
+
     private hostFeatures:string;
     private hostTutorData:string;
 
-	// Global logging support - each scene instance and subscene animation instance represent 
+	// Global logging support - each scene instance and subscene animation instance represent
 	//                          object instances in the log.
 	//                          The frameid is a '.' delimited string representing the:
 	//
 	//     framendx:graphnode.nodemodule.moduleelement... :animationnode.animationelement...iterationNdx
 	//
-	//			Semantics - each ':' represents the root of a new different (sub)graph	
+	//			Semantics - each ':' represents the root of a new different (sub)graph
 	//  e.g.
 	//
 	//	  000001:root.start.SstartSplash...:root.Q0A.CSSbSRule1Part1AS...
-	
+
 	public _framendx:number   = 0;
 
 
     //*** Demo configuration
-	
+
 	public fRemoteMode:boolean	  = false;				// Used to control SWFLoader security domain
-	public fDemo:boolean  	 	  = true;				// Controls the insertion of the demo selection scene 
-	public fDebug:boolean 	 	  = true;				// Controls whether the server connection is used			
+	public fDemo:boolean  	 	  = true;				// Controls the insertion of the demo selection scene
+	public fDebug:boolean 	 	  = true;				// Controls whether the server connection is used
 	public fLog:boolean   	   	  = false;				// Controls whether logging is used or not		Note: Affects ILogManager this.tutorDocructor
 	public fDeferDemoClick:boolean = true;				// defer demo button clicks while scene changes are in progress
-	
+
 //********
-	
-	public fTutorPart:string = "Intro & Ramp Pre-test";	// Goes in to the xml header to indicate the portion of the tutor the file represents - deprecated Jun 6 2013 - see CLogManager 
-	public fFullSignIn:boolean = false;					// Set dynamically based upon Feature Set		
-	
-//****************		
-	
-	public fSkipAssess:boolean      = false;			// Controls where to go after the ramp test - user trials support 	
+
+	public fTutorPart:string = "Intro & Ramp Pre-test";	// Goes in to the xml header to indicate the portion of the tutor the file represents - deprecated Jun 6 2013 - see CLogManager
+	public fFullSignIn:boolean = false;					// Set dynamically based upon Feature Set
+
+//****************
+
+	public fSkipAssess:boolean      = false;			// Controls where to go after the ramp test - user trials support
 	public fEnableBack:boolean      = true;				// force all back buttons to enabled
 	public fForceBackButton:boolean = true;				//@@ Mod May 22 2013 - Prepost module integration - back button behaves different in prepost then anywhere else
 														//                     So in general outside the prepost we force the back button to off
@@ -175,46 +175,46 @@ export class CEFTutorDoc extends EventDispatcher implements IEFTutorDoc
 
 //********
 
-	public sessionAccount:any = {};						//@@ Mod Dec 03 2013 - session Account data  
+	public sessionAccount:any = {};						//@@ Mod Dec 03 2013 - session Account data
 
 	public fSessionID:string;							// Unique session identifier
 	public fSessionTime:number;
 	public serverUserID:number = 0;						// Numeric user ID assigned by the logging server DB
-	
+
 	public fPlaybackMode:boolean = false;
-		
+
     public _log:any;							  		// ILogManager - Logging service connection
-    
+
     public hostModule:string;
 
-    public sceneState:any  = {};	 	       	    	     						
-    public moduleState:any = {};	 	       		     						    
-    public tutorState:any  = {};	 	       		         						
-	
-    public sceneChange:any  = {};	        	    	     						
-    public moduleChange:any = {};	 	       		     						    
-    public tutorChange:any  = {};	        		         						
-	
-    
+    public sceneState:any  = {};
+    public moduleState:any = {};
+    public tutorState:any  = {};
+
+    public sceneChange:any  = {};
+    public moduleChange:any = {};
+    public tutorChange:any  = {};
+
+
 	//*************** Automation Shadow Display List
-	// 
-	public TutAutomator:any	= {};		        		// The location of this tutor automation object			
+	//
+	public TutAutomator:any	= {};		        		// The location of this tutor automation object
 
     // CSceneGraphNavigator
     //
-    public _globals:any	  = {};			        
+    public _globals:any	  = {};
 	public _sceneData:any = {};							//## Added Dec 11 2013 - DB based state logging
 	public _phaseData:any = {};							//## Added Dec 12 2013 - DB based state logging
-	
+
 
 	//**************** Current feature vector
-	
-    private fFeatures:any = {};		
-    private featureID:any = {};		
-    	
-	private fDefaults:any = {};			
-    
-    
+
+    private fFeatures:any = {};
+    private featureID:any = {};
+
+	private fDefaults:any = {};
+
+
 
 
     constructor()
@@ -222,11 +222,11 @@ export class CEFTutorDoc extends EventDispatcher implements IEFTutorDoc
         super();
 
         CUtil.trace("CEFTutorDoc:Constructor");
-		
+
         //@@ Mod Sept 22 2014 - reset global object - only required for demo sequences - more than one demo may be loaded in a single session
-        
-        this.initGlobals();			
-        this.isDebug = true;						 			
+
+        this.initGlobals();
+        this.isDebug = true;
 
         this.sceneGraph = {};
         this.modules    = new Array<LoaderPackage.IModuleDescr>();
@@ -234,35 +234,35 @@ export class CEFTutorDoc extends EventDispatcher implements IEFTutorDoc
         this.globalData = {};
 
         // Frame counter - for logging
-		// NOTE: this must be the first ENTER_FRAME event listener 
-		
-		this.connectFrameCounter(true);		
+		// NOTE: this must be the first ENTER_FRAME event listener
 
-        // Create the tutor container - 
+		this.connectFrameCounter(true);
+
+        // Create the tutor container -
         // TODO: extract the dimensions from the tutor loader
         //
         this.tutorContainer          	 = new TTutorContainer();
 		this.tutorContainer.tutorDoc     = this;
-		this.tutorContainer.tutorAutoObj = this.TutAutomator;		
+		this.tutorContainer.tutorAutoObj = this.TutAutomator;
         this.tutorContainer.name     	 = CONST.TUTORCONTAINER;
-        
+
         EFLoadManager.efStage.addChild(this.tutorContainer);
-        
+
         //@@ Mod May 09 2012 - Demo Support - manage the features so that the demo can augment the default set.
-        
+
         this.setTutorDefaults(this._tutorFeatures);
-		
+
         this.log = CLogManager.getInstance();
 
         this.clickBoundListener  = this.clickListener.bind(this);
 	}
-	
-	
+
+
 	public launchTutor() {
 
         this.hostModule = this.tutorGraph.hostModule;
 
-		// TODO: implement under HTML5 
+		// TODO: implement under HTML5
 		// NOTE: Logger Connections must be made before cursor replacement
         //
         // this.Stutor.replaceCursor();
@@ -273,7 +273,7 @@ export class CEFTutorDoc extends EventDispatcher implements IEFTutorDoc
 
         // Load user state data
         // If the native logger is available use it to record state data
-        // 
+        //
         if(EFLoadManager.nativeUserMgr) {
 
             this.userID       = EFLoadManager.nativeUserMgr.getUserId();
@@ -282,9 +282,9 @@ export class CEFTutorDoc extends EventDispatcher implements IEFTutorDoc
 
             // Restore the named tutor state.
             // Then add the instructionseq defined features
-            // 
+            //
             this.restoreTutorState();
-            this.addTutorFeatures(this.hostFeatures);    
+            this.addTutorFeatures(this.hostFeatures);
         }
         else {
             this.userID       = "GUESTBL_JAN_1";
@@ -295,19 +295,19 @@ export class CEFTutorDoc extends EventDispatcher implements IEFTutorDoc
         }
 
 		// reset the frame and state IDs
-		
-		this.resetStateFrameID();	
 
-        // This manufactures the tutorGraph from the JSON spec file 			
+		this.resetStateFrameID();
+
+        // This manufactures the tutorGraph from the JSON spec file
         //
         CTutorGraphNavigator.rootFactory(this, this.tutorGraph);
-        
-        //## Mod Aug 10 2012 - must wait for initializeScenes to ensure basic scenes are in place now that 
+
+        //## Mod Aug 10 2012 - must wait for initializeScenes to ensure basic scenes are in place now that
         //					   we allow dynamic creation of the navPanel etc.
-        // 
+        //
         // Parse the active Tutor
         //
-        this.tutorContainer.initAutomation();										
+        this.tutorContainer.initAutomation();
 
         if(this.graphState && this.graphState.currNodeID && (this.graphState.currNodeID != "")) {
             this.tutorNavigator.restoreGraph(this.graphState);
@@ -315,7 +315,7 @@ export class CEFTutorDoc extends EventDispatcher implements IEFTutorDoc
 
         // Force click to start Tutor - Chrome DOMException if you don't interact with the document prior to
         // play event.
-        // 
+        //
         // if(this.testFeatures("FTR_WEB")) {
 
         //     window.addEventListener("click", this.clickBoundListener);
@@ -329,7 +329,7 @@ export class CEFTutorDoc extends EventDispatcher implements IEFTutorDoc
     }
 
     // Override
-    public clickListener(e:Event) {        
+    public clickListener(e:Event) {
 
         if(e.type === "click") {
             window.removeEventListener("click", this.clickBoundListener);
@@ -337,18 +337,18 @@ export class CEFTutorDoc extends EventDispatcher implements IEFTutorDoc
             //### DEFERRED TUTOR LAUNCH ###
             this.tutorNavigator.gotoNextScene("$launchTutor");
         }
-    }        
+    }
 
 
     public initializeSceneStateData(scene:TSceneBase, name:string, sceneName:string, hostModule:string) {
 
         //TODO: want to remove one of these - they appear to be duplicate
-        if(name !== sceneName) { 
+        if(name !== sceneName) {
             alert("TutorDoc Scene name Mismatch: "+ name + " != " + sceneName);
         }
 
         // Init the tutor state variables - retain any that are extant
-        // 
+        //
         this.sceneObj               = scene;
         this.sceneState[name]       = {};
         this.sceneChange[sceneName] = {};
@@ -385,21 +385,21 @@ export class CEFTutorDoc extends EventDispatcher implements IEFTutorDoc
         let result: boolean = false;
         /*
                 let jsonData:string = EFLoadManager.nativeUserMgr.getTutorState(this.tutorConfig.tutorStateID);
-        
+
                 // If the tutor has saved a state previously - use that to init the state
-                // 
+                //
                 if(jsonData && jsonData !== "") {
-        
+
                     let hostTutorData:any = JSON.parse(jsonData);
-        
+
                     // TODO: Do we ever want to restore scene state????
                     //       We never start mid-scene so the scene data should be clear???
-                    // 
+                    //
                     // Object.assign(this.sceneState, hostTutorData.sceneState);
-        
+
                     Object.assign(this.moduleState, hostTutorData.moduleState);
                     Object.assign(this.tutorState  = hostTutorData.tutorState);
-            
+
                     Object.assign(this.fFeatures   = hostTutorData.fFeatures);
                     Object.assign(this.featureID   = hostTutorData.featureID);
                 }
@@ -413,7 +413,7 @@ export class CEFTutorDoc extends EventDispatcher implements IEFTutorDoc
 
                     // TODO: Do we ever want to restore scene state????
                     //       We never start mid-scene so the scene data should be clear???
-                    // 
+                    //
                     // Object.assign(this.sceneState, hostTutorData.sceneState);
 
                     Object.assign(this.moduleState, hostTutorData.moduleState);
@@ -428,7 +428,7 @@ export class CEFTutorDoc extends EventDispatcher implements IEFTutorDoc
     }
 
     // TODO: Templates management should reside in TutorDoc or preferably a custom object
-    // 
+    //
     public resolveTemplates(selector:string, ref:string) : string {
 
         return this.sceneObj.resolveTemplates(selector, ref);
@@ -438,40 +438,40 @@ export class CEFTutorDoc extends EventDispatcher implements IEFTutorDoc
 
         this.SnavPanel = panel;
     }
-    
+
     public setBreadCrumbs(text:string) {
 
-        if(this.SnavPanel) 
+        if(this.SnavPanel)
             this.SnavPanel.setBreadCrumbs(text);
     }
 
     public hideProgress() {
 
-        if(this.SnavPanel) 
+        if(this.SnavPanel)
             this.SnavPanel.hideProgress();
     }
 
     public setProgress(step:number, state:number ) {
 
-        if(this.SnavPanel) 
+        if(this.SnavPanel)
             this.SnavPanel.setProgress(step, state);
     }
 
 	public enableNext(fEnable:boolean)
-	{			
-        if(this.SnavPanel) 
-            this.SnavPanel.enableNext(fEnable);		
+	{
+        if(this.SnavPanel)
+            this.SnavPanel.enableNext(fEnable);
 	}
 
 	public enableBack(fEnable:boolean)
-	{			
-        if(this.SnavPanel) 
-            this.SnavPanel.enableBack(fEnable);		
+	{
+        if(this.SnavPanel)
+            this.SnavPanel.enableBack(fEnable);
 	}
 
     public setNavMode(navMode:number, navTarget:string) {
-        
-        if(this.SnavPanel) 
+
+        if(this.SnavPanel)
             this.SnavPanel.setNavMode(navMode, navTarget);
     }
 
@@ -487,13 +487,13 @@ export class CEFTutorDoc extends EventDispatcher implements IEFTutorDoc
 
 
     public getSceneValue(property:string) : any {
-        return this.getStateValue(property, CONST.SCENESTATE) 
-    }    
+        return this.getStateValue(property, CONST.SCENESTATE)
+    }
     public getModuleValue(property:string) : any {
-        return this.getStateValue(property, CONST.MODULESTATE) 
+        return this.getStateValue(property, CONST.MODULESTATE)
     }
     public getTutorValue(property:string) : any {
-        return this.getStateValue(property, CONST.TUTORSTATE) 
+        return this.getStateValue(property, CONST.TUTORSTATE)
     }
 
     public getStateValue(property:string, target:string = CONST.MODULESTATE) : any {
@@ -521,12 +521,12 @@ export class CEFTutorDoc extends EventDispatcher implements IEFTutorDoc
             case CONST.TUTORSTATE:
                 prop = this.resolveProperty(this.tutorState, property);
                 break;
-        }        
+        }
 
         return prop;
     }
 
-    
+
     public assignProperty(root:any, property:string, value:any) : void {
 
         let path   = property.split(".");
@@ -534,9 +534,9 @@ export class CEFTutorDoc extends EventDispatcher implements IEFTutorDoc
 
         for(let i1 = 0 ; i1 < path.length-1 ; i1++) {
 
-            if(target[path[i1]])             
+            if(target[path[i1]])
                 target = target[path[i1]];
-            else 
+            else
                 target = target[path[i1]] = {};
         }
         target[path[path.length-1]] = value;
@@ -551,15 +551,15 @@ export class CEFTutorDoc extends EventDispatcher implements IEFTutorDoc
 
         for(let i1 = 0 ; i1 < path.length-1 ; i1++) {
 
-            if(target[path[i1]])             
+            if(target[path[i1]])
                 target = target[path[i1]];
-            else 
+            else
                 target = target[path[i1]] = {};
         }
 
         value = target[path[path.length-1]];
 
-        if(value === undefined) 
+        if(value === undefined)
                         value = null;
 
         return value;
@@ -578,16 +578,16 @@ export class CEFTutorDoc extends EventDispatcher implements IEFTutorDoc
     }
 
 
-    //*************** FLEX integration 
-    
+    //*************** FLEX integration
+
     public set extAccount(Obj:any)
     {
         this.sessionAccount = Obj;
-    }		
-    
+    }
+
     public set extFTutorPart(str:string)
     {
-        //CONST.fTutorPart = str;		
+        //CONST.fTutorPart = str;
         //LogManager.fTutorPart = str;
     }
     public set extFFullSignIn(val:string)
@@ -604,69 +604,69 @@ export class CEFTutorDoc extends EventDispatcher implements IEFTutorDoc
     }
     public set extFRemoteMode(val:boolean)
     {
-        this.fRemoteMode = val;			
+        this.fRemoteMode = val;
     }
     public set extFDeferDemoClick(val:string)
     {
         this.fDeferDemoClick = (val == "true")? true:false;
     }
-    
+
     //@@ Mod Mar2 2012 - support for showing skillometer in loader
-    
+
     public set extFSkillometer(val:string)
     {
         this.fSkillometer = (val == "true")? true:false;
     }
-    
-    
-    
-    // note that the feature set is not ready for use until the call to 
+
+
+
+    // note that the feature set is not ready for use until the call to
     // TutorRoot.setTutorFeatures which occures in the CEFTutorDoc.doOnStage Handler
-    
+
     public set extTutorFeatures(ftrStr:string)
     {
         this._tutorFeatures = ftrStr;
     }
-    
+
 
     //@@ Mod May 07 2012 - support for relative module pathing
-    
-    public set extmodPath(val:string) 
+
+    public set extmodPath(val:string)
     {
-        this._modulePath = val;			
-    }
-    
-    //@@ Mod May 07 2012 - support for relative module pathing
-    
-    public set extLogManager(val:CLogManager) 
-    {
-        this.log = val;			
+        this._modulePath = val;
     }
 
-    
-    
-    public set extForceBackButton(fForce:any) 
-    {		
+    //@@ Mod May 07 2012 - support for relative module pathing
+
+    public set extLogManager(val:CLogManager)
+    {
+        this.log = val;
+    }
+
+
+
+    public set extForceBackButton(fForce:any)
+    {
         if(typeof fForce === 'string')
             this.gForceBackButton = (fForce == "true")? true:false;
         else if(typeof fForce === 'boolean')
             this.gForceBackButton = fForce;
     }
-    
-    public get extAspectRatio() : string 
-    {		
+
+    public get extAspectRatio() : string
+    {
         return "STD";
     }
-    
-    
+
+
     public incFrameNdx() : void
 	{
 		this._framendx++;
 	}
 
 
-    //****************** START Globals		
-        
+    //****************** START Globals
+
     public initGlobals() : void
     {
         this._globals = {};
@@ -674,109 +674,109 @@ export class CEFTutorDoc extends EventDispatcher implements IEFTutorDoc
 
 
     public incrGlobal(_id:string, _max:number = -1, _cycle:number = 0) : number			//## Added Feb 10 2014 - global counter support
-    {	
+    {
         let result:any;
-        
+
         if(this._globals.hasOwnProperty(_id))
-        {		
+        {
             this._globals[_id]++;
-            
+
             result = this._globals[_id];
-            
+
             // Roll over at max value > -1 will never roll
-            
+
             if(this._globals[_id] == _max)
                     this._globals[_id] = _cycle;
         }
         else
             result = this._globals[_id] = 1;
-        
-        return result; 
+
+        return result;
     }
 
     public assertGlobal(_id:string, _value:any) : void				//## Added Sep 23 2013 - to support global variables
-    {	
+    {
         this._globals[_id] = _value;
     }
 
     public retractGlobal(_id:string) : void						//## Added Sep 23 2013 - to support global variables
-    {	
+    {
         this._globals[_id] = "";
     }
 
     public queryGlobal(_id:string) : any							//## Added Sep 23 2013 - to support global variables
-    {	
+    {
         let result:any;
-        
+
         if(this._globals.hasOwnProperty(_id))
-        {		
+        {
             result = this._globals[_id];
         }
         else result = "null";
-        
-        return result; 
-    }		
 
-    public set globals(gval:Object) 
+        return result;
+    }
+
+    public set globals(gval:Object)
     {
-        this._globals = gval;			
+        this._globals = gval;
     }
 
     public get globals() : Object
-    {			
-        return this._globals;						
+    {
+        return this._globals;
     }
 
 
 
-//***************** Automation *******************************		
+//***************** Automation *******************************
 
 	/**
 	 * reset the log counters
 	 */
-	public resetStateFrameID() : void 
+	public resetStateFrameID() : void
 	{
 		this.frameID = 0;
 		this.stateID = 0;
-	}	
+	}
 
-	public get frameID() : number 
+	public get frameID() : number
 	{
 		return this.logFrameID;
 	}
-	
-	public set frameID(newVal:number) 
+
+	public set frameID(newVal:number)
 	{
 		this.logFrameID = newVal;
 	}
-	
-	public incFrameID() : void 
+
+	public incFrameID() : void
 	{
 		this.logFrameID++;
 	}
-	
-	public get stateID() : number 
+
+	public get stateID() : number
 	{
 		return this.logStateID;
 	}
-	
-	public set stateID(newVal:number) 
+
+	public set stateID(newVal:number)
 	{
 		this.logStateID = newVal;
 	}
-	
+
 	/**
 	 * Increment the interface stateID and reset the frameID - frameID's are relative to state changes
 	 * this is to make any events occur proportionally in time relative to associated state changes.
 	 */
-	public incStateID() : void 
+	public incStateID() : void
 	{
 		if(this.traceMode) CUtil.trace("@@@@@@@@@ logStateID Update : " + this.logStateID);
-		
+
 		this.logStateID++;
 		this.frameID = 0;
 	}
-	
+
 	/**
 	 * connect or disconnect the log frame counter.
 	 * @param	fCon
@@ -784,25 +784,25 @@ export class CEFTutorDoc extends EventDispatcher implements IEFTutorDoc
 	public connectFrameCounter(fCon:boolean)
 	{
 		if (fCon)
-			this.on(CEFEvent.ENTER_FRAME, this.doEnterFrame);											
+			this.on(CEFEvent.ENTER_FRAME, this.doEnterFrame);
 		else
-			this.off(CEFEvent.ENTER_FRAME, this.doEnterFrame);								
+			this.off(CEFEvent.ENTER_FRAME, this.doEnterFrame);
 	}
 
 
 	/**
 	 * maintain the tutor frame counter used for logging
-	 * 
+	 *
 	 * @param	evt
 	 */
 	public doEnterFrame(evt:Event)
 	{
 		this.incFrameID();
 	}
-	
-	
-//***************** Automation *******************************		
- 
+
+
+//***************** Automation *******************************
+
 
 
 //***************** Globals ****************************
@@ -814,8 +814,8 @@ export class CEFTutorDoc extends EventDispatcher implements IEFTutorDoc
     }
 
     // deprecated
-    public set gData(dataXML:string) 
-    {			
+    public set gData(dataXML:string)
+    {
     }
 
     public get gPhase():string
@@ -823,7 +823,7 @@ export class CEFTutorDoc extends EventDispatcher implements IEFTutorDoc
         return this.fTutorPart;
     }
 
-    public set gPhase(phase:string) 
+    public set gPhase(phase:string)
     {
         this.fTutorPart = phase;
     }
@@ -833,33 +833,33 @@ export class CEFTutorDoc extends EventDispatcher implements IEFTutorDoc
         return this._log;
     }
 
-    public set log(logr:any) 
-    {        
+    public set log(logr:any)
+    {
         this._log = logr;
     }
 
 
     /*
-    *	restore scenedata XML to allow reuse of scene 
+    *	restore scenedata XML to allow reuse of scene
     */
     public resetSceneDataXML() : void
-    {			
+    {
         //this.sceneConfig.replace("scenedata", sceneDataArchive);
-    }			
+    }
 
 
-    public get gForceBackButton() : boolean 
-    {		
+    public get gForceBackButton() : boolean
+    {
         return this.fForceBackButton;
     }
-            
+
     public set gForceBackButton(fForce:boolean)
-    {		
+    {
         this.fForceBackButton = fForce;
     }
 
-    public get gNavigator() : any 
-    {		
+    public get gNavigator() : any
+    {
         return this.tutorNavigator;
     }
 
@@ -871,7 +871,7 @@ export class CEFTutorDoc extends EventDispatcher implements IEFTutorDoc
     {
         if(behavior == "incrScene")
             this.tutorNavigator.buttonBehavior = CONST.GOTONEXTSCENE;
-        else				
+        else
             this.tutorNavigator.buttonBehavior = CONST.GOTONEXTTRACK;
     }
 
@@ -882,7 +882,7 @@ export class CEFTutorDoc extends EventDispatcher implements IEFTutorDoc
 //***************** TUTOR LOADER START ****************************
 
     public buildBootSet(targetTutor:string) : void {
-        
+
         this.loaderData = [];
 
         // Loaders for the Tutorgraph and TutorConfig
@@ -928,8 +928,8 @@ export class CEFTutorDoc extends EventDispatcher implements IEFTutorDoc
 
         this.loaderData = [];
 
-        // Each module has a set of files 
-        // 
+        // Each module has a set of files
+        //
         for(let moduleName of this.tutorConfig.dependencies) {
 
             let moduleNameCS = moduleName;
@@ -949,7 +949,7 @@ export class CEFTutorDoc extends EventDispatcher implements IEFTutorDoc
             });
 
             // TODO: This cannot be path specific for debugging - e.g. ISP_TUTOR...
-            // 
+            //
             this.loaderData.push( {
                 type     : "Class Extensions",
                 filePath : moduleName + CONST.EXTS_FILEPATH,
@@ -973,7 +973,7 @@ export class CEFTutorDoc extends EventDispatcher implements IEFTutorDoc
                 onLoad   : this.onLoadFonts.bind(this),
                 modName : moduleNameCS,
             });
-           
+
             this.loaderData.push( {
                 type     : CONST.SCENE_DATA,
                 filePath : moduleName + CONST.DATA_FILEPATH,
@@ -1015,14 +1015,14 @@ export class CEFTutorDoc extends EventDispatcher implements IEFTutorDoc
             modulePromises = this.loaderData.map((fileLoader, index) => {
 
                 let loader = new CURLLoader();
-        
+
                 return loader.load(new CURLRequest(fileLoader.filePath))
                     .then((filetext:string) => {
-        
+
                        return fileLoader.onLoad(fileLoader, filetext);
-                    })                        
+                    })
             })
-        }        
+        }
         catch(error){
 
             console.log("Load-Set failed: " + error);
@@ -1037,7 +1037,7 @@ export class CEFTutorDoc extends EventDispatcher implements IEFTutorDoc
         try {
             console.log("JSON Loaded: " + fileLoader.fileName);
 
-            this[fileLoader.varName] = JSON.parse(filedata);      
+            this[fileLoader.varName] = JSON.parse(filedata);
         }
         catch(error) {
 
@@ -1053,7 +1053,7 @@ export class CEFTutorDoc extends EventDispatcher implements IEFTutorDoc
 
             // Extract the compID from the file into the modules IModuleDescr spec
             //
-            Object.assign(fileLoader,JSON.parse(filedata));      
+            Object.assign(fileLoader,JSON.parse(filedata));
         }
         catch(error) {
 
@@ -1069,7 +1069,7 @@ export class CEFTutorDoc extends EventDispatcher implements IEFTutorDoc
 
             // Add the module specific graphs to the scenegraph factory object
             //
-            this.sceneGraph[fileLoader.modName] = JSON.parse(filedata);      
+            this.sceneGraph[fileLoader.modName] = JSON.parse(filedata);
         }
         catch(error) {
 
@@ -1077,7 +1077,7 @@ export class CEFTutorDoc extends EventDispatcher implements IEFTutorDoc
         }
     }
 
-        
+
     public onLoadCode(fileLoader:LoaderPackage.ILoaderData, filedata:string) {
 
         try {
@@ -1133,7 +1133,7 @@ export class CEFTutorDoc extends EventDispatcher implements IEFTutorDoc
             console.log("Data:" + fileLoader.type + " Loaded: " + fileLoader.modName );
 
             // ****
-            // Note: Several files may integrate information into the tutor moduleData 
+            // Note: Several files may integrate information into the tutor moduleData
             //       structure.
             //
             let data:Object = JSON.parse(filedata);
@@ -1170,37 +1170,37 @@ export class CEFTutorDoc extends EventDispatcher implements IEFTutorDoc
 	public setTutorDefaults(featSet:string) : void
 	{
 		let featArray:Array<string> = featSet.split(":");
-		
+
 		this.fDefaults = {};
-		
+
 		for(let feature in featArray)
 		{
 			this.fDefaults[feature] = true;
 		}
     }
-    
+
 
 	// generate the working feature set for this instance
 	//
 	public addTutorFeatures(featSet:string) : void
 	{
 		let featArray:Array<string> = new Array;
-		
+
 		if(featSet.length > 0)
 			featArray = featSet.split(":");
 
-		// Add default features 
-		
+		// Add default features
+
 		for (let feature in this.fDefaults)
 		{
-            this.addFeature(feature, null); 
+            this.addFeature(feature, null);
 		}
 
-		// Add instance features 
-		
+		// Add instance features
+
 		for (let feature of featArray)
 		{
-            this.addFeature(feature, null); 
+            this.addFeature(feature, null);
 		}
 	}
 
@@ -1208,52 +1208,52 @@ export class CEFTutorDoc extends EventDispatcher implements IEFTutorDoc
 	//## Mod Oct 16 2012 - logging support
 	//
 	public get features() : string
-	{			
+	{
 		// Add new features - no duplicates
-		
+
 		return this.fFeatures.join(":");
 	}
-	
+
 	// set : delimited string of features
 	//## Mod Dec 03 2013 - DB state support
 	//
-	public set features(ftrSet:string) 
-	{			
+	public set features(ftrSet:string)
+	{
 		// Add new features - no duplicates
         // TODO: deprecate this - it's dangerous
-        // 
+        //
 		this.fFeatures = ftrSet.split(":");
 	}
 
-	
+
 	// udpate the working feature set for this instance
 	//
-	public addFeature(_feature:string, _id:string) 
-	{			
+	public addFeature(_feature:string, _id:string)
+	{
         // Add new features
-        // 
-        if(_feature && _feature != "") {		
+        //
+        if(_feature && _feature != "") {
 
             if(_id) {
                 this.featureID[_id] = this.featureID[_id] || {};
-                this.featureID[_id][_feature] = true;                
+                this.featureID[_id][_feature] = true;
             }
             else {
                 this.fFeatures[_feature] = true;
             }
         }
     }
-    
+
 	// udpate the working feature set for this instance
 	//
 	public delFeature(_feature:string, _id:string)
 	{
         // Remove named features
-        // 
+        //
         if(_id && _id != "") {
 
             if(_feature && _feature !== "*") {
-                
+
                 if(this.featureID[_id] && this.featureID[_id][_feature]) {
                     delete this.featureID[_id][_feature];
                 }
@@ -1265,7 +1265,7 @@ export class CEFTutorDoc extends EventDispatcher implements IEFTutorDoc
         }
 
         // Remove One-dimensional features
-        // 
+        //
         else if(_feature && this.fFeatures[_feature]) {
 
             delete this.fFeatures[_feature];
@@ -1287,14 +1287,14 @@ export class CEFTutorDoc extends EventDispatcher implements IEFTutorDoc
 
         return features;
     }
-    
-    
+
+
     private includes(ftrObj:any, ftr:string) : boolean {
 
         let result:boolean = false;
 
         for(let fElement in ftrObj) {
-            
+
             if(fElement === ftr) {
                 result = true;
                 break;
@@ -1304,10 +1304,10 @@ export class CEFTutorDoc extends EventDispatcher implements IEFTutorDoc
         return result;
     }
 
-	
+
 	//## Mod Jul 01 2012 - Support for NOT operation on features.
 	//
-	//	
+	//
 	private testFeature(element:any, index:number, arr:Array<string>) : boolean
 	{
         let testElement:string = element;
@@ -1334,10 +1334,10 @@ export class CEFTutorDoc extends EventDispatcher implements IEFTutorDoc
 
 		return (invResult)? !result:result;
 	}
-    
-    
+
+
     // Simple alias for testFeatureSet
-    // 
+    //
     public testFeatures(features:string) : boolean {
 
         let result = false;
@@ -1345,10 +1345,10 @@ export class CEFTutorDoc extends EventDispatcher implements IEFTutorDoc
         if(features && features !== "")
             result = this.testFeatureSet(features);
 
-        return result;    
+        return result;
     }
 
-	
+
 	// test possibly compound features
 	//
 	public testFeatureSet(featSet:string) : boolean
@@ -1356,35 +1356,35 @@ export class CEFTutorDoc extends EventDispatcher implements IEFTutorDoc
 		let feature:string;
 		let disjFeat:Array<string> = featSet.split("|");	// Disjunctive features
 		let conjFeat:Array<string>;							// Conjunctive features
-		
+
 		// match a null set - i.e. empty string means the object is not feature constrained
-		
+
 		if(featSet === "")
 				return true;
-		
+
 		// Check all disjunctive featuresets - one in each element of disjFeat
 		// As long as one is true we pass
-		
+
 		for (feature of disjFeat)
 		{
 			conjFeat = feature.split(",");
-			
-			// Check that all conjunctive features are set in fFeatures 
-			
+
+			// Check that all conjunctive features are set in fFeatures
+
 			if(conjFeat.every(this.testFeature, this))
 									        return true;
-		}			
+		}
 		return false;
-	}				
+	}
 
-	
+
 	// udpate the working feature set for this instance
 	//
 	public traceFeatures() : void
-	{			
+	{
 		CUtil.trace(this.fFeatures);
-	}		
-	
+	}
+
 //***************** FEATURES ****************************
 
 
@@ -1392,15 +1392,15 @@ export class CEFTutorDoc extends EventDispatcher implements IEFTutorDoc
 //***************** LOGGING ****************************
 
     // TODO: This logging mechanism is a total kludge !!!!!! MUST FIX !!!!!
-    // 
+    //
     public logTutorState(scene:TSceneBase) : void {
 
         // If the native logger is available use it to record state data
-        // 
-        if(EFLoadManager.nativeUserMgr) 
+        //
+        if(EFLoadManager.nativeUserMgr)
             EFLoadManager.nativeUserMgr.logState(scene.sceneLogName, JSON.stringify(this.sceneState),JSON.stringify(this.moduleState),JSON.stringify(this.tutorState));
 
-        if(EFLoadManager.nativeUserMgr) 
+        if(EFLoadManager.nativeUserMgr)
                 EFLoadManager.nativeUserMgr.updateTutorState(this.tutorConfig.tutorStateID, this.getTutorState());
     }
 
@@ -1411,7 +1411,7 @@ export class CEFTutorDoc extends EventDispatcher implements IEFTutorDoc
         // console.log(JSON.stringify(this.tutorNavigator.captureGraph()));
 
         // If the native logger is available use it to record state data
-        // 
+        //
         if(EFLoadManager.nativeUserMgr) {
 
             if(sceneName === CONST.END_OF_TUTOR) {
