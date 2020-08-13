@@ -14,8 +14,8 @@ interface typeCJSproperties {
 	fps     : number;
 	color   : string;
     opacity : number;
-    
-	manifest: Array<typeCJSmanifest>;    
+
+	manifest: Array<typeCJSmanifest>;
 	preloads: Array<string>;
 
 }
@@ -40,7 +40,7 @@ interface typeEFtutorcomponentOptions {
 
 
 declare namespace EFLoadManager {
-    
+
     export var window:any;
 
     export var efLoaderLib:typeCJSLibrary;
@@ -65,7 +65,7 @@ declare namespace EFLoadManager {
 
     export var modules:any;
 	export var options:typeEFtutorcomponentOptions;
-	export var loaded:boolean;  
+	export var loaded:boolean;
 
 }
 
@@ -80,10 +80,10 @@ declare var __global: any;
 //export var Tween:any;
 
 // for account registration system
-declare var db:any;
-declare var collectionID:string;
-declare var userID:string;
-
+// declare var db:any;
+// declare var collectionID:string;
+// declare var userID:string;
+declare var ispAPI:any;
 
 
 
